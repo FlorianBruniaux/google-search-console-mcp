@@ -1,57 +1,90 @@
 # gsc-mcp
 
-Google Search Console MCP server with 18 tools covering search analytics, URL inspection, and the Indexing API (true HTTP batch, not sequential loop).
+Google Search Console MCP server with 18 tools covering search analytics, URL inspection, and the Google Indexing API. Built on Python 3.11+ and FastMCP.
 
-Built on Python + FastMCP. Covers both detection (inspection, analytics) and submission (Indexing API) in one place.
+The main workflow it enables: ask Claude "which pages on my site are crawled but not indexed?" then "submit them for indexing", end to end, no manual Google Search Console tabs.
 
-## Tools
+## Why this exists
 
-| Category | Tools |
-|---|---|
-| Meta | `get_capabilities` |
-| Properties | `list_properties`, `get_site_details` |
-| Analytics | `get_search_analytics`, `get_performance_overview`, `compare_search_periods`, `get_search_by_page_query`, `get_advanced_search_analytics` |
-| SEO | `quick_wins`, `traffic_drops`, `check_alerts` |
-| Inspection | `inspect_url`, `batch_url_inspection`, `check_indexing_issues` |
-| Indexing API | `submit_url`, `submit_batch` |
-| Sitemaps | `list_sitemaps`, `submit_sitemap` |
+Two solid open-source projects cover parts of this problem:
 
-## Setup
+**[AminForou/mcp-gsc](https://github.com/AminForou/mcp-gsc)** (Python, 1k+ stars) has excellent search analytics, rich SEO tooling, and solid OAuth + Service Account auth. It does not include the Google Indexing API at all (no `submit_url`, no `submit_batch`). You can analyze your traffic but you cannot request reindexing.
 
-### Prerequisites
+**[Suganthan-Mohanadasan/Suganthans-GSC-MCP](https://github.com/Suganthan-Mohanadasan/Suganthans-GSC-MCP)** (Node.js/TypeScript) adds the Indexing API, but its `submit_batch` is a sequential `for` loop with a 100ms delay between requests, not a real HTTP batch. It also mixes plain-text and JSON outputs, hardcodes version strings that diverge from package.json, and has no retry logic.
 
-1. Google Cloud project with Search Console API and Web Search Indexing API enabled.
-2. Credentials: OAuth Desktop app (for interactive use) or Service Account JSON.
-3. For the Indexing API: your account or service account needs Owner-level access in Search Console (not just Full).
-4. Default Indexing API quota: 200 requests per day.
+This project takes the auth patterns and SEO tools from the first, the Indexing API scope from the second, and fixes the gaps in both.
 
-### Install
+### Why Python instead of Go or Rust
+
+The Google API Python client (`google-api-python-client`) is the official, best-maintained client for these APIs. It ships `service.new_batch_http_request()` natively, which is what makes true HTTP multipart batching possible without implementing the wire format by hand. The Go and Rust ecosystem for Google APIs relies on unofficial or auto-generated clients that do not expose this method. FastMCP also has first-class Python support with minimal boilerplate. The trade-off is startup latency (a few hundred ms vs near-zero for a compiled binary), but for a local MCP server called interactively by Claude that trade-off is irrelevant.
+
+### What changed vs the two inspirations
+
+| Feature | AminForou/mcp-gsc | Suganthan | gsc-mcp |
+|---|---|---|---|
+| Google Indexing API | No | Yes (fake batch) | Yes (true HTTP batch) |
+| submit_batch | N/A | Sequential loop | `new_batch_http_request()`, 100/chunk |
+| Token storage | pickle | pickle | JSON (`creds.to_json()`) |
+| Retry on 429/5xx | No | No | Yes, exponential backoff |
+| Quota tracking | No | No | Yes, warns at 180/200 |
+| Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
+
+## Tools (18)
+
+| Category | Tool | Description |
+|---|---|---|
+| Meta | `get_capabilities` | List all available tools |
+| Properties | `list_properties` | List all GSC properties |
+| Properties | `get_site_details` | Get details for a specific property |
+| Analytics | `get_search_analytics` | Query search performance data |
+| Analytics | `get_performance_overview` | Aggregate totals + top queries |
+| Analytics | `compare_search_periods` | Compare two consecutive periods |
+| Analytics | `get_search_by_page_query` | Performance broken down by page and query |
+| Analytics | `get_advanced_search_analytics` | Flexible query with custom dimensions and filters |
+| SEO | `quick_wins` | Pages in positions 4-15 with CTR below benchmark |
+| SEO | `traffic_drops` | Queries with declining clicks, with diagnosis |
+| SEO | `check_alerts` | Traffic concentration risks and ranking opportunities |
+| Inspection | `inspect_url` | URL indexing status via URL Inspection API |
+| Inspection | `batch_url_inspection` | Inspect up to 10 URLs at once |
+| Inspection | `check_indexing_issues` | Inspect URLs and categorize by issue type |
+| Indexing | `submit_url` | Request indexing for a single URL |
+| Indexing | `submit_batch` | Request indexing for multiple URLs (true HTTP batch) |
+| Sitemaps | `list_sitemaps` | List submitted sitemaps |
+| Sitemaps | `submit_sitemap` | Submit a sitemap URL |
+
+## Requirements
+
+- Python 3.11+
+- Google Cloud project with these APIs enabled:
+  - Google Search Console API
+  - Web Search Indexing API
+- Credentials: OAuth Desktop app OR Service Account JSON
+- For the Indexing API: your account or service account needs **Owner-level** access in Search Console (Full access is not enough)
+- Indexing API default quota: 200 requests per day
+
+## Installation
 
 ```bash
-# Clone and install
 git clone https://github.com/yourname/gsc-mcp
 cd gsc-mcp
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
-```
-
-Or via uvx (once published):
-
-```bash
-uvx gsc-mcp
 ```
 
 ## Configuration
 
-### OAuth (interactive, recommended for personal use)
+Copy `.env.example` to `.env` and fill in the relevant variables.
+
+### OAuth (interactive, good for personal use)
 
 ```bash
 export GSC_CREDENTIALS_PATH=/path/to/oauth-client-credentials.json
 gsc-mcp
 ```
 
-The first run opens a browser for Google authentication. Token is saved to `~/.local/share/gsc-mcp/token_gsc.json` (path varies by OS).
+The first run opens a browser for Google login. The token is saved to your OS user data directory (`~/.local/share/gsc-mcp/` on Linux, `~/Library/Application Support/gsc-mcp/` on macOS) as JSON files.
 
-### Service Account (recommended for automation)
+### Service Account (recommended for automation and Claude Desktop)
 
 ```bash
 export GSC_SERVICE_ACCOUNT_PATH=/path/to/service-account.json
@@ -59,7 +92,26 @@ export GSC_SKIP_OAUTH=true
 gsc-mcp
 ```
 
-### Claude Desktop config
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "gsc-mcp": {
+      "command": "python",
+      "args": ["-m", "gsc_mcp.server"],
+      "env": {
+        "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
+        "GSC_SKIP_OAUTH": "true"
+      }
+    }
+  }
+}
+```
+
+Or, once published to PyPI:
 
 ```json
 {
@@ -76,15 +128,6 @@ gsc-mcp
 }
 ```
 
-## Key design decisions
-
-- Two separate API clients with distinct OAuth scopes (`auth/webmasters` for GSC, `auth/indexing` for Indexing API). The Indexing API rejects webmasters tokens.
-- `submit_batch` uses true HTTP multipart batch requests via `new_batch_http_request()`, chunked at 100 per request. 200 URLs cost 2 API calls instead of 200.
-- `_make_callback(url)` factory in `submit_batch` avoids the late-binding closure bug common in loop-based batch implementations.
-- All outputs are JSON, wrapped with `_meta` block for context (tool name, params).
-- Retry with exponential backoff on 429/5xx. No retry on 404.
-- In-memory quota tracker warns at 180/200 requests.
-
 ## Development
 
 ```bash
@@ -92,3 +135,9 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 pytest tests/ -v
 ```
+
+52 tests, all mocked (no real Google API calls needed).
+
+## License
+
+MIT
