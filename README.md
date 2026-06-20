@@ -65,8 +65,9 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 ## Installation
 
 ```bash
-git clone https://github.com/yourname/gsc-mcp
+git clone https://github.com/<your-username>/gsc-mcp
 cd gsc-mcp
+python3 --version  # must be 3.11 or higher
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
 ```
