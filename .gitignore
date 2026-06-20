@@ -1,0 +1,8 @@
+.env
+*.pyc
+__pycache__/
+.venv/
+dist/
+*.egg-info/
+.pytest_cache/
+token.pickle
