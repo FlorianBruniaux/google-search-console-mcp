@@ -37,16 +37,8 @@ def _make_callback(results: list, url: str):
     return callback
 
 
-def submit_batch(
-    urls: list[str],
-    url_type: str = "URL_UPDATED",
-    quota_tracker: QuotaTracker | None = None,
-) -> str:
-    if quota_tracker is None:
-        quota_tracker = _default_quota
-
-    quota_tracker.check(len(urls))
-
+def _submit_batch_impl(urls: list[str], url_type: str, quota: QuotaTracker) -> str:
+    quota.check(len(urls))
     svc = get_indexing_service()
     results: list[dict] = []
 
@@ -58,20 +50,24 @@ def submit_batch(
             batch.add(request, request_id=url, callback=_make_callback(results, url))
         batch.execute()
 
-    quota_tracker.consume(len(urls))
+    quota.consume(len(urls))
 
     submitted = sum(1 for r in results if r["status"] == "submitted")
     errors = sum(1 for r in results if r["status"] == "error")
-    quota_warning = quota_tracker.should_warn()
+    quota_warning = quota.should_warn()
 
     payload: dict = {
         "total": len(urls),
         "submitted": submitted,
         "errors": errors,
-        "quota_remaining": quota_tracker.remaining(),
+        "quota_remaining": quota.remaining(),
         "results": results,
     }
     if quota_warning:
         payload["quota_warning"] = True
 
     return json.dumps(with_meta(payload, tool="submit_batch", params={"url_count": len(urls), "type": url_type}))
+
+
+def submit_batch(urls: list[str], url_type: str = "URL_UPDATED") -> str:
+    return _submit_batch_impl(urls, url_type, _default_quota)
