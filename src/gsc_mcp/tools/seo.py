@@ -6,7 +6,7 @@ from gsc_mcp.tools.analytics import _fetch_rows, _date_range, _MAX_ROWS_PER_PAGE
 
 _WIN_MIN_POSITION = 4.0
 _WIN_MAX_POSITION = 15.0
-_WIN_MIN_IMPRESSIONS = 100
+_WIN_MIN_IMPRESSIONS = 10
 
 
 def _benchmark_ctr(position: float) -> float:
@@ -17,7 +17,7 @@ def _benchmark_ctr(position: float) -> float:
     return CTR_BENCHMARKS[-1]["ctr"]
 
 
-def quick_wins(site: str, days: int = 28) -> str:
+def quick_wins(site: str, days: int = 28, min_impressions: int = _WIN_MIN_IMPRESSIONS) -> str:
     start, end = _date_range(days)
     svc = get_gsc_service()
     body = {
@@ -32,7 +32,7 @@ def quick_wins(site: str, days: int = 28) -> str:
     for r in raw:
         pos = r.get("position", 0.0)
         imp = r.get("impressions", 0)
-        if not (_WIN_MIN_POSITION <= pos <= _WIN_MAX_POSITION and imp >= _WIN_MIN_IMPRESSIONS):
+        if not (_WIN_MIN_POSITION <= pos <= _WIN_MAX_POSITION and imp >= min_impressions):
             continue
         bench = _benchmark_ctr(pos)
         actual_ctr = r.get("ctr", 0.0)
@@ -55,7 +55,7 @@ def quick_wins(site: str, days: int = 28) -> str:
     return json.dumps(with_meta(
         {"site": site, "date_range": {"start": start, "end": end}, "opportunities": opportunities},
         tool="quick_wins",
-        params={"site": site, "days": days},
+        params={"site": site, "days": days, "min_impressions": min_impressions},
     ))
 
 
