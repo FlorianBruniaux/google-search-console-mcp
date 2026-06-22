@@ -28,7 +28,7 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Architecture
 
-**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 18 tools via `mcp.tool()()`. No dynamic discovery; every tool is explicitly imported and registered here. Adding a new tool means: implement it in the relevant `tools/` module, import it in `server.py`, and register it.
+**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 24 tools via `mcp.tool()()`. No dynamic discovery; every tool is explicitly imported and registered here. Adding a new tool means: implement it in the relevant `tools/` module, import it in `server.py`, and register it.
 
 **Auth layer** (`auth.py`): Two separate credential pairs, one for the GSC API (`webmasters/v3`) and one for the Indexing API (`indexing/v3`). Resolution order: if `GSC_SERVICE_ACCOUNT_PATH` is set, use service account credentials. Otherwise, fall through to OAuth with token cached as JSON (not pickle) at the OS user data dir (`~/Library/Application Support/gsc-mcp/` on macOS). Two token files: `token_gsc.json` and `token_indexing.json`.
 
@@ -44,7 +44,7 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Test conventions
 
-All 52 tests are fully mocked (no real Google API calls). `tests/conftest.py` defines two shared fixtures:
+All tests are fully mocked (no real Google API calls). `tests/conftest.py` defines two shared fixtures:
 - `mock_gsc_service`: MagicMock wired for `sites`, `searchanalytics`, `sitemaps`, `urlInspection`
 - `mock_indexing_service`: MagicMock with a working `new_batch_http_request()` implementation that fires callbacks synchronously
 

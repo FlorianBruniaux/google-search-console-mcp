@@ -12,11 +12,19 @@ from gsc_mcp.tools.analytics import (
     compare_search_periods,
     get_search_by_page_query,
     get_advanced_search_analytics,
+    analytics_anomalies,
 )
-from gsc_mcp.tools.seo import quick_wins, traffic_drops, check_alerts
+from gsc_mcp.tools.seo import (
+    quick_wins,
+    traffic_drops,
+    check_alerts,
+    seo_striking_distance,
+    seo_cannibalization,
+    seo_lost_queries,
+)
 from gsc_mcp.tools.inspection import inspect_url, batch_url_inspection, check_indexing_issues
 from gsc_mcp.tools.indexing import submit_url, submit_batch
-from gsc_mcp.tools.sitemaps import list_sitemaps, submit_sitemap
+from gsc_mcp.tools.sitemaps import list_sitemaps, submit_sitemap, sitemaps_delete, sitemaps_get
 
 mcp = FastMCP("gsc-mcp")
 
@@ -28,9 +36,13 @@ mcp.tool()(get_performance_overview)
 mcp.tool()(compare_search_periods)
 mcp.tool()(get_search_by_page_query)
 mcp.tool()(get_advanced_search_analytics)
+mcp.tool()(analytics_anomalies)
 mcp.tool()(quick_wins)
 mcp.tool()(traffic_drops)
 mcp.tool()(check_alerts)
+mcp.tool()(seo_striking_distance)
+mcp.tool()(seo_cannibalization)
+mcp.tool()(seo_lost_queries)
 mcp.tool()(inspect_url)
 mcp.tool()(batch_url_inspection)
 mcp.tool()(check_indexing_issues)
@@ -38,6 +50,8 @@ mcp.tool()(submit_url)
 mcp.tool()(submit_batch)
 mcp.tool()(list_sitemaps)
 mcp.tool()(submit_sitemap)
+mcp.tool()(sitemaps_delete)
+mcp.tool()(sitemaps_get)
 
 
 def main() -> None:

@@ -1,6 +1,6 @@
 # gsc-mcp
 
-Google Search Console MCP server with 18 tools covering search analytics, URL inspection, and the Google Indexing API. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 24 tools covering search analytics, URL inspection, and the Google Indexing API. Built on Python 3.11+ and FastMCP.
 
 The main workflow it enables: ask Claude "which pages on my site are crawled but not indexed?" then "submit them for indexing", end to end, no manual Google Search Console tabs.
 
