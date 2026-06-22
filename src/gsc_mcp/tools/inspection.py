@@ -1,5 +1,5 @@
 import json
-from gsc_mcp.auth import get_gsc_service
+from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 
 _MAX_BATCH = 10
@@ -40,7 +40,7 @@ def _parse_inspection(url: str, response: dict) -> dict:
 
 
 def inspect_url(url: str, site: str) -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {"inspectionUrl": url, "siteUrl": site}
     response = svc.urlInspection().index().inspect(body=body).execute()
     parsed = _parse_inspection(url, response)
@@ -51,7 +51,7 @@ def batch_url_inspection(urls: list[str], site: str) -> str:
     if len(urls) > _MAX_BATCH:
         raise ValueError(f"batch_url_inspection supports max 10 URLs, got {len(urls)}")
 
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     results = []
     for url in urls:
         body = {"inspectionUrl": url, "siteUrl": site}
@@ -69,7 +69,7 @@ def check_indexing_issues(urls: list[str], site: str) -> str:
     if len(urls) > _MAX_BATCH:
         raise ValueError(f"check_indexing_issues supports max 10 URLs, got {len(urls)}")
 
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     issues = []
     summary: dict[str, int] = {
         "indexed": 0,
