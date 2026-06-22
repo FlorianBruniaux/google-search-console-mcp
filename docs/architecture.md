@@ -2,7 +2,7 @@
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 18 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
+gsc-mcp is a FastMCP server exposing 24 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
 
 ## File structure
 
@@ -16,11 +16,11 @@ src/gsc_mcp/
 ├── quota.py           # QuotaTracker — in-memory counter for Indexing API calls
 └── tools/
     ├── properties.py  # get_capabilities, list_properties, get_site_details
-    ├── analytics.py   # 5 analytics tools + _fetch_rows / _date_range / _parse_row helpers
-    ├── seo.py         # quick_wins, traffic_drops, check_alerts
+    ├── analytics.py   # 6 analytics tools + _fetch_rows / _date_range / _parse_row helpers
+    ├── seo.py         # quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
     ├── indexing.py    # submit_url, submit_batch (via _submit_batch_impl)
-    └── sitemaps.py    # list_sitemaps, submit_sitemap
+    └── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete
 ```
 
 ## Two API clients, two scopes
@@ -88,6 +88,16 @@ The tracker resets on server restart. For persistent quota tracking across sessi
 The Google API Python client (`google-api-python-client`) is the canonical, officially maintained client for these APIs. It exposes `service.new_batch_http_request()` natively, which is what makes true HTTP batching possible without implementing the `multipart/mixed` wire format by hand. The Go client library (`google.golang.org/api`) and the Rust ecosystem for Google APIs rely on unofficial or generated clients that do not provide this abstraction.
 
 FastMCP also has first-class Python support with a decorator-based API that keeps tool registration minimal. The only real trade-off vs a compiled language is startup time (a few hundred milliseconds), which does not matter for a locally-run MCP server called interactively.
+
+## SEO analysis patterns (v0.2)
+
+Three algorithmic patterns introduced in Phase 1 reuse `_fetch_rows` and `_date_range` from `analytics.py` without adding dependencies.
+
+**Two-period comparison.** `seo_lost_queries` mirrors `traffic_drops`: two adjacent windows of `days` length, both ending at `date.today()` with no GSC reporting lag. Iterating over the previous period (not the current) captures queries that disappeared entirely. The `prev_clicks >= 5` guard on the denominator prevents division by zero and filters low-signal noise.
+
+**HHI conflict score.** `seo_cannibalization` queries with `dimensions=["query","page"]` so each row carries both keys. Rows are grouped by query; for each group with more than one page, the Herfindahl-Hirschman Index measures concentration: `hhi = sum((clicks_i / total_clicks)^2)` and `conflict_score = 1 - hhi`. A score near 0 means one page dominates (no real conflict); near 1 means clicks are split evenly. When `total_clicks == 0` the function falls back to `hhi = 1/n` (uniform share), avoiding division by zero while still surfacing impression-heavy splits. Only groups with `conflict_score > 0.1` are returned.
+
+**Z-score anomaly detection.** `analytics_anomalies` queries with `dimensions=["date"]` to get a daily click series, then uses `statistics.pstdev` (population standard deviation, not sample) because the series is a complete known dataset rather than a sample from a larger population. The guard `if std == 0: return []` handles flat series and all-zero traffic, both common on low-traffic sites, without raising `ZeroDivisionError`.
 
 ## Inspirations
 

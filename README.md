@@ -29,7 +29,7 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Quota tracking | No | No | Yes, warns at 180/200 |
 | Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
 
-## Tools (18)
+## Tools (24)
 
 | Category | Tool | Description |
 |---|---|---|
@@ -41,9 +41,13 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Analytics | `compare_search_periods` | Compare two consecutive periods |
 | Analytics | `get_search_by_page_query` | Performance broken down by page and query |
 | Analytics | `get_advanced_search_analytics` | Flexible query with custom dimensions and filters |
+| Analytics | `analytics_anomalies` | Z-score anomaly detection on daily clicks |
 | SEO | `quick_wins` | Pages in positions 4-15 with CTR below benchmark |
 | SEO | `traffic_drops` | Queries with declining clicks, with diagnosis |
 | SEO | `check_alerts` | Traffic concentration risks and ranking opportunities |
+| SEO | `seo_striking_distance` | Queries in positions 8-15, one push away from page 1 |
+| SEO | `seo_cannibalization` | Queries split across multiple pages (HHI conflict score) |
+| SEO | `seo_lost_queries` | Queries with a click drop >= 80% vs the previous period |
 | Inspection | `inspect_url` | URL indexing status via URL Inspection API |
 | Inspection | `batch_url_inspection` | Inspect up to 10 URLs at once |
 | Inspection | `check_indexing_issues` | Inspect URLs and categorize by issue type |
@@ -51,6 +55,8 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Indexing | `submit_batch` | Request indexing for multiple URLs (true HTTP batch) |
 | Sitemaps | `list_sitemaps` | List submitted sitemaps |
 | Sitemaps | `submit_sitemap` | Submit a sitemap URL |
+| Sitemaps | `sitemaps_get` | Fetch details for a single sitemap |
+| Sitemaps | `sitemaps_delete` | Delete a submitted sitemap (with safety check) |
 
 ## Requirements
 
@@ -137,7 +143,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-52 tests, all mocked (no real Google API calls needed).
+114 tests, all mocked (no real Google API calls needed).
 
 ## License
 

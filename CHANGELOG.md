@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.0] - 2026-06-22
+
+Phase 1: 6 new tools, no new dependencies.
+
+### Added
+
+- `seo_striking_distance(site, days, min_impressions)`: queries in positions 8-15 sorted by impressions desc. Separate band from `quick_wins` (4-15), intended for queries one push away from page 1
+- `seo_cannibalization(site, days, min_impressions)`: detects queries split across multiple pages using an HHI conflict score (`1 - sum(share²)`). Zero-click groups use uniform `1/n` fallback to avoid division by zero. Filters on per-query total impressions, not per-page
+- `seo_lost_queries(site, days)`: flags queries with a click drop ≥ 80% vs the previous period, requiring at least 5 previous clicks. Iterates over the previous period to catch fully-vanished queries. Same two-window no-lag pattern as `traffic_drops`
+- `analytics_anomalies(site, days, threshold)`: Z-score anomaly detection on daily clicks via `statistics.pstdev`. Returns `anomalies = []` when std is zero (constant or all-zero series) to handle low-traffic sites safely
+- `sitemaps_delete(site, sitemap_url)`: deletes a sitemap with a safety check before any API call (URL must end with `.xml` or contain `/sitemap`, raises `ValueError` otherwise)
+- `sitemaps_get(site, sitemap_url)`: fetches a single sitemap resource and normalises it to the same flat shape as `list_sitemaps` (warnings and errors coerced to int)
+- 62 new tests (35 SEO, 15 sitemaps, 9 analytics anomalies): all mocked, no API calls
+
+### Changed
+
+- Tool count: 18 → 24
+
 ## [0.1.0] - 2026-06-20
 
 Initial release.
