@@ -25,6 +25,14 @@ from gsc_mcp.tools.seo import (
 from gsc_mcp.tools.inspection import inspect_url, batch_url_inspection, check_indexing_issues
 from gsc_mcp.tools.indexing import submit_url, submit_batch
 from gsc_mcp.tools.sitemaps import list_sitemaps, submit_sitemap, sitemaps_delete, sitemaps_get
+from gsc_mcp.tools.ga4 import (
+    ga4_organic_landing_pages,
+    ga4_traffic_sources,
+    ga4_page_performance,
+    ga4_realtime,
+    ga4_user_behavior,
+    ga4_conversion_funnel,
+)
 
 mcp = FastMCP("gsc-mcp")
 
@@ -52,6 +60,12 @@ mcp.tool()(list_sitemaps)
 mcp.tool()(submit_sitemap)
 mcp.tool()(sitemaps_delete)
 mcp.tool()(sitemaps_get)
+mcp.tool()(ga4_organic_landing_pages)
+mcp.tool()(ga4_traffic_sources)
+mcp.tool()(ga4_page_performance)
+mcp.tool()(ga4_realtime)
+mcp.tool()(ga4_user_behavior)
+mcp.tool()(ga4_conversion_funnel)
 
 
 def main() -> None:
