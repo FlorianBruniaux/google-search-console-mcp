@@ -28,11 +28,13 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Architecture
 
-**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 30 tools via `mcp.tool()()`. No dynamic discovery; every tool is explicitly imported and registered here. Adding a new tool means: implement it in the relevant `tools/` module, import it in `server.py`, and register it.
+**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 32 tools via `mcp.tool()()`. No dynamic discovery; every tool is explicitly imported and registered here. Adding a new tool means: implement it in the relevant `tools/` module, import it in `server.py`, and register it.
 
 **Auth layer** (`auth.py`): Three separate credential pairs: GSC API (`webmasters/v3`), Indexing API (`indexing/v3`), and GA4 (`analytics.readonly`). Resolution order: if `GSC_SERVICE_ACCOUNT_PATH` is set, use service account credentials. Otherwise, fall through to OAuth with token cached as JSON (not pickle) at the OS user data dir (`~/Library/Application Support/gsc-mcp/` on macOS). Token files: `token_gsc.json`, `token_indexing.json`, `token_ga4.json`.
 
-**Tools** (`src/gsc_mcp/tools/`): Seven modules, each owns a logical domain (analytics, ga4, indexing, inspection, properties, seo, sitemaps). Every tool function is a plain Python function (no class, no decorator) registered by `server.py`. All return JSON strings via `json.dumps(with_meta(...))`.
+**Tools** (`src/gsc_mcp/tools/`): Eight modules, each owns a logical domain (analytics, cross, ga4, indexing, inspection, properties, seo, sitemaps). Every tool function is a plain Python function (no class, no decorator) registered by `server.py`. All return JSON strings via `json.dumps(with_meta(...))`.
+
+**Cross-platform pattern** (`cross.py`): `traffic_health_check` and `page_analysis` compose the high-level functions from `analytics.py` and `ga4.py`. They call those functions, parse their JSON strings with `json.loads`, then join on `_normalize_url` (strips scheme/host/query/trailing-slash so GSC absolute URLs and GA4 paths match). `engagement_rate` is derived as `engaged_sessions/sessions` because `ga4_organic_landing_pages` does not expose it directly.
 
 **Output contract** (`meta.py`): Every tool wraps its response dict with `with_meta(data, tool=..., params=...)`, which appends a `_meta` block (`{"tool": "<name>", "params": {...}}`). Any new tool must follow this pattern.
 

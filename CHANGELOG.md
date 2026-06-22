@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0] - 2026-06-22
+
+Phase 3: 2 tools cross-platform GSC+GA4, nouveau module `cross.py`.
+
+### Added
+
+- `traffic_health_check(site, days)`: compare les clics GSC agrégés avec les sessions organiques GA4 pour détecter les écarts de tracking. Retourne un statut parmi `no_gsc_data`, `tracking_gap` (ratio < 0.6), `filter_issue` (ratio > 1.3) ou `healthy`. GA4 interrogé avec `limit=10000` pour éviter les sous-comptages sur les gros sites
+- `page_analysis(site, days, limit)`: jointure page par page entre GSC (dimensions=["page"]) et GA4 (landing pages organiques). Les pages présentes dans une seule source sont incluses avec les champs manquants à `None`. Chaque page reçoit un `opportunity_score = log10(impressions+1)*10 + engagement_rate*100 + log10(conversions+1)*20`, trié décroissant, tronqué à `limit`
+- `_normalize_url(url)` helper interne: ramène URLs absolues (GSC) et paths GA4 au même chemin nu, sans scheme, host, query ni slash final, pour fiabiliser la jointure
+- `engagement_rate` dérivé dans `cross.py` comme `engaged_sessions/sessions` (formule GA4 native), sans modifier la sortie de `ga4_organic_landing_pages`
+- 24 nouveaux tests dans `tests/test_cross.py`, dont les boundaries 0.6 et 1.3 du ratio, les cas GSC-only, GA4-only, trailing slash et query string
+
+### Changed
+
+- Tool count: 30 vers 32
+
 ## [0.3.0] - 2026-06-22
 
 Phase 2: 6 new GA4 tools, new dependency, new environment variable.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 30 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
+gsc-mcp is a FastMCP server exposing 32 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
 
 ## File structure
 
@@ -21,7 +21,8 @@ src/gsc_mcp/
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
     ├── indexing.py    # submit_url, submit_batch (via _submit_batch_impl)
     ├── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete
-    └── ga4.py         # 6 GA4 tools + _f / _i / _organic_filter helpers
+    ├── ga4.py         # 6 GA4 tools + _f / _i / _organic_filter helpers
+    └── cross.py       # traffic_health_check, page_analysis + _normalize_url helper
 ```
 
 ## Three API clients, three scopes
@@ -123,6 +124,18 @@ Three algorithmic patterns introduced in Phase 1 reuse `_fetch_rows` and `_date_
 **HHI conflict score.** `seo_cannibalization` queries with `dimensions=["query","page"]` so each row carries both keys. Rows are grouped by query; for each group with more than one page, the Herfindahl-Hirschman Index measures concentration: `hhi = sum((clicks_i / total_clicks)^2)` and `conflict_score = 1 - hhi`. A score near 0 means one page dominates (no real conflict); near 1 means clicks are split evenly. When `total_clicks == 0` the function falls back to `hhi = 1/n` (uniform share), avoiding division by zero while still surfacing impression-heavy splits. Only groups with `conflict_score > 0.1` are returned.
 
 **Z-score anomaly detection.** `analytics_anomalies` queries with `dimensions=["date"]` to get a daily click series, then uses `statistics.pstdev` (population standard deviation, not sample) because the series is a complete known dataset rather than a sample from a larger population. The guard `if std == 0: return []` handles flat series and all-zero traffic, both common on low-traffic sites, without raising `ZeroDivisionError`.
+
+## Cross-platform pattern (v0.2 Phase 3)
+
+`cross.py` does not call the Google APIs directly. It calls the high-level tool functions from `analytics.py` and `ga4.py`, parses their JSON string output with `json.loads`, and then joins the results.
+
+The join key is `_normalize_url(url)`, a small helper that strips scheme, host, query string and trailing slash so that a GSC absolute URL (`https://example.com/blog/`) and a GA4 landing page path (`/blog?ref=home`) resolve to the same key (`/blog`).
+
+`ga4_organic_landing_pages` does not expose `engagement_rate` directly (it exposes `engaged_sessions` and `sessions`). The cross module derives it as `engaged_sessions / sessions`, which is the GA4 native formula. This avoids modifying the Phase 2 tool surface.
+
+`opportunity_score` weights three signals: impressions (log-scaled, 10x), engagement rate (100x, linear), and conversions (log-scaled, 20x). The log scaling compresses high-impression pages while still surfacing low-traffic pages with strong engagement. `None` fields fall back to 0 via `(value or 0)`, so GSC-only and GA4-only pages score on the signals they have.
+
+Tests for cross tools patch `gsc_mcp.tools.cross.get_search_analytics` and `gsc_mcp.tools.cross.ga4_organic_landing_pages` to return JSON strings, matching what the actual functions return. The GA4 protobuf fixtures from `conftest.py` are not needed.
 
 ## Inspirations
 

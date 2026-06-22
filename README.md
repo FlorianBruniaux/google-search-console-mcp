@@ -1,6 +1,6 @@
 # gsc-mcp
 
-Google Search Console MCP server with 30 tools covering search analytics, URL inspection, the Google Indexing API, and Google Analytics 4. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 32 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, and cross-platform GSC+GA4 analysis. Built on Python 3.11+ and FastMCP.
 
 The main workflow it enables: ask Claude "which pages on my site are crawled but not indexed?" then "submit them for indexing", end to end, no manual Google Search Console tabs.
 
@@ -29,7 +29,7 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Quota tracking | No | No | Yes, warns at 180/200 |
 | Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
 
-## Tools (30)
+## Tools (32)
 
 | Category | Tool | Description |
 |---|---|---|
@@ -63,6 +63,8 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | GA4 | `ga4_realtime` | Active users right now by screen, country and device |
 | GA4 | `ga4_user_behavior` | Device, country and user-type breakdowns in one batch call |
 | GA4 | `ga4_conversion_funnel` | Converting pages and event counts, optional event filter |
+| Cross | `traffic_health_check` | Ratio sessions GA4 / clics GSC pour détecter les tracking gaps |
+| Cross | `page_analysis` | Jointure GSC+GA4 par page avec opportunity score, triée par priorité |
 
 ## Requirements
 
@@ -166,7 +168,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-139+ tests, all mocked (no real Google API calls needed).
+163+ tests, all mocked (no real Google API calls needed).
 
 ## License
 

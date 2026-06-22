@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gsc-mcp"
-version = "0.3.0"
+version = "0.4.0"
 description = "Google Search Console MCP server — inspection + Indexing API in one tool"
 readme = "README.md"
 requires-python = ">=3.11"

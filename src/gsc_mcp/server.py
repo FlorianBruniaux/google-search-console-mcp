@@ -33,6 +33,7 @@ from gsc_mcp.tools.ga4 import (
     ga4_user_behavior,
     ga4_conversion_funnel,
 )
+from gsc_mcp.tools.cross import traffic_health_check, page_analysis
 
 mcp = FastMCP("gsc-mcp")
 
@@ -66,6 +67,8 @@ mcp.tool()(ga4_page_performance)
 mcp.tool()(ga4_realtime)
 mcp.tool()(ga4_user_behavior)
 mcp.tool()(ga4_conversion_funnel)
+mcp.tool()(traffic_health_check)
+mcp.tool()(page_analysis)
 
 
 def main() -> None:
