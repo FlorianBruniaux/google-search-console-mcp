@@ -77,8 +77,11 @@ def ga4_organic_landing_pages(
         for row in response.rows
     ]
 
+    data = {"start_date": start_date, "end_date": end_date, "count": len(pages), "pages": pages}
+    if len(pages) >= limit:
+        data["note"] = "Results may be truncated. Set a higher limit or filter by page_path for large properties."
     return json.dumps(with_meta(
-        {"start_date": start_date, "end_date": end_date, "count": len(pages), "pages": pages},
+        data,
         tool="ga4_organic_landing_pages",
         params={"start_date": start_date, "end_date": end_date, "limit": limit},
     ))
