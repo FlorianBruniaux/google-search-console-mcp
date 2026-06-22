@@ -1,5 +1,6 @@
 import json
 import pytest
+from datetime import date, timedelta
 from unittest.mock import patch
 from gsc_mcp.tools.analytics import (
     get_search_analytics,
@@ -7,6 +8,7 @@ from gsc_mcp.tools.analytics import (
     compare_search_periods,
     get_search_by_page_query,
     get_advanced_search_analytics,
+    analytics_anomalies,
 )
 
 SITE = "https://example.com/"
@@ -85,3 +87,100 @@ def test_get_advanced_search_analytics(mock_gsc_service):
         ))
     assert len(result["rows"]) >= 0
     assert "_meta" in result
+
+
+# ===========================
+# analytics_anomalies tests
+# ===========================
+
+def _date_row(days_ago, clicks):
+    d = (date.today() - timedelta(days=3 + days_ago)).isoformat()
+    return {"keys": [d], "clicks": clicks, "impressions": 5000, "ctr": 0.02, "position": 5.0}
+
+
+def test_anomalies_flags_spike_above_threshold(mock_gsc_service):
+    # 29 normal days at 100 clicks, one spike at 500 (z >> 2.5)
+    rows = [_date_row(i, 100) for i in range(1, 30)] + [_date_row(30, 500)]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE, days=90))
+    assert "anomalies" in result
+    assert len(result["anomalies"]) >= 1
+    spike = next(a for a in result["anomalies"] if a["type"] == "spike")
+    assert spike["clicks"] == 500
+    assert spike["z_score"] > 2.5
+
+
+def test_anomalies_does_not_flag_below_threshold(mock_gsc_service):
+    # Uniform series: std = 0, no anomalies
+    rows = [_date_row(i, 100) for i in range(30)]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE))
+    assert result["anomalies"] == []
+
+
+def test_anomalies_std_zero_returns_empty(mock_gsc_service):
+    """Uniform series: std == 0, no crash, returns empty anomalies."""
+    rows = [_date_row(i, 200) for i in range(30)]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE))
+    assert result["anomalies"] == []
+
+
+def test_anomalies_all_zero_returns_empty(mock_gsc_service):
+    rows = [_date_row(i, 0) for i in range(30)]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE))
+    assert result["anomalies"] == []
+
+
+def test_anomalies_single_data_point_returns_empty(mock_gsc_service):
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        "rows": [_date_row(1, 100)]
+    }
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE))
+    assert result["anomalies"] == []
+
+
+def test_anomalies_empty_rows_returns_empty(mock_gsc_service):
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE))
+    assert result["anomalies"] == []
+    assert "_meta" in result
+
+
+def test_anomalies_custom_threshold_respected(mock_gsc_service):
+    # 29 days at 100, one spike at 500: pstdev ~= 71.8, z ~= 5.4 for the spike.
+    # threshold=2.5 flags it (tested above); threshold=6.0 must NOT flag it.
+    rows = [_date_row(i, 100) for i in range(1, 30)] + [_date_row(30, 500)]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE, days=90, threshold=6.0))
+    assert result["anomalies"] == []
+
+
+def test_anomalies_meta_includes_days_and_threshold(mock_gsc_service):
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE, days=60, threshold=3.0))
+    assert result["_meta"]["params"]["days"] == 60
+    assert result["_meta"]["params"]["threshold"] == 3.0
+    assert result["_meta"]["tool"] == "analytics_anomalies"
+
+
+def test_anomalies_anomaly_has_date_field(mock_gsc_service):
+    rows = [_date_row(i, 100) for i in range(1, 30)] + [_date_row(30, 500)]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
+    with patch("gsc_mcp.tools.analytics.get_gsc_service", return_value=mock_gsc_service):
+        result = json.loads(analytics_anomalies(SITE))
+    assert len(result["anomalies"]) >= 1
+    a = result["anomalies"][0]
+    assert "date" in a
+    assert "clicks" in a
+    assert "z_score" in a
+    assert "type" in a

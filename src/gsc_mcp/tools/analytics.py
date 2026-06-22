@@ -1,4 +1,5 @@
 import json
+import statistics
 from datetime import date, timedelta
 from gsc_mcp.auth import get_gsc_service
 from gsc_mcp.meta import with_meta
@@ -155,6 +156,53 @@ def get_search_by_page_query(site: str, days: int = 28, row_limit: int = _DEFAUL
         {"site": site, "date_range": {"start": start, "end": end}, "rows": rows},
         tool="get_search_by_page_query",
         params={"site": site, "days": days},
+    ))
+
+
+def analytics_anomalies(site: str, days: int = 90, threshold: float = 2.5) -> str:
+    start, end = _date_range(days)
+    svc = get_gsc_service()
+    body = {
+        "startDate": start,
+        "endDate": end,
+        "dimensions": ["date"],
+        "rowLimit": _MAX_ROWS_PER_PAGE,
+    }
+    rows = _fetch_rows(svc, site, body)
+
+    daily_clicks = [r["clicks"] for r in rows]
+
+    if not daily_clicks:
+        mean = 0.0
+        std = 0.0
+        anomalies: list[dict] = []
+    else:
+        mean = statistics.fmean(daily_clicks)
+        std = statistics.pstdev(daily_clicks)
+        anomalies = []
+        if std > 0:
+            for r in rows:
+                clicks = r["clicks"]
+                z = (clicks - mean) / std
+                if abs(z) > threshold:
+                    anomalies.append({
+                        "date": r.get("date"),
+                        "clicks": clicks,
+                        "z_score": round(z, 2),
+                        "type": "spike" if z > 0 else "drop",
+                    })
+
+    return json.dumps(with_meta(
+        {
+            "site": site,
+            "date_range": {"start": start, "end": end},
+            "mean_daily_clicks": round(mean, 1),
+            "std_daily_clicks": round(std, 1),
+            "threshold": threshold,
+            "anomalies": anomalies,
+        },
+        tool="analytics_anomalies",
+        params={"site": site, "days": days, "threshold": threshold},
     ))
 
 
