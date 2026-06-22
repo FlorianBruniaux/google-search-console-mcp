@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.1] - 2026-06-22
+
+Corrections de cohérence et consolidation interne : pas de nouveaux tools.
+
+### Fixed
+
+- `get_capabilities` retournait 18 tools sur les 32 réellement disponibles. Les 14 manquants (`analytics_anomalies`, `seo_striking_distance`, `seo_cannibalization`, `seo_lost_queries`, `sitemaps_delete`, `sitemaps_get`, 6 tools GA4, `traffic_health_check`, `page_analysis`) sont maintenant listés
+- `inspect_url`, `batch_url_inspection`, `check_indexing_issues` appelaient `webmasters/v3`, qui n'expose pas `urlInspection`. Ces trois tools levaient une `AttributeError` au runtime sur chaque appel. Corrigé en passant sur `searchconsole/v1` (API qui expose la ressource `urlInspection`)
+- `traffic_health_check` et `page_analysis` incluent maintenant un champ `note` dans leur réponse JSON pour avertir que GSC a un décalage de 3 jours vs GA4, les ratios sont donc approximatifs
+- `ga4_organic_landing_pages` ajoute un champ `note` quand le nombre de résultats atteint la limite, signalant une troncature potentielle
+
+### Changed
+
+- Tous les tools GSC (analytics, SEO, sitemaps, properties) consolidés sur `searchconsole/v1`. Le client `webmasters/v3` (`get_gsc_service`) est supprimé de `auth.py`. `searchconsole/v1` expose les mêmes ressources `sites`, `searchanalytics`, `sitemaps` en plus de `urlInspection`
+
+### Tests
+
+- Couverture `quick_wins` améliorée : 4 nouveaux cas couvrant les pages à CTR zéro avec impressions suffisantes, l'exclusion sous le seuil d'impressions et l'exclusion des pages déjà au benchmark de CTR
+
 ## [0.4.0] - 2026-06-22
 
 Phase 3: 2 tools cross-platform GSC+GA4, nouveau module `cross.py`.
