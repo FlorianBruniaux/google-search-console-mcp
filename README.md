@@ -1,5 +1,10 @@
 # gsc-mcp
 
+[![PyPI](https://img.shields.io/pypi/v/gsc-mcp)](https://pypi.org/project/gsc-mcp/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
+[![Tests](https://img.shields.io/badge/tests-163%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Google Search Console MCP server with 32 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, and cross-platform GSC+GA4 analysis. Built on Python 3.11+ and FastMCP.
 
 The main workflow it enables: ask Claude "which pages on my site are crawled but not indexed?" then "submit them for indexing", end to end, no manual Google Search Console tabs.
@@ -80,9 +85,20 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 ## Installation
 
 ```bash
-git clone https://github.com/<your-username>/gsc-mcp
-cd gsc-mcp
-python3 --version  # must be 3.11 or higher
+uvx gsc-mcp
+```
+
+Or with pip:
+
+```bash
+pip install gsc-mcp
+```
+
+To run from source:
+
+```bash
+git clone https://github.com/FlorianBruniaux/google-search-console-mcp
+cd google-search-console-mcp
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
 ```

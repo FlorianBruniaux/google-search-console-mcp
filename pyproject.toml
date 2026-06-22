@@ -5,9 +5,24 @@ build-backend = "hatchling.build"
 [project]
 name = "gsc-mcp"
 version = "0.4.1"
-description = "Google Search Console MCP server — inspection + Indexing API in one tool"
+description = "Google Search Console MCP server with 32 tools: search analytics, URL inspection, Indexing API, GA4, and cross-platform GSC+GA4 analysis"
 readme = "README.md"
 requires-python = ">=3.11"
+authors = [
+    { name = "Florian Bruniaux", email = "florian@bruniaux.com" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+]
 dependencies = [
     "mcp[cli]>=1.0.0",
     "google-api-python-client>=2.100.0",
@@ -15,6 +30,10 @@ dependencies = [
     "google-analytics-data>=0.18.0",
     "platformdirs>=4.0.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/FlorianBruniaux/google-search-console-mcp"
+Repository = "https://github.com/FlorianBruniaux/google-search-console-mcp"
 
 [project.scripts]
 gsc-mcp = "gsc_mcp.server:main"
