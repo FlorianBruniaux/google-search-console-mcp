@@ -1,6 +1,6 @@
 # gsc-mcp
 
-Google Search Console MCP server with 24 tools covering search analytics, URL inspection, and the Google Indexing API. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 30 tools covering search analytics, URL inspection, the Google Indexing API, and Google Analytics 4. Built on Python 3.11+ and FastMCP.
 
 The main workflow it enables: ask Claude "which pages on my site are crawled but not indexed?" then "submit them for indexing", end to end, no manual Google Search Console tabs.
 
@@ -29,7 +29,7 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Quota tracking | No | No | Yes, warns at 180/200 |
 | Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
 
-## Tools (24)
+## Tools (30)
 
 | Category | Tool | Description |
 |---|---|---|
@@ -57,6 +57,12 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Sitemaps | `submit_sitemap` | Submit a sitemap URL |
 | Sitemaps | `sitemaps_get` | Fetch details for a single sitemap |
 | Sitemaps | `sitemaps_delete` | Delete a submitted sitemap (with safety check) |
+| GA4 | `ga4_organic_landing_pages` | Sessions and engagement for organic landing pages |
+| GA4 | `ga4_traffic_sources` | Sessions and conversions by channel, source and medium |
+| GA4 | `ga4_page_performance` | 7 metrics per page path, optional CONTAINS filter |
+| GA4 | `ga4_realtime` | Active users right now by screen, country and device |
+| GA4 | `ga4_user_behavior` | Device, country and user-type breakdowns in one batch call |
+| GA4 | `ga4_conversion_funnel` | Converting pages and event counts, optional event filter |
 
 ## Requirements
 
@@ -64,6 +70,7 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 - Google Cloud project with these APIs enabled:
   - Google Search Console API
   - Web Search Indexing API
+  - Google Analytics Data API (for GA4 tools)
 - Credentials: OAuth Desktop app OR Service Account JSON
 - For the Indexing API: your account or service account needs **Owner-level** access in Search Console (Full access is not enough)
 - Indexing API default quota: 200 requests per day
@@ -98,6 +105,22 @@ export GSC_SERVICE_ACCOUNT_PATH=/path/to/service-account.json
 export GSC_SKIP_OAUTH=true
 gsc-mcp
 ```
+
+### GA4 setup
+
+GA4 tools use the same Service Account as GSC. Two steps to enable them:
+
+1. Open GA4 Admin, go to Property Access Management, and add the service account email (the `client_email` field in your SA JSON) with the **Viewer** role.
+2. Set the `GA4_PROPERTY_ID` environment variable to your numeric property ID (e.g. `123456789`, visible in GA4 Admin under Property Settings). The `properties/` prefix is added automatically if omitted.
+
+```json
+"env": {
+  "GSC_SERVICE_ACCOUNT_PATH": "/path/to/service-account.json",
+  "GA4_PROPERTY_ID": "123456789"
+}
+```
+
+GSC-only users are not affected: the `GA4_PROPERTY_ID` check runs lazily on the first GA4 tool call, never at startup.
 
 ### Claude Desktop
 
@@ -143,7 +166,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-114 tests, all mocked (no real Google API calls needed).
+139+ tests, all mocked (no real Google API calls needed).
 
 ## License
 

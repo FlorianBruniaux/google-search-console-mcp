@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.0] - 2026-06-22
+
+Phase 2: 6 new GA4 tools, new dependency, new environment variable.
+
+### Added
+
+- `ga4_organic_landing_pages(start_date, end_date, limit)`: sessions, engaged sessions, bounce rate, average session duration, conversions and revenue for organic landing pages. Uses the `sessionMedium=organic` filter on `landingPagePlusQueryString`
+- `ga4_traffic_sources(start_date, end_date)`: sessions and conversions broken down by channel group, source and medium
+- `ga4_page_performance(start_date, end_date, page_path)`: 7 metrics per page path (page views, active users, average session duration, engagement rate, bounce rate, conversions, revenue). Optional `page_path` parameter adds a CONTAINS filter
+- `ga4_realtime()`: active users right now, by screen name, country and device. No date range, uses `run_realtime_report` directly
+- `ga4_user_behavior(start_date, end_date)`: single `batch_run_reports` call returning three breakdowns (by device, by country top 20, by user type new/returning)
+- `ga4_conversion_funnel(start_date, end_date, event_name)`: two sequential `run_report` calls. First lists pages with conversions > 0; second lists events, optionally filtered by exact event name
+- New dependency: `google-analytics-data>=0.18.0` (Google Analytics Data API v1beta, protobuf-based client)
+- New environment variable: `GA4_PROPERTY_ID` (numeric property ID, e.g. `123456789`). Validated lazily on first GA4 tool call, never at startup. GSC-only users are not affected
+- `get_ga4_service()` and `get_ga4_property_id()` in `auth.py`, reusing the same `_resolve_creds` path as GSC and Indexing clients
+
+### Changed
+
+- Tool count: 24 → 30
+
 ## [0.2.0] - 2026-06-22
 
 Phase 1: 6 new tools, no new dependencies.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 24 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
+gsc-mcp is a FastMCP server exposing 30 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
 
 ## File structure
 
@@ -20,17 +20,42 @@ src/gsc_mcp/
     ├── seo.py         # quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
     ├── indexing.py    # submit_url, submit_batch (via _submit_batch_impl)
-    └── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete
+    ├── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete
+    └── ga4.py         # 6 GA4 tools + _f / _i / _organic_filter helpers
 ```
 
-## Two API clients, two scopes
+## Three API clients, three scopes
 
-The most important design constraint is that the Google Search Console API and the Google Indexing API require **different OAuth scopes** and cannot share a token:
+The server has three independent API clients, each with its own scope and token file:
 
 - GSC analytics and inspection: `https://www.googleapis.com/auth/webmasters`
 - Indexing API: `https://www.googleapis.com/auth/indexing`
+- GA4 (Analytics Data API): `https://www.googleapis.com/auth/analytics.readonly`
 
-`auth.py` exposes two independent functions (`get_gsc_service()`, `get_indexing_service()`) that each resolve credentials for their respective scope, either from a Service Account file or from a cached OAuth token stored per-scope in the OS user data directory.
+`auth.py` exposes three independent functions (`get_gsc_service()`, `get_indexing_service()`, `get_ga4_service()`) that each resolve credentials for their respective scope, either from a Service Account file or from a cached OAuth token stored per-scope in the OS user data directory.
+
+The same Service Account JSON can serve all three APIs: add the SA email (`client_email` field) as a Viewer in GSC and in GA4 Property Access Management. No separate key file needed.
+
+## GA4 pattern: protobuf objects, not dicts
+
+Unlike the GSC client (which uses `googleapiclient.discovery` and plain Python dicts), the GA4 client (`BetaAnalyticsDataClient` from `google-analytics-data`) uses protobuf request objects. Requests are constructed with typed classes from `google.analytics.data_v1beta.types`:
+
+```python
+from google.analytics.data_v1beta.types import RunReportRequest, Dimension, Metric, DateRange
+
+response = client.run_report(RunReportRequest(
+    property="properties/123456789",
+    dimensions=[Dimension(name="pagePath")],
+    metrics=[Metric(name="sessions")],
+    date_ranges=[DateRange(start_date="28daysAgo", end_date="today")],
+))
+```
+
+Row values are accessed as `row.dimension_values[i].value` and `row.metric_values[j].value` (always strings). The helpers `_f()` and `_i()` in `ga4.py` coerce them to float/int with a safe fallback to 0.
+
+For `ga4_user_behavior`, a single `BatchRunReportsRequest` wraps three sub-requests. The `property` field goes on the wrapper, not on each sub-request. The response exposes `response.reports[0|1|2]`.
+
+The `GA4_PROPERTY_ID` environment variable accepts either a bare numeric ID (`123456789`) or the full resource name (`properties/123456789`). `get_ga4_property_id()` normalises it and raises `RuntimeError` if absent, validated lazily (first tool call, never at startup).
 
 Token files are JSON, not pickle. `google.oauth2.credentials.Credentials` provides `.to_json()` and `.from_authorized_user_info()` for round-tripping safely.
 

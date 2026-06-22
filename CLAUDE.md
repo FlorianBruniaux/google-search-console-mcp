@@ -28,11 +28,11 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Architecture
 
-**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 24 tools via `mcp.tool()()`. No dynamic discovery; every tool is explicitly imported and registered here. Adding a new tool means: implement it in the relevant `tools/` module, import it in `server.py`, and register it.
+**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 30 tools via `mcp.tool()()`. No dynamic discovery; every tool is explicitly imported and registered here. Adding a new tool means: implement it in the relevant `tools/` module, import it in `server.py`, and register it.
 
-**Auth layer** (`auth.py`): Two separate credential pairs, one for the GSC API (`webmasters/v3`) and one for the Indexing API (`indexing/v3`). Resolution order: if `GSC_SERVICE_ACCOUNT_PATH` is set, use service account credentials. Otherwise, fall through to OAuth with token cached as JSON (not pickle) at the OS user data dir (`~/Library/Application Support/gsc-mcp/` on macOS). Two token files: `token_gsc.json` and `token_indexing.json`.
+**Auth layer** (`auth.py`): Three separate credential pairs: GSC API (`webmasters/v3`), Indexing API (`indexing/v3`), and GA4 (`analytics.readonly`). Resolution order: if `GSC_SERVICE_ACCOUNT_PATH` is set, use service account credentials. Otherwise, fall through to OAuth with token cached as JSON (not pickle) at the OS user data dir (`~/Library/Application Support/gsc-mcp/` on macOS). Token files: `token_gsc.json`, `token_indexing.json`, `token_ga4.json`.
 
-**Tools** (`src/gsc_mcp/tools/`): Six modules, each owns a logical domain (analytics, indexing, inspection, properties, seo, sitemaps). Every tool function is a plain Python function (no class, no decorator) registered by `server.py`. All return JSON strings via `json.dumps(with_meta(...))`.
+**Tools** (`src/gsc_mcp/tools/`): Seven modules, each owns a logical domain (analytics, ga4, indexing, inspection, properties, seo, sitemaps). Every tool function is a plain Python function (no class, no decorator) registered by `server.py`. All return JSON strings via `json.dumps(with_meta(...))`.
 
 **Output contract** (`meta.py`): Every tool wraps its response dict with `with_meta(data, tool=..., params=...)`, which appends a `_meta` block (`{"tool": "<name>", "params": {...}}`). Any new tool must follow this pattern.
 
@@ -48,7 +48,7 @@ All tests are fully mocked (no real Google API calls). `tests/conftest.py` defin
 - `mock_gsc_service`: MagicMock wired for `sites`, `searchanalytics`, `sitemaps`, `urlInspection`
 - `mock_indexing_service`: MagicMock with a working `new_batch_http_request()` implementation that fires callbacks synchronously
 
-Tests patch `get_gsc_service` / `get_indexing_service` at the call site (e.g., `gsc_mcp.tools.analytics.get_gsc_service`) and inject the fixture as the return value.
+Tests patch `get_gsc_service` / `get_indexing_service` / `get_ga4_service` at the call site (e.g., `gsc_mcp.tools.analytics.get_gsc_service`) and inject the fixture as the return value. GA4 tests also use an `autouse` fixture to set `GA4_PROPERTY_ID`, since `get_ga4_property_id()` raises `RuntimeError` if the env var is absent.
 
 ## Environment variables
 
@@ -57,3 +57,4 @@ Tests patch `get_gsc_service` / `get_indexing_service` at the call site (e.g., `
 | `GSC_SERVICE_ACCOUNT_PATH` | Path to service account JSON (preferred for automation) |
 | `GSC_CREDENTIALS_PATH` | Path to OAuth Desktop client JSON (interactive OAuth flow) |
 | `GSC_SKIP_OAUTH` | Set to `true` to disable OAuth fallback (requires SA path) |
+| `GA4_PROPERTY_ID` | Numeric GA4 property ID (e.g. `123456789`). Required for GA4 tools only, validated lazily |
