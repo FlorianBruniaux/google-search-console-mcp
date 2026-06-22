@@ -4,10 +4,10 @@ from unittest.mock import patch, MagicMock
 from gsc_mcp.tools.properties import get_capabilities, list_properties, get_site_details
 
 
-def test_get_capabilities_returns_18_tools():
+def test_get_capabilities_returns_32_tools():
     result = json.loads(get_capabilities())
-    assert result["total"] == 18
-    assert len(result["tools"]) == 18
+    assert result["total"] == 32
+    assert len(result["tools"]) == 32
 
 
 def test_get_capabilities_has_meta():
