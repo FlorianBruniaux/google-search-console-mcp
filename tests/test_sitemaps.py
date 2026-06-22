@@ -28,7 +28,7 @@ def test_list_sitemaps(mock_gsc_service):
     mock_gsc_service.sitemaps.return_value.list.return_value.execute.return_value = (
         _mock_sitemaps_response()
     )
-    with patch("gsc_mcp.tools.sitemaps.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.sitemaps.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(list_sitemaps(SITE))
 
     assert result["count"] == 1
@@ -38,7 +38,7 @@ def test_list_sitemaps(mock_gsc_service):
 
 def test_list_sitemaps_empty(mock_gsc_service):
     mock_gsc_service.sitemaps.return_value.list.return_value.execute.return_value = {}
-    with patch("gsc_mcp.tools.sitemaps.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.sitemaps.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(list_sitemaps(SITE))
 
     assert result["count"] == 0
@@ -47,7 +47,7 @@ def test_list_sitemaps_empty(mock_gsc_service):
 
 def test_submit_sitemap(mock_gsc_service):
     mock_gsc_service.sitemaps.return_value.submit.return_value.execute.return_value = None
-    with patch("gsc_mcp.tools.sitemaps.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.sitemaps.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(submit_sitemap(SITE, SITEMAP_URL))
 
     assert result["status"] == "submitted"

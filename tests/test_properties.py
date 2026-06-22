@@ -23,7 +23,7 @@ def test_list_properties(mock_gsc_service):
         ]
     }
 
-    with patch("gsc_mcp.tools.properties.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.properties.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(list_properties())
 
     assert result["count"] == 2
@@ -34,7 +34,7 @@ def test_list_properties(mock_gsc_service):
 def test_list_properties_empty(mock_gsc_service):
     mock_gsc_service.sites.return_value.list.return_value.execute.return_value = {}
 
-    with patch("gsc_mcp.tools.properties.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.properties.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(list_properties())
 
     assert result["count"] == 0
@@ -47,7 +47,7 @@ def test_get_site_details(mock_gsc_service):
         "permissionLevel": "siteOwner",
     }
 
-    with patch("gsc_mcp.tools.properties.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.properties.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(get_site_details("https://example.com/"))
 
     assert result["url"] == "https://example.com/"

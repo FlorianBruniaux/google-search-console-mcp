@@ -1,5 +1,5 @@
 import json
-from gsc_mcp.auth import get_gsc_service
+from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.constants import CTR_BENCHMARKS
 from gsc_mcp.tools.analytics import _fetch_rows, _date_range, _MAX_ROWS_PER_PAGE
@@ -23,7 +23,7 @@ def _benchmark_ctr(position: float) -> float:
 
 def quick_wins(site: str, days: int = 28, min_impressions: int = _WIN_MIN_IMPRESSIONS) -> str:
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {
         "startDate": start,
         "endDate": end,
@@ -65,7 +65,7 @@ def quick_wins(site: str, days: int = 28, min_impressions: int = _WIN_MIN_IMPRES
 
 
 def traffic_drops(site: str, days: int = 28) -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
 
     from datetime import date, timedelta
     end_b = date.today()
@@ -127,7 +127,7 @@ def traffic_drops(site: str, days: int = 28) -> str:
 
 def seo_striking_distance(site: str, days: int = 28, min_impressions: int = 0) -> str:
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {
         "startDate": start,
         "endDate": end,
@@ -161,7 +161,7 @@ def seo_striking_distance(site: str, days: int = 28, min_impressions: int = 0) -
 
 def seo_cannibalization(site: str, days: int = 28, min_impressions: int = 50) -> str:
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {
         "startDate": start,
         "endDate": end,
@@ -232,7 +232,7 @@ def seo_lost_queries(site: str, days: int = 28) -> str:
     # NOTE: uses date.today() with NO lag, matching traffic_drops behaviour.
     # The current period (period_b) may include the last 2-3 days of incomplete
     # GSC data (reporting latency), which can produce false positives on recent queries.
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
 
     from datetime import date, timedelta
     end_b = date.today()
@@ -286,7 +286,7 @@ def seo_lost_queries(site: str, days: int = 28) -> str:
 
 def check_alerts(site: str, days: int = 28) -> str:
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {
         "startDate": start,
         "endDate": end,

@@ -1,10 +1,10 @@
 import json
-from gsc_mcp.auth import get_gsc_service
+from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 
 
 def list_sitemaps(site: str) -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     response = svc.sitemaps().list(siteUrl=site).execute()
     raw = response.get("sitemap", [])
 
@@ -30,7 +30,7 @@ def list_sitemaps(site: str) -> str:
 
 
 def submit_sitemap(site: str, sitemap_url: str) -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     svc.sitemaps().submit(siteUrl=site, feedpath=sitemap_url).execute()
     return json.dumps(with_meta(
         {"site": site, "sitemap_url": sitemap_url, "status": "submitted"},
@@ -45,7 +45,7 @@ def sitemaps_delete(site: str, sitemap_url: str) -> str:
             f"Refusing to delete '{sitemap_url}': path does not look like a sitemap "
             "(must end with '.xml' or contain '/sitemap')."
         )
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     svc.sitemaps().delete(siteUrl=site, feedpath=sitemap_url).execute()
     return json.dumps(with_meta(
         {"site": site, "sitemap_url": sitemap_url, "status": "deleted"},
@@ -55,7 +55,7 @@ def sitemaps_delete(site: str, sitemap_url: str) -> str:
 
 
 def sitemaps_get(site: str, sitemap_url: str) -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     s = svc.sitemaps().get(siteUrl=site, feedpath=sitemap_url).execute()
     sitemap = {
         "url": s.get("path", sitemap_url),

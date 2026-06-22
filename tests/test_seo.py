@@ -29,7 +29,7 @@ def test_quick_wins_returns_opportunities(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_QUICK_WINS
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(quick_wins(SITE))
 
     assert "opportunities" in result
@@ -44,7 +44,7 @@ def test_quick_wins_detects_zero_ctr_pages(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_QUICK_WINS
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(quick_wins(SITE))
 
     pages = [opp["page"] for opp in result["opportunities"]]
@@ -56,7 +56,7 @@ def test_quick_wins_excludes_position_1_to_3(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_QUICK_WINS
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(quick_wins(SITE))
 
     positions = [opp["position"] for opp in result["opportunities"]]
@@ -68,7 +68,7 @@ def test_quick_wins_excludes_low_impressions(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_QUICK_WINS
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(quick_wins(SITE))
 
     pages = [opp["page"] for opp in result["opportunities"]]
@@ -80,7 +80,7 @@ def test_quick_wins_excludes_ctr_above_benchmark(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_QUICK_WINS
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(quick_wins(SITE))
 
     pages = [opp["page"] for opp in result["opportunities"]]
@@ -91,7 +91,7 @@ def test_traffic_drops_returns_drops(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_TRAFFIC
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(traffic_drops(SITE))
 
     assert "drops" in result
@@ -102,7 +102,7 @@ def test_check_alerts_returns_list(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_QUICK_WINS
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(check_alerts(SITE))
 
     assert "alerts" in result

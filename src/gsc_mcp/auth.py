@@ -77,11 +77,6 @@ def _resolve_creds(scopes: list[str], token_path: Path):
     return _get_oauth_creds(scopes, token_path)
 
 
-def get_gsc_service():
-    creds = _resolve_creds(SCOPES_GSC, _TOKEN_GSC)
-    return build("webmasters", "v3", credentials=creds)
-
-
 def get_searchconsole_service():
     creds = _resolve_creds(SCOPES_GSC, _TOKEN_GSC)
     return build("searchconsole", "v1", credentials=creds)

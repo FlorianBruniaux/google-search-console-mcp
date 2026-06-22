@@ -35,7 +35,7 @@ def test_striking_distance_returns_queries_key(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     assert "queries" in result
     assert "_meta" in result
@@ -45,7 +45,7 @@ def test_striking_distance_band_8_to_15_inclusive(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     positions = [q["position"] for q in result["queries"]]
     assert all(8.0 <= p <= 15.0 for p in positions), f"Out-of-band positions: {positions}"
@@ -56,7 +56,7 @@ def test_striking_distance_excludes_pos_4_proving_band_not_4_to_15(mock_gsc_serv
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     query_names = [q["query"] for q in result["queries"]]
     assert "shoes review" not in query_names
@@ -66,7 +66,7 @@ def test_striking_distance_excludes_pos_7_9(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     query_names = [q["query"] for q in result["queries"]]
     assert "cheap shoes" not in query_names
@@ -76,7 +76,7 @@ def test_striking_distance_excludes_pos_15_1(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     query_names = [q["query"] for q in result["queries"]]
     assert "running shoes red" not in query_names
@@ -86,7 +86,7 @@ def test_striking_distance_includes_3_in_band(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     # buy running shoes (9.2), best shoes 2024 (11.0), shoes sale (8.0)
     assert len(result["queries"]) == 3
@@ -96,7 +96,7 @@ def test_striking_distance_sorted_impressions_desc(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     imps = [q["impressions"] for q in result["queries"]]
     assert imps == sorted(imps, reverse=True)
@@ -106,7 +106,7 @@ def test_striking_distance_min_impressions_filter(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_STRIKING
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE, min_impressions=100))
     for q in result["queries"]:
         assert q["impressions"] >= 100
@@ -114,14 +114,14 @@ def test_striking_distance_min_impressions_filter(mock_gsc_service):
 
 def test_striking_distance_min_impressions_in_meta(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE, min_impressions=50))
     assert result["_meta"]["params"]["min_impressions"] == 50
 
 
 def test_striking_distance_empty_rows(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     assert result["queries"] == []
     assert "_meta" in result
@@ -131,7 +131,7 @@ def test_striking_distance_row_has_expected_fields(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": [_make_query_row("test", 10.0, 200)]
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE))
     q = result["queries"][0]
     assert "query" in q
@@ -144,7 +144,7 @@ def test_striking_distance_row_has_expected_fields(mock_gsc_service):
 def test_striking_distance_uses_lagged_date_range(mock_gsc_service):
     """end must be today - 3 days (3-day GSC lag)."""
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_striking_distance(SITE, days=28))
     expected_end = (date.today() - timedelta(days=3)).isoformat()
     assert result["date_range"]["end"] == expected_end
@@ -175,7 +175,7 @@ def test_cannibalization_returns_conflicts_key(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_CANNIBAL_BASIC
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE))
     assert "conflicts" in result
     assert "_meta" in result
@@ -185,7 +185,7 @@ def test_cannibalization_two_pages_one_group(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_CANNIBAL_BASIC
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     conflict_queries = [c["query"] for c in result["conflicts"]]
     assert "best shoes" in conflict_queries
@@ -195,7 +195,7 @@ def test_cannibalization_single_page_excluded(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_CANNIBAL_BASIC
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     conflict_queries = [c["query"] for c in result["conflicts"]]
     assert "buy shoes" not in conflict_queries
@@ -208,7 +208,7 @@ def test_cannibalization_score_below_threshold_dropped(mock_gsc_service):
         _make_qp_row("dominant", "https://x.com/b", 5, 100),
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     conflict_queries = [c["query"] for c in result["conflicts"]]
     assert "dominant" not in conflict_queries
@@ -221,7 +221,7 @@ def test_cannibalization_score_above_threshold_kept(mock_gsc_service):
         _make_qp_row("split", "https://x.com/b", 50, 500),
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     conflict_queries = [c["query"] for c in result["conflicts"]]
     assert "split" in conflict_queries
@@ -236,7 +236,7 @@ def test_cannibalization_zero_click_n2_score_is_0_5(mock_gsc_service):
         _make_qp_row("zero", "https://x.com/b", 0, 500),
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     assert len(result["conflicts"]) == 1
     assert abs(result["conflicts"][0]["conflict_score"] - 0.5) < 0.001
@@ -248,7 +248,7 @@ def test_cannibalization_zero_click_n5_score_is_0_8(mock_gsc_service):
         _make_qp_row("five", f"https://x.com/p{i}", 0, 100) for i in range(5)
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     assert len(result["conflicts"]) == 1
     assert abs(result["conflicts"][0]["conflict_score"] - 0.8) < 0.001
@@ -260,7 +260,7 @@ def test_cannibalization_no_zero_division_error(mock_gsc_service):
         _make_qp_row("safe", "https://x.com/b", 0, 200),
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     assert "conflicts" in result
 
@@ -272,7 +272,7 @@ def test_cannibalization_min_impressions_by_query_total(mock_gsc_service):
         _make_qp_row("combo", "https://x.com/small", 10, 100),
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=500))
     assert any(c["query"] == "combo" for c in result["conflicts"])
 
@@ -283,7 +283,7 @@ def test_cannibalization_query_below_min_impressions_excluded(mock_gsc_service):
         _make_qp_row("low", "https://x.com/b", 5, 20),
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=100))
     assert not any(c["query"] == "low" for c in result["conflicts"])
 
@@ -296,7 +296,7 @@ def test_cannibalization_three_page_hhi(mock_gsc_service):
         _make_qp_row("triple", "https://x.com/c", 20, 200),
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     conflict = next(c for c in result["conflicts"] if c["query"] == "triple")
     assert abs(conflict["conflict_score"] - 0.62) < 0.01
@@ -306,7 +306,7 @@ def test_cannibalization_pages_have_page_field(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
         "rows": _ROWS_CANNIBAL_BASIC
     }
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE, min_impressions=0))
     for c in result["conflicts"]:
         for p in c["pages"]:
@@ -315,7 +315,7 @@ def test_cannibalization_pages_have_page_field(mock_gsc_service):
 
 def test_cannibalization_empty_rows(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_cannibalization(SITE))
     assert result["conflicts"] == []
 
@@ -356,7 +356,7 @@ def test_lost_queries_returns_lost_queries_key(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_ROWS}, {"rows": _CURR_ROWS}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     assert "lost_queries" in result
     assert "_meta" in result
@@ -366,7 +366,7 @@ def test_lost_queries_flags_drop_80pct(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_ROWS}, {"rows": _CURR_ROWS}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     queries = [q["query"] for q in result["lost_queries"]]
     assert "seo tutorial" in queries
@@ -376,7 +376,7 @@ def test_lost_queries_ignores_small_drop(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_ROWS}, {"rows": _CURR_ROWS}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     queries = [q["query"] for q in result["lost_queries"]]
     assert "python guide" not in queries
@@ -387,7 +387,7 @@ def test_lost_queries_prev_less_than_5_not_flagged(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_ROWS}, {"rows": _CURR_ROWS}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     queries = [q["query"] for q in result["lost_queries"]]
     assert "small traffic" not in queries
@@ -398,7 +398,7 @@ def test_lost_queries_absent_in_curr_flagged(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_WITH_GONE}, {"rows": _CURR_WITHOUT_GONE}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     queries = [q["query"] for q in result["lost_queries"]]
     assert "gone query" in queries
@@ -412,7 +412,7 @@ def test_lost_queries_new_query_in_curr_not_flagged(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_ROWS}, {"rows": curr_with_new}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     queries = [q["query"] for q in result["lost_queries"]]
     assert "brand new query" not in queries
@@ -422,7 +422,7 @@ def test_lost_queries_has_period_keys(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_ROWS}, {"rows": _CURR_ROWS}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     assert "period_a" in result
     assert "period_b" in result
@@ -435,7 +435,7 @@ def test_lost_queries_no_lag_end_b_is_today(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": []}, {"rows": []}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     assert result["period_b"]["end"] == date.today().isoformat()
 
@@ -444,7 +444,7 @@ def test_lost_queries_empty_prev(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": []}, {"rows": _CURR_ROWS}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     assert result["lost_queries"] == []
 
@@ -454,7 +454,7 @@ def test_lost_queries_empty_curr_flags_prev_above_threshold(mock_gsc_service):
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
         {"rows": _PREV_ROWS}, {"rows": []}
     ]
-    with patch("gsc_mcp.tools.seo.get_gsc_service", return_value=mock_gsc_service):
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(seo_lost_queries(SITE))
     lost = [q["query"] for q in result["lost_queries"]]
     assert "seo tutorial" in lost

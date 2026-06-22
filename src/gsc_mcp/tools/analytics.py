@@ -1,7 +1,7 @@
 import json
 import statistics
 from datetime import date, timedelta
-from gsc_mcp.auth import get_gsc_service
+from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 
 _ANALYTICS_LAG_DAYS = 3
@@ -51,7 +51,7 @@ def get_search_analytics(
     if dimensions is None:
         dimensions = ["query"]
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {
         "startDate": start,
         "endDate": end,
@@ -68,7 +68,7 @@ def get_search_analytics(
 
 def get_performance_overview(site: str, days: int = 28) -> str:
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {"startDate": start, "endDate": end, "dimensions": ["query"], "rowLimit": _MAX_ROWS_PER_PAGE}
     rows = _fetch_rows(svc, site, body)
 
@@ -95,7 +95,7 @@ def get_performance_overview(site: str, days: int = 28) -> str:
 
 
 def compare_search_periods(site: str, days: int = 28) -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
 
     end_b = date.today() - timedelta(days=_ANALYTICS_LAG_DAYS)
     start_b = end_b - timedelta(days=days - 1)
@@ -133,7 +133,7 @@ def compare_search_periods(site: str, days: int = 28) -> str:
 
 def get_search_by_page_query(site: str, days: int = 28, row_limit: int = _DEFAULT_ROW_LIMIT) -> str:
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {
         "startDate": start,
         "endDate": end,
@@ -161,7 +161,7 @@ def get_search_by_page_query(site: str, days: int = 28, row_limit: int = _DEFAUL
 
 def analytics_anomalies(site: str, days: int = 90, threshold: float = 2.5) -> str:
     start, end = _date_range(days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     body = {
         "startDate": start,
         "endDate": end,
@@ -217,7 +217,7 @@ def get_advanced_search_analytics(
     if dimensions is None:
         dimensions = ["query"]
     start, end = _date_range(date_range_days)
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
 
     body: dict = {
         "startDate": start,

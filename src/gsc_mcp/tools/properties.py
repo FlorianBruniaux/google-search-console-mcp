@@ -1,5 +1,5 @@
 import json
-from gsc_mcp.auth import get_gsc_service
+from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 
 _ALL_TOOLS = [
@@ -33,7 +33,7 @@ def get_capabilities() -> str:
 
 
 def list_properties() -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     response = svc.sites().list().execute()
     entries = response.get("siteEntry", [])
     properties = [
@@ -48,7 +48,7 @@ def list_properties() -> str:
 
 
 def get_site_details(site_url: str) -> str:
-    svc = get_gsc_service()
+    svc = get_searchconsole_service()
     response = svc.sites().get(siteUrl=site_url).execute()
     return json.dumps(with_meta(
         {
