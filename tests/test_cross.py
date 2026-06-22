@@ -260,7 +260,27 @@ def test_pa_limit():
 def test_pa_meta():
     result = _pa([], [])
     assert result["_meta"]["tool"] == "page_analysis"
-    assert result["_meta"]["params"] == {"site": SITE, "days": 28, "limit": 100}
+    assert result["_meta"]["params"] == {"site": SITE, "days": 28, "limit": 100, "property_id": None}
+
+
+def test_thc_property_id_propagated():
+    """property_id is forwarded to ga4_organic_landing_pages."""
+    gsc_rows = [{"clicks": 100, "impressions": 500, "ctr": 0.2, "position": 3.0}]
+    ga4_pages = [_ga4_page("/home", sessions=90)]
+    with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_json(gsc_rows)), \
+         patch("gsc_mcp.tools.cross.ga4_organic_landing_pages", return_value=_ga4_json(ga4_pages)) as mock_ga4:
+        traffic_health_check(SITE, property_id="443684366")
+    _, kwargs = mock_ga4.call_args
+    assert kwargs.get("property_id") == "443684366"
+
+
+def test_pa_property_id_propagated():
+    """property_id is forwarded to ga4_organic_landing_pages."""
+    with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_json([])), \
+         patch("gsc_mcp.tools.cross.ga4_organic_landing_pages", return_value=_ga4_json([])) as mock_ga4:
+        page_analysis(SITE, property_id="443684366")
+    _, kwargs = mock_ga4.call_args
+    assert kwargs.get("property_id") == "443684366"
 
 
 def test_pa_opportunity_score_formula():

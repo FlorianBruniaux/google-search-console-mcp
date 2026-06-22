@@ -42,8 +42,9 @@ def ga4_organic_landing_pages(
     start_date: str = "28daysAgo",
     end_date: str = "today",
     limit: int = 50,
+    property_id: str = None,
 ) -> str:
-    prop = get_ga4_property_id()
+    prop = get_ga4_property_id(override=property_id)
     client = get_ga4_service()
 
     request = RunReportRequest(
@@ -83,15 +84,16 @@ def ga4_organic_landing_pages(
     return json.dumps(with_meta(
         data,
         tool="ga4_organic_landing_pages",
-        params={"start_date": start_date, "end_date": end_date, "limit": limit},
+        params={"start_date": start_date, "end_date": end_date, "limit": limit, "property_id": property_id},
     ))
 
 
 def ga4_traffic_sources(
     start_date: str = "28daysAgo",
     end_date: str = "today",
+    property_id: str = None,
 ) -> str:
-    prop = get_ga4_property_id()
+    prop = get_ga4_property_id(override=property_id)
     client = get_ga4_service()
 
     request = RunReportRequest(
@@ -128,7 +130,7 @@ def ga4_traffic_sources(
     return json.dumps(with_meta(
         {"start_date": start_date, "end_date": end_date, "count": len(sources), "sources": sources},
         tool="ga4_traffic_sources",
-        params={"start_date": start_date, "end_date": end_date},
+        params={"start_date": start_date, "end_date": end_date, "property_id": property_id},
     ))
 
 
@@ -136,8 +138,9 @@ def ga4_page_performance(
     start_date: str = "28daysAgo",
     end_date: str = "today",
     page_path: str = None,
+    property_id: str = None,
 ) -> str:
-    prop = get_ga4_property_id()
+    prop = get_ga4_property_id(override=property_id)
     client = get_ga4_service()
 
     dimension_filter = None
@@ -187,12 +190,12 @@ def ga4_page_performance(
     return json.dumps(with_meta(
         {"start_date": start_date, "end_date": end_date, "count": len(pages), "pages": pages},
         tool="ga4_page_performance",
-        params={"start_date": start_date, "end_date": end_date, "page_path": page_path},
+        params={"start_date": start_date, "end_date": end_date, "page_path": page_path, "property_id": property_id},
     ))
 
 
-def ga4_realtime() -> str:
-    prop = get_ga4_property_id()
+def ga4_realtime(property_id: str = None) -> str:
+    prop = get_ga4_property_id(override=property_id)
     client = get_ga4_service()
 
     request = RunRealtimeReportRequest(
@@ -220,15 +223,16 @@ def ga4_realtime() -> str:
     return json.dumps(with_meta(
         {"count": len(active), "active": active},
         tool="ga4_realtime",
-        params={},
+        params={"property_id": property_id},
     ))
 
 
 def ga4_user_behavior(
     start_date: str = "28daysAgo",
     end_date: str = "today",
+    property_id: str = None,
 ) -> str:
-    prop = get_ga4_property_id()
+    prop = get_ga4_property_id(override=property_id)
     client = get_ga4_service()
 
     date_ranges = [DateRange(start_date=start_date, end_date=end_date)]
@@ -284,7 +288,7 @@ def ga4_user_behavior(
             "by_user_type": by_user_type,
         },
         tool="ga4_user_behavior",
-        params={"start_date": start_date, "end_date": end_date},
+        params={"start_date": start_date, "end_date": end_date, "property_id": property_id},
     ))
 
 
@@ -292,8 +296,9 @@ def ga4_conversion_funnel(
     start_date: str = "28daysAgo",
     end_date: str = "today",
     event_name: str = None,
+    property_id: str = None,
 ) -> str:
-    prop = get_ga4_property_id()
+    prop = get_ga4_property_id(override=property_id)
     client = get_ga4_service()
 
     date_ranges = [DateRange(start_date=start_date, end_date=end_date)]
@@ -351,5 +356,5 @@ def ga4_conversion_funnel(
             "events": events,
         },
         tool="ga4_conversion_funnel",
-        params={"start_date": start_date, "end_date": end_date, "event_name": event_name},
+        params={"start_date": start_date, "end_date": end_date, "event_name": event_name, "property_id": property_id},
     ))

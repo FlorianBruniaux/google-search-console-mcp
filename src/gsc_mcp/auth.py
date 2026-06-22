@@ -90,12 +90,15 @@ def get_indexing_service():
 _TOKEN_GA4 = _TOKEN_DIR / "token_ga4.json"
 
 
-def get_ga4_property_id() -> str:
-    prop = os.environ.get("GA4_PROPERTY_ID", "").strip()
-    if not prop:
-        raise RuntimeError(
-            "No GA4 config: GA4_PROPERTY_ID environment variable is not set"
-        )
+def get_ga4_property_id(override: str | None = None) -> str:
+    if override:
+        prop = override.strip()
+    else:
+        prop = os.environ.get("GA4_PROPERTY_ID", "").strip()
+        if not prop:
+            raise RuntimeError(
+                "No GA4 config: GA4_PROPERTY_ID environment variable is not set"
+            )
     return prop if prop.startswith("properties/") else f"properties/{prop}"
 
 

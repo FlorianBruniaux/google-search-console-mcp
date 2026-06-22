@@ -47,6 +47,20 @@ def test_get_ga4_property_id_already_prefixed(monkeypatch):
     assert result.count("properties/") == 1
 
 
+def test_get_ga4_property_id_override_takes_precedence(monkeypatch):
+    monkeypatch.setenv("GA4_PROPERTY_ID", "111111111")
+    from gsc_mcp.auth import get_ga4_property_id
+    result = get_ga4_property_id(override="443684366")
+    assert result == "properties/443684366"
+
+
+def test_get_ga4_property_id_override_no_env_needed(monkeypatch):
+    monkeypatch.delenv("GA4_PROPERTY_ID", raising=False)
+    from gsc_mcp.auth import get_ga4_property_id
+    result = get_ga4_property_id(override="443684366")
+    assert result == "properties/443684366"
+
+
 # ---------------------------------------------------------------------------
 # ga4_organic_landing_pages
 # ---------------------------------------------------------------------------

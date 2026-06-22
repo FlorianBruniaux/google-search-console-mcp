@@ -37,7 +37,7 @@ def _normalize_url(url: str) -> str:
     return path or "/"
 
 
-def traffic_health_check(site: str, days: int = 28) -> str:
+def traffic_health_check(site: str, days: int = 28, property_id: str = None) -> str:
     """Compare total GSC clicks with total GA4 organic sessions to detect tracking gaps.
 
     Fetches aggregate GSC clicks (no page dimension) and sums all organic sessions
@@ -60,6 +60,7 @@ def traffic_health_check(site: str, days: int = 28) -> str:
             start_date=f"{days}daysAgo",
             end_date="today",
             limit=10000,
+            property_id=property_id,
         )
     )
     total_ga4_sessions = sum(p["sessions"] for p in ga_data["pages"])
@@ -88,12 +89,12 @@ def traffic_health_check(site: str, days: int = 28) -> str:
                 "note": "GSC data has a 3-day lag vs GA4. Ratios are approximate.",
             },
             tool="traffic_health_check",
-            params={"site": site, "days": days},
+            params={"site": site, "days": days, "property_id": property_id},
         )
     )
 
 
-def page_analysis(site: str, days: int = 28, limit: int = 100) -> str:
+def page_analysis(site: str, days: int = 28, limit: int = 100, property_id: str = None) -> str:
     """Join GSC and GA4 data at the page level and rank by opportunity score.
 
     GSC rows are fetched with dimensions=["page"] (already aggregated per page).
@@ -129,6 +130,7 @@ def page_analysis(site: str, days: int = 28, limit: int = 100) -> str:
             start_date=f"{days}daysAgo",
             end_date="today",
             limit=1000,
+            property_id=property_id,
         )
     )
 
@@ -192,6 +194,6 @@ def page_analysis(site: str, days: int = 28, limit: int = 100) -> str:
                 "note": "GSC data has a 3-day lag vs GA4. Ratios are approximate.",
             },
             tool="page_analysis",
-            params={"site": site, "days": days, "limit": limit},
+            params={"site": site, "days": days, "limit": limit, "property_id": property_id},
         )
     )
