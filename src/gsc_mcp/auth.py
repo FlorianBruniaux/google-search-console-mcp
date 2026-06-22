@@ -9,7 +9,9 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from platformdirs import user_data_dir
 
-from gsc_mcp.constants import SCOPES_GSC, SCOPES_INDEXING
+from google.analytics.data_v1beta import BetaAnalyticsDataClient
+
+from gsc_mcp.constants import SCOPES_GSC, SCOPES_INDEXING, SCOPES_GA4
 
 _TOKEN_DIR = Path(user_data_dir("gsc-mcp"))
 _TOKEN_GSC = _TOKEN_DIR / "token_gsc.json"
@@ -80,6 +82,28 @@ def get_gsc_service():
     return build("webmasters", "v3", credentials=creds)
 
 
+def get_searchconsole_service():
+    creds = _resolve_creds(SCOPES_GSC, _TOKEN_GSC)
+    return build("searchconsole", "v1", credentials=creds)
+
+
 def get_indexing_service():
     creds = _resolve_creds(SCOPES_INDEXING, _TOKEN_INDEXING)
     return build("indexing", "v3", credentials=creds)
+
+
+_TOKEN_GA4 = _TOKEN_DIR / "token_ga4.json"
+
+
+def get_ga4_property_id() -> str:
+    prop = os.environ.get("GA4_PROPERTY_ID", "").strip()
+    if not prop:
+        raise RuntimeError(
+            "No GA4 config: GA4_PROPERTY_ID environment variable is not set"
+        )
+    return prop if prop.startswith("properties/") else f"properties/{prop}"
+
+
+def get_ga4_service() -> BetaAnalyticsDataClient:
+    creds = _resolve_creds(SCOPES_GA4, _TOKEN_GA4)
+    return BetaAnalyticsDataClient(credentials=creds)

@@ -46,3 +46,35 @@ def mock_indexing_service():
 
     service.new_batch_http_request = new_batch_http_request
     return service
+
+
+def _make_ga4_row(dimension_values: list, metric_values: list):
+    row = MagicMock()
+    row.dimension_values = [MagicMock(value=v) for v in dimension_values]
+    row.metric_values = [MagicMock(value=v) for v in metric_values]
+    return row
+
+
+def _make_ga4_response(rows: list):
+    response = MagicMock()
+    response.rows = rows
+    return response
+
+
+def _make_ga4_batch_response(responses: list):
+    response = MagicMock()
+    response.reports = responses
+    return response
+
+
+@pytest.fixture
+def mock_ga4_service():
+    client = MagicMock()
+    client.run_report.return_value = _make_ga4_response([])
+    client.run_realtime_report.return_value = _make_ga4_response([])
+    client.batch_run_reports.return_value = _make_ga4_batch_response([
+        _make_ga4_response([]),
+        _make_ga4_response([]),
+        _make_ga4_response([]),
+    ])
+    return client

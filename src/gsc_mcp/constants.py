@@ -1,5 +1,6 @@
 SCOPES_GSC = ["https://www.googleapis.com/auth/webmasters"]
 SCOPES_INDEXING = ["https://www.googleapis.com/auth/indexing"]
+SCOPES_GA4 = ["https://www.googleapis.com/auth/analytics.readonly"]
 
 QUOTA_INDEXING_LIMIT = 200
 QUOTA_INDEXING_WARN_AT = 180
