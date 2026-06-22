@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp)](https://pypi.org/project/gsc-mcp/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-163%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-167%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Google Search Console MCP server with 32 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, and cross-platform GSC+GA4 analysis. Built on Python 3.11+ and FastMCP.
@@ -140,6 +140,13 @@ GA4 tools use the same Service Account as GSC. Two steps to enable them:
 
 GSC-only users are not affected: the `GA4_PROPERTY_ID` check runs lazily on the first GA4 tool call, never at startup.
 
+To query a different property without changing the config, pass `property_id` directly to any GA4 or cross tool:
+
+```python
+ga4_traffic_sources(property_id="443684366")
+traffic_health_check(site="sc-domain:example.com", property_id="443684366")
+```
+
 ### Claude Desktop
 
 Add to your `claude_desktop_config.json`:
@@ -184,7 +191,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-163+ tests, all mocked (no real Google API calls needed).
+167+ tests, all mocked (no real Google API calls needed).
 
 ## License
 

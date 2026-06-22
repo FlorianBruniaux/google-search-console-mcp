@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.2] - 2026-06-22
+
+### Added
+
+- Tous les tools GA4 (`ga4_organic_landing_pages`, `ga4_traffic_sources`, `ga4_page_performance`, `ga4_realtime`, `ga4_user_behavior`, `ga4_conversion_funnel`) et les tools cross (`traffic_health_check`, `page_analysis`) acceptent un paramètre optionnel `property_id: str = None`. Quand fourni, il override `GA4_PROPERTY_ID` sans modifier la config. Permet de requêter plusieurs properties GA4 depuis une seule instance MCP.
+- `get_ga4_property_id(override=None)` dans `auth.py` : accepte un override direct, court-circuite la lecture de l'env var. Sans override, comportement identique à avant.
+- 4 nouveaux tests : `test_get_ga4_property_id_override_takes_precedence`, `test_get_ga4_property_id_override_no_env_needed`, `test_thc_property_id_propagated`, `test_pa_property_id_propagated`
+
 ## [0.4.1] - 2026-06-22
 
 Corrections de cohérence et consolidation interne : pas de nouveaux tools.
