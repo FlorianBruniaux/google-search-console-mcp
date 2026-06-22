@@ -9,7 +9,7 @@ gsc-mcp is a FastMCP server exposing 32 tools over the Model Context Protocol. E
 ```
 src/gsc_mcp/
 ├── server.py          # Entry point. Imports all tools, registers them on the FastMCP instance
-├── auth.py            # get_gsc_service() and get_indexing_service() — two separate API clients
+├── auth.py            # get_searchconsole_service(), get_indexing_service(), get_ga4_service(), get_ga4_property_id()
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
 ├── meta.py            # with_meta(data, tool, params) — wraps every tool output
 ├── retry.py           # with_retry() decorator — exponential backoff on retryable HTTP errors
@@ -29,11 +29,11 @@ src/gsc_mcp/
 
 The server has three independent API clients, each with its own scope and token file:
 
-- GSC analytics and inspection: `https://www.googleapis.com/auth/webmasters`
+- GSC analytics and inspection: `https://www.googleapis.com/auth/webmasters` (client: `searchconsole/v1`)
 - Indexing API: `https://www.googleapis.com/auth/indexing`
 - GA4 (Analytics Data API): `https://www.googleapis.com/auth/analytics.readonly`
 
-`auth.py` exposes three independent functions (`get_gsc_service()`, `get_indexing_service()`, `get_ga4_service()`) that each resolve credentials for their respective scope, either from a Service Account file or from a cached OAuth token stored per-scope in the OS user data directory.
+`auth.py` exposes three independent functions (`get_searchconsole_service()`, `get_indexing_service()`, `get_ga4_service()`) that each resolve credentials for their respective scope, either from a Service Account file or from a cached OAuth token stored per-scope in the OS user data directory.
 
 The same Service Account JSON can serve all three APIs: add the SA email (`client_email` field) as a Viewer in GSC and in GA4 Property Access Management. No separate key file needed.
 
@@ -56,7 +56,9 @@ Row values are accessed as `row.dimension_values[i].value` and `row.metric_value
 
 For `ga4_user_behavior`, a single `BatchRunReportsRequest` wraps three sub-requests. The `property` field goes on the wrapper, not on each sub-request. The response exposes `response.reports[0|1|2]`.
 
-The `GA4_PROPERTY_ID` environment variable accepts either a bare numeric ID (`123456789`) or the full resource name (`properties/123456789`). `get_ga4_property_id()` normalises it and raises `RuntimeError` if absent, validated lazily (first tool call, never at startup).
+The `GA4_PROPERTY_ID` environment variable accepts either a bare numeric ID (`123456789`) or the full resource name (`properties/123456789`). `get_ga4_property_id(override=None)` normalises it and raises `RuntimeError` if absent and no override is passed, validated lazily (first tool call, never at startup).
+
+All 6 GA4 tools and the 2 cross tools accept an optional `property_id: str = None` parameter. When provided, it is forwarded to `get_ga4_property_id(override=property_id)` and takes precedence over the env var. This allows querying multiple GA4 properties from a single MCP instance without config changes.
 
 Token files are JSON, not pickle. `google.oauth2.credentials.Credentials` provides `.to_json()` and `.from_authorized_user_info()` for round-tripping safely.
 
