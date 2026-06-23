@@ -15,7 +15,10 @@ import math
 from urllib.parse import urlsplit
 
 from gsc_mcp.tools.analytics import get_search_analytics
-from gsc_mcp.tools.ga4 import ga4_organic_landing_pages
+from gsc_mcp.tools.ga4 import ga4_organic_landing_pages, ga4_page_performance
+from gsc_mcp.tools.inspection import inspect_url
+from gsc_mcp.tools.crux import crux_page_vitals
+from gsc_mcp.tools.technical import schema_validate
 from gsc_mcp.meta import with_meta
 
 
@@ -214,5 +217,144 @@ def page_analysis(
             },
             tool="page_analysis",
             params={"site": site, "days": days, "limit": limit, "property_id": property_id, "hostname": hostname, "country": country},
+        )
+    )
+
+
+def page_health_score(
+    site: str,
+    url: str,
+    property_id: str | None = None,
+    hostname: str | None = None,
+    country: str | None = None,
+) -> str:
+    """Compute a 0-100 health score for a single page by combining GSC, GA4, CrUX, and schema data.
+
+    Each component contributes a portion of the total score (100 pts):
+    - GSC (30 pts): indexing_state == "INDEXING_ALLOWED" -> 20 pts; verdict == "PASS" -> 10 pts
+    - GA4 (25 pts): active_users > 0 -> 15 pts; engagement_rate > 0.4 -> 10 pts
+    - CrUX (25 pts): LCP good -> 10 pts; INP good -> 8 pts; CLS good -> 7 pts
+    - Schema (20 pts): schemas found -> 10 pts; no validation errors -> 10 pts
+
+    GA4, CrUX, and Schema components are each wrapped in try/except RuntimeError so that
+    missing credentials or insufficient data degrade the score gracefully. The final score
+    is renormalized over available components: score = round((earned / max_available) * 100).
+    If all components fail, returns score=0.
+
+    property_id overrides GA4_PROPERTY_ID for multi-property setups.
+    hostname and country are forwarded to GA4 for scoped queries.
+    """
+    # --- GSC component (always attempted, no credential guard needed beyond initial call) ---
+    gsc_pts = 0
+    gsc_available = True
+    try:
+        gsc_raw = json.loads(inspect_url(url=url, site=site))
+        if gsc_raw.get("indexing_state") == "INDEXING_ALLOWED":
+            gsc_pts += 20
+        if gsc_raw.get("verdict") == "PASS":
+            gsc_pts += 10
+    except RuntimeError:
+        gsc_available = False
+
+    # --- GA4 component ---
+    ga4_pts = 0
+    ga4_available = True
+    try:
+        ga4_raw = json.loads(
+            ga4_page_performance(
+                start_date="30daysAgo",
+                end_date="today",
+                property_id=property_id,
+                page_path=url,
+                hostname=hostname,
+                country=country,
+            )
+        )
+        pages = ga4_raw.get("pages", [])
+        total_active_users = sum(p.get("active_users", 0) for p in pages)
+        avg_engagement_rate = (
+            sum(p.get("engagement_rate", 0.0) for p in pages) / len(pages)
+            if pages else 0.0
+        )
+        if total_active_users > 0:
+            ga4_pts += 15
+        if avg_engagement_rate > 0.4:
+            ga4_pts += 10
+    except RuntimeError:
+        ga4_available = False
+
+    # --- CrUX component ---
+    crux_pts = 0
+    crux_available = True
+    try:
+        crux_raw = json.loads(crux_page_vitals(url=url))
+        if crux_raw.get("verdict") == "not_enough_data":
+            crux_available = False
+        else:
+            metrics = crux_raw.get("metrics", {})
+            lcp = metrics.get("largest_contentful_paint", {})
+            inp = metrics.get("interaction_to_next_paint", {})
+            cls = metrics.get("cumulative_layout_shift", {})
+            if lcp.get("rating") == "good":
+                crux_pts += 10
+            if inp.get("rating") == "good":
+                crux_pts += 8
+            if cls.get("rating") == "good":
+                crux_pts += 7
+    except RuntimeError:
+        crux_available = False
+
+    # --- Schema component ---
+    schema_pts = 0
+    schema_available = True
+    try:
+        schema_raw = json.loads(schema_validate(url=url))
+        schemas = schema_raw.get("schemas", [])
+        schemas_found = schema_raw.get("schemas_detected", 0)
+        if schemas_found > 0:
+            schema_pts += 10
+        errors = [f for s in schemas for f in s.get("missing_required_fields", [])]
+        if len(errors) == 0:
+            schema_pts += 10
+    except RuntimeError:
+        schema_available = False
+
+    # --- Renormalization ---
+    _MAX = {"gsc": 30, "ga4": 25, "crux": 25, "schema": 20}
+    _available = {
+        "gsc": gsc_available,
+        "ga4": ga4_available,
+        "crux": crux_available,
+        "schema": schema_available,
+    }
+    _earned = {
+        "gsc": gsc_pts,
+        "ga4": ga4_pts,
+        "crux": crux_pts,
+        "schema": schema_pts,
+    }
+
+    max_available = sum(v for k, v in _MAX.items() if _available[k])
+    earned = sum(v for k, v in _earned.items() if _available[k])
+
+    if max_available == 0:
+        score = 0
+    else:
+        score = round((earned / max_available) * 100)
+
+    return json.dumps(
+        with_meta(
+            {
+                "url": url,
+                "score": score,
+                "components": {
+                    "gsc": {"score": gsc_pts, "max": 30, "available": gsc_available},
+                    "ga4": {"score": ga4_pts, "max": 25, "available": ga4_available},
+                    "crux": {"score": crux_pts, "max": 25, "available": crux_available},
+                    "schema": {"score": schema_pts, "max": 20, "available": schema_available},
+                },
+            },
+            tool="page_health_score",
+            params={"site": site, "url": url, "property_id": property_id},
         )
     )
