@@ -1,6 +1,7 @@
 import json
 import statistics
 from datetime import date, timedelta
+from googleapiclient.errors import HttpError
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.retry import with_retry
@@ -283,6 +284,40 @@ def search_type_breakdown(site: str, url: str | None = None, days: int = 28) -> 
         {"site": site, "days": days, "url": url, "breakdown": breakdown},
         tool="search_type_breakdown",
         params={"site": site, "url": url, "days": days},
+    ))
+
+
+def ai_overviews_impact(site: str, days: int = 28, limit: int = 100) -> str:
+    """Get queries where AI Overview appearance data is available.
+
+    Uses the searchAppearance dimension with dataState=all to capture AI Overview
+    impressions. Returns an error dict when the property does not support this
+    dimension (HTTP 400/403) instead of raising.
+    """
+    start, end = _date_range(days)
+    svc = get_searchconsole_service()
+    body = {
+        "startDate": start,
+        "endDate": end,
+        "dimensions": ["query", "searchAppearance"],
+        "type": "web",
+        "dataState": "all",
+    }
+    try:
+        rows = _fetch_rows(svc, site, body)
+    except HttpError as e:
+        if e.resp.status in (400, 403):
+            return json.dumps(with_meta(
+                {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "reason": str(e)},
+                tool="ai_overviews_impact",
+                params={"site": site, "days": days, "limit": limit},
+            ))
+        raise
+    rows.sort(key=lambda r: r.get("impressions", 0), reverse=True)
+    return json.dumps(with_meta(
+        {"site": site, "days": days, "count": len(rows[:limit]), "rows": rows[:limit]},
+        tool="ai_overviews_impact",
+        params={"site": site, "days": days, "limit": limit},
     ))
 
 

@@ -1,7 +1,9 @@
 import json
 import pytest
+import httplib2
 from datetime import date, timedelta
 from unittest.mock import patch
+from googleapiclient.errors import HttpError
 from gsc_mcp.tools.analytics import (
     get_search_analytics,
     get_performance_overview,
@@ -12,6 +14,7 @@ from gsc_mcp.tools.analytics import (
     discover_performance,
     news_performance,
     search_type_breakdown,
+    ai_overviews_impact,
     _SEARCH_TYPES,
 )
 
@@ -414,3 +417,73 @@ def test_search_type_breakdown_meta_block_correct(mock_gsc_service):
     assert result["_meta"]["params"]["site"] == SITE
     assert result["_meta"]["params"]["days"] == 14
     assert result["_meta"]["params"]["url"] is None
+
+
+# ---------------------------------------------------------------------------
+# ai_overviews_impact tests
+# ---------------------------------------------------------------------------
+
+def _make_http_error(status: int) -> HttpError:
+    resp = httplib2.Response({"status": str(status)})
+    resp.status = status
+    return HttpError(resp=resp, content=b"Bad Request")
+
+
+def test_ai_overviews_impact_success_sorted_by_impressions(mock_gsc_service):
+    """Successful call returns rows sorted by impressions desc and count matches slice."""
+    rows = [
+        {"keys": ["best query", "AI_OVERVIEW"], "clicks": 10, "impressions": 500, "ctr": 0.02, "position": 1.5},
+        {"keys": ["second query", "AI_OVERVIEW"], "clicks": 5, "impressions": 1000, "ctr": 0.005, "position": 2.0},
+        {"keys": ["third query", "AI_OVERVIEW"], "clicks": 1, "impressions": 100, "ctr": 0.01, "position": 3.0},
+    ]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(ai_overviews_impact(SITE, days=28, limit=10))
+    assert result["count"] == 3
+    impressions = [r["impressions"] for r in result["rows"]]
+    assert impressions == sorted(impressions, reverse=True)
+
+
+def test_ai_overviews_impact_http_error_400_returns_structured_error(mock_gsc_service):
+    """HttpError(400) must return AI_OVERVIEWS_NOT_AVAILABLE without raising."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(400)
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(ai_overviews_impact(SITE))
+    assert result["error"] == "AI_OVERVIEWS_NOT_AVAILABLE"
+    assert "reason" in result
+
+
+def test_ai_overviews_impact_http_error_403_returns_structured_error(mock_gsc_service):
+    """HttpError(403) must return AI_OVERVIEWS_NOT_AVAILABLE without raising."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(403)
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(ai_overviews_impact(SITE))
+    assert result["error"] == "AI_OVERVIEWS_NOT_AVAILABLE"
+    assert "reason" in result
+
+
+def test_ai_overviews_impact_http_error_500_reraises(mock_gsc_service):
+    """HttpError(500) must not be caught: it should propagate for @with_retry to handle."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(500)
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        with pytest.raises(HttpError):
+            ai_overviews_impact(SITE)
+
+
+def test_ai_overviews_impact_meta_block_present_in_success_and_error(mock_gsc_service):
+    """_meta block must appear in both success and error response paths."""
+    # Success path
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        success_result = json.loads(ai_overviews_impact(SITE, days=14))
+    assert "_meta" in success_result
+    assert success_result["_meta"]["tool"] == "ai_overviews_impact"
+    assert success_result["_meta"]["params"]["site"] == SITE
+
+    # Error path
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(400)
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        error_result = json.loads(ai_overviews_impact(SITE, days=14))
+    assert "_meta" in error_result
+    assert error_result["_meta"]["tool"] == "ai_overviews_impact"
+    assert error_result["_meta"]["params"]["site"] == SITE
