@@ -462,7 +462,8 @@ def test_ai_overviews_impact_http_error_403_returns_structured_error(mock_gsc_se
     assert "reason" in result
 
 
-def test_ai_overviews_impact_http_error_500_reraises(mock_gsc_service):
+@patch("gsc_mcp.retry.time.sleep")
+def test_ai_overviews_impact_http_error_500_reraises(mock_sleep, mock_gsc_service):
     """HttpError(500) must not be caught: it should propagate for @with_retry to handle."""
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(500)
     with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
