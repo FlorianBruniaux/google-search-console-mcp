@@ -8,6 +8,7 @@ from gsc_mcp.retry import with_retry
 _ANALYTICS_LAG_DAYS = 3
 _DEFAULT_ROW_LIMIT = 1000
 _MAX_ROWS_PER_PAGE = 25000
+_SEARCH_TYPES = ["web", "discover", "googleNews", "image", "video"]
 
 
 def _date_range(days: int, lag: int = _ANALYTICS_LAG_DAYS) -> tuple[str, str]:
@@ -257,6 +258,31 @@ def news_performance(site: str, days: int = 28, limit: int = 50) -> str:
         {"site": site, "days": days, "count": len(rows[:limit]), "rows": rows[:limit]},
         tool="news_performance",
         params={"site": site, "days": days, "limit": limit},
+    ))
+
+
+def search_type_breakdown(site: str, url: str | None = None, days: int = 28) -> str:
+    """Aggregate clicks and impressions broken down by search type for a site or specific URL.
+
+    Makes one GSC call per search type (web, discover, googleNews, image, video) and returns
+    total clicks and impressions for each. If `url` is provided, results are scoped to that page.
+    """
+    start, end = _date_range(days)
+    svc = get_searchconsole_service()
+    breakdown = {}
+    for stype in _SEARCH_TYPES:
+        body = {"startDate": start, "endDate": end, "dimensions": ["page"], "type": stype}
+        if url:
+            body["dimensionFilterGroups"] = [{"filters": [{"dimension": "page", "expression": url}]}]
+        rows = _fetch_rows(svc, site, body)
+        breakdown[stype] = {
+            "clicks": sum(r["clicks"] for r in rows),
+            "impressions": sum(r["impressions"] for r in rows),
+        }
+    return json.dumps(with_meta(
+        {"site": site, "days": days, "url": url, "breakdown": breakdown},
+        tool="search_type_breakdown",
+        params={"site": site, "url": url, "days": days},
     ))
 
 

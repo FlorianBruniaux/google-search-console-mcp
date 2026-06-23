@@ -11,6 +11,8 @@ from gsc_mcp.tools.analytics import (
     analytics_anomalies,
     discover_performance,
     news_performance,
+    search_type_breakdown,
+    _SEARCH_TYPES,
 )
 
 SITE = "https://example.com/"
@@ -314,3 +316,101 @@ def test_news_performance_meta_block_correct(mock_gsc_service):
     assert result["_meta"]["params"]["site"] == SITE
     assert result["_meta"]["params"]["days"] == 14
     assert result["_meta"]["params"]["limit"] == 25
+
+
+# ===========================
+# search_type_breakdown tests
+# ===========================
+
+def _make_breakdown_side_effect(clicks_per_type):
+    """Build 5 mock responses, one per search type (indexed in _SEARCH_TYPES order)."""
+    responses = []
+    for clicks in clicks_per_type:
+        if clicks is None:
+            responses.append({})
+        else:
+            rows = [{"keys": [f"https://example.com/page"], "clicks": clicks, "impressions": clicks * 10, "ctr": 0.1, "position": 3.0}]
+            responses.append({"rows": rows})
+    return responses
+
+
+def test_search_type_breakdown_all_five_keys_present(mock_gsc_service):
+    """Result breakdown must contain all 5 search types."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = (
+        _make_breakdown_side_effect([100, 50, 30, 20, 10])
+    )
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(search_type_breakdown(SITE))
+    assert set(result["breakdown"].keys()) == set(_SEARCH_TYPES)
+
+
+def test_search_type_breakdown_five_gsc_calls_made(mock_gsc_service):
+    """Exactly 5 GSC searchanalytics calls must be made (one per type)."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = (
+        _make_breakdown_side_effect([10, 20, 30, 40, 50])
+    )
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        search_type_breakdown(SITE)
+    assert mock_gsc_service.searchanalytics.return_value.query.call_count == 5
+
+
+def test_search_type_breakdown_url_inserts_filter(mock_gsc_service):
+    """When url is provided, at least one call must include dimensionFilterGroups in the body."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = (
+        _make_breakdown_side_effect([10, 10, 10, 10, 10])
+    )
+    target_url = "https://example.com/specific-page"
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        search_type_breakdown(SITE, url=target_url)
+    all_calls = mock_gsc_service.searchanalytics.return_value.query.call_args_list
+    bodies = [call.kwargs["body"] for call in all_calls]
+    assert all("dimensionFilterGroups" in b for b in bodies), "All 5 calls must include dimensionFilterGroups when url is set"
+    filter_expr = bodies[0]["dimensionFilterGroups"][0]["filters"][0]["expression"]
+    assert filter_expr == target_url
+
+
+def test_search_type_breakdown_clicks_aggregated(mock_gsc_service):
+    """Clicks should sum correctly across multiple rows per type."""
+    # For 'web' (first call), return 2 rows summing to 150 clicks
+    two_rows = [
+        {"keys": ["https://example.com/a"], "clicks": 100, "impressions": 1000, "ctr": 0.1, "position": 2.0},
+        {"keys": ["https://example.com/b"], "clicks": 50, "impressions": 500, "ctr": 0.1, "position": 3.0},
+    ]
+    single_row = [{"keys": ["https://example.com/c"], "clicks": 20, "impressions": 200, "ctr": 0.1, "position": 4.0}]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = [
+        {"rows": two_rows},   # web
+        {"rows": single_row}, # discover
+        {"rows": single_row}, # googleNews
+        {"rows": single_row}, # image
+        {"rows": single_row}, # video
+    ]
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(search_type_breakdown(SITE))
+    assert result["breakdown"]["web"]["clicks"] == 150
+    assert result["breakdown"]["discover"]["clicks"] == 20
+
+
+def test_search_type_breakdown_empty_type_returns_zero(mock_gsc_service):
+    """An empty API response for a type must yield 0 clicks/impressions without error."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = (
+        _make_breakdown_side_effect([100, None, None, None, None])
+    )
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(search_type_breakdown(SITE))
+    assert result["breakdown"]["discover"]["clicks"] == 0
+    assert result["breakdown"]["discover"]["impressions"] == 0
+    assert result["breakdown"]["googleNews"]["clicks"] == 0
+
+
+def test_search_type_breakdown_meta_block_correct(mock_gsc_service):
+    """_meta block must be present with correct tool name and params."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = (
+        _make_breakdown_side_effect([0, 0, 0, 0, 0])
+    )
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(search_type_breakdown(SITE, days=14))
+    assert "_meta" in result
+    assert result["_meta"]["tool"] == "search_type_breakdown"
+    assert result["_meta"]["params"]["site"] == SITE
+    assert result["_meta"]["params"]["days"] == 14
+    assert result["_meta"]["params"]["url"] is None
