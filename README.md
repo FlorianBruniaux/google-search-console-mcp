@@ -1,13 +1,41 @@
 # gsc-mcp
 
-[![PyPI](https://img.shields.io/pypi/v/gsc-mcp)](https://pypi.org/project/gsc-mcp/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![Tests](https://img.shields.io/badge/tests-167%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Google Search Console MCP server with 32 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, and cross-platform GSC+GA4 analysis. Built on Python 3.11+ and FastMCP.
 
-The main workflow it enables: ask Claude "which pages on my site are crawled but not indexed?" then "submit them for indexing", end to end, no manual Google Search Console tabs.
+**TL;DR:** Clone the repo, point it at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
+
+## What you can do with it
+
+```mermaid
+graph LR
+    User((You)) -->|ask in Claude| MCP[gsc-mcp]
+
+    MCP --> A[Properties\nlist_properties\nget_site_details\nget_capabilities]
+    MCP --> B[Search Analytics\nperformance overview\ncompare periods\nanomalies\nadvanced queries]
+    MCP --> C[SEO Intelligence\nquick wins\ntraffic drops\nstriking distance\ncannibalization\nlost queries\nalerts]
+    MCP --> D[URL Inspection\ninspect URL\nbatch inspect\ncategorize issues]
+    MCP --> E[Indexing API\nsubmit URL\nsubmit batch\ntrue HTTP batch]
+    MCP --> F[Sitemaps\nlist / submit\nget / delete]
+    MCP --> G[GA4\norganic pages\ntraffic sources\npage perf\nrealtime\nbehavior\nconversions]
+    MCP --> H[Cross GSC+GA4\nhealth check\npage analysis]
+```
+
+### Tool summary
+
+| Category | Tools | What it does |
+|---|---|---|
+| Properties | `list_properties`, `get_site_details`, `get_capabilities` | Discover and inspect your GSC properties |
+| Analytics | `get_search_analytics`, `get_performance_overview`, `compare_search_periods`, `get_search_by_page_query`, `get_advanced_search_analytics`, `analytics_anomalies` | Query impressions, clicks, CTR, position; compare periods; detect anomalies |
+| SEO | `quick_wins`, `traffic_drops`, `seo_striking_distance`, `seo_cannibalization`, `seo_lost_queries`, `check_alerts` | Surface opportunities, diagnose drops, detect cannibalization |
+| Inspection | `inspect_url`, `batch_url_inspection`, `check_indexing_issues` | URL indexing status, crawl verdict, canonical, categorized by issue type |
+| Indexing | `submit_url`, `submit_batch` | Request (re)indexing via the Google Indexing API, true HTTP batch, quota tracking |
+| Sitemaps | `list_sitemaps`, `submit_sitemap`, `sitemaps_get`, `sitemaps_delete` | Manage submitted sitemaps |
+| GA4 | `ga4_organic_landing_pages`, `ga4_traffic_sources`, `ga4_page_performance`, `ga4_realtime`, `ga4_user_behavior`, `ga4_conversion_funnel` | Analytics 4 data: sessions, engagement, conversions, realtime |
+| Cross | `traffic_health_check`, `page_analysis` | Join GSC clicks with GA4 sessions to catch tracking gaps and score pages by opportunity |
 
 ## Why this exists
 
@@ -74,27 +102,12 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 ## Requirements
 
 - Python 3.11+
-- Google Cloud project with these APIs enabled:
-  - Google Search Console API
-  - Web Search Indexing API
-  - Google Analytics Data API (for GA4 tools)
-- Credentials: OAuth Desktop app OR Service Account JSON
-- For the Indexing API: your account or service account needs **Owner-level** access in Search Console (Full access is not enough)
+- A Google Cloud project with the following APIs enabled: Google Search Console API, Web Search Indexing API, Google Analytics Data API
+- A Service Account JSON key (recommended) or OAuth Desktop credentials
+- For the Indexing API: the service account must have **Owner-level** access on the GSC property (Full access is not enough)
 - Indexing API default quota: 200 requests per day
 
 ## Installation
-
-```bash
-uvx gsc-mcp
-```
-
-Or with pip:
-
-```bash
-pip install gsc-mcp
-```
-
-To run from source:
 
 ```bash
 git clone https://github.com/FlorianBruniaux/google-search-console-mcp
@@ -105,82 +118,48 @@ pip install -e .
 
 ## Configuration
 
-Copy `.env.example` to `.env` and fill in the relevant variables.
+**Full setup guide:** [docs/google-setup.md](docs/google-setup.md) covers creating a Google Cloud project, enabling APIs, creating a service account, adding it to GSC with the right permission level, and configuring GA4.
 
-### OAuth (interactive, good for personal use)
+**First audit prompts:** [docs/starter-prompt.md](docs/starter-prompt.md) contains ready-to-use prompts for a full site audit, a 5-minute health check, single-page inspection, reindexing workflow, and GA4-only analysis.
 
-```bash
-export GSC_CREDENTIALS_PATH=/path/to/oauth-client-credentials.json
-gsc-mcp
-```
-
-The first run opens a browser for Google login. The token is saved to your OS user data directory (`~/.local/share/gsc-mcp/` on Linux, `~/Library/Application Support/gsc-mcp/` on macOS) as JSON files.
-
-### Service Account (recommended for automation and Claude Desktop)
+### Quick start (service account)
 
 ```bash
-export GSC_SERVICE_ACCOUNT_PATH=/path/to/service-account.json
+export GSC_SERVICE_ACCOUNT_PATH=/absolute/path/to/service-account.json
 export GSC_SKIP_OAUTH=true
+export GA4_PROPERTY_ID=123456789   # only needed for GA4 tools
 gsc-mcp
-```
-
-### GA4 setup
-
-GA4 tools use the same Service Account as GSC. Two steps to enable them:
-
-1. Open GA4 Admin, go to Property Access Management, and add the service account email (the `client_email` field in your SA JSON) with the **Viewer** role.
-2. Set the `GA4_PROPERTY_ID` environment variable to your numeric property ID (e.g. `123456789`, visible in GA4 Admin under Property Settings). The `properties/` prefix is added automatically if omitted.
-
-```json
-"env": {
-  "GSC_SERVICE_ACCOUNT_PATH": "/path/to/service-account.json",
-  "GA4_PROPERTY_ID": "123456789"
-}
-```
-
-GSC-only users are not affected: the `GA4_PROPERTY_ID` check runs lazily on the first GA4 tool call, never at startup.
-
-To query a different property without changing the config, pass `property_id` directly to any GA4 or cross tool:
-
-```python
-ga4_traffic_sources(property_id="443684366")
-traffic_health_check(site="sc-domain:example.com", property_id="443684366")
 ```
 
 ### Claude Desktop
 
-Add to your `claude_desktop_config.json`:
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "gsc-mcp": {
-      "command": "python",
+      "command": "/absolute/path/to/.venv/bin/python",
       "args": ["-m", "gsc_mcp.server"],
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
-        "GSC_SKIP_OAUTH": "true"
+        "GSC_SKIP_OAUTH": "true",
+        "GA4_PROPERTY_ID": "123456789"
       }
     }
   }
 }
 ```
 
-Or, once published to PyPI:
+Remove `GA4_PROPERTY_ID` if you are not using GA4 tools. Restart Claude Desktop after saving.
 
-```json
-{
-  "mcpServers": {
-    "gsc-mcp": {
-      "command": "uvx",
-      "args": ["gsc-mcp"],
-      "env": {
-        "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
-        "GSC_SKIP_OAUTH": "true"
-      }
-    }
-  }
-}
+### Multi-property support
+
+To query a different GA4 property without changing the config, pass `property_id` directly to any GA4 or cross tool:
+
+```python
+ga4_traffic_sources(property_id="443684366")
+traffic_health_check(site="sc-domain:example.com", property_id="443684366")
 ```
 
 ## Development
@@ -192,6 +171,11 @@ pytest tests/ -v
 ```
 
 167+ tests, all mocked (no real Google API calls needed).
+
+## Inspirations
+
+- [AminForou/mcp-gsc](https://github.com/AminForou/mcp-gsc): auth patterns, OAuth + Service Account flow, SEO analytics structure
+- [Suganthan-Mohanadasan/Suganthans-GSC-MCP](https://github.com/Suganthan-Mohanadasan/Suganthans-GSC-MCP): Indexing API scope, `with_meta()` output pattern
 
 ## License
 
