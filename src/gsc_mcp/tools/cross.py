@@ -37,7 +37,13 @@ def _normalize_url(url: str) -> str:
     return path or "/"
 
 
-def traffic_health_check(site: str, days: int = 28, property_id: str = None) -> str:
+def traffic_health_check(
+    site: str,
+    days: int = 28,
+    property_id: str | None = None,
+    hostname: str | None = None,
+    country: str | None = None,
+) -> str:
     """Compare total GSC clicks with total GA4 organic sessions to detect tracking gaps.
 
     Fetches aggregate GSC clicks (no page dimension) and sums all organic sessions
@@ -50,6 +56,7 @@ def traffic_health_check(site: str, days: int = 28, property_id: str = None) -> 
 
     Boundaries 0.6 and 1.3 are inclusive of the healthy range (strict < and >).
     GA4 is queried with limit=10000 to avoid under-counting sessions on large sites.
+    hostname and country narrow the GA4 query to a specific host or country.
     """
     gsc_data = json.loads(get_search_analytics(site, days, dimensions=[]))
     total_gsc_clicks = sum(r["clicks"] for r in gsc_data["rows"])
@@ -61,6 +68,8 @@ def traffic_health_check(site: str, days: int = 28, property_id: str = None) -> 
             end_date="today",
             limit=10000,
             property_id=property_id,
+            hostname=hostname,
+            country=country,
         )
     )
     total_ga4_sessions = sum(p["sessions"] for p in ga_data["pages"])
@@ -89,12 +98,19 @@ def traffic_health_check(site: str, days: int = 28, property_id: str = None) -> 
                 "note": "GSC data has a 3-day lag vs GA4. Ratios are approximate.",
             },
             tool="traffic_health_check",
-            params={"site": site, "days": days, "property_id": property_id},
+            params={"site": site, "days": days, "property_id": property_id, "hostname": hostname, "country": country},
         )
     )
 
 
-def page_analysis(site: str, days: int = 28, limit: int = 100, property_id: str = None) -> str:
+def page_analysis(
+    site: str,
+    days: int = 28,
+    limit: int = 100,
+    property_id: str | None = None,
+    hostname: str | None = None,
+    country: str | None = None,
+) -> str:
     """Join GSC and GA4 data at the page level and rank by opportunity score.
 
     GSC rows are fetched with dimensions=["page"] (already aggregated per page).
@@ -108,6 +124,7 @@ def page_analysis(site: str, days: int = 28, limit: int = 100, property_id: str 
     because ga4_organic_landing_pages does not expose it directly.
 
     Results are sorted by opportunity_score descending, truncated to `limit`.
+    hostname and country narrow the GA4 query to a specific host or country.
     """
     gsc_data = json.loads(
         get_search_analytics(site, days, dimensions=["page"], row_limit=1000)
@@ -131,6 +148,8 @@ def page_analysis(site: str, days: int = 28, limit: int = 100, property_id: str 
             end_date="today",
             limit=1000,
             property_id=property_id,
+            hostname=hostname,
+            country=country,
         )
     )
 
@@ -194,6 +213,6 @@ def page_analysis(site: str, days: int = 28, limit: int = 100, property_id: str 
                 "note": "GSC data has a 3-day lag vs GA4. Ratios are approximate.",
             },
             tool="page_analysis",
-            params={"site": site, "days": days, "limit": limit, "property_id": property_id},
+            params={"site": site, "days": days, "limit": limit, "property_id": property_id, "hostname": hostname, "country": country},
         )
     )

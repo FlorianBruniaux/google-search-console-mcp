@@ -260,7 +260,7 @@ def test_pa_limit():
 def test_pa_meta():
     result = _pa([], [])
     assert result["_meta"]["tool"] == "page_analysis"
-    assert result["_meta"]["params"] == {"site": SITE, "days": 28, "limit": 100, "property_id": None}
+    assert result["_meta"]["params"] == {"site": SITE, "days": 28, "limit": 100, "property_id": None, "hostname": None, "country": None}
 
 
 def test_thc_property_id_propagated():
