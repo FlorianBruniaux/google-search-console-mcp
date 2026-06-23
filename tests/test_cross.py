@@ -385,13 +385,13 @@ def _schema_json(schemas_detected=1, errors_count=0):
     })
 
 
-def _phs(inspect_rv, ga4_rv, crux_rv, schema_rv):
+def _phs(inspect_rv, ga4_rv, crux_rv, schema_rv, property_id=None, hostname=None, country=None):
     """Run page_health_score with all four components mocked."""
     with patch("gsc_mcp.tools.cross.inspect_url", return_value=inspect_rv), \
          patch("gsc_mcp.tools.cross.ga4_page_performance", return_value=ga4_rv), \
          patch("gsc_mcp.tools.cross.crux_page_vitals", return_value=crux_rv), \
          patch("gsc_mcp.tools.cross.schema_validate", return_value=schema_rv):
-        return json.loads(page_health_score(SITE, URL))
+        return json.loads(page_health_score(SITE, URL, property_id=property_id, hostname=hostname, country=country))
 
 
 # ---------------------------------------------------------------------------
@@ -519,3 +519,34 @@ def test_phs_output_fields():
         assert "score" in comp
         assert "max" in comp
         assert "available" in comp
+
+
+def test_phs_schema_no_schemas_detected_zero_pts():
+    """Schema with no schemas detected -> 0 pts (no error-free bonus without schemas)."""
+    result = _phs(
+        _inspect_json(),
+        _ga4_page_perf_json(),
+        _crux_json(),
+        _schema_json(schemas_detected=0, errors_count=0),
+    )
+    # schema: 0 pts because schemas_detected=0, no error-free bonus
+    assert result["components"]["schema"]["score"] == 0
+    assert result["components"]["schema"]["available"] is True
+    # max 100, earned = 30+25+25+0 = 80 -> score = 80
+    assert result["score"] == 80
+
+
+def test_phs_meta_includes_hostname_and_country():
+    """_meta params includes hostname and country when provided."""
+    result = _phs(
+        _inspect_json(),
+        _ga4_page_perf_json(),
+        _crux_json(),
+        _schema_json(),
+        property_id="443684366",
+        hostname="blog.example.com",
+        country="US",
+    )
+    assert result["_meta"]["params"]["hostname"] == "blog.example.com"
+    assert result["_meta"]["params"]["country"] == "US"
+    assert result["_meta"]["params"]["property_id"] == "443684366"

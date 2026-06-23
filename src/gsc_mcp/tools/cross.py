@@ -313,9 +313,9 @@ def page_health_score(
         schemas_found = schema_raw.get("schemas_detected", 0)
         if schemas_found > 0:
             schema_pts += 10
-        errors = [f for s in schemas for f in s.get("missing_required_fields", [])]
-        if len(errors) == 0:
-            schema_pts += 10
+            errors = [f for s in schemas for f in s.get("missing_required_fields", [])]
+            if len(errors) == 0:
+                schema_pts += 10
     except RuntimeError:
         schema_available = False
 
@@ -355,6 +355,6 @@ def page_health_score(
                 },
             },
             tool="page_health_score",
-            params={"site": site, "url": url, "property_id": property_id},
+            params={"site": site, "url": url, "property_id": property_id, "hostname": hostname, "country": country},
         )
     )
