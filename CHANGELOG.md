@@ -1,5 +1,46 @@
 # Changelog
 
+## [0.5.0] - 2026-06-23
+
+4 nouveaux tools, filtres hostname/country sur tous les tools GA4, et 55 nouveaux tests. 36 tools au total, 222 tests.
+
+### Added
+
+**GA4 : filtres hostname et country (tools existants)**
+
+- `_build_dimension_filter(hostname, country, base_filter)` dans `ga4.py` : construit un `FilterExpression` seul ou un AND group (via `FilterExpressionList`) selon le nombre de filtres actifs. Backward-compatible : avec `None, None`, le comportement est identique à avant
+- Paramètres `hostname: str | None = None` et `country: str | None = None` ajoutés à `ga4_organic_landing_pages`, `ga4_traffic_sources`, `ga4_page_performance`, `ga4_user_behavior`, `ga4_conversion_funnel`
+- Paramètre `hostname: str | None = None` ajouté à `ga4_realtime` (`country` non disponible sur `runRealtimeReport`)
+- Mêmes paramètres propagés à `traffic_health_check` et `page_analysis` (passés à `ga4_organic_landing_pages` en interne)
+- 20+ nouveaux tests dans `test_ga4.py` et correction de `test_pa_meta` dans `test_cross.py`
+
+**CrUX : Core Web Vitals réels (nouveaux tools)**
+
+- `crux_page_vitals(url, form_factor)` : interroge le Chrome UX Report API (`:queryRecord`). Retourne LCP, INP, CLS, FCP, TTFB avec ratings good/needs_improvement/poor, percentiles p75, et un verdict global `good`/`needs_improvement`/`poor`/`not_enough_data`. Nécessite `CRUX_API_KEY`
+- `crux_history(url, form_factor)` : séries temporelles hebdomadaires via `:queryHistoryRecord`. Retourne jusqu'à 25 semaines de p75 par métrique pour tracker les régressions CWV
+- `CRUX_API_KEY` : variable d'env distincte de l'auth GSC (Google API Key simple, pas service account). La Chrome UX Report API doit être activée dans le projet GCP
+- Nouvelle dépendance : `httpx>=0.27.0`
+- 16 nouveaux tests dans `tests/test_crux.py`
+
+**Sitemaps : audit de couverture (nouveau tool)**
+
+- `sitemap_audit(site, sitemap_url)` : fetch un sitemap (ou sitemap index) via httpx, parse les URLs avec `defusedxml.ElementTree` (prévient XXE et billion-laughs), cross-référence contre 90 jours de GSC via `get_search_analytics`. Gère les sitemap index avec une récursion d'un niveau. Verdicts : `empty` | `fetch_error` | `partial` (>20% URLs absentes de GSC) | `healthy`
+- Protection SSRF : les child sitemaps d'un sitemap index sont validés contre l'origin du sitemap parent (`follow_redirects=False`)
+- Nouvelle dépendance : `defusedxml>=0.7.1`
+- 7 nouveaux tests dans `tests/test_sitemap_audit.py`
+
+**Technical : validation JSON-LD (nouveau tool)**
+
+- `schema_validate(url)` : fetch n'importe quelle URL publique via httpx, extrait tous les blocs `<script type="application/ld+json">` via `html.parser` (stdlib, pas de dépendance externe), valide les champs requis par type (Article, LocalBusiness, FAQPage, Product, WebSite, BreadcrumbList, SoftwareApplication...), et suggère des schemas manquants selon les patterns d'URL (/faq → FAQPage, /blog/ → BlogPosting, etc.). Verdicts : `healthy` | `missing_schemas` | `invalid_schemas` | `fetch_error`. Ne nécessite pas d'auth
+- 15 nouveaux tests dans `tests/test_technical.py`
+
+### Changed
+
+- Tool count : 32 → 36
+- Test count : 167 → 222
+- `get_capabilities` docstring : "32" → "36", `_ALL_TOOLS` étendu avec les 4 nouveaux tools
+- `pyproject.toml` description mise à jour pour refléter les 36 tools et les nouvelles catégories
+
 ## [0.4.2] - 2026-06-22
 
 ### Added

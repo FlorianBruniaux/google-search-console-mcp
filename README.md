@@ -11,18 +11,18 @@ Google Search Console MCP server with 36 tools covering search analytics, URL in
 
 ## What you can do with it
 
-```mermaid
-graph LR
-    User((You)) -->|ask in Claude| MCP[gsc-mcp]
-
-    MCP --> A[Properties\nlist_properties\nget_site_details\nget_capabilities]
-    MCP --> B[Search Analytics\nperformance overview\ncompare periods\nanomalies\nadvanced queries]
-    MCP --> C[SEO Intelligence\nquick wins\ntraffic drops\nstriking distance\ncannibalization\nlost queries\nalerts]
-    MCP --> D[URL Inspection\ninspect URL\nbatch inspect\ncategorize issues]
-    MCP --> E[Indexing API\nsubmit URL\nsubmit batch\ntrue HTTP batch]
-    MCP --> F[Sitemaps\nlist / submit\nget / delete]
-    MCP --> G[GA4\norganic pages\ntraffic sources\npage perf\nrealtime\nbehavior\nconversions]
-    MCP --> H[Cross GSC+GA4\nhealth check\npage analysis]
+```
+You → Claude → gsc-mcp
+                 ├── Properties     (list, details, capabilities)
+                 ├── Analytics      (performance, periods, anomalies)
+                 ├── SEO            (quick wins, drops, cannibalization)
+                 ├── Inspection     (URL status, batch, issue categories)
+                 ├── Indexing API   (submit URL, true HTTP batch)
+                 ├── Sitemaps       (list, submit, audit coverage)
+                 ├── GA4            (pages, sources, realtime, funnels)
+                 ├── Cross GSC+GA4  (health check, page analysis)
+                 ├── CrUX           (Core Web Vitals, history)
+                 └── Technical      (JSON-LD schema validation)
 ```
 
 ### Tool summary
