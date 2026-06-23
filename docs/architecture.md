@@ -11,9 +11,9 @@ src/gsc_mcp/
 ├── server.py          # Entry point. Imports all tools, registers them on the FastMCP instance
 ├── auth.py            # get_searchconsole_service(), get_indexing_service(), get_ga4_service(), get_ga4_property_id()
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
-├── meta.py            # with_meta(data, tool, params) — wraps every tool output
-├── retry.py           # with_retry() decorator — exponential backoff on retryable HTTP errors
-├── quota.py           # QuotaTracker — in-memory counter for Indexing API calls
+├── meta.py            # with_meta(data, tool, params): wraps every tool output
+├── retry.py           # with_retry() decorator: exponential backoff on retryable HTTP errors
+├── quota.py           # QuotaTracker: in-memory counter for Indexing API calls
 └── tools/
     ├── properties.py  # get_capabilities, list_properties, get_site_details
     ├── analytics.py   # 6 analytics tools + _fetch_rows / _date_range / _parse_row helpers
@@ -101,9 +101,14 @@ Every tool returns `json.dumps(with_meta(data, tool=..., params=...))`. The `_me
 
 ## Retry
 
-`retry.py` provides a `with_retry(max_retries=3, base_delay=1.0)` decorator. It catches `googleapiclient.errors.HttpError` and retries on status codes `{429, 500, 502, 503, 504}` with exponential backoff (`base_delay * 2^attempt`). It does not retry on 404 (not found is not transient).
+`retry.py` provides a `with_retry(max_retries=3, base_delay=1.0)` decorator. It catches two families of transient errors and retries with exponential backoff (`base_delay * 2^attempt`):
 
-The tools do not currently apply `with_retry` automatically because the `@mcp.tool()` decorator wraps the function signature for Pydantic schema generation. Applying retry at the call site inside each tool is straightforward if needed.
+- `googleapiclient.errors.HttpError` on status codes `{429, 500, 502, 503, 504}`: GSC and Indexing API errors
+- `google.api_core.exceptions` subtypes `ServiceUnavailable`, `ResourceExhausted`, `InternalServerError`, `BadGateway`, `RetryError`: GA4 gRPC errors
+
+It does not retry on 4xx errors other than 429 (those are client errors, not transient).
+
+The decorator is applied at the function level rather than the tool level. `_fetch_rows` in `analytics.py` is the main call site: since all analytics and SEO tools use it as their data layer, a single `@with_retry()` there covers those tools entirely. GA4 tools each carry their own `@with_retry()` since they call `client.run_report()` / `client.batch_run_reports()` directly. Properties, inspection, and sitemap tools are also individually decorated.
 
 ## Quota tracking
 

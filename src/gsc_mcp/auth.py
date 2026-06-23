@@ -26,8 +26,9 @@ def _load_oauth_token(token_path: Path) -> Credentials | None:
 
 
 def _save_oauth_token(token_path: Path, creds: Credentials) -> None:
-    token_path.parent.mkdir(parents=True, exist_ok=True)
+    token_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     token_path.write_text(creds.to_json())
+    os.chmod(token_path, 0o600)
 
 
 def _get_service_account_creds(scopes: list[str]) -> service_account.Credentials:

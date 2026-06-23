@@ -6,4 +6,8 @@ dist/
 *.egg-info/
 .pytest_cache/
 token.pickle
+token_*.json
+*client_secret*.json
+*credentials*.json
+*service_account*.json
 .claudedocs/

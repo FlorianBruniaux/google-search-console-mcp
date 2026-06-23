@@ -3,6 +3,7 @@ import statistics
 from datetime import date, timedelta
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
+from gsc_mcp.retry import with_retry
 
 _ANALYTICS_LAG_DAYS = 3
 _DEFAULT_ROW_LIMIT = 1000
@@ -25,6 +26,7 @@ def _parse_row(row: dict, dimensions: list[str]) -> dict:
     return parsed
 
 
+@with_retry()
 def _fetch_rows(svc, site: str, body: dict) -> list[dict]:
     rows: list[dict] = []
     start_row = 0
@@ -48,6 +50,11 @@ def get_search_analytics(
     dimensions: list[str] | None = None,
     row_limit: int = _DEFAULT_ROW_LIMIT,
 ) -> str:
+    """Fetch GSC search analytics (clicks, impressions, CTR, position) for a site.
+
+    Groups results by the requested dimensions (query, page, device, country). Data has
+    a 3-day reporting lag; the window covers the `days` days ending 3 days ago.
+    """
     if dimensions is None:
         dimensions = ["query"]
     start, end = _date_range(days)
@@ -67,6 +74,10 @@ def get_search_analytics(
 
 
 def get_performance_overview(site: str, days: int = 28) -> str:
+    """Summarise total clicks, impressions, average CTR and average position for a site.
+
+    Returns aggregate totals plus the top 10 queries by clicks over the rolling window.
+    """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {"startDate": start, "endDate": end, "dimensions": ["query"], "rowLimit": _MAX_ROWS_PER_PAGE}
@@ -95,6 +106,11 @@ def get_performance_overview(site: str, days: int = 28) -> str:
 
 
 def compare_search_periods(site: str, days: int = 28) -> str:
+    """Compare two consecutive equal-length windows and report delta in clicks and impressions.
+
+    Period B is the most recent `days` days (with a 3-day lag). Period A is the
+    `days` days immediately before that. Useful for week-over-week or month-over-month trends.
+    """
     svc = get_searchconsole_service()
 
     end_b = date.today() - timedelta(days=_ANALYTICS_LAG_DAYS)
@@ -132,6 +148,10 @@ def compare_search_periods(site: str, days: int = 28) -> str:
 
 
 def get_search_by_page_query(site: str, days: int = 28, row_limit: int = _DEFAULT_ROW_LIMIT) -> str:
+    """Fetch GSC data grouped by both page and query simultaneously.
+
+    Useful for identifying which query drives which page and diagnosing on-page relevance issues.
+    """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {
@@ -160,6 +180,12 @@ def get_search_by_page_query(site: str, days: int = 28, row_limit: int = _DEFAUL
 
 
 def analytics_anomalies(site: str, days: int = 90, threshold: float = 2.5) -> str:
+    """Detect days with statistically abnormal click volumes using z-score analysis.
+
+    A day is flagged as a spike or drop when abs(z_score) > threshold (default 2.5).
+    Returns mean_daily_clicks, std_daily_clicks, and the list of anomalous days with their z-score.
+    Use `days=90` or more for meaningful baseline statistics.
+    """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {
@@ -214,6 +240,13 @@ def get_advanced_search_analytics(
     search_type: str = "web",
     data_state: str | None = None,
 ) -> str:
+    """Fetch GSC search analytics with full control over search_type, data_state, dimensions, and row limit.
+
+    search_type: 'web' (default), 'image', 'video', or 'news'.
+    data_state: 'final' (default, omit to use API default) or 'all' (includes fresh unverified data).
+    dimensions: list of 'query', 'page', 'device', 'country', 'searchAppearance'.
+    Use when get_search_analytics defaults are not sufficient.
+    """
     if dimensions is None:
         dimensions = ["query"]
     start, end = _date_range(date_range_days)

@@ -1,6 +1,7 @@
 import json
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
+from gsc_mcp.retry import with_retry
 
 _MAX_BATCH = 10
 
@@ -39,7 +40,14 @@ def _parse_inspection(url: str, response: dict) -> dict:
     }
 
 
+@with_retry()
 def inspect_url(url: str, site: str) -> str:
+    """Inspect a single URL in GSC to get its indexing status, last crawl time, and canonical URL.
+
+    Returns verdict (PASS/NEUTRAL/FAIL), robotsTxtState, indexingState, pageFetchState,
+    googleCanonical, userCanonical, and a derived category (indexed, robots_blocked,
+    fetch_error, canonical_issue, not_indexed).
+    """
     svc = get_searchconsole_service()
     body = {"inspectionUrl": url, "siteUrl": site}
     response = svc.urlInspection().index().inspect(body=body).execute()
@@ -47,7 +55,9 @@ def inspect_url(url: str, site: str) -> str:
     return json.dumps(with_meta(parsed, tool="inspect_url", params={"url": url, "site": site}))
 
 
+@with_retry()
 def batch_url_inspection(urls: list[str], site: str) -> str:
+    """Inspect up to 10 URLs at once in GSC. Returns the same fields as inspect_url for each URL."""
     if len(urls) > _MAX_BATCH:
         raise ValueError(f"batch_url_inspection supports max 10 URLs, got {len(urls)}")
 
@@ -65,7 +75,13 @@ def batch_url_inspection(urls: list[str], site: str) -> str:
     ))
 
 
+@with_retry()
 def check_indexing_issues(urls: list[str], site: str) -> str:
+    """Inspect up to 10 URLs and return only those with indexing problems, plus a summary count by category.
+
+    Categories: indexed, not_indexed, robots_blocked, fetch_error, canonical_issue.
+    Use batch_url_inspection if you need results for all URLs regardless of status.
+    """
     if len(urls) > _MAX_BATCH:
         raise ValueError(f"check_indexing_issues supports max 10 URLs, got {len(urls)}")
 

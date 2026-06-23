@@ -22,6 +22,11 @@ def _benchmark_ctr(position: float) -> float:
 
 
 def quick_wins(site: str, days: int = 28, min_impressions: int = _WIN_MIN_IMPRESSIONS) -> str:
+    """Identify pages ranking between positions 4-15 whose CTR is below the industry benchmark for their rank.
+
+    Sorted by opportunity_score = (benchmark_ctr - actual_ctr) * impressions. High scores mean
+    large click gains are possible with CTR optimisation (title/meta improvements).
+    """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {
@@ -65,6 +70,12 @@ def quick_wins(site: str, days: int = 28, min_impressions: int = _WIN_MIN_IMPRES
 
 
 def traffic_drops(site: str, days: int = 28) -> str:
+    """Find queries whose clicks dropped compared to the previous equally-sized period.
+
+    Each result includes a diagnosis: 'ranking_loss' (position degraded by more than 2),
+    'ctr_collapse' (CTR fell more than 30%), or 'demand_decline' (impressions also fell).
+    Note: uses date.today() without a GSC reporting lag, so the most recent 2-3 days may be incomplete.
+    """
     svc = get_searchconsole_service()
 
     from datetime import date, timedelta
@@ -126,6 +137,11 @@ def traffic_drops(site: str, days: int = 28) -> str:
 
 
 def seo_striking_distance(site: str, days: int = 28, min_impressions: int = 0) -> str:
+    """List queries ranking between positions 8-15, sorted by impressions descending.
+
+    These are the best candidates for ranking improvement: close enough to page 1 that
+    targeted content or link optimisation can move them into top positions.
+    """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {
@@ -160,6 +176,12 @@ def seo_striking_distance(site: str, days: int = 28, min_impressions: int = 0) -
 
 
 def seo_cannibalization(site: str, days: int = 28, min_impressions: int = 50) -> str:
+    """Detect queries where multiple pages compete for the same ranking slot.
+
+    Uses the Herfindahl-Hirschman Index (HHI) to measure click concentration across pages.
+    conflict_score = 1 - HHI: values near 1 mean clicks are split evenly across pages (high competition).
+    Filters to queries with at least min_impressions total impressions to exclude noise.
+    """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {
@@ -229,9 +251,12 @@ def seo_cannibalization(site: str, days: int = 28, min_impressions: int = 50) ->
 
 
 def seo_lost_queries(site: str, days: int = 28) -> str:
-    # NOTE: uses date.today() with NO lag, matching traffic_drops behaviour.
-    # The current period (period_b) may include the last 2-3 days of incomplete
-    # GSC data (reporting latency), which can produce false positives on recent queries.
+    """Find queries that had significant clicks previously but now have 80%+ fewer clicks.
+
+    Only queries with at least 5 clicks in the previous period are included to filter noise.
+    Note: uses date.today() without a GSC reporting lag, so the most recent 2-3 days of the
+    current period may include incomplete data and produce false positives.
+    """
     svc = get_searchconsole_service()
 
     from datetime import date, timedelta
@@ -285,6 +310,12 @@ def seo_lost_queries(site: str, days: int = 28) -> str:
 
 
 def check_alerts(site: str, days: int = 28) -> str:
+    """Scan for structural SEO risks: traffic concentration and high-impression low-rank pages.
+
+    Flags 'traffic_concentration' (severity: high) when a single query drives more than 50% of
+    all clicks (fragility indicator) and 'high_impression_low_rank' (severity: medium) when a
+    page gets more than 5000 impressions at position > 10 (content optimisation opportunity).
+    """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {

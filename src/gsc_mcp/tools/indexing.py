@@ -10,6 +10,12 @@ _default_quota = QuotaTracker(limit=QUOTA_INDEXING_LIMIT, warn_at=QUOTA_INDEXING
 
 
 def submit_url(url: str, url_type: str = "URL_UPDATED") -> str:
+    """Submit a single URL to the Google Indexing API for crawl notification.
+
+    url_type must be 'URL_UPDATED' (page added or changed, default) or 'URL_DELETED' (page removed).
+    Requires a service account with Indexing API access — OAuth is not sufficient.
+    Returns status 'submitted' on success or 'error' with details on failure.
+    """
     svc = get_indexing_service()
     try:
         svc.urlNotifications().publish(body={"url": url, "type": url_type}).execute()
@@ -70,4 +76,10 @@ def _submit_batch_impl(urls: list[str], url_type: str, quota: QuotaTracker) -> s
 
 
 def submit_batch(urls: list[str], url_type: str = "URL_UPDATED") -> str:
+    """Submit multiple URLs to the Google Indexing API in HTTP batches of 100.
+
+    Returns per-URL results, total submitted/error counts, and remaining daily quota.
+    Daily limit is 200 requests total. A quota_warning is added to the response when
+    usage exceeds 180. url_type: 'URL_UPDATED' (default) or 'URL_DELETED'.
+    """
     return _submit_batch_impl(urls, url_type, _default_quota)
