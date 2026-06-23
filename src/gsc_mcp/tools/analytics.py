@@ -232,6 +232,20 @@ def analytics_anomalies(site: str, days: int = 90, threshold: float = 2.5) -> st
     ))
 
 
+def discover_performance(site: str, days: int = 28, limit: int = 50) -> str:
+    """Get Discover performance: top pages by impressions (Discover does not support query dimension)."""
+    start, end = _date_range(days)
+    svc = get_searchconsole_service()
+    body = {"startDate": start, "endDate": end, "dimensions": ["page"], "type": "discover"}
+    rows = _fetch_rows(svc, site, body)
+    rows.sort(key=lambda r: r["impressions"], reverse=True)
+    return json.dumps(with_meta(
+        {"site": site, "days": days, "count": len(rows[:limit]), "rows": rows[:limit]},
+        tool="discover_performance",
+        params={"site": site, "days": days, "limit": limit},
+    ))
+
+
 def get_advanced_search_analytics(
     site: str,
     dimensions: list[str] | None = None,
