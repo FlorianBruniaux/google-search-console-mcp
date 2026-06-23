@@ -35,6 +35,7 @@ from gsc_mcp.tools.ga4 import (
 )
 from gsc_mcp.tools.cross import traffic_health_check, page_analysis
 from gsc_mcp.tools.crux import crux_page_vitals, crux_history
+from gsc_mcp.tools.technical import schema_validate
 
 mcp = FastMCP("gsc-mcp")
 
@@ -73,6 +74,7 @@ mcp.tool()(traffic_health_check)
 mcp.tool()(page_analysis)
 mcp.tool()(crux_page_vitals)
 mcp.tool()(crux_history)
+mcp.tool()(schema_validate)
 
 
 def main() -> None:
