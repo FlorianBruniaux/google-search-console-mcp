@@ -1,6 +1,7 @@
 import json
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
+from gsc_mcp.retry import with_retry
 
 _ALL_TOOLS = [
     "get_capabilities",
@@ -35,10 +36,15 @@ _ALL_TOOLS = [
     "ga4_conversion_funnel",
     "traffic_health_check",
     "page_analysis",
+    "crux_page_vitals",
+    "crux_history",
+    "sitemap_audit",
+    "schema_validate",
 ]
 
 
 def get_capabilities() -> str:
+    """List all 36 available tool names in this MCP server."""
     return json.dumps(with_meta(
         {"total": len(_ALL_TOOLS), "tools": _ALL_TOOLS},
         tool="get_capabilities",
@@ -46,7 +52,9 @@ def get_capabilities() -> str:
     ))
 
 
+@with_retry()
 def list_properties() -> str:
+    """List all GSC properties the authenticated account can access, with their permission levels."""
     svc = get_searchconsole_service()
     response = svc.sites().list().execute()
     entries = response.get("siteEntry", [])
@@ -61,7 +69,9 @@ def list_properties() -> str:
     ))
 
 
+@with_retry()
 def get_site_details(site_url: str) -> str:
+    """Get the permission level for a specific GSC property URL."""
     svc = get_searchconsole_service()
     response = svc.sites().get(siteUrl=site_url).execute()
     return json.dumps(with_meta(

@@ -107,9 +107,14 @@ def sitemap_audit(site: str, sitemap_url: str) -> str:
     """
     NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
+    from urllib.parse import urlparse
+    origin = urlparse(sitemap_url).netloc
+
     def _fetch_xml(url: str):
+        if urlparse(url).netloc != origin:
+            return None
         try:
-            with httpx.Client(timeout=15, follow_redirects=True) as client:
+            with httpx.Client(timeout=15, follow_redirects=False) as client:
                 resp = client.get(url, headers={"User-Agent": "gsc-mcp-sitemap-audit/1.0"})
                 resp.raise_for_status()
                 return ET.fromstring(resp.content)
@@ -125,7 +130,8 @@ def sitemap_audit(site: str, sitemap_url: str) -> str:
     elif root.tag.endswith("sitemapindex"):
         is_index = True
         for loc in root.findall(".//sm:sitemap/sm:loc", NS):
-            child = _fetch_xml(loc.text.strip())
+            child_url = loc.text.strip()
+            child = _fetch_xml(child_url)
             if child is not None:
                 declared_urls += [
                     l.text.strip()

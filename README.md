@@ -2,10 +2,10 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-167%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-222%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 32 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, and cross-platform GSC+GA4 analysis. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 36 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, and JSON-LD schema validation. Built on Python 3.11+ and FastMCP.
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
@@ -34,9 +34,11 @@ graph LR
 | SEO | `quick_wins`, `traffic_drops`, `seo_striking_distance`, `seo_cannibalization`, `seo_lost_queries`, `check_alerts` | Surface opportunities, diagnose drops, detect cannibalization |
 | Inspection | `inspect_url`, `batch_url_inspection`, `check_indexing_issues` | URL indexing status, crawl verdict, canonical, categorized by issue type |
 | Indexing | `submit_url`, `submit_batch` | Request (re)indexing via the Google Indexing API, true HTTP batch, quota tracking |
-| Sitemaps | `list_sitemaps`, `submit_sitemap`, `sitemaps_get`, `sitemaps_delete` | Manage submitted sitemaps |
-| GA4 | `ga4_organic_landing_pages`, `ga4_traffic_sources`, `ga4_page_performance`, `ga4_realtime`, `ga4_user_behavior`, `ga4_conversion_funnel` | Analytics 4 data: sessions, engagement, conversions, realtime |
+| Sitemaps | `list_sitemaps`, `submit_sitemap`, `sitemaps_get`, `sitemaps_delete`, `sitemap_audit` | Manage submitted sitemaps; audit declared URLs against GSC coverage |
+| GA4 | `ga4_organic_landing_pages`, `ga4_traffic_sources`, `ga4_page_performance`, `ga4_realtime`, `ga4_user_behavior`, `ga4_conversion_funnel` | Analytics 4 data: sessions, engagement, conversions, realtime (all filterable by `hostname` and `country`) |
 | Cross | `traffic_health_check`, `page_analysis` | Join GSC clicks with GA4 sessions to catch tracking gaps and score pages by opportunity |
+| CrUX | `crux_page_vitals`, `crux_history` | Real-user Core Web Vitals (LCP, INP, CLS, FCP, TTFB) from the Chrome UX Report API, requires `CRUX_API_KEY` |
+| Technical | `schema_validate` | Fetch any public URL and validate its JSON-LD structured data schemas; suggests missing schemas by URL pattern |
 
 ## Why this exists
 
@@ -141,8 +143,11 @@ pip install -e .
 export GSC_SERVICE_ACCOUNT_PATH=/absolute/path/to/service-account.json
 export GSC_SKIP_OAUTH=true
 export GA4_PROPERTY_ID=123456789   # only needed for GA4 tools
+export CRUX_API_KEY=AIza...        # only needed for crux_page_vitals, crux_history
 gsc-mcp
 ```
+
+`CRUX_API_KEY` is a Google API key (not a service account) with the **Chrome UX Report API** enabled in your GCP Console. It is separate from GSC auth and only required for CrUX tools.
 
 ### Claude Desktop
 
@@ -157,7 +162,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
         "GSC_SKIP_OAUTH": "true",
-        "GA4_PROPERTY_ID": "123456789"
+        "GA4_PROPERTY_ID": "123456789",
+        "CRUX_API_KEY": "AIza..."
       }
     }
   }
@@ -183,7 +189,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-167+ tests, all mocked (no real Google API calls needed).
+222+ tests, all mocked (no real Google API calls needed).
 
 ## Inspirations
 
