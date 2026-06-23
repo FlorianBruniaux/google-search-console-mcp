@@ -246,6 +246,20 @@ def discover_performance(site: str, days: int = 28, limit: int = 50) -> str:
     ))
 
 
+def news_performance(site: str, days: int = 28, limit: int = 50) -> str:
+    """Get Google News performance: top pages by impressions (News does not support query dimension)."""
+    start, end = _date_range(days)
+    svc = get_searchconsole_service()
+    body = {"startDate": start, "endDate": end, "dimensions": ["page"], "type": "googleNews"}
+    rows = _fetch_rows(svc, site, body)
+    rows.sort(key=lambda r: r["impressions"], reverse=True)
+    return json.dumps(with_meta(
+        {"site": site, "days": days, "count": len(rows[:limit]), "rows": rows[:limit]},
+        tool="news_performance",
+        params={"site": site, "days": days, "limit": limit},
+    ))
+
+
 def get_advanced_search_analytics(
     site: str,
     dimensions: list[str] | None = None,

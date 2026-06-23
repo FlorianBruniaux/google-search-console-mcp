@@ -10,6 +10,7 @@ from gsc_mcp.tools.analytics import (
     get_advanced_search_analytics,
     analytics_anomalies,
     discover_performance,
+    news_performance,
 )
 
 SITE = "https://example.com/"
@@ -246,6 +247,70 @@ def test_discover_performance_meta_block_correct(mock_gsc_service):
         result = json.loads(discover_performance(SITE, days=14, limit=25))
     assert "_meta" in result
     assert result["_meta"]["tool"] == "discover_performance"
+    assert result["_meta"]["params"]["site"] == SITE
+    assert result["_meta"]["params"]["days"] == 14
+    assert result["_meta"]["params"]["limit"] == 25
+
+
+# ===========================
+# news_performance tests
+# ===========================
+
+_NEWS_ROW_HIGH = {"keys": ["https://example.com/news1"], "clicks": 150, "impressions": 4000, "ctr": 0.0375, "position": 1.5}
+_NEWS_ROW_LOW = {"keys": ["https://example.com/news2"], "clicks": 5, "impressions": 200, "ctr": 0.025, "position": 2.5}
+
+
+def test_news_performance_returns_rows_sorted_by_impressions_desc(mock_gsc_service):
+    """Rows must be sorted by impressions descending."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        "rows": [_NEWS_ROW_LOW, _NEWS_ROW_HIGH]
+    }
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(news_performance(SITE))
+    assert result["rows"][0]["impressions"] == 4000
+    assert result["rows"][1]["impressions"] == 200
+
+
+def test_news_performance_limit_applied(mock_gsc_service):
+    """When more rows than limit, only limit rows are returned."""
+    many_rows = [
+        {"keys": [f"https://example.com/news{i}"], "clicks": i, "impressions": i * 10, "ctr": 0.1, "position": 1.0}
+        for i in range(1, 11)
+    ]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": many_rows}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(news_performance(SITE, limit=3))
+    assert result["count"] == 3
+    assert len(result["rows"]) == 3
+
+
+def test_news_performance_request_body_uses_googlenews_type(mock_gsc_service):
+    """The API request body must contain 'type': 'googleNews' and dimensions ['page']."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        news_performance(SITE)
+    call_kwargs = mock_gsc_service.searchanalytics.return_value.query.call_args
+    body_sent = call_kwargs.kwargs["body"]
+    assert body_sent["type"] == "googleNews"
+    assert body_sent["dimensions"] == ["page"]
+
+
+def test_news_performance_empty_response_returns_count_zero(mock_gsc_service):
+    """Empty API response must not raise and must return count=0."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(news_performance(SITE))
+    assert result["count"] == 0
+    assert result["rows"] == []
+
+
+def test_news_performance_meta_block_correct(mock_gsc_service):
+    """_meta block must be present with correct tool name and params."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(news_performance(SITE, days=14, limit=25))
+    assert "_meta" in result
+    assert result["_meta"]["tool"] == "news_performance"
     assert result["_meta"]["params"]["site"] == SITE
     assert result["_meta"]["params"]["days"] == 14
     assert result["_meta"]["params"]["limit"] == 25
