@@ -1,12 +1,13 @@
 # gsc-mcp
 
+[![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![Tests](https://img.shields.io/badge/tests-167%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Google Search Console MCP server with 32 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, and cross-platform GSC+GA4 analysis. Built on Python 3.11+ and FastMCP.
 
-**TL;DR:** Clone the repo, point it at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
+**TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
 ## What you can do with it
 
@@ -110,6 +111,18 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 ## Installation
 
 ```bash
+uvx gsc-mcp-tools
+```
+
+Or with pip:
+
+```bash
+pip install gsc-mcp-tools
+```
+
+To run from source:
+
+```bash
 git clone https://github.com/FlorianBruniaux/google-search-console-mcp
 cd google-search-console-mcp
 python3 -m venv .venv && source .venv/bin/activate
@@ -139,8 +152,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "gsc-mcp": {
-      "command": "/absolute/path/to/.venv/bin/python",
-      "args": ["-m", "gsc_mcp.server"],
+      "command": "uvx",
+      "args": ["gsc-mcp-tools"],
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
         "GSC_SKIP_OAUTH": "true",
