@@ -2,7 +2,7 @@
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 32 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
+gsc-mcp is a FastMCP server exposing 36 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
 
 ## File structure
 
@@ -20,9 +20,11 @@ src/gsc_mcp/
     ├── seo.py         # quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
     ├── indexing.py    # submit_url, submit_batch (via _submit_batch_impl)
-    ├── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete
-    ├── ga4.py         # 6 GA4 tools + _f / _i / _organic_filter helpers
-    └── cross.py       # traffic_health_check, page_analysis + _normalize_url helper
+    ├── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete, sitemap_audit
+    ├── ga4.py         # 6 GA4 tools (all filterable by hostname/country) + _build_dimension_filter helper
+    ├── cross.py       # traffic_health_check, page_analysis + _normalize_url helper
+    ├── crux.py        # crux_page_vitals, crux_history (Chrome UX Report API via httpx)
+    └── technical.py   # schema_validate (JSON-LD extraction + validation via html.parser)
 ```
 
 ## Three API clients, three scopes
@@ -143,6 +145,36 @@ The join key is `_normalize_url(url)`, a small helper that strips scheme, host, 
 `opportunity_score` weights three signals: impressions (log-scaled, 10x), engagement rate (100x, linear), and conversions (log-scaled, 20x). The log scaling compresses high-impression pages while still surfacing low-traffic pages with strong engagement. `None` fields fall back to 0 via `(value or 0)`, so GSC-only and GA4-only pages score on the signals they have.
 
 Tests for cross tools patch `gsc_mcp.tools.cross.get_search_analytics` and `gsc_mcp.tools.cross.ga4_organic_landing_pages` to return JSON strings, matching what the actual functions return. The GA4 protobuf fixtures from `conftest.py` are not needed.
+
+## CrUX tools (v0.5)
+
+`crux.py` calls the Chrome UX Report API via `httpx` (not the Google API Python client, which does not cover this API). Two endpoints: `:queryRecord` for the latest snapshot, `:queryHistoryRecord` for 25 weeks of weekly p75 series. Both require a plain Google API key (`CRUX_API_KEY`), not a service account or OAuth token. The key is read from env by `_crux_api_key()`, which raises `RuntimeError` if absent.
+
+A 404 response means the URL has insufficient field data; `crux_page_vitals` returns `verdict="not_enough_data"` without raising. The `form_factor` parameter (default `"ALL_FORM_FACTORS"`) adds a `formFactor` key to the POST body only when not the default, matching the CrUX API contract.
+
+CWV thresholds used for rating:
+
+| Metric | Good | Poor |
+|--------|------|------|
+| LCP | <= 2500ms | > 4000ms |
+| INP | <= 200ms | > 500ms |
+| CLS | <= 0.1 | > 0.25 |
+| FCP | <= 1800ms | > 3000ms |
+| TTFB | <= 800ms | > 1800ms |
+
+## sitemap_audit (v0.5)
+
+`sitemap_audit` in `sitemaps.py` fetches XML via `httpx` and parses with `defusedxml.ElementTree` (not stdlib `xml.etree.ElementTree`). The stdlib parsers are vulnerable to XXE (external entity injection) and billion-laughs attacks when processing untrusted external XML. `defusedxml` is a drop-in replacement that disables those features.
+
+For sitemap index files, child sitemap URLs are validated against the origin of the parent sitemap before fetching. This prevents SSRF: a poisoned sitemap index could otherwise point `<loc>` entries at `http://169.254.169.254/` (AWS metadata) or internal services. `follow_redirects=False` on the httpx client prevents redirect-based SSRF pivots.
+
+The cross-reference uses `get_search_analytics` with `dimensions=["page"]` and `row_limit=5000` over 90 days. URLs are normalised with `.rstrip("/").lower()` before set intersection. Missing sample is capped at 20 items to keep the response payload bounded.
+
+## schema_validate (v0.5)
+
+`technical.py` uses `html.parser` (Python stdlib `HTMLParser`) to extract JSON-LD blocks, avoiding an external dependency. The `_JsonLdExtractor` subclass tracks when it's inside a `<script type="application/ld+json">` tag and accumulates text chunks, then calls `json.loads` on the joined string at the closing tag. JSON-LD blocks that contain a top-level array are expanded so each item is validated individually.
+
+The tool makes no Google API calls and requires no auth. `httpx` is used for the page fetch with `follow_redirects=True` (legitimate redirects are expected on public URLs).
 
 ## Inspirations
 
