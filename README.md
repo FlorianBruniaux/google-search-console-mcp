@@ -65,7 +65,7 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Quota tracking | No | No | Yes, warns at 180/200 |
 | Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
 
-## Tools (32)
+## Tools (36)
 
 | Category | Tool | Description |
 |---|---|---|
