@@ -1,7 +1,7 @@
 import json
 import pytest
 from datetime import date, timedelta
-from unittest.mock import patch, call
+from unittest.mock import patch
 from gsc_mcp.tools.analytics import (
     get_search_analytics,
     get_performance_overview,
@@ -225,7 +225,7 @@ def test_discover_performance_request_body_uses_discover_type(mock_gsc_service):
     with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
         discover_performance(SITE)
     call_kwargs = mock_gsc_service.searchanalytics.return_value.query.call_args
-    body_sent = call_kwargs[1]["body"] if call_kwargs[1] else call_kwargs[0][1]
+    body_sent = call_kwargs.kwargs["body"]
     assert body_sent["type"] == "discover"
     assert body_sent["dimensions"] == ["page"]
 
