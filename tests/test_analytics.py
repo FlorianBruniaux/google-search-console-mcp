@@ -1,7 +1,7 @@
 import json
 import pytest
 from datetime import date, timedelta
-from unittest.mock import patch
+from unittest.mock import patch, call
 from gsc_mcp.tools.analytics import (
     get_search_analytics,
     get_performance_overview,
@@ -9,6 +9,7 @@ from gsc_mcp.tools.analytics import (
     get_search_by_page_query,
     get_advanced_search_analytics,
     analytics_anomalies,
+    discover_performance,
 )
 
 SITE = "https://example.com/"
@@ -184,3 +185,67 @@ def test_anomalies_anomaly_has_date_field(mock_gsc_service):
     assert "clicks" in a
     assert "z_score" in a
     assert "type" in a
+
+
+# ===========================
+# discover_performance tests
+# ===========================
+
+_DISCOVER_ROW_HIGH = {"keys": ["https://example.com/popular"], "clicks": 200, "impressions": 5000, "ctr": 0.04, "position": 1.0}
+_DISCOVER_ROW_LOW = {"keys": ["https://example.com/other"], "clicks": 10, "impressions": 300, "ctr": 0.033, "position": 2.0}
+
+
+def test_discover_performance_returns_rows_sorted_by_impressions_desc(mock_gsc_service):
+    """Rows must be sorted by impressions descending."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        "rows": [_DISCOVER_ROW_LOW, _DISCOVER_ROW_HIGH]
+    }
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(discover_performance(SITE))
+    assert result["rows"][0]["impressions"] == 5000
+    assert result["rows"][1]["impressions"] == 300
+
+
+def test_discover_performance_limit_applied(mock_gsc_service):
+    """When more rows than limit, only limit rows are returned."""
+    many_rows = [
+        {"keys": [f"https://example.com/page{i}"], "clicks": i, "impressions": i * 10, "ctr": 0.1, "position": 1.0}
+        for i in range(1, 11)
+    ]
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": many_rows}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(discover_performance(SITE, limit=3))
+    assert result["count"] == 3
+    assert len(result["rows"]) == 3
+
+
+def test_discover_performance_request_body_uses_discover_type(mock_gsc_service):
+    """The API request body must contain 'type': 'discover' and dimensions ['page']."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        discover_performance(SITE)
+    call_kwargs = mock_gsc_service.searchanalytics.return_value.query.call_args
+    body_sent = call_kwargs[1]["body"] if call_kwargs[1] else call_kwargs[0][1]
+    assert body_sent["type"] == "discover"
+    assert body_sent["dimensions"] == ["page"]
+
+
+def test_discover_performance_empty_response_returns_count_zero(mock_gsc_service):
+    """Empty API response must not raise and must return count=0."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(discover_performance(SITE))
+    assert result["count"] == 0
+    assert result["rows"] == []
+
+
+def test_discover_performance_meta_block_correct(mock_gsc_service):
+    """_meta block must be present with correct tool name and params."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": []}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(discover_performance(SITE, days=14, limit=25))
+    assert "_meta" in result
+    assert result["_meta"]["tool"] == "discover_performance"
+    assert result["_meta"]["params"]["site"] == SITE
+    assert result["_meta"]["params"]["days"] == 14
+    assert result["_meta"]["params"]["limit"] == 25
