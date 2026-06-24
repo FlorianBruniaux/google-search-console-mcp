@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-286%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-282%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Google Search Console MCP server with 43 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation, and composite health scoring. Built on Python 3.11+ and FastMCP.
@@ -104,10 +104,14 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | GA4 | `ga4_user_behavior` | Device, country and user-type breakdowns in one batch call |
 | GA4 | `ga4_conversion_funnel` | Converting pages and event counts, optional event filter |
 | GA4 | `ga4_funnel` | Multi-step funnel report via GA4 v1alpha RunFunnelReport, conversion rate per step |
-| Cross | `traffic_health_check` | Ratio sessions GA4 / clics GSC pour détecter les tracking gaps |
-| Cross | `page_analysis` | Jointure GSC+GA4 par page avec opportunity score, triée par priorité |
+| Cross | `traffic_health_check` | GSC clicks vs GA4 organic sessions ratio, flags tracking gaps and filter issues |
+| Cross | `page_analysis` | GSC+GA4 join per page with opportunity score, sorted by priority |
 | Cross | `page_health_score` | Composite 0-100 score (GSC 30 pts, GA4 25 pts, CrUX 25 pts, schema 20 pts), graceful degradation per component |
 | Cross | `content_brief` | Per-page top queries, question queries, and GA4 session data for content planning |
+| Sitemaps | `sitemap_audit` | Fetch a sitemap, parse its URLs, cross-reference against 90 days of GSC coverage |
+| CrUX | `crux_page_vitals` | Real-user Core Web Vitals (LCP, INP, CLS, FCP, TTFB) for a URL from the Chrome UX Report API |
+| CrUX | `crux_history` | Historical Core Web Vitals trend (weekly data points) for a URL |
+| Technical | `schema_validate` | Fetch any public URL and validate its JSON-LD schemas; suggests missing schemas by URL pattern |
 
 ## Requirements
 
@@ -196,7 +200,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-222+ tests, all mocked (no real Google API calls needed).
+282 tests, all mocked (no real Google API calls needed).
 
 ## Inspirations
 
