@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.6.1] - 2026-06-24
+
+Refactor interne et corrections sans nouveau tool.
+
+### Fixed
+
+- Entrypoint `gsc-mcp-tools` manquant dans `pyproject.toml` : `uvx gsc-mcp-tools` échouait avec "An executable named gsc-mcp-tools is not provided by package gsc-mcp-tools". Les deux noms (`gsc-mcp` et `gsc-mcp-tools`) pointent maintenant sur le même `gsc_mcp.server:main`
+- README : badge tests corrigé (286 → 282), compteur dev section corrigé (222+ → 282), tableau détaillé complété avec les 4 tools manquants (`sitemap_audit`, `crux_page_vitals`, `crux_history`, `schema_validate`), descriptions Cross traduites de FR en EN
+
+### Changed
+
+- **Ponytail refactor** (complexité sans valeur supprimée) :
+  - `auth.py` : helper `_ga4_creds()` extrait pour éliminer la duplication entre `get_ga4_service` et `get_alpha_ga4_service`
+  - `analytics.py` : `_SEARCH_TYPES` déplacé en variable locale dans `search_type_breakdown` (pas d'autres usages)
+  - `seo.py` : helper `_two_periods(days)` ajouté pour déduplication du calcul de dates dans `traffic_drops` et `seo_lost_queries`
+  - `sitemaps.py` : `DefusedXmlException` ajouté au `except` interne de `_fetch_xml`, bloc `try/except` externe supprimé
+  - `indexing.py` : `_submit_batch_impl` fusionné dans `submit_batch`, couche de délégation supprimée
+  - `cross.py` : dicts parallèles remplacés par de l'arithmétique directe dans la renormalisation de `page_health_score`
+- **Tests** : `test_seo_v2.py` et `test_sitemaps_v2.py` fusionnés dans `test_seo.py` et `test_sitemaps.py` respectivement, puis supprimés. `test_scaffold.py` supprimé (couvert par conftest et imports)
+- Test count : 268 → 282
+
 ## [0.6.0] - 2026-06-24
 
 7 nouveaux tools, 43 tools au total, 268 tests.
