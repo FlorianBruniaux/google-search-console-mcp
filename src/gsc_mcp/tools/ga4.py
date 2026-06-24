@@ -1,5 +1,13 @@
 import json
 
+from google.analytics.data_v1alpha.types import (
+    DateRange as AlphaDateRange,
+    Funnel,
+    FunnelEventFilter,
+    FunnelFilterExpression,
+    FunnelStep,
+    RunFunnelReportRequest,
+)
 from google.analytics.data_v1beta.types import (
     BatchRunReportsRequest,
     DateRange,
@@ -12,7 +20,7 @@ from google.analytics.data_v1beta.types import (
     RunReportRequest,
 )
 
-from gsc_mcp.auth import get_ga4_service, get_ga4_property_id
+from gsc_mcp.auth import get_alpha_ga4_service, get_ga4_service, get_ga4_property_id
 from gsc_mcp.meta import with_meta
 from gsc_mcp.retry import with_retry
 
@@ -460,4 +468,74 @@ def ga4_conversion_funnel(
         },
         tool="ga4_conversion_funnel",
         params={"start_date": start_date, "end_date": end_date, "event_name": event_name, "property_id": property_id, "hostname": hostname, "country": country},
+    ))
+
+
+@with_retry()
+def ga4_funnel(
+    steps: list[dict],
+    start_date: str,
+    end_date: str,
+    property_id: str | None = None,
+) -> str:
+    """Run a GA4 funnel report using the v1alpha RunFunnelReport API.
+
+    Each step is a dict with 'name' (display label) and 'event' (GA4 event name).
+    Requires at least 2 steps. Returns users per step and conversion rate relative
+    to step 1. Step 1 conversion_rate is always null. Pass property_id to override
+    GA4_PROPERTY_ID for multi-property setups.
+    """
+    params = {"steps": steps, "start_date": start_date, "end_date": end_date, "property_id": property_id}
+
+    if len(steps) < 2:
+        return json.dumps(with_meta(
+            {"error": "INVALID_STEPS", "reason": "minimum 2 steps required"},
+            tool="ga4_funnel",
+            params=params,
+        ))
+
+    funnel_steps = [
+        FunnelStep(
+            name=step["name"],
+            filter_expression=FunnelFilterExpression(
+                funnel_event_filter=FunnelEventFilter(event_name=step["event"])
+            ),
+        )
+        for step in steps
+    ]
+
+    prop = get_ga4_property_id(override=property_id)
+    client = get_alpha_ga4_service()
+
+    request = RunFunnelReportRequest(
+        property=prop,
+        funnel=Funnel(steps=funnel_steps),
+        date_ranges=[AlphaDateRange(start_date=start_date, end_date=end_date)],
+    )
+    response = client.run_funnel_report(request)
+
+    step1_users: int | None = None
+    result_steps = []
+    for i, row in enumerate(response.funnel_table.rows):
+        step_name = row.dimension_values[0].value
+        users = _i(row.metric_values[0].value)
+        if i == 0:
+            step1_users = users
+            conversion_rate = None
+        else:
+            conversion_rate = (
+                round(users / step1_users * 100, 2) if step1_users else 0.0
+            )
+        event_name = steps[i]["event"] if i < len(steps) else ""
+        result_steps.append({
+            "name": step_name,
+            "event": event_name,
+            "users": users,
+            "conversion_rate": conversion_rate,
+        })
+
+    return json.dumps(with_meta(
+        {"start_date": start_date, "end_date": end_date, "steps": result_steps},
+        tool="ga4_funnel",
+        params=params,
     ))

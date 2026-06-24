@@ -1,6 +1,6 @@
 import json
 import pytest
-from unittest.mock import patch, call
+from unittest.mock import patch, call, MagicMock
 
 from tests.conftest import _make_ga4_row, _make_ga4_response, _make_ga4_batch_response
 from gsc_mcp.tools.ga4 import (
@@ -10,6 +10,7 @@ from gsc_mcp.tools.ga4 import (
     ga4_realtime,
     ga4_user_behavior,
     ga4_conversion_funnel,
+    ga4_funnel,
 )
 
 PROP = "123456789"
@@ -472,3 +473,108 @@ def test_meta_params_include_hostname_country(mock_ga4_service):
         result = json.loads(ga4_page_performance(hostname="cc.bruniaux.com", country="France"))
     assert result["_meta"]["params"]["hostname"] == "cc.bruniaux.com"
     assert result["_meta"]["params"]["country"] == "France"
+
+
+# ---------------------------------------------------------------------------
+# ga4_funnel
+# ---------------------------------------------------------------------------
+
+def _make_alpha_row(step_name: str, users: str):
+    """Build a mock funnel table row with dimension_values[0] and metric_values[0]."""
+    row = MagicMock()
+    row.dimension_values = [MagicMock(value=step_name)]
+    row.metric_values = [MagicMock(value=users)]
+    return row
+
+
+def _make_alpha_client(rows: list):
+    """Build a mock alpha GA4 client whose run_funnel_report returns rows."""
+    client = MagicMock()
+    response = MagicMock()
+    response.funnel_table.rows = rows
+    client.run_funnel_report.return_value = response
+    return client
+
+
+STEPS_2 = [
+    {"name": "Visit homepage", "event": "page_view"},
+    {"name": "Add to cart", "event": "add_to_cart"},
+]
+
+
+def test_ga4_funnel_two_step_conversion_rate():
+    """Step 1 conversion_rate is null; step 2 is calculated from step 1 users."""
+    rows = [
+        _make_alpha_row("Visit homepage", "1000"),
+        _make_alpha_row("Add to cart", "450"),
+    ]
+    mock_client = _make_alpha_client(rows)
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_client):
+        result = json.loads(ga4_funnel(STEPS_2, "7daysAgo", "today"))
+
+    assert result["steps"][0]["users"] == 1000
+    assert result["steps"][0]["conversion_rate"] is None
+    assert result["steps"][1]["users"] == 450
+    assert result["steps"][1]["conversion_rate"] == pytest.approx(45.0)
+
+
+def test_ga4_funnel_invalid_steps_no_api_call():
+    """Less than 2 steps returns INVALID_STEPS without calling the alpha API."""
+    mock_client = MagicMock()
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_client):
+        result = json.loads(ga4_funnel([{"name": "Only step", "event": "page_view"}], "7daysAgo", "today"))
+
+    assert result["error"] == "INVALID_STEPS"
+    assert result["reason"] == "minimum 2 steps required"
+    mock_client.run_funnel_report.assert_not_called()
+
+
+def test_ga4_funnel_event_names_passed_to_steps():
+    """Event names from input steps appear in the output steps."""
+    rows = [
+        _make_alpha_row("Visit homepage", "500"),
+        _make_alpha_row("Add to cart", "200"),
+    ]
+    mock_client = _make_alpha_client(rows)
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_client):
+        result = json.loads(ga4_funnel(STEPS_2, "7daysAgo", "today"))
+
+    assert result["steps"][0]["event"] == "page_view"
+    assert result["steps"][1]["event"] == "add_to_cart"
+
+
+def test_ga4_funnel_uses_alpha_client_not_beta():
+    """The tool calls get_alpha_ga4_service, not get_ga4_service."""
+    rows = [
+        _make_alpha_row("Step 1", "100"),
+        _make_alpha_row("Step 2", "50"),
+    ]
+    mock_alpha = _make_alpha_client(rows)
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_alpha) as patched_alpha, \
+         patch("gsc_mcp.tools.ga4.get_ga4_service") as patched_beta:
+        ga4_funnel(STEPS_2, "7daysAgo", "today")
+
+    patched_alpha.assert_called_once()
+    patched_beta.assert_not_called()
+
+
+def test_ga4_funnel_meta_block_present():
+    """_meta block has the correct tool name and echoes back params."""
+    rows = [
+        _make_alpha_row("Visit homepage", "1000"),
+        _make_alpha_row("Add to cart", "300"),
+    ]
+    mock_client = _make_alpha_client(rows)
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_client):
+        result = json.loads(ga4_funnel(STEPS_2, "2025-01-01", "2025-01-31", property_id="99999"))
+
+    assert result["_meta"]["tool"] == "ga4_funnel"
+    assert result["_meta"]["params"]["start_date"] == "2025-01-01"
+    assert result["_meta"]["params"]["end_date"] == "2025-01-31"
+    assert result["_meta"]["params"]["property_id"] == "99999"
+    assert result["_meta"]["params"]["steps"] == STEPS_2
