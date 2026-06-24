@@ -192,6 +192,18 @@ ga4_traffic_sources(property_id="987654321")
 traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 ```
 
+## For AI assistants
+
+The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
+
+- `llms.txt`: quick reference covering all 43 tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `adr-index.yaml`: 15 Architecture Decision Records reconstructed from git history
+- `code-map.yaml`: full module/test/dependency map
+- `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
+- `tech-decisions.yaml`: stack decisions by domain (auth, retry, output contract, packaging...)
+
+Load `llms.txt` via your AI context or reference it in your CLAUDE.md with `@docs/machine-readable/llms.txt`.
+
 ## Development
 
 ```bash
