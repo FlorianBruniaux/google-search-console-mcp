@@ -2,10 +2,10 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-222%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-268%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 36 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, and JSON-LD schema validation. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 43 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation, and composite health scoring. Built on Python 3.11+ and FastMCP.
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
@@ -30,13 +30,13 @@ You → Claude → gsc-mcp
 | Category | Tools | What it does |
 |---|---|---|
 | Properties | `list_properties`, `get_site_details`, `get_capabilities` | Discover and inspect your GSC properties |
-| Analytics | `get_search_analytics`, `get_performance_overview`, `compare_search_periods`, `get_search_by_page_query`, `get_advanced_search_analytics`, `analytics_anomalies` | Query impressions, clicks, CTR, position; compare periods; detect anomalies |
+| Analytics | `get_search_analytics`, `get_performance_overview`, `compare_search_periods`, `get_search_by_page_query`, `get_advanced_search_analytics`, `analytics_anomalies`, `discover_performance`, `news_performance`, `search_type_breakdown`, `ai_overviews_impact` | Query impressions, clicks, CTR, position; Discover and Google News performance; breakdown by search type; AI Overview appearance data |
 | SEO | `quick_wins`, `traffic_drops`, `seo_striking_distance`, `seo_cannibalization`, `seo_lost_queries`, `check_alerts` | Surface opportunities, diagnose drops, detect cannibalization |
 | Inspection | `inspect_url`, `batch_url_inspection`, `check_indexing_issues` | URL indexing status, crawl verdict, canonical, categorized by issue type |
 | Indexing | `submit_url`, `submit_batch` | Request (re)indexing via the Google Indexing API, true HTTP batch, quota tracking |
 | Sitemaps | `list_sitemaps`, `submit_sitemap`, `sitemaps_get`, `sitemaps_delete`, `sitemap_audit` | Manage submitted sitemaps; audit declared URLs against GSC coverage |
-| GA4 | `ga4_organic_landing_pages`, `ga4_traffic_sources`, `ga4_page_performance`, `ga4_realtime`, `ga4_user_behavior`, `ga4_conversion_funnel` | Analytics 4 data: sessions, engagement, conversions, realtime (all filterable by `hostname` and `country`) |
-| Cross | `traffic_health_check`, `page_analysis` | Join GSC clicks with GA4 sessions to catch tracking gaps and score pages by opportunity |
+| GA4 | `ga4_organic_landing_pages`, `ga4_traffic_sources`, `ga4_page_performance`, `ga4_realtime`, `ga4_user_behavior`, `ga4_conversion_funnel`, `ga4_funnel` | Analytics 4 data: sessions, engagement, conversions, realtime, multi-step funnels via v1alpha (all filterable by `hostname` and `country`) |
+| Cross | `traffic_health_check`, `page_analysis`, `page_health_score`, `content_brief` | Join GSC clicks with GA4 sessions; composite 0-100 health score (GSC+GA4+CrUX+schema); per-page content intelligence |
 | CrUX | `crux_page_vitals`, `crux_history` | Real-user Core Web Vitals (LCP, INP, CLS, FCP, TTFB) from the Chrome UX Report API, requires `CRUX_API_KEY` |
 | Technical | `schema_validate` | Fetch any public URL and validate its JSON-LD structured data schemas; suggests missing schemas by URL pattern |
 
@@ -65,7 +65,7 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Quota tracking | No | No | Yes, warns at 180/200 |
 | Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
 
-## Tools (36)
+## Tools (43)
 
 | Category | Tool | Description |
 |---|---|---|
@@ -78,6 +78,10 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | Analytics | `get_search_by_page_query` | Performance broken down by page and query |
 | Analytics | `get_advanced_search_analytics` | Flexible query with custom dimensions and filters |
 | Analytics | `analytics_anomalies` | Z-score anomaly detection on daily clicks |
+| Analytics | `discover_performance` | Top pages by impressions in Google Discover |
+| Analytics | `news_performance` | Top pages by impressions in Google News |
+| Analytics | `search_type_breakdown` | Clicks and impressions split across web, Discover, News, image, video |
+| Analytics | `ai_overviews_impact` | Queries with searchAppearance data, graceful 400/403 fallback |
 | SEO | `quick_wins` | Pages in positions 4-15 with CTR below benchmark |
 | SEO | `traffic_drops` | Queries with declining clicks, with diagnosis |
 | SEO | `check_alerts` | Traffic concentration risks and ranking opportunities |
@@ -99,8 +103,11 @@ The Google API Python client (`google-api-python-client`) is the official, best-
 | GA4 | `ga4_realtime` | Active users right now by screen, country and device |
 | GA4 | `ga4_user_behavior` | Device, country and user-type breakdowns in one batch call |
 | GA4 | `ga4_conversion_funnel` | Converting pages and event counts, optional event filter |
+| GA4 | `ga4_funnel` | Multi-step funnel report via GA4 v1alpha RunFunnelReport, conversion rate per step |
 | Cross | `traffic_health_check` | Ratio sessions GA4 / clics GSC pour détecter les tracking gaps |
 | Cross | `page_analysis` | Jointure GSC+GA4 par page avec opportunity score, triée par priorité |
+| Cross | `page_health_score` | Composite 0-100 score (GSC 30 pts, GA4 25 pts, CrUX 25 pts, schema 20 pts), graceful degradation per component |
+| Cross | `content_brief` | Per-page top queries, question queries, and GA4 session data for content planning |
 
 ## Requirements
 

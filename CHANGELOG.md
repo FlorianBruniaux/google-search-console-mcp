@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.6.0] - 2026-06-24
+
+7 nouveaux tools, 43 tools au total, 268 tests.
+
+### Added
+
+**Analytics GSC : nouvelles variations search type**
+
+- `discover_performance(site, days, limit)` : performances Google Discover par page. Utilise `"type": "discover"` dans le corps de requête. La dimension `query` n'est pas supportée par Discover, seul `page` est retourné. Trié par impressions décroissantes.
+- `news_performance(site, days, limit)` : identique à `discover_performance` mais pour Google News (`"type": "googleNews"`).
+- `search_type_breakdown(site, url, days)` : 5 appels séquentiels à `_fetch_rows` (web, discover, googleNews, image, video), agrège clicks et impressions par type. Paramètre `url` optionnel pour filtrer sur une page spécifique.
+- `ai_overviews_impact(site, days, limit)` : requête avec `"dimensions": ["query", "searchAppearance"]` et `"dataState": "all"`. Retourne un dict `{"error": "AI_OVERVIEWS_NOT_AVAILABLE"}` sur HttpError 400/403 (propriétés sans données AI Overviews) sans lever d'exception. Les erreurs 500+ restent remontées.
+
+**Cross GSC+GA4 : outils composites**
+
+- `page_health_score(site, url, property_id, hostname, country)` : score composite 0-100 combinant 4 sources. GSC (30 pts via `inspect_url`), GA4 (25 pts via `ga4_page_performance`), CrUX (25 pts via `crux_page_vitals`, LCP+INP+CLS), et schema (20 pts via `schema_validate`). Chaque composant est isolé dans un `try/except RuntimeError` : si une source est absente (credentials manquants), ses points sont 0 et le score est renormalisé sur les sources disponibles.
+- `content_brief(site, page_url, days, property_id)` : intelligence éditoriale par page. Filtre les requêtes GSC sur `page_url` (normalisation via `_normalize_url`), trie par clicks, extrait les requêtes "question" (who/what/when/where/why/how) depuis la liste complète filtrée. Enrichit avec `ga4_page_performance` (sessions, engagement_rate) en dégradation gracieuse si GA4 est absent.
+
+**GA4 : funnel via v1alpha**
+
+- `ga4_funnel(steps, start_date, end_date, property_id)` : rapport de funnel multi-étapes via `AlphaAnalyticsDataClient.run_funnel_report()`. Validation stricte : moins de 2 étapes retourne `{"error": "INVALID_STEPS"}`. Chaque étape est un dict `{"name": str, "event": str}`. Taux de conversion par étape relatif à l'étape 1 (qui est toujours `null`). Nouveau getter `get_alpha_ga4_service()` dans `auth.py`, même scope et token que la beta.
+
+### Changed
+
+- Tool count : 36 -> 43
+- Test count : 222 -> 268
+- `get_capabilities` docstring : "36" -> "43", `_ALL_TOOLS` étendu avec les 7 nouveaux tools
+
 ## [0.5.0] - 2026-06-23
 
 4 nouveaux tools, filtres hostname/country sur tous les tools GA4, et 55 nouveaux tests. 36 tools au total, 222 tests.
