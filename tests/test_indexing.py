@@ -2,7 +2,7 @@ import json
 import pytest
 from unittest.mock import patch, MagicMock
 from googleapiclient.errors import HttpError
-from gsc_mcp.tools.indexing import submit_url, submit_batch, _submit_batch_impl
+from gsc_mcp.tools.indexing import submit_url, submit_batch
 from gsc_mcp.quota import QuotaTracker
 
 URL = "https://example.com/page"
@@ -109,7 +109,8 @@ def test_submit_batch_quota_check():
     quota.consume(13)
 
     with patch("gsc_mcp.tools.indexing.get_indexing_service", return_value=svc):
-        result = json.loads(_submit_batch_impl(urls, "URL_UPDATED", quota))
+        with patch("gsc_mcp.tools.indexing._default_quota", quota):
+            result = json.loads(submit_batch(urls, "URL_UPDATED"))
 
     assert result.get("quota_warning") is True
 
@@ -120,8 +121,9 @@ def test_submit_batch_quota_exceeded():
     quota = QuotaTracker(limit=5, warn_at=4)
 
     with patch("gsc_mcp.tools.indexing.get_indexing_service", return_value=svc):
-        with pytest.raises(RuntimeError, match="quota"):
-            _submit_batch_impl(urls, "URL_UPDATED", quota)
+        with patch("gsc_mcp.tools.indexing._default_quota", quota):
+            with pytest.raises(RuntimeError, match="quota"):
+                submit_batch(urls, "URL_UPDATED")
 
 
 def test_submit_batch_closure_independence():

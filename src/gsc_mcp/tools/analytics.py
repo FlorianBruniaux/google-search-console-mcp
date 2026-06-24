@@ -10,7 +10,6 @@ _ANALYTICS_LAG_DAYS = 3
 _DEFAULT_ROW_LIMIT = 1000
 _MAX_ROWS_PER_PAGE = 25000
 _MAX_PAGES = 40
-_SEARCH_TYPES = ["web", "discover", "googleNews", "image", "video"]
 
 
 def _date_range(days: int, lag: int = _ANALYTICS_LAG_DAYS) -> tuple[str, str]:
@@ -276,8 +275,9 @@ def search_type_breakdown(site: str, url: str | None = None, days: int = 28) -> 
     """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
+    search_types = ["web", "discover", "googleNews", "image", "video"]
     breakdown = {}
-    for stype in _SEARCH_TYPES:
+    for stype in search_types:
         body = {"startDate": start, "endDate": end, "dimensions": ["page"], "type": stype}
         if url:
             body["dimensionFilterGroups"] = [{"filters": [{"dimension": "page", "expression": url}]}]

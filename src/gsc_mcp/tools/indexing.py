@@ -39,8 +39,14 @@ def _make_callback(results: list, url: str):
 
 
 @with_retry()
-def _submit_batch_impl(urls: list[str], url_type: str, quota: QuotaTracker) -> str:
-    quota.check(len(urls))
+def submit_batch(urls: list[str], url_type: str = "URL_UPDATED") -> str:
+    """Submit multiple URLs to the Google Indexing API in HTTP batches of 100.
+
+    Returns per-URL results, total submitted/error counts, and remaining daily quota.
+    Daily limit is 200 requests total. A quota_warning is added to the response when
+    usage exceeds 180. url_type: 'URL_UPDATED' (default) or 'URL_DELETED'.
+    """
+    _default_quota.check(len(urls))
     svc = get_indexing_service()
     results: list[dict] = []
 
@@ -52,30 +58,20 @@ def _submit_batch_impl(urls: list[str], url_type: str, quota: QuotaTracker) -> s
             batch.add(request, request_id=url, callback=_make_callback(results, url))
         batch.execute()
 
-    quota.consume(len(urls))
+    _default_quota.consume(len(urls))
 
     submitted = sum(1 for r in results if r["status"] == "submitted")
     errors = sum(1 for r in results if r["status"] == "error")
-    quota_warning = quota.should_warn()
+    quota_warning = _default_quota.should_warn()
 
     payload: dict = {
         "total": len(urls),
         "submitted": submitted,
         "errors": errors,
-        "quota_remaining": quota.remaining(),
+        "quota_remaining": _default_quota.remaining(),
         "results": results,
     }
     if quota_warning:
         payload["quota_warning"] = True
 
     return json.dumps(with_meta(payload, tool="submit_batch", params={"url_count": len(urls), "type": url_type}))
-
-
-def submit_batch(urls: list[str], url_type: str = "URL_UPDATED") -> str:
-    """Submit multiple URLs to the Google Indexing API in HTTP batches of 100.
-
-    Returns per-URL results, total submitted/error counts, and remaining daily quota.
-    Daily limit is 200 requests total. A quota_warning is added to the response when
-    usage exceeds 180. url_type: 'URL_UPDATED' (default) or 'URL_DELETED'.
-    """
-    return _submit_batch_impl(urls, url_type, _default_quota)

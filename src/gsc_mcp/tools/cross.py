@@ -401,22 +401,8 @@ def page_health_score(
         schema_available = False
 
     # --- Renormalization ---
-    _MAX = {"gsc": 30, "ga4": 25, "crux": 25, "schema": 20}
-    _available = {
-        "gsc": gsc_available,
-        "ga4": ga4_available,
-        "crux": crux_available,
-        "schema": schema_available,
-    }
-    _earned = {
-        "gsc": gsc_pts,
-        "ga4": ga4_pts,
-        "crux": crux_pts,
-        "schema": schema_pts,
-    }
-
-    max_available = sum(v for k, v in _MAX.items() if _available[k])
-    earned = sum(v for k, v in _earned.items() if _available[k])
+    max_available = (30 if gsc_available else 0) + (25 if ga4_available else 0) + (25 if crux_available else 0) + (20 if schema_available else 0)
+    earned = (gsc_pts if gsc_available else 0) + (ga4_pts if ga4_available else 0) + (crux_pts if crux_available else 0) + (schema_pts if schema_available else 0)
 
     if max_available == 0:
         score = 0

@@ -1,4 +1,5 @@
 import json
+from datetime import date, timedelta
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.constants import CTR_BENCHMARKS
@@ -11,6 +12,15 @@ _WIN_MIN_IMPRESSIONS = 10
 _STRIKING_MIN_POSITION = 8.0
 _STRIKING_MAX_POSITION = 15.0
 _CANNIBAL_MIN_CONFLICT = 0.1
+
+
+def _two_periods(days: int):
+    """Return (start_a, end_a, start_b, end_b) for two consecutive equal-length windows ending today."""
+    end_b = date.today()
+    start_b = end_b - timedelta(days=days - 1)
+    end_a = start_b - timedelta(days=1)
+    start_a = end_a - timedelta(days=days - 1)
+    return start_a, end_a, start_b, end_b
 
 
 def _benchmark_ctr(position: float) -> float:
@@ -77,12 +87,7 @@ def traffic_drops(site: str, days: int = 28) -> str:
     Note: uses date.today() without a GSC reporting lag, so the most recent 2-3 days may be incomplete.
     """
     svc = get_searchconsole_service()
-
-    from datetime import date, timedelta
-    end_b = date.today()
-    start_b = end_b - timedelta(days=days - 1)
-    end_a = start_b - timedelta(days=1)
-    start_a = end_a - timedelta(days=days - 1)
+    start_a, end_a, start_b, end_b = _two_periods(days)
 
     def fetch(start, end):
         body = {
@@ -258,12 +263,7 @@ def seo_lost_queries(site: str, days: int = 28) -> str:
     current period may include incomplete data and produce false positives.
     """
     svc = get_searchconsole_service()
-
-    from datetime import date, timedelta
-    end_b = date.today()
-    start_b = end_b - timedelta(days=days - 1)
-    end_a = start_b - timedelta(days=1)
-    start_a = end_a - timedelta(days=days - 1)
+    start_a, end_a, start_b, end_b = _two_periods(days)
 
     def fetch(start, end):
         body = {

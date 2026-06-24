@@ -18,7 +18,6 @@ from gsc_mcp.tools.analytics import (
     _fetch_rows,
     _MAX_PAGES,
     _MAX_ROWS_PER_PAGE,
-    _SEARCH_TYPES,
 )
 
 SITE = "https://example.com/"
@@ -328,8 +327,11 @@ def test_news_performance_meta_block_correct(mock_gsc_service):
 # search_type_breakdown tests
 # ===========================
 
+_SEARCH_TYPES = ["web", "discover", "googleNews", "image", "video"]
+
+
 def _make_breakdown_side_effect(clicks_per_type):
-    """Build 5 mock responses, one per search type (indexed in _SEARCH_TYPES order)."""
+    """Build 5 mock responses, one per search type."""
     responses = []
     for clicks in clicks_per_type:
         if clicks is None:
@@ -500,10 +502,7 @@ def test_ai_overviews_impact_meta_block_present_in_success_and_error(mock_gsc_se
 def _full_page():
     """Return a GSC response carrying exactly _MAX_ROWS_PER_PAGE rows."""
     return {
-        "rows": [
-            {"keys": ["q"], "clicks": 1, "impressions": 10, "ctr": 0.1, "position": 5.0}
-            for _ in range(_MAX_ROWS_PER_PAGE)
-        ]
+        "rows": [{"keys": ["q"], "clicks": 1, "impressions": 10, "ctr": 0.1, "position": 5.0}] * _MAX_ROWS_PER_PAGE
     }
 
 

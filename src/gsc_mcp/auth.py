@@ -105,11 +105,13 @@ def get_ga4_property_id(override: str | None = None) -> str:
     return prop if prop.startswith("properties/") else f"properties/{prop}"
 
 
+def _ga4_creds():
+    return _resolve_creds(SCOPES_GA4, _TOKEN_GA4)
+
+
 def get_ga4_service() -> BetaAnalyticsDataClient:
-    creds = _resolve_creds(SCOPES_GA4, _TOKEN_GA4)
-    return BetaAnalyticsDataClient(credentials=creds)
+    return BetaAnalyticsDataClient(credentials=_ga4_creds())
 
 
 def get_alpha_ga4_service() -> AlphaAnalyticsDataClient:
-    creds = _resolve_creds(SCOPES_GA4, _TOKEN_GA4)
-    return AlphaAnalyticsDataClient(credentials=creds)
+    return AlphaAnalyticsDataClient(credentials=_ga4_creds())
