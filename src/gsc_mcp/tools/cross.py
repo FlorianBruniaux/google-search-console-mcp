@@ -221,6 +221,87 @@ def page_analysis(
     )
 
 
+def content_brief(
+    site: str,
+    page_url: str,
+    days: int = 90,
+    property_id: str | None = None,
+) -> str:
+    """Gather SEO content intelligence for a single page: top queries, question queries, and GA4 engagement.
+
+    Step 1 — GSC: fetches search analytics with dimensions ["query", "page"], filters rows
+    to the target page (via _normalize_url), sorts by clicks descending, and returns the top 20.
+
+    Step 2 — GA4: calls ga4_page_performance for the same page to get active_users and
+    engagement_rate. Wrapped in try/except RuntimeError; returns None if GA4 credentials
+    are missing or the property is not configured.
+
+    Question classification: queries whose first word (lowercased) is one of
+    who/what/when/where/why/how.
+
+    Useful for brief-writing, content refreshes, and intent analysis.
+    """
+    gsc_data = json.loads(get_search_analytics(site, days, dimensions=["query", "page"]))
+    norm_target = _normalize_url(page_url)
+
+    filtered = [
+        row for row in gsc_data["rows"]
+        if _normalize_url(row["page"]) == norm_target
+    ]
+    filtered.sort(key=lambda r: r["clicks"], reverse=True)
+    top_queries = [
+        {
+            "query": row["query"],
+            "clicks": row["clicks"],
+            "impressions": row["impressions"],
+            "position": row["position"],
+        }
+        for row in filtered[:20]
+    ]
+
+    question_words = {"who", "what", "when", "where", "why", "how"}
+    question_queries = [
+        {"query": row["query"], "clicks": row["clicks"]}
+        for row in top_queries
+        if row["query"].lower().split()[0] in question_words
+    ]
+
+    ga4_result = None
+    try:
+        ga4_raw = json.loads(
+            ga4_page_performance(
+                start_date=f"{days}daysAgo",
+                end_date="today",
+                property_id=property_id,
+                page_path=norm_target,
+            )
+        )
+        pages = ga4_raw.get("pages", [])
+        if pages:
+            first = pages[0]
+            ga4_result = {
+                "sessions": first.get("active_users"),
+                "engagement_rate": first.get("engagement_rate"),
+            }
+    except RuntimeError:
+        ga4_result = None
+
+    return json.dumps(
+        with_meta(
+            {
+                "page_url": page_url,
+                "days": days,
+                "current_focus": top_queries[0]["query"] if top_queries else None,
+                "top_queries": top_queries,
+                "question_queries": question_queries,
+                "ga4": ga4_result,
+            },
+            tool="content_brief",
+            params={"site": site, "page_url": page_url, "days": days, "property_id": property_id},
+        )
+    )
+
+
 def page_health_score(
     site: str,
     url: str,

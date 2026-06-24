@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from gsc_mcp.tools.cross import (
     _normalize_url,
+    content_brief,
     traffic_health_check,
     page_analysis,
     page_health_score,
@@ -550,3 +551,153 @@ def test_phs_meta_includes_hostname_and_country():
     assert result["_meta"]["params"]["hostname"] == "blog.example.com"
     assert result["_meta"]["params"]["country"] == "US"
     assert result["_meta"]["params"]["property_id"] == "443684366"
+
+
+# ---------------------------------------------------------------------------
+# content_brief helpers
+# ---------------------------------------------------------------------------
+
+PAGE_URL = "https://example.com/blog"
+PAGE_PATH = "/blog"
+
+
+def _gsc_query_page_json(rows, date_range=None):
+    """GSC response with query+page dimensions."""
+    return json.dumps({
+        "site": SITE,
+        "date_range": date_range or {"start": "2025-03-24", "end": "2025-06-23"},
+        "rows": rows,
+        "_meta": {"tool": "get_search_analytics", "params": {}},
+    })
+
+
+def _gsc_qp_row(query, page, clicks=10, impressions=100, position=5.0):
+    return {"query": query, "page": page, "clicks": clicks, "impressions": impressions, "ctr": 0.1, "position": position}
+
+
+def _ga4_perf_json(active_users=200, engagement_rate=0.65):
+    return json.dumps({
+        "start_date": "90daysAgo",
+        "end_date": "today",
+        "count": 1,
+        "pages": [
+            {
+                "page_path": PAGE_PATH,
+                "page_views": 400,
+                "active_users": active_users,
+                "avg_session_duration": 120.0,
+                "engagement_rate": engagement_rate,
+                "bounce_rate": 0.35,
+                "conversions": 3.0,
+                "total_revenue": 0.0,
+            }
+        ],
+        "_meta": {"tool": "ga4_page_performance", "params": {}},
+    })
+
+
+def _cb(gsc_rows, ga4_rv=None, page_url=PAGE_URL, site=SITE, days=90, property_id=None):
+    """Run content_brief with mocked GSC and GA4."""
+    if ga4_rv is None:
+        ga4_rv = _ga4_perf_json()
+    with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_query_page_json(gsc_rows)), \
+         patch("gsc_mcp.tools.cross.ga4_page_performance", return_value=ga4_rv):
+        return json.loads(content_brief(site, page_url, days, property_id))
+
+
+# ---------------------------------------------------------------------------
+# content_brief tests
+# ---------------------------------------------------------------------------
+
+def test_content_brief_top_queries_and_current_focus():
+    """Top queries sorted by clicks; current_focus == query with highest clicks."""
+    rows = [
+        _gsc_qp_row("seo tips", PAGE_URL, clicks=50),
+        _gsc_qp_row("seo guide", PAGE_URL, clicks=120),
+        _gsc_qp_row("seo basics", PAGE_URL, clicks=30),
+    ]
+    result = _cb(rows)
+    assert result["current_focus"] == "seo guide"
+    assert result["top_queries"][0]["query"] == "seo guide"
+    assert result["top_queries"][0]["clicks"] == 120
+    assert len(result["top_queries"]) == 3
+
+
+def test_content_brief_question_queries_classified():
+    """Only queries starting with who/what/when/where/why/how are classified."""
+    rows = [
+        _gsc_qp_row("how to write seo", PAGE_URL, clicks=80),
+        _gsc_qp_row("what is seo", PAGE_URL, clicks=60),
+        _gsc_qp_row("seo tips", PAGE_URL, clicks=40),
+        _gsc_qp_row("why does seo matter", PAGE_URL, clicks=20),
+        _gsc_qp_row("best seo tools", PAGE_URL, clicks=10),
+    ]
+    result = _cb(rows)
+    question_queries_text = [q["query"] for q in result["question_queries"]]
+    assert "how to write seo" in question_queries_text
+    assert "what is seo" in question_queries_text
+    assert "why does seo matter" in question_queries_text
+    assert "seo tips" not in question_queries_text
+    assert "best seo tools" not in question_queries_text
+    assert len(result["question_queries"]) == 3
+
+
+def test_content_brief_ga4_runtime_error_returns_none():
+    """GA4 RuntimeError -> ga4 field is None, no crash."""
+    rows = [_gsc_qp_row("seo guide", PAGE_URL, clicks=50)]
+    with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_query_page_json(rows)), \
+         patch("gsc_mcp.tools.cross.ga4_page_performance", side_effect=RuntimeError("no GA4 creds")):
+        result = json.loads(content_brief(SITE, PAGE_URL))
+    assert result["ga4"] is None
+    assert result["current_focus"] == "seo guide"
+
+
+def test_content_brief_page_url_filter_applied():
+    """Only rows matching the target page_url are returned, not rows for other pages."""
+    other_page = "https://example.com/other"
+    rows = [
+        _gsc_qp_row("blog query", PAGE_URL, clicks=100),
+        _gsc_qp_row("other query", other_page, clicks=999),
+    ]
+    result = _cb(rows)
+    queries = [q["query"] for q in result["top_queries"]]
+    assert "blog query" in queries
+    assert "other query" not in queries
+    assert len(result["top_queries"]) == 1
+
+
+def test_content_brief_empty_gsc_data():
+    """Empty GSC rows -> top_queries=[], current_focus=None, no error."""
+    result = _cb([])
+    assert result["top_queries"] == []
+    assert result["current_focus"] is None
+    assert result["question_queries"] == []
+
+
+def test_content_brief_ga4_sessions_and_engagement_rate():
+    """GA4 active_users and engagement_rate are extracted from first page."""
+    rows = [_gsc_qp_row("seo", PAGE_URL, clicks=10)]
+    result = _cb(rows, ga4_rv=_ga4_perf_json(active_users=350, engagement_rate=0.82))
+    assert result["ga4"] is not None
+    assert result["ga4"]["sessions"] == 350
+    assert result["ga4"]["engagement_rate"] == pytest.approx(0.82)
+
+
+def test_content_brief_top_20_cap():
+    """Only top 20 queries returned even if more match the page."""
+    rows = [_gsc_qp_row(f"query {i}", PAGE_URL, clicks=i) for i in range(1, 30)]
+    result = _cb(rows)
+    assert len(result["top_queries"]) == 20
+    # Highest-click query should be first
+    assert result["top_queries"][0]["clicks"] == 29
+
+
+def test_content_brief_meta_block():
+    """_meta block has tool='content_brief' and correct params."""
+    rows = [_gsc_qp_row("test", PAGE_URL, clicks=5)]
+    result = _cb(rows, property_id="123456")
+    assert result["_meta"]["tool"] == "content_brief"
+    assert result["_meta"]["params"]["site"] == SITE
+    assert result["_meta"]["params"]["page_url"] == PAGE_URL
+    assert result["_meta"]["params"]["days"] == 90
+    assert result["_meta"]["params"]["property_id"] == "123456"
