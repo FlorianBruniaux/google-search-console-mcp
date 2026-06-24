@@ -1,5 +1,7 @@
+import ipaddress
 import json
 import re
+import socket
 from html.parser import HTMLParser
 
 import httpx
@@ -17,6 +19,21 @@ _REQUIRED_FIELDS = {
     "Product":             ["name", "offers"],
     "SoftwareApplication": ["name", "applicationCategory", "operatingSystem"],
 }
+
+def _reject_ssrf(url: str) -> None:
+    """Raise ValueError if url resolves to a private, loopback, or link-local IP."""
+    host = httpx.URL(url).host
+    if not host:
+        raise ValueError(f"Cannot parse hostname from {url!r}")
+    try:
+        results = socket.getaddrinfo(host, None)
+    except socket.gaierror as exc:
+        raise ValueError(f"Cannot resolve {host!r}: {exc}") from exc
+    for *_, sockaddr in results:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            raise ValueError(f"Blocked: {host!r} resolves to restricted IP {ip}")
+
 
 _PATTERN_RECOMMENDATIONS = [
     (r"/faq",      "FAQPage"),
@@ -71,7 +88,15 @@ def schema_validate(url: str) -> str:
               fetch_error (URL not reachable).
     """
     try:
-        with httpx.Client(timeout=15, follow_redirects=True) as client:
+        _reject_ssrf(url)
+    except ValueError as e:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(e), "verdict": "fetch_error"},
+            tool="schema_validate",
+            params={"url": url},
+        ))
+    try:
+        with httpx.Client(timeout=15, follow_redirects=False) as client:
             resp = client.get(url, headers={"User-Agent": "gsc-mcp-schema-validator/1.0"})
             resp.raise_for_status()
             html = resp.text

@@ -9,6 +9,15 @@ import pytest
 from gsc_mcp.tools.technical import schema_validate, _JsonLdExtractor
 
 
+@pytest.fixture(autouse=True)
+def _mock_dns(monkeypatch):
+    """Return a public IP for any hostname to prevent real DNS calls in tests."""
+    monkeypatch.setattr(
+        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        lambda *args, **kwargs: [(None, None, None, None, ("93.184.216.34", 0))],
+    )
+
+
 def _mock_http_get(html: str, status: int = 200):
     """Build a mock httpx.Client that returns html for get()."""
     resp = MagicMock()
@@ -73,7 +82,7 @@ def test_extractor_invalid_json_is_skipped():
 
 LOCALBUSINESS_HTML = """<html><head>
 <script type="application/ld+json">
-{"@type": "LocalBusiness", "name": "Bel-Etage", "@context": "https://schema.org"}
+{"@type": "LocalBusiness", "name": "Example Business", "@context": "https://schema.org"}
 </script></head><body></body></html>"""
 
 ARTICLE_MISSING_FIELDS_HTML = """<html><head>
@@ -171,6 +180,39 @@ def test_schema_validate_meta():
         result = json.loads(schema_validate("https://example.com/test"))
     assert result["_meta"]["tool"] == "schema_validate"
     assert result["_meta"]["params"]["url"] == "https://example.com/test"
+
+
+def test_schema_validate_ssrf_private_ip_blocked():
+    """Private IP address resolving hostname → fetch_error, no HTTP call made."""
+    with patch(
+        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        return_value=[(None, None, None, None, ("192.168.1.1", 0))],
+    ):
+        result = json.loads(schema_validate("http://internal.corp/"))
+    assert result["verdict"] == "fetch_error"
+    assert "Blocked" in result["error"]
+
+
+def test_schema_validate_ssrf_loopback_blocked():
+    """Loopback IP → fetch_error."""
+    with patch(
+        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        return_value=[(None, None, None, None, ("127.0.0.1", 0))],
+    ):
+        result = json.loads(schema_validate("http://localhost/"))
+    assert result["verdict"] == "fetch_error"
+    assert "Blocked" in result["error"]
+
+
+def test_schema_validate_ssrf_metadata_ip_blocked():
+    """AWS metadata IP 169.254.169.254 → fetch_error."""
+    with patch(
+        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        return_value=[(None, None, None, None, ("169.254.169.254", 0))],
+    ):
+        result = json.loads(schema_validate("http://169.254.169.254/latest/meta-data/"))
+    assert result["verdict"] == "fetch_error"
+    assert "Blocked" in result["error"]
 
 
 def test_schema_validate_fields_present_excludes_at_fields():
