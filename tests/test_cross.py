@@ -271,18 +271,18 @@ def test_thc_property_id_propagated():
     ga4_pages = [_ga4_page("/home", sessions=90)]
     with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_json(gsc_rows)), \
          patch("gsc_mcp.tools.cross.ga4_organic_landing_pages", return_value=_ga4_json(ga4_pages)) as mock_ga4:
-        traffic_health_check(SITE, property_id="443684366")
+        traffic_health_check(SITE, property_id="987654321")
     _, kwargs = mock_ga4.call_args
-    assert kwargs.get("property_id") == "443684366"
+    assert kwargs.get("property_id") == "987654321"
 
 
 def test_pa_property_id_propagated():
     """property_id is forwarded to ga4_organic_landing_pages."""
     with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_json([])), \
          patch("gsc_mcp.tools.cross.ga4_organic_landing_pages", return_value=_ga4_json([])) as mock_ga4:
-        page_analysis(SITE, property_id="443684366")
+        page_analysis(SITE, property_id="987654321")
     _, kwargs = mock_ga4.call_args
-    assert kwargs.get("property_id") == "443684366"
+    assert kwargs.get("property_id") == "987654321"
 
 
 def test_pa_opportunity_score_formula():
@@ -544,13 +544,13 @@ def test_phs_meta_includes_hostname_and_country():
         _ga4_page_perf_json(),
         _crux_json(),
         _schema_json(),
-        property_id="443684366",
+        property_id="987654321",
         hostname="blog.example.com",
         country="US",
     )
     assert result["_meta"]["params"]["hostname"] == "blog.example.com"
     assert result["_meta"]["params"]["country"] == "US"
-    assert result["_meta"]["params"]["property_id"] == "443684366"
+    assert result["_meta"]["params"]["property_id"] == "987654321"
 
 
 # ---------------------------------------------------------------------------

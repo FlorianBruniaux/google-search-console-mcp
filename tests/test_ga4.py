@@ -51,15 +51,15 @@ def test_get_ga4_property_id_already_prefixed(monkeypatch):
 def test_get_ga4_property_id_override_takes_precedence(monkeypatch):
     monkeypatch.setenv("GA4_PROPERTY_ID", "111111111")
     from gsc_mcp.auth import get_ga4_property_id
-    result = get_ga4_property_id(override="443684366")
-    assert result == "properties/443684366"
+    result = get_ga4_property_id(override="987654321")
+    assert result == "properties/987654321"
 
 
 def test_get_ga4_property_id_override_no_env_needed(monkeypatch):
     monkeypatch.delenv("GA4_PROPERTY_ID", raising=False)
     from gsc_mcp.auth import get_ga4_property_id
-    result = get_ga4_property_id(override="443684366")
-    assert result == "properties/443684366"
+    result = get_ga4_property_id(override="987654321")
+    assert result == "properties/987654321"
 
 
 # ---------------------------------------------------------------------------
@@ -354,15 +354,15 @@ def test_build_dimension_filter_none_returns_none():
 
 def test_build_dimension_filter_hostname_only():
     from gsc_mcp.tools.ga4 import _build_dimension_filter
-    f = _build_dimension_filter(hostname="cc.bruniaux.com")
+    f = _build_dimension_filter(hostname="example.com")
     assert f is not None
     assert f.filter.field_name == "hostName"
-    assert f.filter.string_filter.value == "cc.bruniaux.com"
+    assert f.filter.string_filter.value == "example.com"
 
 
 def test_build_dimension_filter_hostname_country_and_group():
     from gsc_mcp.tools.ga4 import _build_dimension_filter
-    f = _build_dimension_filter(hostname="cc.bruniaux.com", country="France")
+    f = _build_dimension_filter(hostname="example.com", country="France")
     assert len(f.and_group.expressions) == 2
     field_names = {e.filter.field_name for e in f.and_group.expressions}
     assert field_names == {"hostName", "country"}
@@ -377,7 +377,7 @@ def test_build_dimension_filter_base_filter_only():
 
 def test_build_dimension_filter_base_plus_hostname():
     from gsc_mcp.tools.ga4 import _build_dimension_filter, _organic_filter
-    f = _build_dimension_filter(hostname="cc.bruniaux.com", base_filter=_organic_filter())
+    f = _build_dimension_filter(hostname="example.com", base_filter=_organic_filter())
     assert len(f.and_group.expressions) == 2
 
 
@@ -392,14 +392,14 @@ def test_organic_landing_pages_no_filter_change_without_params(mock_ga4_service)
 
 def test_organic_landing_pages_hostname_adds_and_group(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        ga4_organic_landing_pages(hostname="cc.bruniaux.com")
+        ga4_organic_landing_pages(hostname="example.com")
     req = mock_ga4_service.run_report.call_args[0][0]
     assert len(req.dimension_filter.and_group.expressions) == 2
 
 
 def test_page_performance_hostname_filter(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        ga4_page_performance(hostname="cc.bruniaux.com")
+        ga4_page_performance(hostname="example.com")
     req = mock_ga4_service.run_report.call_args[0][0]
     assert req.dimension_filter is not None
     assert req.dimension_filter.filter.field_name == "hostName"
@@ -407,7 +407,7 @@ def test_page_performance_hostname_filter(mock_ga4_service):
 
 def test_page_performance_hostname_country_and_group(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        ga4_page_performance(hostname="cc.bruniaux.com", country="France")
+        ga4_page_performance(hostname="example.com", country="France")
     req = mock_ga4_service.run_report.call_args[0][0]
     assert len(req.dimension_filter.and_group.expressions) == 2
 
@@ -422,7 +422,7 @@ def test_page_performance_no_filter_without_params(mock_ga4_service):
 
 def test_realtime_hostname_filter(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        ga4_realtime(hostname="cc.bruniaux.com")
+        ga4_realtime(hostname="example.com")
     req = mock_ga4_service.run_realtime_report.call_args[0][0]
     assert req.dimension_filter is not None
     assert req.dimension_filter.filter.field_name == "hostName"
@@ -437,7 +437,7 @@ def test_realtime_no_hostname_no_filter(mock_ga4_service):
 
 def test_user_behavior_hostname_filter_applied_to_all_subrequests(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        ga4_user_behavior(hostname="cc.bruniaux.com")
+        ga4_user_behavior(hostname="example.com")
     batch_req = mock_ga4_service.batch_run_reports.call_args[0][0]
     for sub_req in batch_req.requests:
         assert sub_req.dimension_filter is not None
@@ -454,7 +454,7 @@ def test_user_behavior_no_filter_without_params(mock_ga4_service):
 
 def test_conversion_funnel_hostname_filter_applied(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        ga4_conversion_funnel(hostname="cc.bruniaux.com")
+        ga4_conversion_funnel(hostname="example.com")
     pages_req = mock_ga4_service.run_report.call_args_list[0][0][0]
     events_req = mock_ga4_service.run_report.call_args_list[1][0][0]
     assert pages_req.dimension_filter.filter.field_name == "hostName"
@@ -463,15 +463,15 @@ def test_conversion_funnel_hostname_filter_applied(mock_ga4_service):
 
 def test_traffic_sources_hostname_filter(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        ga4_traffic_sources(hostname="cc.bruniaux.com")
+        ga4_traffic_sources(hostname="example.com")
     req = mock_ga4_service.run_report.call_args[0][0]
     assert req.dimension_filter.filter.field_name == "hostName"
 
 
 def test_meta_params_include_hostname_country(mock_ga4_service):
     with patch("gsc_mcp.tools.ga4.get_ga4_service", return_value=mock_ga4_service):
-        result = json.loads(ga4_page_performance(hostname="cc.bruniaux.com", country="France"))
-    assert result["_meta"]["params"]["hostname"] == "cc.bruniaux.com"
+        result = json.loads(ga4_page_performance(hostname="example.com", country="France"))
+    assert result["_meta"]["params"]["hostname"] == "example.com"
     assert result["_meta"]["params"]["country"] == "France"
 
 

@@ -184,8 +184,8 @@ Remove `GA4_PROPERTY_ID` if you are not using GA4 tools. Restart Claude Desktop 
 To query a different GA4 property without changing the config, pass `property_id` directly to any GA4 or cross tool:
 
 ```python
-ga4_traffic_sources(property_id="443684366")
-traffic_health_check(site="sc-domain:example.com", property_id="443684366")
+ga4_traffic_sources(property_id="987654321")
+traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 ```
 
 ## Development

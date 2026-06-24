@@ -7,31 +7,31 @@ import pytest
 
 from gsc_mcp.tools.sitemaps import sitemap_audit
 
-SITE = "sc-domain:cc.bruniaux.com"
-SITEMAP_URL = "https://cc.bruniaux.com/sitemap.xml"
+SITE = "sc-domain:example.com"
+SITEMAP_URL = "https://example.com/sitemap.xml"
 
 # GSC rows fixture — pages already indexed
 GSC_ROWS_3_PAGES = [
-    {"page": "https://cc.bruniaux.com/page1"},
-    {"page": "https://cc.bruniaux.com/page2"},
-    {"page": "https://cc.bruniaux.com/page3"},
+    {"page": "https://example.com/page1"},
+    {"page": "https://example.com/page2"},
+    {"page": "https://example.com/page3"},
 ]
 GSC_JSON_3 = json.dumps({"rows": GSC_ROWS_3_PAGES, "site": SITE, "date_range": {}})
 
 URLSET_3 = b"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://cc.bruniaux.com/page1</loc></url>
-  <url><loc>https://cc.bruniaux.com/page2</loc></url>
-  <url><loc>https://cc.bruniaux.com/page3</loc></url>
+  <url><loc>https://example.com/page1</loc></url>
+  <url><loc>https://example.com/page2</loc></url>
+  <url><loc>https://example.com/page3</loc></url>
 </urlset>"""
 
 URLSET_5 = b"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://cc.bruniaux.com/page1</loc></url>
-  <url><loc>https://cc.bruniaux.com/page2</loc></url>
-  <url><loc>https://cc.bruniaux.com/page3</loc></url>
-  <url><loc>https://cc.bruniaux.com/page4</loc></url>
-  <url><loc>https://cc.bruniaux.com/page5</loc></url>
+  <url><loc>https://example.com/page1</loc></url>
+  <url><loc>https://example.com/page2</loc></url>
+  <url><loc>https://example.com/page3</loc></url>
+  <url><loc>https://example.com/page4</loc></url>
+  <url><loc>https://example.com/page5</loc></url>
 </urlset>"""
 
 URLSET_EMPTY = b"""<?xml version="1.0" encoding="UTF-8"?>
@@ -39,8 +39,8 @@ URLSET_EMPTY = b"""<?xml version="1.0" encoding="UTF-8"?>
 
 SITEMAP_INDEX = b"""<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap><loc>https://cc.bruniaux.com/sitemap-posts.xml</loc></sitemap>
-  <sitemap><loc>https://cc.bruniaux.com/sitemap-pages.xml</loc></sitemap>
+  <sitemap><loc>https://example.com/sitemap-posts.xml</loc></sitemap>
+  <sitemap><loc>https://example.com/sitemap-pages.xml</loc></sitemap>
 </sitemapindex>"""
 
 
@@ -89,7 +89,7 @@ def test_sitemap_audit_healthy():
 
 def test_sitemap_audit_partial():
     """5 URLs in sitemap, 4 missing from GSC (80% missing > 20% threshold) → verdict=partial."""
-    gsc_json = json.dumps({"rows": [{"page": "https://cc.bruniaux.com/page1"}], "site": SITE, "date_range": {}})
+    gsc_json = json.dumps({"rows": [{"page": "https://example.com/page1"}], "site": SITE, "date_range": {}})
     http_client = _make_httpx_client([_mock_http_response(URLSET_5)])
     with patch("gsc_mcp.tools.sitemaps.httpx.Client", return_value=http_client), \
          patch("gsc_mcp.tools.sitemaps.get_search_analytics", return_value=gsc_json):
@@ -120,8 +120,8 @@ def test_sitemap_audit_sitemap_index():
     """Sitemap index recurses into child sitemaps and aggregates URLs."""
     child_sitemap = b"""<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      <url><loc>https://cc.bruniaux.com/post-a</loc></url>
-      <url><loc>https://cc.bruniaux.com/post-b</loc></url>
+      <url><loc>https://example.com/post-a</loc></url>
+      <url><loc>https://example.com/post-b</loc></url>
     </urlset>"""
 
     http_client = _make_httpx_client([
@@ -154,7 +154,7 @@ def test_sitemap_audit_meta():
 def test_sitemap_audit_missing_sample_capped_at_20():
     """missing_sample contains at most 20 URLs."""
     urls = b"<?xml version='1.0'?><urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>" + \
-           b"".join(f"<url><loc>https://cc.bruniaux.com/p{i}</loc></url>".encode() for i in range(25)) + \
+           b"".join(f"<url><loc>https://example.com/p{i}</loc></url>".encode() for i in range(25)) + \
            b"</urlset>"
     gsc_json = json.dumps({"rows": [], "site": SITE, "date_range": {}})
     http_client = _make_httpx_client([_mock_http_response(urls)])
