@@ -9,6 +9,7 @@ from gsc_mcp.retry import with_retry
 _ANALYTICS_LAG_DAYS = 3
 _DEFAULT_ROW_LIMIT = 1000
 _MAX_ROWS_PER_PAGE = 25000
+_MAX_PAGES = 40
 _SEARCH_TYPES = ["web", "discover", "googleNews", "image", "video"]
 
 
@@ -32,13 +33,15 @@ def _parse_row(row: dict, dimensions: list[str]) -> dict:
 def _fetch_rows(svc, site: str, body: dict) -> list[dict]:
     rows: list[dict] = []
     start_row = 0
+    pages_fetched = 0
     dimensions = body.get("dimensions", ["query"])
 
-    while True:
+    while pages_fetched < _MAX_PAGES:
         page_body = {**body, "startRow": start_row, "rowLimit": _MAX_ROWS_PER_PAGE}
         response = svc.searchanalytics().query(siteUrl=site, body=page_body).execute()
         page_rows = response.get("rows", [])
         rows.extend([_parse_row(r, dimensions) for r in page_rows])
+        pages_fetched += 1
         if len(page_rows) < _MAX_ROWS_PER_PAGE:
             break
         start_row += len(page_rows)
@@ -88,7 +91,10 @@ def get_performance_overview(site: str, days: int = 28) -> str:
     total_clicks = sum(r["clicks"] for r in rows)
     total_impressions = sum(r["impressions"] for r in rows)
     avg_ctr = round(total_clicks / total_impressions, 4) if total_impressions else 0.0
-    avg_position = round(sum(r["position"] for r in rows) / len(rows), 1) if rows else 0.0
+    avg_position = (
+        round(sum(r["position"] * r["impressions"] for r in rows) / total_impressions, 1)
+        if total_impressions > 0 else 0.0
+    )
 
     return json.dumps(with_meta(
         {

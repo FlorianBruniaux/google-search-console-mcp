@@ -1,34 +1,29 @@
 import json
+from googleapiclient.errors import HttpError  # noqa: F401 — imported for @with_retry HttpError detection
 from gsc_mcp.auth import get_indexing_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.quota import QuotaTracker
 from gsc_mcp.constants import QUOTA_INDEXING_LIMIT, QUOTA_INDEXING_WARN_AT
+from gsc_mcp.retry import with_retry
 
 _BATCH_SIZE = 100
 
 _default_quota = QuotaTracker(limit=QUOTA_INDEXING_LIMIT, warn_at=QUOTA_INDEXING_WARN_AT)
 
 
+@with_retry()
 def submit_url(url: str, url_type: str = "URL_UPDATED") -> str:
     """Submit a single URL to the Google Indexing API for crawl notification.
 
     url_type must be 'URL_UPDATED' (page added or changed, default) or 'URL_DELETED' (page removed).
     Requires a service account with Indexing API access — OAuth is not sufficient.
-    Returns status 'submitted' on success or 'error' with details on failure.
+    Transient 429/5xx errors are retried automatically (up to 3 times). Credential errors
+    and non-retryable failures propagate to the caller.
     """
     svc = get_indexing_service()
-    try:
-        svc.urlNotifications().publish(body={"url": url, "type": url_type}).execute()
-        status = "submitted"
-    except Exception as exc:
-        return json.dumps(with_meta(
-            {"url": url, "status": "error", "error": str(exc)},
-            tool="submit_url",
-            params={"url": url, "type": url_type},
-        ))
-
+    svc.urlNotifications().publish(body={"url": url, "type": url_type}).execute()
     return json.dumps(with_meta(
-        {"url": url, "status": status, "type": url_type},
+        {"url": url, "status": "submitted", "type": url_type},
         tool="submit_url",
         params={"url": url, "type": url_type},
     ))
@@ -43,6 +38,7 @@ def _make_callback(results: list, url: str):
     return callback
 
 
+@with_retry()
 def _submit_batch_impl(urls: list[str], url_type: str, quota: QuotaTracker) -> str:
     quota.check(len(urls))
     svc = get_indexing_service()

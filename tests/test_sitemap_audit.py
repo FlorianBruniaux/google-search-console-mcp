@@ -3,6 +3,7 @@
 import json
 from unittest.mock import patch, MagicMock
 
+import httpx
 import pytest
 
 from gsc_mcp.tools.sitemaps import sitemap_audit
@@ -104,7 +105,7 @@ def test_sitemap_audit_fetch_error():
     http_client = MagicMock()
     http_client.__enter__ = MagicMock(return_value=http_client)
     http_client.__exit__ = MagicMock(return_value=False)
-    http_client.get.side_effect = Exception("connection refused")
+    http_client.get.side_effect = httpx.ConnectError("connection refused")
     with patch("gsc_mcp.tools.sitemaps.httpx.Client", return_value=http_client), \
          patch("gsc_mcp.tools.sitemaps.get_search_analytics", return_value=GSC_JSON_3):
         result = json.loads(sitemap_audit(SITE, SITEMAP_URL))
@@ -163,3 +164,50 @@ def test_sitemap_audit_missing_sample_capped_at_20():
         result = json.loads(sitemap_audit(SITE, SITEMAP_URL))
     assert len(result["missing_sample"]) == 20
     assert result["urls_missing_from_gsc"] == 25
+
+
+# ---------------------------------------------------------------------------
+# SSRF protection
+# ---------------------------------------------------------------------------
+
+def test_sitemap_audit_rejects_child_url_from_different_origin():
+    """Sitemap index with one cross-origin child URL: only the same-origin child is fetched."""
+    index_with_evil = b"""<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://evil.internal/steal-creds</loc></sitemap>
+  <sitemap><loc>https://example.com/sitemap-safe.xml</loc></sitemap>
+</sitemapindex>"""
+
+    safe_child = b"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://example.com/safe-page</loc></url>
+</urlset>"""
+
+    # Only two GET calls should happen: index + safe child. The evil.internal child must be skipped.
+    http_client = _make_httpx_client([
+        _mock_http_response(index_with_evil),
+        _mock_http_response(safe_child),
+    ])
+    gsc_json = json.dumps({"rows": [], "site": SITE, "date_range": {}})
+    with patch("gsc_mcp.tools.sitemaps.httpx.Client", return_value=http_client), \
+         patch("gsc_mcp.tools.sitemaps.get_search_analytics", return_value=gsc_json):
+        result = json.loads(sitemap_audit(SITE, SITEMAP_URL))
+
+    assert http_client.get.call_count == 2
+    assert result["urls_declared"] == 1
+    assert result["is_index"] is True
+
+
+# ---------------------------------------------------------------------------
+# Malformed XML
+# ---------------------------------------------------------------------------
+
+def test_sitemap_audit_malformed_xml_returns_fetch_error():
+    """A response with unparseable XML content returns verdict=fetch_error."""
+    http_client = _make_httpx_client([_mock_http_response(b"<not valid xml <<<")])
+    gsc_json = json.dumps({"rows": [], "site": SITE, "date_range": {}})
+    with patch("gsc_mcp.tools.sitemaps.httpx.Client", return_value=http_client), \
+         patch("gsc_mcp.tools.sitemaps.get_search_analytics", return_value=gsc_json):
+        result = json.loads(sitemap_audit(SITE, SITEMAP_URL))
+    assert result["verdict"] == "fetch_error"
+    assert result["urls_declared"] == 0

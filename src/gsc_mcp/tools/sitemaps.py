@@ -1,6 +1,7 @@
 import json
 
 import defusedxml.ElementTree as ET
+from defusedxml import DefusedXmlException
 import httpx
 
 from gsc_mcp.auth import get_searchconsole_service
@@ -118,10 +119,28 @@ def sitemap_audit(site: str, sitemap_url: str) -> str:
                 resp = client.get(url, headers={"User-Agent": "gsc-mcp-sitemap-audit/1.0"})
                 resp.raise_for_status()
                 return ET.fromstring(resp.content)
-        except Exception:
+        except (httpx.HTTPError, ET.ParseError):
             return None
 
-    root = _fetch_xml(sitemap_url)
+    try:
+        root = _fetch_xml(sitemap_url)
+    except DefusedXmlException as exc:
+        return json.dumps(with_meta(
+            {
+                "site": site,
+                "sitemap_url": sitemap_url,
+                "is_index": False,
+                "urls_declared": 0,
+                "urls_in_gsc": 0,
+                "urls_missing_from_gsc": 0,
+                "missing_sample": [],
+                "verdict": "fetch_error",
+                "error": f"SECURITY_BLOCKED: {exc}",
+            },
+            tool="sitemap_audit",
+            params={"site": site, "sitemap_url": sitemap_url},
+        ))
+
     declared_urls: list[str] = []
     is_index = False
 

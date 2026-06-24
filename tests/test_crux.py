@@ -86,21 +86,21 @@ def test_rate_none_returns_unknown():
 
 def test_crux_page_vitals_good_lcp():
     """LCP p75=1800ms rates as good (threshold 2500ms)."""
-    with patch("httpx.Client", return_value=_make_mock_client(200, _mock_vitals_response(lcp_p75=1800))):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=_make_mock_client(200, _mock_vitals_response(lcp_p75=1800))):
         result = json.loads(crux_page_vitals("https://example.com/"))
     assert result["metrics"]["largest_contentful_paint"]["rating"] == "good"
     assert result["metrics"]["largest_contentful_paint"]["p75"] == 1800
 
 
 def test_crux_page_vitals_poor_lcp():
-    with patch("httpx.Client", return_value=_make_mock_client(200, _mock_vitals_response(lcp_p75=5000))):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=_make_mock_client(200, _mock_vitals_response(lcp_p75=5000))):
         result = json.loads(crux_page_vitals("https://slow-site.example/"))
     assert result["metrics"]["largest_contentful_paint"]["rating"] == "poor"
 
 
 def test_crux_page_vitals_not_found():
     """404 from CrUX returns verdict=not_enough_data."""
-    with patch("httpx.Client", return_value=_make_mock_client(404)):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=_make_mock_client(404)):
         result = json.loads(crux_page_vitals("https://tiny-site.example/obscure/"))
     assert result["verdict"] == "not_enough_data"
 
@@ -108,7 +108,7 @@ def test_crux_page_vitals_not_found():
 def test_crux_page_vitals_form_factor_in_payload():
     """form_factor != ALL_FORM_FACTORS is included in POST payload."""
     mock_client = _make_mock_client(200, _mock_vitals_response())
-    with patch("httpx.Client", return_value=mock_client):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=mock_client):
         crux_page_vitals("https://example.com/", form_factor="PHONE")
     _, kwargs = mock_client.post.call_args
     assert kwargs["json"]["formFactor"] == "PHONE"
@@ -117,14 +117,14 @@ def test_crux_page_vitals_form_factor_in_payload():
 def test_crux_page_vitals_all_form_factors_no_form_factor_key():
     """ALL_FORM_FACTORS means formFactor is NOT included in payload."""
     mock_client = _make_mock_client(200, _mock_vitals_response())
-    with patch("httpx.Client", return_value=mock_client):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=mock_client):
         crux_page_vitals("https://example.com/")
     _, kwargs = mock_client.post.call_args
     assert "formFactor" not in kwargs["json"]
 
 
 def test_crux_page_vitals_meta():
-    with patch("httpx.Client", return_value=_make_mock_client(200, _mock_vitals_response())):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=_make_mock_client(200, _mock_vitals_response())):
         result = json.loads(crux_page_vitals("https://example.com/", form_factor="DESKTOP"))
     assert result["_meta"]["tool"] == "crux_page_vitals"
     assert result["_meta"]["params"]["form_factor"] == "DESKTOP"
@@ -142,7 +142,7 @@ def test_crux_page_vitals_no_api_key_raises(monkeypatch):
 
 def test_crux_history_returns_weekly_series():
     """crux_history returns one entry per collection period."""
-    with patch("httpx.Client", return_value=_make_mock_client(200, _mock_history_response(n=5))):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=_make_mock_client(200, _mock_history_response(n=5))):
         result = json.loads(crux_history("https://example.com/"))
     assert result["weeks"] == 5
     assert len(result["history"]) == 5
@@ -153,13 +153,13 @@ def test_crux_history_returns_weekly_series():
 
 def test_crux_history_not_found():
     """404 returns verdict=not_enough_data."""
-    with patch("httpx.Client", return_value=_make_mock_client(404)):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=_make_mock_client(404)):
         result = json.loads(crux_history("https://tiny-site.example/"))
     assert result["verdict"] == "not_enough_data"
 
 
 def test_crux_history_meta():
-    with patch("httpx.Client", return_value=_make_mock_client(200, _mock_history_response(n=2))):
+    with patch("gsc_mcp.tools.crux.httpx.Client", return_value=_make_mock_client(200, _mock_history_response(n=2))):
         result = json.loads(crux_history("https://example.com/", metric="cumulative_layout_shift"))
     assert result["_meta"]["params"]["metric"] == "cumulative_layout_shift"
     assert result["metric"] == "cumulative_layout_shift"

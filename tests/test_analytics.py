@@ -15,6 +15,9 @@ from gsc_mcp.tools.analytics import (
     news_performance,
     search_type_breakdown,
     ai_overviews_impact,
+    _fetch_rows,
+    _MAX_PAGES,
+    _MAX_ROWS_PER_PAGE,
     _SEARCH_TYPES,
 )
 
@@ -488,3 +491,78 @@ def test_ai_overviews_impact_meta_block_present_in_success_and_error(mock_gsc_se
     assert "_meta" in error_result
     assert error_result["_meta"]["tool"] == "ai_overviews_impact"
     assert error_result["_meta"]["params"]["site"] == SITE
+
+
+# ---------------------------------------------------------------------------
+# _fetch_rows pagination cap tests
+# ---------------------------------------------------------------------------
+
+def _full_page():
+    """Return a GSC response carrying exactly _MAX_ROWS_PER_PAGE rows."""
+    return {
+        "rows": [
+            {"keys": ["q"], "clicks": 1, "impressions": 10, "ctr": 0.1, "position": 5.0}
+            for _ in range(_MAX_ROWS_PER_PAGE)
+        ]
+    }
+
+
+def test_fetch_rows_stops_at_max_pages(mock_gsc_service):
+    """When every page is full, _fetch_rows must stop after exactly _MAX_PAGES calls."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = _full_page()
+    body = {"startDate": "2026-01-01", "endDate": "2026-01-28", "dimensions": ["query"]}
+    rows = _fetch_rows(mock_gsc_service, SITE, body)
+    call_count = mock_gsc_service.searchanalytics.return_value.query.call_count
+    assert call_count == _MAX_PAGES
+    assert len(rows) == _MAX_PAGES * _MAX_ROWS_PER_PAGE
+
+
+# ---------------------------------------------------------------------------
+# get_performance_overview weighted avg_position tests
+# ---------------------------------------------------------------------------
+
+def test_get_performance_overview_avg_position_weighted(mock_gsc_service):
+    """avg_position must be impression-weighted, not a simple mean.
+
+    Row A: position=2, impressions=1   -> contributes 2 * 1 = 2
+    Row B: position=8, impressions=100 -> contributes 8 * 100 = 800
+    Weighted avg = 802 / 101 = ~7.9, which is much closer to 8 than to 2.
+    A simple mean would give (2 + 8) / 2 = 5.0, clearly wrong.
+    """
+    row_a = {"keys": ["rare query"], "clicks": 1, "impressions": 1, "ctr": 0.1, "position": 2.0}
+    row_b = {"keys": ["popular query"], "clicks": 50, "impressions": 100, "ctr": 0.5, "position": 8.0}
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        "rows": [row_a, row_b]
+    }
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(get_performance_overview(SITE))
+    avg_pos = result["totals"]["avg_position"]
+    # Weighted: (2*1 + 8*100) / 101 = 802/101 ≈ 7.9
+    assert avg_pos == round((2 * 1 + 8 * 100) / 101, 1)
+    # Must be closer to 8 than to the simple mean of 5
+    assert avg_pos > 5.0
+
+
+def test_get_performance_overview_avg_position_zero_impressions(mock_gsc_service):
+    """When all rows have 0 impressions, avg_position must return 0.0 without division error."""
+    row = {"keys": ["query"], "clicks": 0, "impressions": 0, "ctr": 0.0, "position": 5.0}
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": [row]}
+    with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(get_performance_overview(SITE))
+    assert result["totals"]["avg_position"] == 0.0
+
+
+# ---------------------------------------------------------------------------
+# _fetch_rows retry behaviour
+# ---------------------------------------------------------------------------
+
+@patch("gsc_mcp.retry.time.sleep")
+def test_fetch_rows_retries_on_429_then_reraises(mock_sleep, mock_gsc_service):
+    """HttpError(429) on execute() triggers @with_retry back-off; after max_retries exhaustion it re-raises."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(429)
+    body = {"startDate": "2026-01-01", "endDate": "2026-01-28", "dimensions": ["query"]}
+    with pytest.raises(HttpError) as exc_info:
+        _fetch_rows(mock_gsc_service, SITE, body)
+    assert int(exc_info.value.resp.status) == 429
+    # with_retry defaults: max_retries=3 → 4 total attempts → 3 sleeps
+    assert mock_sleep.call_count == 3

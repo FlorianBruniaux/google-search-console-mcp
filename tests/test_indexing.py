@@ -1,6 +1,7 @@
 import json
 import pytest
 from unittest.mock import patch, MagicMock
+from googleapiclient.errors import HttpError
 from gsc_mcp.tools.indexing import submit_url, submit_batch, _submit_batch_impl
 from gsc_mcp.quota import QuotaTracker
 
@@ -47,8 +48,34 @@ def test_submit_url(mock_indexing_service):
         result = json.loads(submit_url(URL))
 
     assert result["url"] == URL
-    assert result["status"] in ("submitted", "error")
+    assert result["status"] == "submitted"
+    assert result["type"] == "URL_UPDATED"
     assert "_meta" in result
+
+
+def test_submit_url_retries_on_429(mock_indexing_service):
+    resp = MagicMock()
+    resp.status = 429
+    http_error = HttpError(resp=resp, content=b"Too Many Requests")
+
+    execute_mock = mock_indexing_service.urlNotifications.return_value.publish.return_value.execute
+    execute_mock.side_effect = [http_error, http_error, {"urlNotificationMetadata": {"url": URL}}]
+
+    with patch("gsc_mcp.tools.indexing.get_indexing_service", return_value=mock_indexing_service):
+        with patch("gsc_mcp.retry.time.sleep"):
+            result = json.loads(submit_url(URL))
+
+    assert result["status"] == "submitted"
+    assert execute_mock.call_count == 3
+
+
+def test_submit_url_credentials_error_propagates():
+    with patch(
+        "gsc_mcp.tools.indexing.get_indexing_service",
+        side_effect=RuntimeError("No credentials"),
+    ):
+        with pytest.raises(RuntimeError, match="No credentials"):
+            submit_url(URL)
 
 
 def test_submit_batch_true_http_batch():

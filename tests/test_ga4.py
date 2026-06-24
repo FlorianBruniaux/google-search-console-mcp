@@ -578,3 +578,51 @@ def test_ga4_funnel_meta_block_present():
     assert result["_meta"]["params"]["end_date"] == "2025-01-31"
     assert result["_meta"]["params"]["property_id"] == "99999"
     assert result["_meta"]["params"]["steps"] == STEPS_2
+
+
+def test_ga4_funnel_api_returns_more_rows_than_steps():
+    """When the API returns more rows than submitted steps, only the first N rows are used."""
+    rows = [
+        _make_alpha_row("Visit homepage", "1000"),
+        _make_alpha_row("Add to cart", "450"),
+        _make_alpha_row("Extra row", "100"),  # no matching step
+    ]
+    mock_client = _make_alpha_client(rows)
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_client):
+        result = json.loads(ga4_funnel(STEPS_2, "7daysAgo", "today"))
+
+    assert len(result["steps"]) == 2
+    assert result["steps"][0]["users"] == 1000
+    assert result["steps"][1]["users"] == 450
+
+
+def test_ga4_funnel_api_returns_empty_rows():
+    """When the API returns no rows, each step gets users=0 and step2 gets conversion_rate=0.0."""
+    mock_client = _make_alpha_client([])
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_client):
+        result = json.loads(ga4_funnel(STEPS_2, "7daysAgo", "today"))
+
+    assert len(result["steps"]) == 2
+    assert result["steps"][0]["users"] == 0
+    assert result["steps"][0]["conversion_rate"] is None
+    assert result["steps"][1]["users"] == 0
+    assert result["steps"][1]["conversion_rate"] == pytest.approx(0.0)
+
+
+def test_ga4_funnel_step1_users_zero_no_crash():
+    """When step 1 has 0 users, step 2 conversion_rate is 0.0 (no ZeroDivisionError)."""
+    rows = [
+        _make_alpha_row("Visit homepage", "0"),
+        _make_alpha_row("Add to cart", "0"),
+    ]
+    mock_client = _make_alpha_client(rows)
+
+    with patch("gsc_mcp.tools.ga4.get_alpha_ga4_service", return_value=mock_client):
+        result = json.loads(ga4_funnel(STEPS_2, "7daysAgo", "today"))
+
+    assert result["steps"][0]["users"] == 0
+    assert result["steps"][0]["conversion_rate"] is None
+    assert result["steps"][1]["users"] == 0
+    assert result["steps"][1]["conversion_rate"] == pytest.approx(0.0)

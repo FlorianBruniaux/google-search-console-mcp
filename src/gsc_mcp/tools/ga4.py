@@ -514,22 +514,21 @@ def ga4_funnel(
     )
     response = client.run_funnel_report(request)
 
-    step1_users: int | None = None
+    rows = list(response.funnel_table.rows)
+    step1_users = _i(rows[0].metric_values[0].value) if rows else 0
     result_steps = []
-    for i, row in enumerate(response.funnel_table.rows):
-        step_name = row.dimension_values[0].value
-        users = _i(row.metric_values[0].value)
-        if i == 0:
-            step1_users = users
-            conversion_rate = None
+    for i, step in enumerate(steps):
+        if i < len(rows):
+            users = _i(rows[i].metric_values[0].value)
         else:
-            conversion_rate = (
-                round(users / step1_users * 100, 2) if step1_users else 0.0
-            )
-        event_name = steps[i]["event"] if i < len(steps) else ""
+            users = 0
+        conversion_rate = (
+            None if i == 0
+            else (round(users / step1_users * 100, 2) if step1_users else 0.0)
+        )
         result_steps.append({
-            "name": step_name,
-            "event": event_name,
+            "name": step["name"],
+            "event": step["event"],
             "users": users,
             "conversion_rate": conversion_rate,
         })

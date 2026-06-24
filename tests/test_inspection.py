@@ -1,6 +1,7 @@
 import json
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
+from googleapiclient.errors import HttpError
 from gsc_mcp.tools.inspection import inspect_url, batch_url_inspection, check_indexing_issues
 
 SITE = "https://example.com/"
@@ -79,3 +80,43 @@ def test_check_indexing_issues(mock_gsc_service):
         assert issue["category"] in (
             "not_indexed", "robots_blocked", "fetch_error", "canonical_issue", "indexed"
         )
+
+
+def test_batch_url_inspection_retry_no_duplicate(mock_gsc_service):
+    """A transient 429 on URL #2 must not duplicate URL #1 in the output."""
+    url_a = "https://example.com/a"
+    url_b = "https://example.com/b"
+
+    ok_response = _mock_inspect_response()
+
+    # Build a fake HttpError for status 429
+    resp_mock = MagicMock()
+    resp_mock.status = 429
+    error_429 = HttpError(resp=resp_mock, content=b"rate limited")
+
+    # execute() for URL b: fail once with 429, then succeed
+    execute_mock = MagicMock(side_effect=[error_429, ok_response])
+
+    def inspect_side_effect(body):
+        request = MagicMock()
+        # URL a always succeeds; URL b fails on first attempt
+        if body["inspectionUrl"] == url_b:
+            request.execute = execute_mock
+        else:
+            request.execute = MagicMock(return_value=ok_response)
+        return request
+
+    mock_gsc_service.urlInspection.return_value.index.return_value.inspect.side_effect = (
+        inspect_side_effect
+    )
+
+    with patch("gsc_mcp.tools.inspection.get_searchconsole_service", return_value=mock_gsc_service):
+        # Patch time.sleep so the retry is instant
+        with patch("gsc_mcp.retry.time.sleep"):
+            result = json.loads(batch_url_inspection([url_a, url_b], SITE))
+
+    assert result["count"] == 2
+    assert len(result["results"]) == 2
+    urls_in_result = [r["url"] for r in result["results"]]
+    assert urls_in_result.count(url_a) == 1, "URL a must appear exactly once (no duplicate from retry)"
+    assert urls_in_result.count(url_b) == 1

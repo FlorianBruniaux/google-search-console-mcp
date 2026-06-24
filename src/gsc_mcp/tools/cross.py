@@ -260,11 +260,11 @@ def content_brief(
     ]
 
     question_words = {"who", "what", "when", "where", "why", "how"}
-    question_queries = [
-        {"query": row["query"], "clicks": row["clicks"]}
-        for row in filtered
-        if row["query"].lower().split() and row["query"].lower().split()[0] in question_words
-    ]
+    question_queries = []
+    for row in filtered:
+        words = row["query"].lower().split()
+        if words and words[0] in question_words:
+            question_queries.append({"query": row["query"], "clicks": row["clicks"]})
 
     ga4_result = None
     try:
@@ -280,7 +280,7 @@ def content_brief(
         if pages:
             first = pages[0]
             ga4_result = {
-                "sessions": first.get("active_users"),
+                "active_users": first.get("active_users"),
                 "engagement_rate": first.get("engagement_rate"),
             }
     except RuntimeError:
@@ -346,7 +346,7 @@ def page_health_score(
                 start_date="30daysAgo",
                 end_date="today",
                 property_id=property_id,
-                page_path=url,
+                page_path=_normalize_url(url),
                 hostname=hostname,
                 country=country,
             )

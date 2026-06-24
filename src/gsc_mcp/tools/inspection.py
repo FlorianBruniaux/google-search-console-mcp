@@ -56,17 +56,20 @@ def inspect_url(url: str, site: str) -> str:
 
 
 @with_retry()
+def _inspect_one_url(svc, site: str, url: str) -> dict:
+    response = svc.urlInspection().index().inspect(
+        body={"inspectionUrl": url, "siteUrl": site}
+    ).execute()
+    return _parse_inspection(url, response)
+
+
 def batch_url_inspection(urls: list[str], site: str) -> str:
     """Inspect up to 10 URLs at once in GSC. Returns the same fields as inspect_url for each URL."""
     if len(urls) > _MAX_BATCH:
         raise ValueError(f"batch_url_inspection supports max 10 URLs, got {len(urls)}")
 
     svc = get_searchconsole_service()
-    results = []
-    for url in urls:
-        body = {"inspectionUrl": url, "siteUrl": site}
-        response = svc.urlInspection().index().inspect(body=body).execute()
-        results.append(_parse_inspection(url, response))
+    results = [_inspect_one_url(svc, site, url) for url in urls]
 
     return json.dumps(with_meta(
         {"site": site, "count": len(results), "results": results},
@@ -75,7 +78,6 @@ def batch_url_inspection(urls: list[str], site: str) -> str:
     ))
 
 
-@with_retry()
 def check_indexing_issues(urls: list[str], site: str) -> str:
     """Inspect up to 10 URLs and return only those with indexing problems, plus a summary count by category.
 
@@ -96,9 +98,7 @@ def check_indexing_issues(urls: list[str], site: str) -> str:
     }
 
     for url in urls:
-        body = {"inspectionUrl": url, "siteUrl": site}
-        response = svc.urlInspection().index().inspect(body=body).execute()
-        parsed = _parse_inspection(url, response)
+        parsed = _inspect_one_url(svc, site, url)
         summary[parsed["category"]] = summary.get(parsed["category"], 0) + 1
         if parsed["category"] != "indexed":
             issues.append(parsed)

@@ -679,7 +679,7 @@ def test_content_brief_ga4_sessions_and_engagement_rate():
     rows = [_gsc_qp_row("seo", PAGE_URL, clicks=10)]
     result = _cb(rows, ga4_rv=_ga4_perf_json(active_users=350, engagement_rate=0.82))
     assert result["ga4"] is not None
-    assert result["ga4"]["sessions"] == 350
+    assert result["ga4"]["active_users"] == 350
     assert result["ga4"]["engagement_rate"] == pytest.approx(0.82)
 
 
@@ -729,3 +729,63 @@ def test_content_brief_question_queries_from_full_filtered_list():
     question_texts = [q["query"] for q in result["question_queries"]]
     assert "how to optimize" in question_texts
     assert "what are best practices" in question_texts
+
+
+# ---------------------------------------------------------------------------
+# Bug-fix regression tests
+# ---------------------------------------------------------------------------
+
+def test_phs_ga4_receives_normalized_path_not_absolute_url():
+    """page_health_score must pass the relative path to ga4_page_performance, not the full URL."""
+    captured = {}
+
+    def fake_ga4_page_performance(**kw):
+        captured["page_path"] = kw.get("page_path")
+        return _ga4_page_perf_json()
+
+    with patch("gsc_mcp.tools.cross.inspect_url", return_value=_inspect_json()), \
+         patch("gsc_mcp.tools.cross.ga4_page_performance", side_effect=fake_ga4_page_performance), \
+         patch("gsc_mcp.tools.cross.crux_page_vitals", return_value=_crux_json()), \
+         patch("gsc_mcp.tools.cross.schema_validate", return_value=_schema_json()):
+        page_health_score(SITE, "https://example.com/article")
+
+    assert captured["page_path"] == "/article", (
+        f"Expected '/article' but got {captured['page_path']!r}. "
+        "page_health_score must call _normalize_url(url) before passing to ga4_page_performance."
+    )
+
+
+def test_phs_gsc_raises_runtime_error_renormalized_over_remaining_70():
+    """GSC RuntimeError -> gsc available=False, score renormalized over GA4+CrUX+schema=70 pts.
+
+    When all remaining components earn full marks the score must be 100.
+    """
+    with patch("gsc_mcp.tools.cross.inspect_url", side_effect=RuntimeError("no GSC creds")), \
+         patch("gsc_mcp.tools.cross.ga4_page_performance", return_value=_ga4_page_perf_json(active_users=100, engagement_rate=0.75)), \
+         patch("gsc_mcp.tools.cross.crux_page_vitals", return_value=_crux_json(lcp="good", inp="good", cls_="good")), \
+         patch("gsc_mcp.tools.cross.schema_validate", return_value=_schema_json(schemas_detected=1, errors_count=0)):
+        result = json.loads(page_health_score(SITE, URL))
+
+    assert result["components"]["gsc"]["available"] is False
+    assert result["components"]["gsc"]["score"] == 0
+    # max_available = 25+25+20 = 70; earned = 25+25+20 = 70 -> score = 100
+    assert result["score"] == 100
+
+
+def test_content_brief_ga4_empty_pages_returns_none():
+    """GA4 responding successfully with pages=[] must set ga4 to None (not an error path)."""
+    ga4_empty = json.dumps({
+        "start_date": "90daysAgo",
+        "end_date": "today",
+        "count": 0,
+        "pages": [],
+        "_meta": {"tool": "ga4_page_performance", "params": {}},
+    })
+    rows = [_gsc_qp_row("seo guide", PAGE_URL, clicks=50)]
+    with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_query_page_json(rows)), \
+         patch("gsc_mcp.tools.cross.ga4_page_performance", return_value=ga4_empty):
+        result = json.loads(content_brief(SITE, PAGE_URL))
+
+    assert result["ga4"] is None
+    # The GSC path must still work normally
+    assert result["current_focus"] == "seo guide"
