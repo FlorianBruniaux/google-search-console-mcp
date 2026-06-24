@@ -245,7 +245,7 @@ def content_brief(
     norm_target = _normalize_url(page_url)
 
     filtered = [
-        row for row in gsc_data["rows"]
+        row for row in gsc_data.get("rows", [])
         if _normalize_url(row["page"]) == norm_target
     ]
     filtered.sort(key=lambda r: r["clicks"], reverse=True)
@@ -262,8 +262,8 @@ def content_brief(
     question_words = {"who", "what", "when", "where", "why", "how"}
     question_queries = [
         {"query": row["query"], "clicks": row["clicks"]}
-        for row in top_queries
-        if row["query"].lower().split()[0] in question_words
+        for row in filtered
+        if row["query"].lower().split() and row["query"].lower().split()[0] in question_words
     ]
 
     ga4_result = None

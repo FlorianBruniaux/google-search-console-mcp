@@ -701,3 +701,31 @@ def test_content_brief_meta_block():
     assert result["_meta"]["params"]["page_url"] == PAGE_URL
     assert result["_meta"]["params"]["days"] == 90
     assert result["_meta"]["params"]["property_id"] == "123456"
+
+
+def test_content_brief_question_queries_from_full_filtered_list():
+    """question_queries captures question queries beyond the top-20 cap.
+
+    Creates 22 rows: first 20 are non-question queries sorted by clicks desc,
+    21st and 22nd are question queries with lower clicks. Tests that question_queries
+    includes question queries from the full filtered list, not just from top_queries.
+    """
+    rows = [
+        _gsc_qp_row(f"seo tip {i}", PAGE_URL, clicks=100 - i)
+        for i in range(20)
+    ] + [
+        _gsc_qp_row("how to optimize", PAGE_URL, clicks=10),
+        _gsc_qp_row("what are best practices", PAGE_URL, clicks=5),
+    ]
+    result = _cb(rows)
+
+    # top_queries capped at 20 (non-question)
+    assert len(result["top_queries"]) == 20
+    assert all(not q["query"].split()[0] in {"who", "what", "when", "where", "why", "how"}
+               for q in result["top_queries"])
+
+    # question_queries should include the question queries from full list (ranks 21, 22)
+    assert len(result["question_queries"]) == 2
+    question_texts = [q["query"] for q in result["question_queries"]]
+    assert "how to optimize" in question_texts
+    assert "what are best practices" in question_texts
