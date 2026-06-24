@@ -1,0 +1,151 @@
+# gsc-mcp Architecture Quick Reference for AI Assistants
+# Source: 15 ADRs + code archaeology (2026-06-22/24)
+# Load in CLAUDE.md: @docs/machine-readable/llms.txt
+
+## What This Project Is
+
+Python MCP server exposing 43 Google Search Console / GA4 / CrUX tools to AI agents.
+Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
+Framework: FastMCP. Python 3.11+. MIT license.
+
+## Module Map
+
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + explicit mcp.tool() registration for all 43 tools.
+
+AUTH: src/gsc_mcp/auth.py : Three API service helpers:
+  get_searchconsole_service() → GSC Search Console + Indexing API
+  get_ga4_service()           → GA4 Data API v1 (gRPC)
+  get_alpha_ga4_service()     → GA4 Data API v1alpha (for ga4_funnel only)
+  Resolution order: GSC_SERVICE_ACCOUNT_PATH env → OAuth JSON token at platformdirs user_data_dir.
+  Token: JSON (NOT pickle), chmod 0o600, written atomically via tempfile + os.replace() (TOCTOU fix).
+  Directory: chmod 0o700.
+
+OUTPUT CONTRACT: src/gsc_mcp/meta.py : with_meta(data, tool, params). Every tool returns:
+  json.dumps(with_meta(data, tool="tool_name", params={...}))
+  Data keys spread at top level. _meta block appended with tool name and call params.
+
+RETRY: src/gsc_mcp/retry.py : @with_retry(max_retries=3, base_delay=1.0). Apply to any direct Google API call.
+  Retries on: HttpError [429, 500, 502, 503, 504], ServiceUnavailable, ResourceExhausted, InternalServerError, BadGateway, RetryError.
+  Does NOT retry other 4xx.
+
+QUOTA: src/gsc_mcp/quota.py : QuotaTracker singleton. Indexing API limit: 200 req/day, warn at 180.
+  In-memory only (resets on restart).
+
+TOOLS:
+
+  analytics.py (6 tools):
+    get_search_analytics, get_advanced_search_analytics, get_performance_overview,
+    get_search_by_page_query, compare_search_periods, discover_performance
+    Core: _fetch_rows() wrapped with @with_retry : shared by all analytics + SEO tools.
+
+  seo.py (8 tools):
+    quick_wins, traffic_drops, seo_cannibalization, analytics_anomalies,
+    seo_lost_queries, seo_striking_distance, news_performance, search_type_breakdown
+    Built on _fetch_rows from analytics.py.
+
+  inspection.py (3 tools): inspect_url, batch_url_inspection, check_indexing_issues
+
+  indexing.py (2 tools): submit_url, submit_batch
+    submit_batch: true multipart HTTP batch via svc.new_batch_http_request(), 100 URLs/request.
+
+  sitemaps.py (4 + 1 special):
+    list_sitemaps, sitemaps_get, sitemaps_delete, submit_sitemap
+    sitemap_audit: defusedxml + SSRF origin check + follow_redirects=False + 90 days GSC cross-ref.
+    Verdicts: empty | fetch_error | partial (>20% URLs absent) | healthy.
+
+  properties.py (3 tools): list_properties, get_site_details, get_capabilities
+    _ALL_TOOLS list lives here. Update it when adding tools.
+
+  ga4.py (7 tools):
+    ga4_traffic_sources, ga4_organic_landing_pages, ga4_page_performance,
+    ga4_user_behavior, ga4_realtime, ga4_conversion_funnel, ga4_funnel
+    ga4_funnel uses get_alpha_ga4_service() (v1alpha). All accept hostname + country filters.
+    Filter helper: _build_dimension_filter(hostname, country, base_filter).
+    env: GA4_PROPERTY_ID (validated lazily, per-call override supported).
+
+  cross.py (4 tools):
+    traffic_health_check, page_analysis, content_brief, page_health_score
+    Compose analytics.py + ga4.py. Join via _normalize_url() (strips scheme/host/query/trailing-slash).
+    engagement_rate = engaged_sessions / sessions.
+
+  crux.py (2 tools): crux_page_vitals, crux_history
+    HTTP client: httpx (POST to Chrome UX Report API). Auth: CRUX_API_KEY (plain Google API key).
+    HTTP 404 = verdict "not_enough_data" (not an error condition).
+
+  technical.py (2 tools): schema_validate, check_alerts
+    schema_validate: httpx fetch + html.parser (stdlib) extraction of <script type="application/ld+json">.
+    No auth needed. Validates: Article, LocalBusiness, FAQPage, Product, WebSite, BreadcrumbList,
+    SoftwareApplication, BlogPosting.
+
+## Security Rules (always apply)
+
+1. XML PARSING: Use defusedxml.ElementTree, NEVER stdlib xml.etree.ElementTree, for external XML.
+   Reason: XXE + billion-laughs vulnerability on untrusted XML.
+
+2. TOKEN STORAGE: Write tokens as JSON (not pickle). Atomic write (tempfile + os.replace()).
+   chmod 0o600 on file, 0o700 on directory.
+
+3. SSRF (sitemap_audit): Validate child sitemap URL origin against parent origin before fetching.
+   follow_redirects=False at all times.
+
+4. SSRF (schema_validate): Currently no origin restriction. Only expose to trusted clients.
+
+5. REAL PROPERTY IDs: Never hardcode real GSC property IDs or domains in tests or docs.
+   Use sc-domain:example.com or https://example.com/ as fixtures.
+
+6. RETRY COVERAGE: All direct Google API calls (execute(), runReport(), etc.) need @with_retry().
+   Missing decorator = unhandled transient failures.
+
+7. OUTPUT CONTRACT: All tools must return json.dumps(with_meta(...)).
+   No bare json.dumps(data).
+
+8. CI SECRETS: PYPI_API_TOKEN lives in GitHub Actions secrets, never in pyproject.toml or code.
+
+## Adding a New Tool (checklist)
+
+1. Implement in tools/<module>.py : @with_retry() if Google API call.
+2. Return json.dumps(with_meta(data, tool="name", params={...})).
+3. Import + register in server.py: mcp.tool()(my_tool).
+4. Add name to _ALL_TOOLS in properties.py.
+5. Update count in get_capabilities() docstring.
+6. Write tests in tests/test_<module>.py : mock all Google API calls.
+
+## Test Patterns
+
+SETUP: pytest tests/ : 282 tests, fully mocked.
+  pytest tests/test_analytics.py -v
+  pytest tests/ -k "test_submit_batch" -v
+
+FIXTURE CHEAT SHEET:
+  mock_gsc_service     → MagicMock wired: .sites().list, .searchanalytics().query, .sitemaps(), .urlInspection()
+  mock_indexing_service → MagicMock with working new_batch_http_request() (fires callbacks synchronously)
+  GA4_PROPERTY_ID      → autouse fixture sets env var to "12345678"
+
+PATCH AT CALL SITE (not in module declaration):
+  gsc_mcp.tools.analytics.get_searchconsole_service
+  gsc_mcp.tools.ga4.get_ga4_service
+  gsc_mcp.tools.crux.httpx.Client         ← context manager pattern
+  gsc_mcp.tools.sitemaps.httpx.Client     ← context manager pattern
+  gsc_mcp.tools.sitemaps.get_search_analytics  ← module-level import, patch here
+
+## Environment Variables
+
+GSC_SERVICE_ACCOUNT_PATH  : GSC + Indexing + GA4 tools. Path to service account JSON (preferred for automation).
+GSC_CREDENTIALS_PATH      : OAuth flow. Path to OAuth Desktop client JSON.
+GSC_SKIP_OAUTH            : Set to "true" to skip OAuth fallback entirely (requires SA path).
+GA4_PROPERTY_ID           : All GA4 + cross tools. Numeric (e.g. 12345678), validated lazily, per-call override supported.
+CRUX_API_KEY              : crux_page_vitals, crux_history. Plain Google API key (not service account).
+
+## Quick Decision Tree
+
+- New GSC analytics tool → analytics.py, use _fetch_rows, @with_retry, with_meta
+- New SEO intelligence tool → seo.py, builds on _fetch_rows
+- New GA4 tool → ga4.py, add hostname+country filter via _build_dimension_filter, with_meta
+- New GA4 alpha API tool → ga4.py, use get_alpha_ga4_service()
+- New cross-platform tool → cross.py, use _normalize_url for GSC+GA4 join
+- New tool fetching external URLs → httpx + SSRF origin check + follow_redirects=False
+- New tool parsing external XML → defusedxml.ElementTree
+- Any Google API call → @with_retry()
+- Any tool return → json.dumps(with_meta(...))
+- New tool registered → update _ALL_TOOLS in properties.py + get_capabilities count
+- New test → mock get_*_service at call site, never make real API calls

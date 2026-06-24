@@ -1,0 +1,240 @@
+# Décisions techniques gsc-mcp, synthèse machine-readable
+# Basé sur 15 ADRs + git archaeology (2026-06-22/24)
+# Usage: référence rapide pour agents IA lors de suggestions de stack
+
+version: "1.0.0"
+generated: "2026-06-24"
+
+stack_standards:
+
+  server_framework:
+    adopted:
+      - name: fastmcp
+        version: "mcp[cli]>=1.0.0"
+        context: "MCP server Python officiel, API stdio native"
+        pattern: "FastMCP('gsc-mcp') + mcp.tool()(fn) par outil"
+        registration: "explicite dans server.py, pas de discovery dynamique"
+    source_adrs: [ADR-0001]
+
+  http_client:
+    adopted:
+      - name: httpx
+        version: ">=0.27.0"
+        context: "CrUX API + sitemap fetch + schema_validate"
+        usage: "context manager pattern (with httpx.Client() as client)"
+    not_used_for:
+      - "Appels APIs Google (utiliser googleapiclient ou google-analytics-data)"
+    source_adrs: [ADR-0007, ADR-0008, ADR-0009]
+
+  google_api_clients:
+    adopted:
+      - name: google-api-python-client
+        version: ">=2.100.0"
+        scope: "GSC Search Console API + Indexing API"
+        service_builders:
+          - get_searchconsole_service()
+          - get_indexing_service()
+      - name: google-analytics-data
+        version: ">=0.18.0"
+        scope: "GA4 Data API (gRPC)"
+        service_builders:
+          - get_ga4_service()
+          - get_alpha_ga4_service()
+    source_adrs: [ADR-0002, ADR-0013]
+
+  xml_parsing:
+    adopted:
+      - name: defusedxml
+        version: ">=0.7.1"
+        context: "Parsing XML externe (sitemaps)"
+        api: "defusedxml.ElementTree (drop-in replacement de stdlib ET)"
+    forbidden:
+      - name: xml.etree.ElementTree
+        reason: "Vulnérable XXE + billion-laughs sur XML non maîtrisé"
+    source_adrs: [ADR-0007]
+
+  credential_storage:
+    adopted:
+      - name: JSON token file
+        format: "json.dumps(credentials_dict)"
+        location: "platformdirs.user_data_dir('gsc-mcp') (OS-dependent)"
+        permissions:
+          file: "0o600"
+          directory: "0o700"
+        write_pattern: "tempfile.mkstemp() + os.replace() (atomic, TOCTOU-safe)"
+    forbidden:
+      - name: pickle
+        reason: "Deserialisation = exécution de code arbitraire potentielle"
+    source_adrs: [ADR-0003]
+
+  authentication:
+    resolution_order:
+      1: "GSC_SERVICE_ACCOUNT_PATH défini → service account credentials (préféré)"
+      2: "GSC_CREDENTIALS_PATH défini → OAuth Desktop flow, token caché en JSON"
+      3: "GSC_SKIP_OAUTH=true → pas de fallback OAuth (automation sans browser)"
+    separate_credential_pairs:
+      - api: GSC Search Console (searchconsole/v1)
+        helper: get_searchconsole_service()
+      - api: Indexing API (indexing/v3)
+        helper: get_indexing_service()
+      - api: GA4 Data v1 (analytics.readonly)
+        helper: get_ga4_service()
+      - api: GA4 Data v1alpha
+        helper: get_alpha_ga4_service()
+        note: "Uniquement pour ga4_funnel (RunFunnelReport)"
+    source_adrs: [ADR-0002, ADR-0013]
+
+  output_contract:
+    pattern: "json.dumps(with_meta(data, tool='name', params={...}))"
+    module: "src/gsc_mcp/meta.py"
+    structure:
+      top_level: "data keys spread au top level"
+      _meta: "{tool: str, params: dict}"
+    rule: "Tout outil enregistré via mcp.tool() DOIT utiliser with_meta()"
+    source_adrs: [ADR-0004]
+
+  resilience:
+    retry:
+      decorator: "@with_retry(max_retries=3, base_delay=1.0)"
+      module: "src/gsc_mcp/retry.py"
+      retries_on:
+        http_errors: [429, 500, 502, 503, 504]
+        grpc_exceptions:
+          - ServiceUnavailable
+          - ResourceExhausted
+          - InternalServerError
+          - BadGateway
+          - RetryError
+      does_not_retry: "Autres erreurs 4xx"
+      scope: "_fetch_rows dans analytics.py + chaque outil GA4"
+    quota:
+      tracker: QuotaTracker
+      module: "src/gsc_mcp/quota.py"
+      api: Indexing API
+      daily_limit: 200
+      warn_threshold: 180
+      persistence: "in-memory uniquement, reset au redémarrage"
+    source_adrs: [ADR-0005, ADR-0006]
+
+  testing:
+    framework: pytest
+    version: ">=8.0.0"
+    total_tests: 282
+    rule: "Zéro appel réel aux APIs Google dans les tests"
+    fixtures:
+      - name: mock_gsc_service
+        type: MagicMock
+        wired_for: [sites, searchanalytics, sitemaps, urlInspection]
+      - name: mock_indexing_service
+        type: MagicMock
+        note: "new_batch_http_request() fires callbacks synchronously"
+      - name: GA4_PROPERTY_ID
+        type: autouse env var
+        value: '"12345678"'
+    patch_convention: "Patcher le service au point d'appel (ex: gsc_mcp.tools.analytics.get_searchconsole_service)"
+    special_patterns:
+      crux: "httpx.Client en context manager (__enter__ retourne le mock)"
+      sitemaps: "Patcher httpx.Client ET get_search_analytics (import module-level)"
+      technical: "Patcher httpx.Client direct (module-level dans technical.py)"
+    source_adrs: [ADR-0010]
+
+  packaging:
+    pypi_name: gsc-mcp-tools
+    version: "0.6.1"
+    entrypoints:
+      - name: gsc-mcp
+        points_to: gsc_mcp.server:main
+      - name: gsc-mcp-tools
+        points_to: gsc_mcp.server:main
+        rationale: "uvx résout le nom du package, cet alias permet 'uvx gsc-mcp-tools'"
+    build_backend: hatchling
+    python_min: "3.11"
+    source_adrs: [ADR-0011]
+
+  ci_cd:
+    tool: GitHub Actions
+    trigger: "Push tag vX.Y.Z"
+    action: "build wheel + publish to PyPI via PYPI_API_TOKEN secret"
+    source_adrs: [ADR-0012]
+
+  url_normalization:
+    function: "_normalize_url(url)"
+    module: "src/gsc_mcp/tools/cross.py"
+    strips: [scheme, host, query_params, trailing_slash]
+    purpose: "Joindre URLs GSC absolues (https://example.com/page) avec chemins GA4 (/page)"
+    engagement_rate_derivation: "engaged_sessions / sessions"
+    source_adrs: [ADR-0014]
+
+  ga4_filtering:
+    function: "_build_dimension_filter(hostname, country, base_filter)"
+    module: "src/gsc_mcp/tools/ga4.py"
+    behavior:
+      both_none: "Retourne None (backward-compatible)"
+      one_set: "Retourne FilterExpression simple"
+      both_set: "Retourne AND group FilterExpressionList"
+    applies_to: "Tous les outils ga4.py + outils cross.py qui appellent GA4"
+    source_adrs: [ADR-0015]
+
+  sitemap_audit_security:
+    xml_parser: defusedxml.ElementTree
+    http_client: httpx
+    follow_redirects: false
+    ssrf_protection: "Valide origine URL enfant == origine URL parent avant fetch"
+    cross_reference: "90 jours de données GSC pour détecter URLs absentes"
+    missing_sample_cap: 20
+    verdicts: [empty, fetch_error, partial, healthy]
+    partial_threshold: ">20% URLs absentes de GSC"
+    source_adrs: [ADR-0007]
+
+  schema_validate:
+    html_parser: "html.parser (stdlib)"
+    no_external_dep: "beautifulsoup4 non requis"
+    auth_required: false
+    extracts: "<script type='application/ld+json'>"
+    validates:
+      - Article
+      - LocalBusiness
+      - FAQPage
+      - Product
+      - WebSite
+      - BreadcrumbList
+      - SoftwareApplication
+      - BlogPosting
+    suggests_missing: "Basé sur les patterns de chemin URL (/faq, /blog/, etc.)"
+    source_adrs: [ADR-0009]
+
+  crux_tools:
+    http_client: httpx
+    auth_type: "CRUX_API_KEY (plain Google API key)"
+    env_var: CRUX_API_KEY
+    endpoints:
+      crux_page_vitals: ":queryRecord"
+      crux_history: ":queryHistoryRecord"
+    http_404_meaning: "not_enough_data (pas une erreur, pas de raise)"
+    gcp_requirement: "Chrome UX Report API activée dans le projet GCP"
+    source_adrs: [ADR-0008]
+
+open_issues:
+  - id: "QUOTA-TRACKER-NOT-PERSISTENT"
+    description: "QuotaTracker resets à chaque redémarrage, risque de dépassement quota Indexing API"
+    risk: quota-exhaustion
+    fix_candidate: "Persister compteur + timestamp dans fichier local"
+
+  - id: "GA4-ALPHA-API-STABILITY"
+    description: "ga4_funnel dépend de v1alpha RunFunnelReport susceptible de breaking changes"
+    risk: stability
+
+  - id: "CRUX-MISSING-ENV-GUARD"
+    description: "CRUX_API_KEY absent provoque erreur obscure plutôt que message actionnable"
+    risk: ux
+    fix_candidate: "Guard explicite en tête des fonctions CrUX avec message clair"
+
+  - id: "SCHEMA-VALIDATE-NO-SSRF-GUARD"
+    description: "schema_validate fetche n'importe quelle URL publique sans validation d'origine"
+    risk: ssrf-medium
+    note: "Faible si serveur MCP tourne en local"
+
+  - id: "TOOL-COUNT-MANUAL"
+    description: "_ALL_TOOLS dans properties.py et count dans get_capabilities mis à jour manuellement"
+    risk: regression
+    fix_candidate: "Dériver le count dynamiquement depuis les outils enregistrés FastMCP"

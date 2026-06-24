@@ -1,0 +1,222 @@
+# Code Map, gsc-mcp
+# Source: src/gsc_mcp/ + tests/
+# Usage: @docs/machine-readable/code-map.yaml
+
+version: "1.0.0"
+generated: "2026-06-24"
+package: gsc-mcp-tools
+python_min: "3.11"
+total_tools: 43
+total_tests: 282
+
+entry_points:
+  - name: gsc-mcp
+    points_to: gsc_mcp.server:main
+  - name: gsc-mcp-tools
+    points_to: gsc_mcp.server:main
+    note: "alias for uvx gsc-mcp-tools compatibility"
+
+core_modules:
+  - path: src/gsc_mcp/server.py
+    role: "FastMCP instance + explicit tool registration (43 imports)"
+    type: entry_point
+
+  - path: src/gsc_mcp/auth.py
+    role: "Credential resolution (service account || OAuth), three API service helpers"
+    exports:
+      - get_searchconsole_service
+      - get_indexing_service
+      - get_ga4_service
+      - get_alpha_ga4_service
+    env_vars:
+      - GSC_SERVICE_ACCOUNT_PATH
+      - GSC_CREDENTIALS_PATH
+      - GSC_SKIP_OAUTH
+
+  - path: src/gsc_mcp/meta.py
+    role: "Output contract : with_meta(data, tool, params) wrapper"
+    exports: [with_meta]
+
+  - path: src/gsc_mcp/retry.py
+    role: "Retry decorator @with_retry for transient Google API errors"
+    exports: [with_retry]
+    retries_on: [429, 500, 502, 503, 504, ServiceUnavailable, ResourceExhausted, InternalServerError, BadGateway, RetryError]
+
+  - path: src/gsc_mcp/quota.py
+    role: "QuotaTracker singleton : Indexing API 200 req/day limit, warn at 180"
+    exports: [QuotaTracker]
+    note: "in-memory only, resets on process restart"
+
+  - path: src/gsc_mcp/constants.py
+    role: "Shared constants (default date range, pagination limits, etc.)"
+
+tool_modules:
+  - path: src/gsc_mcp/tools/analytics.py
+    tools: 6
+    tool_names:
+      - get_search_analytics
+      - get_advanced_search_analytics
+      - get_performance_overview
+      - get_search_by_page_query
+      - compare_search_periods
+      - discover_performance
+    key_function: "_fetch_rows (wrapped with @with_retry, shared by all analytics tools)"
+    env_vars: []
+
+  - path: src/gsc_mcp/tools/seo.py
+    tools: 8
+    tool_names:
+      - quick_wins
+      - traffic_drops
+      - seo_cannibalization
+      - analytics_anomalies
+      - seo_lost_queries
+      - seo_striking_distance
+      - news_performance
+      - search_type_breakdown
+    note: "Built on top of _fetch_rows from analytics.py"
+
+  - path: src/gsc_mcp/tools/inspection.py
+    tools: 3
+    tool_names:
+      - inspect_url
+      - batch_url_inspection
+      - check_indexing_issues
+
+  - path: src/gsc_mcp/tools/indexing.py
+    tools: 2
+    tool_names:
+      - submit_url
+      - submit_batch
+    note: "submit_batch uses true multipart HTTP batch, 100 URLs/request. QuotaTracker enforced."
+
+  - path: src/gsc_mcp/tools/sitemaps.py
+    tools: 4
+    tool_names:
+      - list_sitemaps
+      - sitemaps_get
+      - sitemaps_delete
+      - submit_sitemap
+    special_tool: sitemap_audit
+    sitemap_audit_notes: "defusedxml parsing, SSRF origin check, 90 days GSC cross-ref, missing_sample capped at 20"
+
+  - path: src/gsc_mcp/tools/properties.py
+    tools: 3
+    tool_names:
+      - list_properties
+      - get_site_details
+      - get_capabilities
+    note: "_ALL_TOOLS list here, must be updated when tools are added"
+
+  - path: src/gsc_mcp/tools/ga4.py
+    tools: 6
+    tool_names:
+      - ga4_traffic_sources
+      - ga4_organic_landing_pages
+      - ga4_page_performance
+      - ga4_user_behavior
+      - ga4_realtime
+      - ga4_conversion_funnel
+    special_tool: ga4_funnel
+    key_function: "_build_dimension_filter(hostname, country, base_filter)"
+    env_vars: [GA4_PROPERTY_ID]
+
+  - path: src/gsc_mcp/tools/cross.py
+    tools: 4
+    tool_names:
+      - traffic_health_check
+      - page_analysis
+      - content_brief
+      - page_health_score
+    key_function: "_normalize_url (strips scheme/host/query/trailing-slash for GSC+GA4 join)"
+    note: "Compose analytics.py + ga4.py results via json.loads + _normalize_url join"
+
+  - path: src/gsc_mcp/tools/crux.py
+    tools: 2
+    tool_names:
+      - crux_page_vitals
+      - crux_history
+    http_client: httpx
+    auth_type: "CRUX_API_KEY (plain Google API key, not service account)"
+    note: "HTTP 404 = not_enough_data (not an error). Chrome UX Report API must be enabled in GCP."
+
+  - path: src/gsc_mcp/tools/technical.py
+    tools: 2
+    tool_names:
+      - schema_validate
+      - check_alerts
+    note: "schema_validate uses html.parser (stdlib), no auth needed. check_alerts wraps GSC alerts."
+
+test_files:
+  - path: tests/conftest.py
+    role: "Shared fixtures: mock_gsc_service, mock_indexing_service, GA4_PROPERTY_ID autouse"
+
+  - path: tests/test_analytics.py
+    tools_covered: [get_search_analytics, get_advanced_search_analytics, get_performance_overview, get_search_by_page_query, compare_search_periods, discover_performance, news_performance, search_type_breakdown, ai_overviews_impact]
+
+  - path: tests/test_seo.py
+    tools_covered: [quick_wins, traffic_drops, seo_cannibalization, analytics_anomalies, seo_lost_queries, seo_striking_distance]
+
+  - path: tests/test_cross.py
+    tools_covered: [traffic_health_check, page_analysis, content_brief, page_health_score]
+
+  - path: tests/test_ga4.py
+    tools_covered: [ga4_traffic_sources, ga4_organic_landing_pages, ga4_page_performance, ga4_user_behavior, ga4_realtime, ga4_conversion_funnel, ga4_funnel]
+
+  - path: tests/test_crux.py
+    tools_covered: [crux_page_vitals, crux_history]
+    mock_pattern: "httpx.Client as context manager (__enter__ returns mock, .get.side_effect controls responses)"
+
+  - path: tests/test_sitemap_audit.py
+    mock_pattern: "gsc_mcp.tools.sitemaps.httpx.Client + gsc_mcp.tools.sitemaps.get_search_analytics (module-level import)"
+
+  - path: tests/test_technical.py
+    tools_covered: [schema_validate]
+    mock_pattern: "httpx.Client direct (module-level in technical.py)"
+
+  - path: tests/test_indexing.py
+    tools_covered: [submit_url, submit_batch]
+
+  - path: tests/test_inspection.py
+    tools_covered: [inspect_url, batch_url_inspection, check_indexing_issues]
+
+  - path: tests/test_sitemaps.py
+    tools_covered: [list_sitemaps, sitemaps_get, sitemaps_delete, submit_sitemap]
+
+  - path: tests/test_properties.py
+    tools_covered: [list_properties, get_site_details, get_capabilities]
+
+  - path: tests/test_auth.py
+    tools_covered: [get_searchconsole_service, token cache, chmod]
+
+  - path: tests/test_utilities.py
+    tools_covered: [with_meta, with_retry, QuotaTracker, _normalize_url]
+
+dependencies:
+  runtime:
+    - name: mcp[cli]
+      version: ">=1.0.0"
+      role: FastMCP server framework
+    - name: google-api-python-client
+      version: ">=2.100.0"
+      role: GSC + Indexing API client
+    - name: google-auth-oauthlib
+      version: ">=1.1.0"
+      role: OAuth2 flow
+    - name: google-analytics-data
+      version: ">=0.18.0"
+      role: GA4 Data API (gRPC)
+    - name: platformdirs
+      version: ">=4.0.0"
+      role: OS user data dir resolution (token cache location)
+    - name: httpx
+      version: ">=0.27.0"
+      role: CrUX API calls + sitemap fetch + schema_validate fetch
+    - name: defusedxml
+      version: ">=0.7.1"
+      role: Safe XML parsing for sitemap_audit (XXE prevention)
+  dev:
+    - name: pytest
+      version: ">=8.0.0"
+    - name: pytest-mock
+      version: ">=3.12.0"

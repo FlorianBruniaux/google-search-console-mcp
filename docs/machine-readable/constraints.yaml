@@ -1,0 +1,244 @@
+# Contraintes architecturales gsc-mcp
+# À charger dans CLAUDE.md via @docs/machine-readable/constraints.yaml
+# Basé sur les 15 ADRs + audit sécurité (2026-06-23/24)
+
+version: "1.0.0"
+generated: "2026-06-24"
+
+# Patterns INTERDITS : rejeter tout code contenant ces patterns
+forbidden_patterns:
+
+  - id: "NO-STDLIB-XML"
+    pattern: "xml.etree.ElementTree.parse() ou fromstring() sur du XML externe"
+    severity: critical
+    reason: >
+      stdlib ElementTree est vulnérable à XXE (XML External Entity) et aux attaques
+      billion-laughs sur du XML non maîtrisé. sitemap_audit fetche du XML tiers.
+    replacement: "defusedxml.ElementTree (même API, patché contre XXE)"
+    source_adrs: [ADR-0007]
+
+  - id: "NO-PICKLE-CREDENTIALS"
+    pattern: "pickle.dump() ou pickle.load() sur des tokens OAuth"
+    severity: critical
+    reason: >
+      Pickle exécute du code Python arbitraire à la désérialisation.
+      Si le fichier token est corrompu ou remplacé, c'est RCE.
+    replacement: "json.dumps() / json.loads() : safe, portable, lisible"
+    source_adrs: [ADR-0003]
+
+  - id: "NO-DIRECT-TOKEN-WRITE"
+    pattern: "open(token_path, 'w') pour écrire un fichier de credentials"
+    severity: high
+    reason: >
+      Race condition TOCTOU : entre le open() et le chmod(), un autre process peut
+      lire le token en clair. Utiliser write atomique via fichier temporaire + os.replace().
+    fix: >
+      fd, tmp = tempfile.mkstemp(dir=parent_dir)
+      os.write(fd, data); os.close(fd)
+      os.chmod(tmp, 0o600); os.replace(tmp, token_path)
+    source_adrs: [ADR-0003]
+
+  - id: "NO-SSRF-UNCHECKED"
+    pattern: "httpx.get(url) sur une URL fournie par l'utilisateur sans validation d'origine"
+    severity: critical
+    reason: >
+      sitemap_audit reçoit des URLs depuis les sitemaps index tiers.
+      Fetcher une URL cross-origin peut provoquer un SSRF (Server-Side Request Forgery)
+      vers des ressources internes ou des services cloud metadata.
+    fix: >
+      Valider l'origine de chaque URL enfant contre l'origine du sitemap parent.
+      follow_redirects=False obligatoire.
+    source_adrs: [ADR-0007]
+
+  - id: "NO-FOLLOW-REDIRECTS-SITEMAP"
+    pattern: "httpx.Client().get(url, follow_redirects=True) dans sitemaps.py"
+    severity: high
+    reason: "Les redirects peuvent contourner la validation d'origine SSRF."
+    fix: "follow_redirects=False dans tous les appels httpx de sitemaps.py"
+    source_adrs: [ADR-0007]
+
+  - id: "NO-MISSING-META"
+    pattern: "return json.dumps(data) sans with_meta() dans un outil MCP"
+    severity: high
+    reason: >
+      Le contrat de sortie with_meta() est le standard du projet.
+      Sans lui, les outils sont incohérents et les agents IA ne peuvent pas identifier
+      l'outil source ou les paramètres d'appel depuis la réponse.
+    fix: "return json.dumps(with_meta(data, tool='tool_name', params={...}))"
+    source_adrs: [ADR-0004]
+
+  - id: "NO-RETRY-MISSING-GOOGLE-API"
+    pattern: "appel direct à un service Google API (execute(), runReport(), etc.) sans @with_retry"
+    severity: high
+    reason: >
+      Les APIs Google sont sujettes aux erreurs 429 (quota) et 5xx (infrastructure).
+      Sans retry, un outil échoue définitivement sur une erreur transiente.
+    applies_to:
+      - "_fetch_rows dans analytics.py"
+      - "chaque outil GA4"
+    source_adrs: [ADR-0005]
+
+  - id: "NO-BEAUTIFULSOUP-DEPENDENCY"
+    pattern: "from bs4 import BeautifulSoup"
+    severity: medium
+    reason: >
+      schema_validate utilise délibérément html.parser de la stdlib pour éviter
+      une dépendance externe non nécessaire. beautifulsoup4 n'est pas dans les deps.
+    fix: "Utiliser html.parser natif Python via html.HTMLParser subclass ou html.unescape()"
+    source_adrs: [ADR-0009]
+
+  - id: "NO-REAL-API-CALLS-IN-TESTS"
+    pattern: "appel réel aux services Google dans les tests (sans patch)"
+    severity: critical
+    reason: >
+      Les tests doivent rester reproductibles sans credentials Google.
+      Un appel réel consomme du quota, dépend d'internet, et peut exposer
+      des données propriétaires dans les logs CI.
+    fix: "Patch get_searchconsole_service / get_indexing_service / get_ga4_service au point d'appel."
+    source_adrs: [ADR-0010]
+
+  - id: "NO-HARDCODED-PROPERTY-ID"
+    pattern: "site_url ou property_id réels hardcodés dans les tests ou la doc"
+    severity: high
+    reason: >
+      Des IDs propriétés GSC réels ont été trouvés commités (commit `680d510`).
+      Remplacés par des valeurs fictives (sc-domain:example.com, 12345678).
+    source_adrs: [ADR-0010]
+
+
+# Patterns REQUIS : à appliquer systématiquement
+required_patterns:
+
+  - id: "WITH-META-REQUIRED"
+    context: "tout outil MCP (toute fonction enregistrée via mcp.tool())"
+    pattern: "json.dumps(with_meta(data, tool='<nom>', params={...}))"
+    imports_needed: ["from gsc_mcp.meta import with_meta"]
+    source_adrs: [ADR-0004]
+
+  - id: "RETRY-DECORATOR-GOOGLE-API"
+    context: "toute fonction qui appelle directement un service Google API"
+    pattern: "@with_retry() sur la fonction ou sur _fetch_rows"
+    imports_needed: ["from gsc_mcp.retry import with_retry"]
+    source_adrs: [ADR-0005]
+
+  - id: "TOKEN-PERMISSIONS"
+    context: "écriture d'un token OAuth sur disque"
+    pattern: "os.chmod(token_path, 0o600), répertoire parent 0o700"
+    source_adrs: [ADR-0003]
+
+  - id: "DEFUSEDXML-FOR-EXTERNAL-XML"
+    context: "parsing de tout XML fetché depuis une URL externe"
+    pattern: "import defusedxml.ElementTree as ET"
+    source_adrs: [ADR-0007]
+
+  - id: "SSRF-ORIGIN-CHECK"
+    context: "toute URL enfant dans sitemap_audit"
+    pattern: "urlparse(child_url).netloc == urlparse(parent_url).netloc"
+    source_adrs: [ADR-0007]
+
+  - id: "GA4-DIMENSION-FILTER-HELPER"
+    context: "tout nouvel outil GA4 acceptant hostname ou country"
+    pattern: "_build_dimension_filter(hostname, country, base_filter)"
+    note: "Retourne None si les deux args sont None (backward-compatible)"
+    source_adrs: [ADR-0015]
+
+  - id: "TOOL-REGISTRATION-EXPLICIT"
+    context: "ajout d'un nouvel outil dans server.py"
+    steps:
+      - "Implémenter la fonction dans tools/<module>.py"
+      - "Décorer avec @with_retry() si appel Google API direct"
+      - "Retourner json.dumps(with_meta(...))"
+      - "Importer et enregistrer dans server.py via mcp.tool()(ma_fonction)"
+      - "Ajouter le nom dans _ALL_TOOLS dans properties.py"
+      - "Mettre à jour le count dans la docstring de get_capabilities"
+      - "Écrire les tests dans tests/test_<module>.py"
+    source_adrs: [ADR-0001, ADR-0004]
+
+  - id: "CRUX-KEY-ENV-VAR"
+    context: "outils crux_page_vitals et crux_history"
+    pattern: "CRUX_API_KEY requis, distinct des credentials GSC/GA4"
+    note: "404 de l'API = verdict not_enough_data, pas une exception"
+    source_adrs: [ADR-0008]
+
+
+# Décisions actées à ne pas remettre en question sans nouvel ADR
+settled_decisions:
+
+  - decision: "FastMCP comme framework MCP Python (pas mcp-python bas niveau)"
+    date: "2026-06-22"
+    source_adr: ADR-0001
+
+  - decision: "JSON (pas pickle) pour la sérialisation des tokens OAuth"
+    date: "2026-06-23"
+    source_adr: ADR-0003
+
+  - decision: "defusedxml pour tout parsing XML externe"
+    date: "2026-06-23"
+    source_adr: ADR-0007
+
+  - decision: "httpx pour CrUX et sitemap_audit (pas googleapiclient)"
+    date: "2026-06-23"
+    source_adr: ADR-0008
+
+  - decision: "html.parser stdlib pour schema_validate (pas beautifulsoup4)"
+    date: "2026-06-23"
+    source_adr: ADR-0009
+
+  - decision: "Tous les tests entièrement mockés, zéro appel réel Google API"
+    date: "2026-06-22"
+    source_adr: ADR-0010
+
+  - decision: "Double entrypoint gsc-mcp + gsc-mcp-tools pour uvx compatibility"
+    date: "2026-06-24"
+    source_adr: ADR-0011
+
+  - decision: "Publication PyPI automatique via GitHub Actions sur tags vX.Y.Z"
+    date: "2026-06-23"
+    source_adr: ADR-0012
+
+  - decision: "ga4_funnel utilise get_alpha_ga4_service() (v1alpha RunFunnelReport)"
+    date: "2026-06-24"
+    rationale: "API RunFunnelReport uniquement disponible en v1alpha, pas v1"
+    source_adr: ADR-0013
+
+  - decision: "with_meta() output contract obligatoire sur tous les outils"
+    date: "2026-06-22"
+    source_adr: ADR-0004
+
+
+# Tensions ouvertes (à traiter avant décision)
+open_tensions:
+
+  - id: "QUOTA-TRACKER-NOT-PERSISTENT"
+    description: "QuotaTracker resets à chaque redémarrage du process MCP"
+    risk: quota-exhaustion
+    impact: >
+      Si le serveur MCP est redémarré en cours de journée, le compteur reprend à 0.
+      En usage intensif, la limite réelle 200 req/jour de l'Indexing API peut être dépassée.
+    mitigation_possible: "Persister le compteur + timestamp dans un fichier local"
+
+  - id: "GA4-ALPHA-API-STABILITY"
+    description: "ga4_funnel dépend de v1alpha RunFunnelReport, susceptible de breaking changes"
+    risk: stability
+    impact: "La v1alpha peut être retirée ou modifiée sans notice préalable"
+    monitoring: "Surveiller les annonces GA4 API changelog"
+
+  - id: "CRUX-EXTERNAL-DEPENDENCY"
+    description: "crux_page_vitals et crux_history n'ont pas de circuit-breaker sur CRUX_API_KEY absent"
+    risk: ux
+    impact: "Si CRUX_API_KEY non configuré, outil échoue avec une erreur obscure plutôt qu'un message clair"
+    fix_candidate: "Guard explicite en tête des outils CrUX avec message d'erreur actionnable"
+
+  - id: "SCHEMA-VALIDATE-NO-AUTH"
+    description: "schema_validate fetche n'importe quelle URL publique sans contrainte"
+    risk: ssrf-medium
+    impact: >
+      Contrairement à sitemap_audit, schema_validate n'a pas de validation d'origine.
+      Un utilisateur pourrait l'utiliser pour fetcher des URLs internes d'un réseau.
+    note: "Risque faible si le serveur MCP tourne sur un poste local ou dans un réseau de confiance"
+
+  - id: "TOOL-COUNT-DRIFT"
+    description: "_ALL_TOOLS dans properties.py et le count dans get_capabilities doivent être mis à jour manuellement"
+    risk: regression
+    impact: "get_capabilities peut retourner un count inexact si un outil est ajouté sans mise à jour"
+    fix_candidate: "Dériver le count dynamiquement depuis la liste d'outils enregistrés"

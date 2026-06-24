@@ -1,0 +1,250 @@
+# ADR Index, gsc-mcp
+# Source: git archaeology (git log reverse, 2026-06-22/24)
+# Usage: @docs/machine-readable/adr-index.yaml
+
+version: "1.0.0"
+generated: "2026-06-24"
+total: 15
+repo: google-search-console-mcp
+
+adrs:
+  - id: ADR-0001
+    date: 2026-06-22
+    criticite: C1
+    domaine: Framework
+    titre: Adoption de FastMCP comme framework MCP Python
+    tags: [fastmcp, mcp, python, server, stdio]
+    sources:
+      - "commit `8ac864d` (2026-06-22 : initial commit, feat: GA4 tools + FastMCP setup)"
+      - "src/gsc_mcp/server.py"
+    context: >
+      FastMCP est le framework officiel de l'écosystème MCP (Model Context Protocol).
+      Crée une instance FastMCP("gsc-mcp") et enregistre tous les outils via mcp.tool()().
+      Pas de discovery dynamique : chaque outil est importé et enregistré explicitement dans server.py.
+    rationale: "API simple, support stdio natif, compatibilité Claude Desktop et Claude Code MCP config."
+
+  - id: ADR-0002
+    date: 2026-06-22
+    criticite: C1
+    domaine: Security / Auth
+    titre: Trois paires de credentials séparées (GSC, Indexing, GA4)
+    tags: [auth, google-api, service-account, oauth, credentials, ga4, gsc, indexing]
+    sources:
+      - "commit `8ac864d` (2026-06-22)"
+      - "src/gsc_mcp/auth.py"
+    context: >
+      Trois APIs Google distinctes requièrent des scopes différents :
+      GSC Search Console API (searchconsole/v1), Indexing API (indexing/v3),
+      GA4 Data API (analytics.readonly). Chaque paire a son propre service helper.
+    resolution_order: >
+      Si GSC_SERVICE_ACCOUNT_PATH est défini → service account credentials.
+      Sinon → OAuth avec token JSON cached dans OS user data dir (~/Library/Application Support/gsc-mcp/ sur macOS).
+
+  - id: ADR-0003
+    date: 2026-06-23
+    criticite: C1
+    domaine: Security
+    titre: Token OAuth sérialisé en JSON (pas pickle), chmod 0o600
+    tags: [security, oauth, token, json, permissions, serialization]
+    sources:
+      - "commit `74e5a38` (2026-06-23 : fix: secure token permissions)"
+      - "src/gsc_mcp/auth.py"
+    context: >
+      Pickle est un vecteur d'exécution de code arbitraire si le fichier token est corrompu
+      ou remplacé. JSON est sûr à désérialiser. Le fichier token est écrit en mode atomique
+      (via fichier temporaire + os.replace()) pour éviter la race condition TOCTOU.
+    permissions: "Token file: 0o600. Répertoire: 0o700."
+
+  - id: ADR-0004
+    date: 2026-06-22
+    criticite: C1
+    domaine: API Contract
+    titre: Contrat de sortie with_meta() obligatoire sur tous les outils
+    tags: [output-contract, meta, tool-response, json, standardisation]
+    sources:
+      - "commit `8ac864d` (2026-06-22)"
+      - "src/gsc_mcp/meta.py"
+    contract: >
+      with_meta(data, tool="tool_name", params={...}) encapsule chaque réponse.
+      Les clés data sont spreadées au top level (pas imbriquées sous "data").
+      Un bloc _meta { tool, params } est ajouté systématiquement.
+      Tout nouvel outil DOIT retourner json.dumps(with_meta(...)).
+
+  - id: ADR-0005
+    date: 2026-06-23
+    criticite: C1
+    domaine: Resilience
+    titre: Décorateur @with_retry sur tous les appels Google API directs
+    tags: [retry, resilience, google-api, http-error, grpc, rate-limit]
+    sources:
+      - "commit `74e5a38` (2026-06-23 : fix: extend retry to GA4 gRPC errors)"
+      - "src/gsc_mcp/retry.py"
+    context: >
+      @with_retry(max_retries=3, base_delay=1.0) intercepte deux familles d'erreurs :
+      (1) googleapiclient.errors.HttpError sur les codes 429, 500, 502, 503, 504.
+      (2) google.api_core.exceptions : ServiceUnavailable, ResourceExhausted,
+          InternalServerError, BadGateway, RetryError (erreurs gRPC GA4).
+      Les erreurs 4xx non-transientes ne sont pas retentées.
+    applies_to:
+      - "_fetch_rows dans analytics.py (couvre tous les outils GSC analytics/SEO)"
+      - "chaque outil GA4 directement"
+
+  - id: ADR-0006
+    date: 2026-06-22
+    criticite: C2
+    domaine: Quota Management
+    titre: QuotaTracker singleton pour l'Indexing API (200 req/jour)
+    tags: [quota, indexing-api, singleton, rate-limit, submit-batch]
+    sources:
+      - "commit `8ac864d` (2026-06-22)"
+      - "src/gsc_mcp/quota.py"
+      - "src/gsc_mcp/tools/indexing.py"
+    context: >
+      L'Indexing API Google est limitée à 200 requêtes/jour. Le QuotaTracker est un
+      singleton module-level dans indexing.py qui traque l'usage dans la durée de vie
+      du process. Il avertit à 180 requêtes. Il ne persiste pas entre redémarrages.
+    note: "submit_batch utilise svc.new_batch_http_request() par chunks de 100 URLs. Vrai batch multipart, pas une boucle séquentielle."
+
+  - id: ADR-0007
+    date: 2026-06-23
+    criticite: C1
+    domaine: Security
+    titre: defusedxml + validation d'origine pour sitemap_audit (prévention XXE et SSRF)
+    tags: [security, ssrf, xxe, defusedxml, sitemap, xml, httpx]
+    sources:
+      - "commit `635c2c1` (2026-06-23 : feat(sitemaps): add sitemap_audit)"
+      - "commit `46b30e3` (2026-06-24 : security: fix TOCTOU, add SSRF guard)"
+      - "src/gsc_mcp/tools/sitemaps.py"
+    context: >
+      sitemap_audit fetche un sitemap via httpx. Deux protections obligatoires :
+      (1) defusedxml.ElementTree pour le parsing XML (prévient XXE et billion-laughs attack).
+      (2) Les URLs de sitemaps enfants sont validées contre l'origine du parent avant fetch
+          (follow_redirects=False, SSRF protection). Une URL cross-origin est rejetée.
+    stdlib_xml_forbidden: "Ne jamais utiliser xml.etree.ElementTree pour parser du XML externe."
+
+  - id: ADR-0008
+    date: 2026-06-23
+    criticite: C2
+    domaine: API Client
+    titre: httpx (pas googleapiclient) pour les outils CrUX, clé API plain Google
+    tags: [crux, httpx, api-key, chrome-ux-report, google-api-key]
+    sources:
+      - "commit `aed1acc` (2026-06-23 : feat(crux): add crux_page_vitals)"
+      - "src/gsc_mcp/tools/crux.py"
+    context: >
+      L'API Chrome UX Report n'a pas de client Python officiel google-api-python-client.
+      Elle s'appelle via des POSTs httpx à :queryRecord / :queryHistoryRecord.
+      Elle nécessite CRUX_API_KEY (clé Google API plain, pas un service account).
+      HTTP 404 = données insuffisantes pour l'URL → verdict="not_enough_data" (pas une erreur).
+    env_var: CRUX_API_KEY
+    endpoint_base: "https://chromeuxreport.googleapis.com/v1/records"
+
+  - id: ADR-0009
+    date: 2026-06-23
+    criticite: C2
+    domaine: Dépendances
+    titre: html.parser stdlib pour schema_validate (pas beautifulsoup4)
+    tags: [schema-validate, html-parser, stdlib, beautifulsoup, dependencies]
+    sources:
+      - "commit `20028fb` (2026-06-23 : feat(technical): add schema_validate)"
+      - "src/gsc_mcp/tools/technical.py"
+    context: >
+      schema_validate fetche une URL publique et extrait les balises
+      <script type="application/ld+json">. Utilise html.parser (stdlib Python)
+      pour éviter une dépendance externe. Pas d'auth requise.
+    scope: "Valide Article, LocalBusiness, FAQPage, Product, WebSite, BreadcrumbList, SoftwareApplication, BlogPosting."
+
+  - id: ADR-0010
+    date: 2026-06-22
+    criticite: C1
+    domaine: Testing
+    titre: Tests entièrement mockés : zéro appel réel à l'API Google
+    tags: [testing, mocking, pytest, conftest, fixtures, google-api]
+    sources:
+      - "commit `8ac864d` (2026-06-22)"
+      - "tests/conftest.py"
+    context: >
+      Deux fixtures partagées dans conftest.py :
+      mock_gsc_service (MagicMock wirée pour sites/searchanalytics/sitemaps/urlInspection)
+      et mock_indexing_service (MagicMock avec new_batch_http_request() synchrone).
+      Tous les tests patchent le service au point d'appel (ex: gsc_mcp.tools.analytics.get_searchconsole_service).
+    crux_pattern: "Patch httpx.Client en context manager (__enter__ retourne le mock lui-même)."
+    sitemap_pattern: "Patch gsc_mcp.tools.sitemaps.httpx.Client ET gsc_mcp.tools.sitemaps.get_search_analytics (import module-level)."
+    ga4_pattern: "Fixture autouse pour GA4_PROPERTY_ID."
+
+  - id: ADR-0011
+    date: 2026-06-23
+    criticite: C3
+    domaine: Distribution
+    titre: Double entrypoint gsc-mcp et gsc-mcp-tools pour compatibilité uvx
+    tags: [packaging, pypi, uvx, entrypoint, distribution, cli]
+    sources:
+      - "commit `c09e0ed` (2026-06-23 : chore: rename PyPI package)"
+      - "commit `a3a60d1` (2026-06-24 : fix: add gsc-mcp-tools entrypoint so uvx gsc-mcp-tools works)"
+      - "pyproject.toml"
+    context: >
+      Le package PyPI s'appelle gsc-mcp-tools (nom court déjà pris sur PyPI).
+      uvx résout le nom du package, pas l'entrypoint. Pour que `uvx gsc-mcp-tools`
+      fonctionne directement, les deux entrypoints pointent vers gsc_mcp.server:main.
+    install_commands:
+      - "uvx gsc-mcp-tools"
+      - "pip install gsc-mcp-tools && gsc-mcp"
+
+  - id: ADR-0012
+    date: 2026-06-23
+    criticite: C2
+    domaine: CI/CD
+    titre: GitHub Actions + publication PyPI automatique sur tags de version
+    tags: [ci-cd, github-actions, pypi, publish, semver, tag-based]
+    sources:
+      - "commit `afd313f` (2026-06-23 : ci: add GitHub Actions workflow)"
+      - ".github/workflows/ (publish on tag)"
+    pattern: "Push d'un tag vX.Y.Z → build wheel → publish to PyPI via PYPI_API_TOKEN secret."
+
+  - id: ADR-0013
+    date: 2026-06-24
+    criticite: C2
+    domaine: API
+    titre: ga4_funnel utilise GA4 v1alpha RunFunnelReport API (service séparé)
+    tags: [ga4, funnel, v1alpha, alpha-api, get_alpha_ga4_service, separate-service]
+    sources:
+      - "commit `bb01043` (2026-06-24 : feat: add get_alpha_ga4_service())"
+      - "commit `0d22175` (2026-06-24 : feat(ga4): add ga4_funnel)"
+      - "src/gsc_mcp/auth.py"
+      - "src/gsc_mcp/tools/ga4.py"
+    context: >
+      L'API RunFunnelReport est en v1alpha (pas v1). Elle nécessite un service client
+      spécifique get_alpha_ga4_service() distinct de get_ga4_service().
+      Si l'API alpha n'est pas activée sur le projet GCP, l'outil échoue avec une erreur 403.
+
+  - id: ADR-0014
+    date: 2026-06-22
+    criticite: C2
+    domaine: Cross-platform
+    titre: _normalize_url() pour matcher les URLs GSC (absolues) avec GA4 (chemins)
+    tags: [cross-platform, normalize-url, gsc, ga4, url-matching, traffic_health_check]
+    sources:
+      - "commit `823013f` (2026-06-22 : feat: add cross-platform GSC+GA4 tools)"
+      - "src/gsc_mcp/tools/cross.py"
+    context: >
+      GSC retourne des URLs absolues (https://example.com/page), GA4 retourne des chemins (/page).
+      _normalize_url() supprime le schéma, le host, les query params et le trailing slash
+      pour que les deux sources se joignent correctement sur la même clé.
+    engagement_rate: "Dérivé comme engaged_sessions / sessions (GA4 ne fournit pas ce ratio directement)."
+
+  - id: ADR-0015
+    date: 2026-06-24
+    criticite: C2
+    domaine: GA4
+    titre: _build_dimension_filter() pour filtres hostname et country dans les outils GA4
+    tags: [ga4, dimension-filter, hostname, country, backward-compatible]
+    sources:
+      - "commit `642d879` (2026-06-23 : feat(ga4): add hostname and country filters)"
+      - "src/gsc_mcp/tools/ga4.py"
+    context: >
+      Tous les outils GA4 acceptent hostname et country optionnels.
+      _build_dimension_filter(hostname, country, base_filter) :
+      retourne None si les deux sont None (compatible backward),
+      un FilterExpression simple si un seul est défini,
+      un AND group FilterExpressionList si les deux sont définis.
+    applies_to: "Tous les outils GA4 + outils cross.py qui appellent des outils GA4."
