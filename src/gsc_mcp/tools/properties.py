@@ -40,11 +40,18 @@ _ALL_TOOLS = [
     "crux_history",
     "sitemap_audit",
     "schema_validate",
+    "discover_performance",
+    "news_performance",
+    "search_type_breakdown",
+    "ai_overviews_impact",
+    "page_health_score",
+    "content_brief",
+    "ga4_funnel",
 ]
 
 
 def get_capabilities() -> str:
-    """List all 36 available tool names in this MCP server."""
+    """List all 43 available tool names in this MCP server."""
     return json.dumps(with_meta(
         {"total": len(_ALL_TOOLS), "tools": _ALL_TOOLS},
         tool="get_capabilities",

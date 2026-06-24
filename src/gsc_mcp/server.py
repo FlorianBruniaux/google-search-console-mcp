@@ -13,6 +13,10 @@ from gsc_mcp.tools.analytics import (
     get_search_by_page_query,
     get_advanced_search_analytics,
     analytics_anomalies,
+    discover_performance,
+    news_performance,
+    search_type_breakdown,
+    ai_overviews_impact,
 )
 from gsc_mcp.tools.seo import (
     quick_wins,
@@ -32,8 +36,9 @@ from gsc_mcp.tools.ga4 import (
     ga4_realtime,
     ga4_user_behavior,
     ga4_conversion_funnel,
+    ga4_funnel,
 )
-from gsc_mcp.tools.cross import traffic_health_check, page_analysis
+from gsc_mcp.tools.cross import traffic_health_check, page_analysis, page_health_score, content_brief
 from gsc_mcp.tools.crux import crux_page_vitals, crux_history
 from gsc_mcp.tools.technical import schema_validate
 
@@ -75,6 +80,13 @@ mcp.tool()(page_analysis)
 mcp.tool()(crux_page_vitals)
 mcp.tool()(crux_history)
 mcp.tool()(schema_validate)
+mcp.tool()(discover_performance)
+mcp.tool()(news_performance)
+mcp.tool()(search_type_breakdown)
+mcp.tool()(ai_overviews_impact)
+mcp.tool()(page_health_score)
+mcp.tool()(content_brief)
+mcp.tool()(ga4_funnel)
 
 
 def main() -> None:
