@@ -9,6 +9,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from platformdirs import user_data_dir
 
+from google.analytics.data_v1alpha import AlphaAnalyticsDataClient
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 
 from gsc_mcp.constants import SCOPES_GSC, SCOPES_INDEXING, SCOPES_GA4
@@ -106,3 +107,8 @@ def get_ga4_property_id(override: str | None = None) -> str:
 def get_ga4_service() -> BetaAnalyticsDataClient:
     creds = _resolve_creds(SCOPES_GA4, _TOKEN_GA4)
     return BetaAnalyticsDataClient(credentials=creds)
+
+
+def get_alpha_ga4_service() -> AlphaAnalyticsDataClient:
+    creds = _resolve_creds(SCOPES_GA4, _TOKEN_GA4)
+    return AlphaAnalyticsDataClient(credentials=creds)
