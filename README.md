@@ -147,6 +147,47 @@ ga4_traffic_sources(property_id="987654321")
 traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 ```
 
+## CLI usage (gsc-cli)
+
+After installation, `gsc-cli` is available as a standalone shell command. It wraps all 43 tools from the MCP server and uses the same authentication.
+
+```bash
+# List all 43 commands
+gsc-cli list
+
+# Run any tool (all parameters are flags, no positional args)
+gsc-cli get-search-analytics --site https://example.com/ --days 28
+gsc-cli get-performance-overview --site https://example.com/
+
+# Multi-value flags for list parameters
+gsc-cli batch-url-inspection \
+  --urls https://example.com/page-1/ \
+  --urls https://example.com/page-2/ \
+  --site https://example.com/
+
+# GA4 funnel with a JSON steps array
+gsc-cli ga4-funnel \
+  --steps '[{"name":"Visit","event":"page_view"},{"name":"Convert","event":"purchase"}]' \
+  --start-date 28daysAgo \
+  --end-date today
+
+# Keep the _meta diagnostic block in output
+gsc-cli list-properties --meta
+
+# Pipe to jq
+gsc-cli get-search-analytics --site https://example.com/ | jq '.rows[:5]'
+```
+
+Set `GSC_SERVICE_ACCOUNT_PATH` for non-interactive use (same as the MCP server). To cache OAuth credentials interactively, run:
+
+```bash
+gsc-cli auth login --allow-browser
+```
+
+Exit codes: `0` success, `1` Google API error, `2` credential/config error or invalid arguments.
+
+> **Quota note**: `submit-batch` and `submit-url` use the Google Indexing API (200 req/day limit). Each `gsc-cli` call starts a fresh process, so cross-invocation quota tracking is not implemented. The `@with_retry` decorator still catches 429s, but the in-process counter resets every call.
+
 ## Claude agents and skills
 
 The `.claude/` directory ships 9 pre-built Claude Code agents and 9 skills. Each agent is wired to a single skill that defines exactly what it does: which tools to call, in what order, and how to format the output.

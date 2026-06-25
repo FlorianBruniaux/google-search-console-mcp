@@ -22,7 +22,7 @@ gsc-mcp
 # or
 python -m gsc_mcp.server
 
-# Run all tests (222 tests, fully mocked)
+# Run all tests (339 tests, fully mocked)
 pytest tests/ -v
 
 # Run a single test file
@@ -34,7 +34,11 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Architecture
 
-**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 43 tools via `mcp.tool()()`. No dynamic discovery; every tool is explicitly imported and registered here.
+**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 43 tools by iterating `registry.TOOLS`. Dynamic: adding a function to `registry.py` is enough to register it in both the MCP server and the CLI.
+
+**Registry** (`src/gsc_mcp/registry.py`): imports all 43 tool functions and exposes `TOOLS: dict[str, Callable[..., str]]`. An `assert` at import time verifies `set(TOOLS) == set(_ALL_TOOLS)` from `properties.py`, so any mismatch fails loudly at startup.
+
+**CLI** (`src/gsc_mcp/cli.py`): shell frontend that generates 43 subcommands from `TOOLS` by introspection. All-flags (no positionals). `list[dict]` params take a JSON string. Sets `GSC_NO_BROWSER=1` at startup to prevent accidental OAuth browser popups.
 
 **Auth layer** (`auth.py`): Three separate credential pairs (GSC API `searchconsole/v1`, Indexing API `indexing/v3`, GA4 `analytics.readonly`). Resolution order: if `GSC_SERVICE_ACCOUNT_PATH` is set, use service account credentials. Otherwise, fall through to OAuth with token cached as JSON (not pickle) at the OS user data dir (`~/Library/Application Support/gsc-mcp/` on macOS). Token files are written `chmod 0o600`; the directory is created with `0o700`. `get_ga4_property_id(override=None)` accepts an optional override string that bypasses `GA4_PROPERTY_ID`, enabling per-call multi-property support.
 
@@ -75,11 +79,33 @@ Applied to `_fetch_rows` in `analytics.py` (covers all GSC analytics/SEO tools) 
 1. Implement the function in the relevant `tools/` module (or create a new one).
 2. Decorate with `@with_retry()` if the tool calls a Google API directly.
 3. Return `json.dumps(with_meta(data, tool="tool_name", params={...}))`.
-4. Import the function in `server.py` and register it with `mcp.tool()(my_tool)`.
+4. Add the function to the tuple in `src/gsc_mcp/registry.py`. The MCP server and `gsc-cli` both pick it up automatically from `TOOLS`. No change needed in `server.py`.
 5. Add the tool name to `_ALL_TOOLS` in `properties.py` and update the `get_capabilities` docstring count.
 6. Write tests in `tests/test_<module>.py`, mocking all Google API calls.
 
 For GA4 tools that filter by hostname/country, use `_build_dimension_filter(hostname, country, base_filter)` from `ga4.py`. It returns `None` when both are `None` (backward-compatible), a single `FilterExpression` when only one is set, and an AND group (`FilterExpressionList`) when both are set.
+
+## CLI (gsc-cli)
+
+`gsc-cli` exposes all 43 tools as shell commands, auto-generated from `registry.TOOLS`. No manual registration is needed; adding a tool to the registry is enough.
+
+```bash
+# List all 43 commands
+gsc-cli list
+
+# Run any tool (all parameters are flags, no positional args)
+gsc-cli get-search-analytics --site https://example.com/ --days 28
+gsc-cli batch-url-inspection --urls https://a.com/ --urls https://b.com/ --site https://example.com/
+gsc-cli ga4-funnel --steps '[{"name":"signup","event":"sign_up"},{"name":"buy","event":"purchase"}]' --start-date 28daysAgo --end-date today
+
+# Keep _meta diagnostic block in output
+gsc-cli list-properties --meta
+
+# Interactive OAuth (the only path that opens a browser)
+gsc-cli auth login --allow-browser
+```
+
+**QuotaTracker warning**: `QuotaTracker` in `indexing.py` is an in-process singleton, so the 200 req/day guard resets to zero on every new `gsc-cli` invocation. The CLI does not track quota across shell calls. Only the Google-side 429 (retried via `@with_retry`) provides real protection in shell use.
 
 ## Test conventions
 
