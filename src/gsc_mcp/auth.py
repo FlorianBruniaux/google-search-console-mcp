@@ -60,6 +60,11 @@ def _get_oauth_creds(scopes: list[str], token_path: Path) -> Credentials:
         )
 
     flow = InstalledAppFlow.from_client_secrets_file(credentials_path, scopes)
+    if os.environ.get("GSC_NO_BROWSER", "").lower() in ("1", "true", "yes"):
+        raise RuntimeError(
+            "OAuth browser flow disabled (GSC_NO_BROWSER). "
+            "Set GSC_SERVICE_ACCOUNT_PATH, or run `gsc-cli auth login` interactively."
+        )
     creds = flow.run_local_server(port=0)
     _save_oauth_token(token_path, creds)
     return creds

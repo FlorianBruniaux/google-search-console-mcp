@@ -40,6 +40,7 @@ Repository = "https://github.com/FlorianBruniaux/google-search-console-mcp"
 [project.scripts]
 gsc-mcp = "gsc_mcp.server:main"
 gsc-mcp-tools = "gsc_mcp.server:main"
+gsc-cli = "gsc_mcp.cli:main"
 
 [project.optional-dependencies]
 dev = [
