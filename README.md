@@ -17,6 +17,9 @@ The 43 tools span ten families: Properties (list and inspect GSC sites), Analyti
 
 ## Tools (43)
 
+<details>
+<summary>Show all 43 tools</summary>
+
 | Category | Tool | Description |
 |---|---|---|
 | Meta | `get_capabilities` | List all available tools |
@@ -62,6 +65,8 @@ The 43 tools span ten families: Properties (list and inspect GSC sites), Analyti
 | CrUX | `crux_page_vitals` | Real-user Core Web Vitals (LCP, INP, CLS, FCP, TTFB) for a URL from the Chrome UX Report API |
 | CrUX | `crux_history` | Historical Core Web Vitals trend (weekly data points) for a URL |
 | Technical | `schema_validate` | Fetch any public URL and validate its JSON-LD schemas; suggests missing schemas by URL pattern |
+
+</details>
 
 ## Requirements
 
@@ -146,6 +151,9 @@ The `.claude/` directory ships 9 pre-built Claude Code agents and 9 skills. Each
 
 ### Agents
 
+<details>
+<summary>Show 9 GSC agents</summary>
+
 | Agent | Skill | When to use |
 |---|---|---|
 | `gsc-seo-reporter` | `seo-weekly-report` | Weekly traffic recap, period-over-period summary |
@@ -158,11 +166,33 @@ The `.claude/` directory ships 9 pre-built Claude Code agents and 9 skills. Each
 | `gsc-page-analyst` | `page-deep-dive` | Full diagnostic for a single URL |
 | `gsc-ai-overviews-analyst` | `ai-overviews-impact` | AI Overview cannibalization on CTR |
 
+</details>
+
 To use an agent from Claude Code, ask naturally ("why did traffic drop?") or invoke it by name. Each agent loads its skill at runtime and returns a structured answer, not a narration of what it did.
 
 ### Skills
 
-Skills live in `.claude/skills/` and are also invokable directly via `/cannibalization-check`, `/indexing-audit`, etc. They define the exact steps, tool call sequence, and output format. Agents reference them; skills run standalone when you want to drive the workflow yourself without delegating to an agent.
+Skills live in `.claude/skills/` and are invokable directly via slash command. They define the exact steps, tool call sequence, and output format. Agents reference them; skills run standalone when you want to drive the workflow yourself without delegating to an agent.
+
+<details>
+<summary>Show 10 SEO skills + 2 dev commands</summary>
+
+| Skill | Command | When to use |
+|---|---|---|
+| `seo-weekly-report` | `/seo-weekly-report` | Weekly traffic recap, period-over-period summary |
+| `traffic-drop-diagnosis` | `/traffic-drop-diagnosis` | Sudden or sustained drop in clicks or impressions |
+| `content-opportunities` | `/content-opportunities` | Pages close to page 1 (positions 4-20) worth a push |
+| `cannibalization-check` | `/cannibalization-check` | Multiple pages competing for the same query |
+| `indexing-audit` | `/indexing-audit` | Crawl errors, pages not indexed, coverage gaps |
+| `sitemap-audit` | `/sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
+| `schema-audit` | `/schema-audit` | JSON-LD errors blocking rich results |
+| `page-deep-dive` | `/page-deep-dive` | Full diagnostic for a single URL |
+| `ai-overviews-impact` | `/ai-overviews-impact` | AI Overview cannibalization on CTR |
+| `python-clean-code` | `/python-clean-code` | Review a module for clean code violations before PR |
+| `add-tool` | `/add-tool` | Step-by-step workflow to add a new MCP tool |
+| `run-tests` | `/run-tests` | Run the pytest suite with automatic failure diagnosis |
+
+</details>
 
 ## For AI assistants
 
