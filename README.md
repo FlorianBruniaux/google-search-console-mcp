@@ -9,6 +9,8 @@ Google Search Console MCP server with 43 tools covering search analytics, URL in
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
+No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
+
 **Latest: v0.6.2** (9 Claude Code agents + skills, improved docs). See the [full changelog](CHANGELOG.md).
 
 ## What you can do with it
