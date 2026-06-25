@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2] - 2026-06-25
+
+### Added
+
+- README: "What's New" section summarizing v0.6.0 and v0.6.1 highlights for users landing on the repo
+- README: Troubleshooting section covering the 6 most common setup issues (auth, GA4, CrUX, Indexing API quota, uvx launch)
+
 ## [0.6.1] - 2026-06-24
 
 Refactor interne et corrections sans nouveau tool.

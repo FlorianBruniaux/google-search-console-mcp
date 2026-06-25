@@ -9,6 +9,21 @@ Google Search Console MCP server with 43 tools covering search analytics, URL in
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
+## What's New
+
+### v0.6.x (June 2026)
+
+**7 new tools added in v0.6.0:**
+
+- `ai_overviews_impact`: queries with `searchAppearance` data to measure AI Overview cannibalization on CTR. Gracefully returns `AI_OVERVIEWS_NOT_AVAILABLE` on properties without data instead of raising.
+- `discover_performance` and `news_performance`: top pages by impressions in Google Discover and Google News respectively.
+- `search_type_breakdown`: clicks and impressions split across web, Discover, News, image, and video in a single call.
+- `ga4_funnel`: multi-step funnel report via GA4 v1alpha `RunFunnelReport`. Conversion rate per step relative to step 1.
+- `page_health_score`: composite 0-100 score combining GSC (30 pts), GA4 (25 pts), CrUX (25 pts), and schema (20 pts). Each component degrades gracefully if credentials are missing.
+- `content_brief`: per-page top queries, question queries (who/what/when/where/why/how), and GA4 session data for content planning.
+
+**v0.6.1:** internal refactor (no new tools). Ponytail cleanup across `auth.py`, `analytics.py`, `seo.py`, `sitemaps.py`, `indexing.py`, and `cross.py`. Test count 268 to 282.
+
 ## What you can do with it
 
 ```
@@ -213,6 +228,32 @@ pytest tests/ -v
 ```
 
 282 tests, all mocked (no real Google API calls needed).
+
+## Troubleshooting
+
+**`uvx gsc-mcp-tools` launches but no tools appear in Claude Desktop**
+
+Fully quit Claude Desktop (`Cmd+Q`) and reopen it. Saving the config file is not enough; the MCP process is only started on launch.
+
+**`GSC_SERVICE_ACCOUNT_PATH` is set but auth fails**
+
+Use an absolute path. Relative paths and `~/` tilde expansion are not resolved. Check with `echo $GSC_SERVICE_ACCOUNT_PATH` that the value is a full `/Users/...` path.
+
+**GA4 tools return "property_id required"**
+
+Either set `GA4_PROPERTY_ID` in your config env block, or pass `property_id` directly to the tool call. The env var is the default; the parameter overrides it per call.
+
+**`crux_page_vitals` or `crux_history` returns "CRUX_API_KEY not set"**
+
+CrUX tools require a separate Google API key (not the service account) with the **Chrome UX Report API** enabled. Create one in Google Cloud Console under Credentials, enable the API, then set `CRUX_API_KEY=AIza...` in your config.
+
+**Indexing API returns 403 on `submit_url`**
+
+The service account needs **Owner-level** access on the GSC property, not just Full access. Go to Search Console Settings > Users and permissions, find the service account email, and upgrade its role to Owner.
+
+**`submit_batch` quota warning at 180/200**
+
+The Indexing API default quota is 200 requests per day per GCP project. The tool warns at 180. To increase it, request a quota increase in Google Cloud Console under APIs & Services > Quotas.
 
 ## Inspirations
 

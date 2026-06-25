@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gsc-mcp-tools"
-version = "0.6.1"
+version = "0.6.2"
 description = "Google Search Console MCP server with 43 tools: search analytics, URL inspection, Indexing API, GA4, CrUX, sitemap audit, JSON-LD schema validation, and composite health scoring"
 readme = "README.md"
 requires-python = ">=3.11"
