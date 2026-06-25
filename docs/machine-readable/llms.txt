@@ -1,5 +1,5 @@
 # gsc-mcp Architecture Quick Reference for AI Assistants
-# Source: 15 ADRs + code archaeology (2026-06-22/24)
+# Source: 15 ADRs + code archaeology (2026-06-25, v0.6.2)
 # Load in CLAUDE.md: @docs/machine-readable/llms.txt
 
 ## What This Project Is
@@ -33,14 +33,15 @@ QUOTA: src/gsc_mcp/quota.py : QuotaTracker singleton. Indexing API limit: 200 re
 
 TOOLS:
 
-  analytics.py (6 tools):
+  analytics.py (10 tools):
     get_search_analytics, get_advanced_search_analytics, get_performance_overview,
-    get_search_by_page_query, compare_search_periods, discover_performance
+    get_search_by_page_query, compare_search_periods, analytics_anomalies,
+    discover_performance, news_performance, search_type_breakdown, ai_overviews_impact
     Core: _fetch_rows() wrapped with @with_retry : shared by all analytics + SEO tools.
 
-  seo.py (8 tools):
-    quick_wins, traffic_drops, seo_cannibalization, analytics_anomalies,
-    seo_lost_queries, seo_striking_distance, news_performance, search_type_breakdown
+  seo.py (6 tools):
+    quick_wins, traffic_drops, seo_striking_distance, seo_cannibalization,
+    seo_lost_queries, check_alerts
     Built on _fetch_rows from analytics.py.
 
   inspection.py (3 tools): inspect_url, batch_url_inspection, check_indexing_issues
@@ -72,7 +73,7 @@ TOOLS:
     HTTP client: httpx (POST to Chrome UX Report API). Auth: CRUX_API_KEY (plain Google API key).
     HTTP 404 = verdict "not_enough_data" (not an error condition).
 
-  technical.py (2 tools): schema_validate, check_alerts
+  technical.py (1 tool): schema_validate
     schema_validate: httpx fetch + html.parser (stdlib) extraction of <script type="application/ld+json">.
     No auth needed. Validates: Article, LocalBusiness, FAQPage, Product, WebSite, BreadcrumbList,
     SoftwareApplication, BlogPosting.
