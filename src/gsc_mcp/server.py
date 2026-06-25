@@ -5,88 +5,12 @@ if sys.version_info < (3, 11):
 
 from mcp.server.fastmcp import FastMCP
 
-from gsc_mcp.tools.properties import get_capabilities, list_properties, get_site_details
-from gsc_mcp.tools.analytics import (
-    get_search_analytics,
-    get_performance_overview,
-    compare_search_periods,
-    get_search_by_page_query,
-    get_advanced_search_analytics,
-    analytics_anomalies,
-    discover_performance,
-    news_performance,
-    search_type_breakdown,
-    ai_overviews_impact,
-)
-from gsc_mcp.tools.seo import (
-    quick_wins,
-    traffic_drops,
-    check_alerts,
-    seo_striking_distance,
-    seo_cannibalization,
-    seo_lost_queries,
-)
-from gsc_mcp.tools.inspection import inspect_url, batch_url_inspection, check_indexing_issues
-from gsc_mcp.tools.indexing import submit_url, submit_batch
-from gsc_mcp.tools.sitemaps import list_sitemaps, submit_sitemap, sitemaps_delete, sitemaps_get, sitemap_audit
-from gsc_mcp.tools.ga4 import (
-    ga4_organic_landing_pages,
-    ga4_traffic_sources,
-    ga4_page_performance,
-    ga4_realtime,
-    ga4_user_behavior,
-    ga4_conversion_funnel,
-    ga4_funnel,
-)
-from gsc_mcp.tools.cross import traffic_health_check, page_analysis, page_health_score, content_brief
-from gsc_mcp.tools.crux import crux_page_vitals, crux_history
-from gsc_mcp.tools.technical import schema_validate
+from gsc_mcp.registry import TOOLS
 
 mcp = FastMCP("gsc-mcp")
 
-mcp.tool()(get_capabilities)
-mcp.tool()(list_properties)
-mcp.tool()(get_site_details)
-mcp.tool()(get_search_analytics)
-mcp.tool()(get_performance_overview)
-mcp.tool()(compare_search_periods)
-mcp.tool()(get_search_by_page_query)
-mcp.tool()(get_advanced_search_analytics)
-mcp.tool()(analytics_anomalies)
-mcp.tool()(quick_wins)
-mcp.tool()(traffic_drops)
-mcp.tool()(check_alerts)
-mcp.tool()(seo_striking_distance)
-mcp.tool()(seo_cannibalization)
-mcp.tool()(seo_lost_queries)
-mcp.tool()(inspect_url)
-mcp.tool()(batch_url_inspection)
-mcp.tool()(check_indexing_issues)
-mcp.tool()(submit_url)
-mcp.tool()(submit_batch)
-mcp.tool()(list_sitemaps)
-mcp.tool()(submit_sitemap)
-mcp.tool()(sitemaps_delete)
-mcp.tool()(sitemaps_get)
-mcp.tool()(sitemap_audit)
-mcp.tool()(ga4_organic_landing_pages)
-mcp.tool()(ga4_traffic_sources)
-mcp.tool()(ga4_page_performance)
-mcp.tool()(ga4_realtime)
-mcp.tool()(ga4_user_behavior)
-mcp.tool()(ga4_conversion_funnel)
-mcp.tool()(traffic_health_check)
-mcp.tool()(page_analysis)
-mcp.tool()(crux_page_vitals)
-mcp.tool()(crux_history)
-mcp.tool()(schema_validate)
-mcp.tool()(discover_performance)
-mcp.tool()(news_performance)
-mcp.tool()(search_type_breakdown)
-mcp.tool()(ai_overviews_impact)
-mcp.tool()(page_health_score)
-mcp.tool()(content_brief)
-mcp.tool()(ga4_funnel)
+for fn in TOOLS.values():
+    mcp.tool()(fn)
 
 
 def main() -> None:
