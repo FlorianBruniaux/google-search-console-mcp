@@ -219,6 +219,30 @@ The `docs/machine-readable/` directory contains structured architecture docs des
 
 Load `llms.txt` via your AI context or reference it in your CLAUDE.md with `@docs/machine-readable/llms.txt`.
 
+## Claude agents and skills
+
+The `.claude/` directory ships 9 pre-built Claude Code agents and 9 skills. Each agent is wired to a single skill that defines exactly what it does: which tools to call, in what order, and how to format the output.
+
+### Agents
+
+| Agent | Skill | When to use |
+|---|---|---|
+| `gsc-seo-reporter` | `seo-weekly-report` | Weekly traffic recap, period-over-period summary |
+| `gsc-traffic-doctor` | `traffic-drop-diagnosis` | Sudden or sustained drop in clicks or impressions |
+| `gsc-content-optimizer` | `content-opportunities` | Pages close to page 1 (positions 4-20) worth a push |
+| `gsc-cannibalization-checker` | `cannibalization-check` | Multiple pages competing for the same query |
+| `gsc-indexing-auditor` | `indexing-audit` | Crawl errors, pages not indexed, coverage gaps |
+| `gsc-sitemap-auditor` | `sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
+| `gsc-schema-auditor` | `schema-audit` | JSON-LD errors blocking rich results |
+| `gsc-page-analyst` | `page-deep-dive` | Full diagnostic for a single URL |
+| `gsc-ai-overviews-analyst` | `ai-overviews-impact` | AI Overview cannibalization on CTR |
+
+To use an agent from Claude Code, ask naturally ("why did traffic drop?") or invoke it by name. Each agent loads its skill at runtime and returns a structured answer, not a narration of what it did.
+
+### Skills
+
+Skills live in `.claude/skills/` and are also invokable directly via `/cannibalization-check`, `/indexing-audit`, etc. They define the exact steps, tool call sequence, and output format. Agents reference them; skills run standalone when you want to drive the workflow yourself without delegating to an agent.
+
 ## Development
 
 ```bash

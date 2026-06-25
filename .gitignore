@@ -11,5 +11,7 @@ token_*.json
 *credentials*.json
 *service_account*.json
 .claudedocs/
-.claude/
+.claude/settings*.json
+.claude/commands/
+.claude/todos/
 .idea/
