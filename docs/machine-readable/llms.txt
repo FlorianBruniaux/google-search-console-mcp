@@ -1,16 +1,16 @@
 # gsc-mcp Architecture Quick Reference for AI Assistants
-# Source: 15 ADRs + code archaeology (2026-06-25, v0.6.2)
+# Source: 15 ADRs + code archaeology (2026-06-26, v0.8.0)
 # Load in CLAUDE.md: @docs/machine-readable/llms.txt
 
 ## What This Project Is
 
-Python MCP server exposing 47 Google Search Console / GA4 / CrUX / drift-monitoring tools to AI agents.
+Python MCP server exposing 50 Google Search Console / GA4 / CrUX / drift-monitoring / content-audit tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 47 tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 50 tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
@@ -99,6 +99,22 @@ TOOLS:
     CWV comparison optional, requires CRUX_API_KEY. No Google API calls otherwise.
     Adapted from claude-seo (Dan Colta, MIT).
 
+  content.py (3 tools): content_quality, hreflang_audit, page_technical_audit
+    content_quality: safe_fetch_html + stdlib TextExtractor (strips script/style/nav/footer). Scores:
+      filler_score (hits per 1000 tokens * 25), information_density (entities+numbers/100 tokens / 10),
+      repetition_score (bigram repetition * 100), overall_quality (weighted). Flags: filler, low-density,
+      repetitive, thin-content. Verdicts: good | needs_work | thin_content | fetch_error.
+      Filler phrase list adapted from claude-seo (agricidaniel, MIT). _AI_PATTERNS excluded (CC BY-SA 4.0).
+    hreflang_audit: safe_fetch_html + MetaParser. Checks: self-ref, x-default, ISO 639-1 lang codes,
+      ISO 3166-1 Alpha-2 region codes (jp→ja, UK→GB), mixed HTTP/HTTPS protocols.
+      Verdicts: valid | issues_found | no_hreflang | fetch_error.
+      Rules adapted from claude-seo skills/seo-hreflang/SKILL.md (agricidaniel, MIT).
+    page_technical_audit: validate_url_strict + httpx.Client(follow_redirects=False). Checks:
+      title length (30-60), meta description length (50-160), meta robots (noindex=critical), canonical
+      presence + match, viewport, HTML lang, security headers (x-frame-options, x-content-type-options,
+      referrer-policy), redirect detection (3xx), robots.txt Googlebot access via safe_fetch_html +
+      urllib.robotparser.parse(). Verdicts: healthy | issues_found | fetch_error. No auth needed.
+
 ## Security Rules (always apply)
 
 1. XML PARSING: Use defusedxml.ElementTree, NEVER stdlib xml.etree.ElementTree, for external XML.
@@ -134,7 +150,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 429 tests, fully mocked.
+SETUP: pytest tests/ : 467 tests, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -152,6 +168,9 @@ PATCH AT CALL SITE (not in module declaration):
   gsc_mcp.url_safety.socket.getaddrinfo        ← DNS mock for schema_validate + drift tools
   gsc_mcp.tools.drift.safe_fetch_html          ← patch directly for drift tests
   gsc_mcp.tools.drift._fetch_cwv               ← patch to return None or a CWV dict
+  gsc_mcp.tools.content.safe_fetch_html        ← patch for content_quality, hreflang_audit, page_technical_audit robots.txt
+  gsc_mcp.tools.content.validate_url_strict    ← patch for page_technical_audit SSRF test
+  gsc_mcp.tools.content.httpx.Client          ← context manager pattern for page_technical_audit main fetch
 
 ## Environment Variables
 

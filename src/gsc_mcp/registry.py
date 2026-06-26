@@ -1,6 +1,6 @@
 """Central tool registry for gsc-mcp.
 
-Single source of truth for all 47 tool functions. Both the MCP server (server.py)
+Single source of truth for all 50 tool functions. Both the MCP server (server.py)
 and the CLI (cli.py) import from here, so no more three-way manual sync between
 server.py imports, mcp.tool() calls, and _ALL_TOOLS in properties.py.
 
@@ -58,6 +58,7 @@ from gsc_mcp.tools.cross import traffic_health_check, page_analysis, page_health
 from gsc_mcp.tools.crux import crux_page_vitals, crux_history
 from gsc_mcp.tools.technical import schema_validate, schema_generate
 from gsc_mcp.tools.drift import drift_baseline, drift_compare, drift_history
+from gsc_mcp.tools.content import content_quality, hreflang_audit, page_technical_audit
 
 
 TOOLS: dict[str, Callable[..., str]] = {
@@ -110,6 +111,9 @@ TOOLS: dict[str, Callable[..., str]] = {
         page_health_score,
         content_brief,
         ga4_funnel,
+        content_quality,
+        hreflang_audit,
+        page_technical_audit,
     )
 }
 

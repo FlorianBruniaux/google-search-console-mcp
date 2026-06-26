@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.8.0] - 2026-06-26
+
+50 tools (+3), 467 tests (+38). Wave A de la seconde intégration `claude-seo` (MIT uniquement).
+
+### Added
+
+**Content : 3 nouveaux tools sans auth Google**
+
+- `content_quality(url)` : fetch via `safe_fetch_html` + extraction du texte visible (stdlib `html.parser`, skip des blocs script/style/nav/footer). Score quatre axes : filler phrases (liste MIT de `claude-seo`, `_AI_PATTERNS` CC BY-SA 4.0 volontairement exclu), densité informationnelle (entités nommées + nombres pour 100 tokens), répétition de bigrammes, contenu thin (<300 tokens). Score global pondéré (filler 35%, densité 35%, répétition 20%, longueur 10%). Flags : `filler`, `low-density`, `repetitive`, `thin-content`. Verdicts : `good` | `needs_work` | `thin_content` | `fetch_error`.
+- `hreflang_audit(url)` : fetch + `_MetaParser` stdlib. Vérifie le self-referencing tag, la présence d'`x-default`, les codes ISO 639-1 (détecte `jp`→`ja`, `eng`→`en` à trois lettres), les régions ISO 3166-1 Alpha-2 (détecte `UK`→`GB`), la cohérence de protocole HTTP/HTTPS sur le set d'alternates. Audit de la page cible uniquement, les return tags bidirectionnels nécessitent un fetch séparé. Verdicts : `valid` | `issues_found` | `no_hreflang` | `fetch_error`.
+- `page_technical_audit(url)` : `validate_url_strict` + `httpx.Client(follow_redirects=False)`. Audite : longueur du title (30-60), longueur de la meta description (50-160), directive meta robots (`noindex` = criticité haute), présence et cohérence du canonical, viewport, attribut `lang` sur `<html>`, trois security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`), détection de redirect (3xx + cible), accès Googlebot en robots.txt (fetch via `safe_fetch_html` + parse via `urllib.robotparser.parse()` stdlib pour rester dans la couche SSRF). Verdicts : `healthy` | `issues_found` | `fetch_error`.
+- `src/gsc_mcp/tools/content.py` : module dédié avec deux parsers stdlib (`_TextExtractor` et `_MetaParser`, héritant de `html.parser.HTMLParser`) et la constante `_FILLER_PHRASES` (35 patterns, adaptés de `claude-seo`, MIT, `agricidaniel`).
+
+### Changed
+
+- `registry.py` : import + enregistrement des 3 nouveaux tools (`content_quality`, `hreflang_audit`, `page_technical_audit`). Docstring : 47 → 50 tools.
+- `properties.py` : `_ALL_TOOLS` += 3 entrées. Docstring `get_capabilities` : 47 → 50.
+- `README.md` : badge tests 429 → 467, comptes tools 47 → 50 (intro, section Tools, CLI, paragraphe feature set), nouvelle famille "Content" dans le tableau.
+- `docs/machine-readable/llms.txt` : module map complété pour `content.py`, comptes 47 → 50 et 429 → 467, patch points de test ajoutés.
+
+### Tool count
+
+47 → 50 tools. Test count : 429 → 467.
+
 ## [0.7.0] - 2026-06-26
 
 47 tools (+4), 429 tests (+147). Intégration sélective d'assets MIT de `AgriciDaniel/claude-seo`.

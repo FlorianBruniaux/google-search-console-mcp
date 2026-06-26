@@ -2,10 +2,10 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-429%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-467%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 47 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, and composite health scoring. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 50 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, and on-page content/technical audits. Built on Python 3.11+ and FastMCP.
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
@@ -15,12 +15,12 @@ No SEO expertise required. You can ask "run a full site audit", "why did my traf
 
 ## What you can do with it
 
-The 47 tools span eleven families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), and Sitemaps (list, submit, audit coverage against GSC data). The remaining five families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals from the Chrome UX Report API), Technical (JSON-LD schema validation and generation), and Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs).
+The 50 tools span twelve families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), and Sitemaps (list, submit, audit coverage against GSC data). The remaining six families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals from the Chrome UX Report API), Technical (JSON-LD schema validation and generation), Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs), and Content (on-page quality scoring, hreflang validation, technical meta + robots.txt audit).
 
-## Tools (47)
+## Tools (50)
 
 <details>
-<summary>Show all 47 tools</summary>
+<summary>Show all 50 tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -71,6 +71,9 @@ The 47 tools span eleven families: Properties (list and inspect GSC sites), Anal
 | Drift | `drift_baseline` | Capture a baseline snapshot of a page (title, H1-H3, schema, canonical, CWV) stored locally in SQLite |
 | Drift | `drift_compare` | Diff a live fetch against the stored baseline and apply 17 rules (8 CRITICAL, 6 WARNING, 3 INFO) |
 | Drift | `drift_history` | List previous comparison runs for a URL with triggered findings per run |
+| Content | `content_quality` | Fetch a URL and score visible text against E-E-A-T heuristics: filler phrases, information density, repetition, thin content |
+| Content | `hreflang_audit` | Fetch a URL and validate its hreflang implementation: x-default, ISO 639-1 codes, region codes, self-ref, protocol consistency |
+| Content | `page_technical_audit` | Fetch a URL and audit meta tags (title, description, canonical, robots), viewport, HTML lang, security headers, robots.txt Googlebot access |
 
 </details>
 
@@ -153,10 +156,10 @@ traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 
 ## CLI usage (gsc-cli)
 
-After installation, `gsc-cli` is available as a standalone shell command. It wraps all 47 tools from the MCP server and uses the same authentication.
+After installation, `gsc-cli` is available as a standalone shell command. It wraps all 50 tools from the MCP server and uses the same authentication.
 
 ```bash
-# List all 47 commands
+# List all 50 commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)
@@ -245,7 +248,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
-- `llms.txt`: quick reference covering all 47 tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `llms.txt`: quick reference covering all 50 tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 15 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
@@ -299,7 +302,7 @@ With this server, Claude pulls the actual numbers: `/projects/` at position 10.1
 
 Some tasks work without private data: checking indexation with `site:`, parsing sitemap structure, reading robots.txt. For those, any web-capable agent gets you there. But for anything that requires private GSC metrics (traffic drops, striking-distance queries, CTR anomalies, Indexing API submissions), there is no substitute for API access.
 
-The server also handles the Google API mechanics: service account or OAuth authentication, exponential backoff on 429s and 5xx errors, true HTTP batch for indexing requests, quota tracking at 200 req/day, and structured JSON output across all 47 tools so Claude can reason across results without parsing ambiguity.
+The server also handles the Google API mechanics: service account or OAuth authentication, exponential backoff on 429s and 5xx errors, true HTTP batch for indexing requests, quota tracking at 200 req/day, and structured JSON output across all 50 tools so Claude can reason across results without parsing ambiguity.
 
 ## Why this exists
 
