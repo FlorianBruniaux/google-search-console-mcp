@@ -11,7 +11,7 @@ Google Search Console MCP server with 50 tools covering search analytics, URL in
 
 No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
 
-**Latest: v0.6.2** (9 Claude Code agents + skills, improved docs). See the [full changelog](CHANGELOG.md).
+**Latest: v0.8.0** (50 tools, Wave A content audits: `content_quality`, `hreflang_audit`, `page_technical_audit`). See the [full changelog](CHANGELOG.md).
 
 ## What you can do with it
 
@@ -264,7 +264,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-429 tests, all mocked (no real Google API calls needed).
+467 tests, all mocked (no real Google API calls needed).
 
 ## Troubleshooting
 
