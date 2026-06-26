@@ -1,0 +1,50 @@
+CHANGELOG.md
+  s_cda408c75269f8::t_19f6f9757a1902 3-26
+README.md
+  s_cda408c75269f8::t_15f7c588e8371d 18
+  s_cda408c75269f8::t_af77428e57b662 74-76
+  s_cda408c75269f8::t_e2492fd1146551 159,251,305
+  s_cda408c75269f8::t_f916c69c6b5338 8
+  s_cda408c75269f8::t_fc50113939914b 5
+  s_cda408c75269f8::t_7f5514c5f7a1eb 162
+  s_cda408c75269f8::t_0b5592c403237f 20,23
+src/gsc_mcp/tools/properties.py
+  s_cda408c75269f8::t_ff5d25b33d3ba9 54-56,61
+tests/test_content.py
+  s_cda408c75269f8::t_762c2bdc975953 1-23,25-293,300-383,387-445
+  s_cda408c75269f8::t_2bf02aab3f19ce 294-299
+  s_cda408c75269f8::t_061340e7c1a00f 384-386
+  s_cda408c75269f8::t_f0008fdb732ba3 24
+src/gsc_mcp/tools/content.py
+  s_cda408c75269f8::t_734539a927e61e 1-552
+docs/machine-readable/llms.txt
+  s_cda408c75269f8::t_efa7d3da419fdf 102-117
+  s_cda408c75269f8::t_0bceac06c73ee8 2,7
+  s_cda408c75269f8::t_9ed19f464c44e7 13
+  s_cda408c75269f8::t_e0765f8dd5552d 171-173
+  s_cda408c75269f8::t_a57acdb41448d7 153
+src/gsc_mcp/registry.py
+  s_cda408c75269f8::t_04608a776b5305 114-116
+  s_cda408c75269f8::t_3b2fa5ae833221 61
+  s_cda408c75269f8::t_40d574b7cb1468 3
+tests/test_properties.py
+  s_cda408c75269f8::t_3a2b8217832803 7,9-10
+tests/test_registry.py
+  s_cda408c75269f8::t_edff3d59e613cc 12-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "c834539087efdcbe893aa9ee7d5ddce6963d6074",
+  "prompts": {},
+  "sessions": {
+    "s_cda408c75269f8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "76095869-95ce-4de3-8da3-93f16c3cb172",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
