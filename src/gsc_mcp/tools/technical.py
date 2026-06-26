@@ -1,12 +1,12 @@
-import ipaddress
 import json
 import re
-import socket
 from html.parser import HTMLParser
+from typing import Optional
 
 import httpx
 
 from gsc_mcp.meta import with_meta
+from gsc_mcp.url_safety import URLSafetyError, validate_url_strict
 
 _REQUIRED_FIELDS = {
     "LocalBusiness":       ["name", "@type"],
@@ -19,20 +19,6 @@ _REQUIRED_FIELDS = {
     "Product":             ["name", "offers"],
     "SoftwareApplication": ["name", "applicationCategory", "operatingSystem"],
 }
-
-def _reject_ssrf(url: str) -> None:
-    """Raise ValueError if url resolves to a private, loopback, or link-local IP."""
-    host = httpx.URL(url).host
-    if not host:
-        raise ValueError(f"Cannot parse hostname from {url!r}")
-    try:
-        results = socket.getaddrinfo(host, None)
-    except socket.gaierror as exc:
-        raise ValueError(f"Cannot resolve {host!r}: {exc}") from exc
-    for *_, sockaddr in results:
-        ip = ipaddress.ip_address(sockaddr[0])
-        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
-            raise ValueError(f"Blocked: {host!r} resolves to restricted IP {ip}")
 
 
 _PATTERN_RECOMMENDATIONS = [
@@ -80,7 +66,7 @@ def schema_validate(url: str) -> str:
 
     Detects all <script type="application/ld+json"> blocks, checks required
     fields per schema type, and suggests missing schemas based on URL patterns.
-    Does not require authentication — works on any public URL.
+    Does not require authentication -- works on any public URL.
 
     Returns detected schemas, validation results per schema, and recommendations.
     Verdicts: healthy (all schemas valid) | missing_schemas (none found) |
@@ -88,8 +74,8 @@ def schema_validate(url: str) -> str:
               fetch_error (URL not reachable).
     """
     try:
-        _reject_ssrf(url)
-    except ValueError as e:
+        validate_url_strict(url)
+    except URLSafetyError as e:
         return json.dumps(with_meta(
             {"url": url, "error": str(e), "verdict": "fetch_error"},
             tool="schema_validate",
@@ -147,3 +133,193 @@ def schema_validate(url: str) -> str:
         tool="schema_validate",
         params={"url": url},
     ))
+
+
+# ---------------------------------------------------------------------------
+# schema_generate
+# Adapted from scripts/schema_generate.py in claude-seo
+# (https://github.com/AgriciDaniel/claude-seo, MIT, Copyright (c) 2026 agricidaniel)
+# ---------------------------------------------------------------------------
+
+
+def _strip_nones(payload: object) -> object:
+    """Recursively remove None-valued keys from dicts (keeps JSON-LD output tight)."""
+    if isinstance(payload, dict):
+        return {k: _strip_nones(v) for k, v in payload.items() if v is not None}
+    if isinstance(payload, list):
+        return [_strip_nones(v) for v in payload]
+    return payload
+
+
+def schema_generate(
+    schema_type: str,
+    # Reservation
+    provider: Optional[str] = None,
+    start_time: Optional[str] = None,
+    end_time: Optional[str] = None,
+    party_size: Optional[int] = None,
+    reservation_id: Optional[str] = None,
+    reservation_for_name: Optional[str] = None,
+    customer_name: Optional[str] = None,
+    customer_email: Optional[str] = None,
+    reservation_kind: str = "FoodEstablishmentReservation",
+    # OrderAction
+    merchant: Optional[str] = None,
+    order_url: Optional[str] = None,
+    order_name: str = "Order online",
+    delivery_method: Optional[list[str]] = None,
+    # DiscussionForumPosting
+    headline: Optional[str] = None,
+    author: Optional[str] = None,
+    url: Optional[str] = None,
+    date_published: Optional[str] = None,
+    text: Optional[str] = None,
+    date_modified: Optional[str] = None,
+    comment_count: Optional[int] = None,
+    # ProfilePage
+    name: Optional[str] = None,
+    profile_url: Optional[str] = None,
+    description: Optional[str] = None,
+    same_as: Optional[list[str]] = None,
+    knows_about: Optional[list[str]] = None,
+    works_for: Optional[str] = None,
+    image: Optional[str] = None,
+    job_title: Optional[str] = None,
+) -> str:
+    """Generate a Schema.org JSON-LD block for one of four high-leverage types.
+
+    Adapted from scripts/schema_generate.py in claude-seo (agricidaniel, MIT).
+    Supports: reservation, order_action, discussion, profile.
+    No authentication required. No Google API calls made.
+
+    schema_type: one of "reservation", "order_action", "discussion", "profile".
+    Returns the generated JSON-LD block.
+    Verdicts: generated | error.
+    """
+    schema_type_key = schema_type.lower().strip()
+
+    try:
+        if schema_type_key == "reservation":
+            if not provider or not start_time:
+                raise ValueError("reservation requires provider and start_time")
+            payload: dict = {
+                "@context": "https://schema.org",
+                "@type": reservation_kind,
+                "reservationStatus": "https://schema.org/ReservationConfirmed",
+                "provider": {"@type": "Organization", "name": provider},
+                "reservationFor": {
+                    "@type": "FoodEstablishment"
+                    if reservation_kind == "FoodEstablishmentReservation"
+                    else "Place",
+                    "name": reservation_for_name or provider,
+                },
+                "startTime": start_time,
+            }
+            if end_time:
+                payload["endTime"] = end_time
+            if party_size is not None:
+                payload["partySize"] = int(party_size)
+            if reservation_id:
+                payload["reservationId"] = reservation_id
+            if customer_name or customer_email:
+                person: dict = {"@type": "Person"}
+                if customer_name:
+                    person["name"] = customer_name
+                if customer_email:
+                    person["email"] = customer_email
+                payload["underName"] = person
+
+        elif schema_type_key == "order_action":
+            if not merchant or not order_url:
+                raise ValueError("order_action requires merchant and order_url")
+            payload = {
+                "@context": "https://schema.org",
+                "@type": "OrderAction",
+                "name": order_name,
+                "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": order_url,
+                    "inLanguage": "en-US",
+                    "actionPlatform": [
+                        "https://schema.org/DesktopWebPlatform",
+                        "https://schema.org/MobileWebPlatform",
+                    ],
+                },
+                "deliveryMethod": delivery_method or [
+                    "https://schema.org/OnSitePickup",
+                    "https://schema.org/ParcelService",
+                ],
+                "priceSpecification": {
+                    "@type": "PriceSpecification",
+                    "eligibleTransactionVolume": {
+                        "@type": "PriceSpecification",
+                        "minPrice": 0,
+                        "priceCurrency": "USD",
+                    },
+                },
+                "merchant": {"@type": "Organization", "name": merchant},
+            }
+
+        elif schema_type_key == "discussion":
+            if not headline or not author or not url or not date_published:
+                raise ValueError(
+                    "discussion requires headline, author, url, date_published"
+                )
+            payload = {
+                "@context": "https://schema.org",
+                "@type": "DiscussionForumPosting",
+                "headline": headline,
+                "author": {"@type": "Person", "name": author},
+                "datePublished": date_published,
+                "url": url,
+                "mainEntityOfPage": {"@type": "WebPage", "@id": url},
+            }
+            if text:
+                payload["text"] = text
+            if date_modified:
+                payload["dateModified"] = date_modified
+            if comment_count is not None:
+                payload["commentCount"] = int(comment_count)
+
+        elif schema_type_key == "profile":
+            if not name or not profile_url:
+                raise ValueError("profile requires name and profile_url")
+            person_block: dict = {"@type": "Person", "name": name, "url": profile_url}
+            if description:
+                person_block["description"] = description
+            if same_as:
+                person_block["sameAs"] = list(same_as)
+            if knows_about:
+                person_block["knowsAbout"] = list(knows_about)
+            if works_for:
+                person_block["worksFor"] = {"@type": "Organization", "name": works_for}
+            if image:
+                person_block["image"] = image
+            if job_title:
+                person_block["jobTitle"] = job_title
+            payload = {
+                "@context": "https://schema.org",
+                "@type": "ProfilePage",
+                "mainEntity": person_block,
+                "url": profile_url,
+            }
+
+        else:
+            raise ValueError(
+                f"Unknown schema_type {schema_type!r}. "
+                "Supported: reservation, order_action, discussion, profile."
+            )
+
+        cleaned = _strip_nones(payload)
+        return json.dumps(with_meta(
+            {"schema_type": schema_type_key, "json_ld": cleaned, "verdict": "generated"},
+            tool="schema_generate",
+            params={"schema_type": schema_type},
+        ))
+
+    except ValueError as exc:
+        return json.dumps(with_meta(
+            {"schema_type": schema_type_key, "error": str(exc), "verdict": "error"},
+            tool="schema_generate",
+            params={"schema_type": schema_type},
+        ))

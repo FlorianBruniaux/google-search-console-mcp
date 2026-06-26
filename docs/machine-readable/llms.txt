@@ -4,13 +4,16 @@
 
 ## What This Project Is
 
-Python MCP server exposing 43 Google Search Console / GA4 / CrUX tools to AI agents.
+Python MCP server exposing 47 Google Search Console / GA4 / CrUX / drift-monitoring tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + explicit mcp.tool() registration for all 43 tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 47 tools.
+REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
+  assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
+  CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
 
 AUTH: src/gsc_mcp/auth.py : Three API service helpers:
   get_searchconsole_service() → GSC Search Console + Indexing API
@@ -73,10 +76,28 @@ TOOLS:
     HTTP client: httpx (POST to Chrome UX Report API). Auth: CRUX_API_KEY (plain Google API key).
     HTTP 404 = verdict "not_enough_data" (not an error condition).
 
-  technical.py (1 tool): schema_validate
+  technical.py (2 tools): schema_validate, schema_generate
     schema_validate: httpx fetch + html.parser (stdlib) extraction of <script type="application/ld+json">.
     No auth needed. Validates: Article, LocalBusiness, FAQPage, Product, WebSite, BreadcrumbList,
-    SoftwareApplication, BlogPosting.
+    SoftwareApplication, BlogPosting. SSRF-checked via url_safety.validate_url_strict.
+    schema_generate: builds JSON-LD blocks for Reservation, OrderAction, DiscussionForumPosting, ProfilePage.
+    No network calls. No auth needed.
+
+  url_safety.py (module, no tool): SSRF/DNS-rebinding protection.
+    Public API: validate_url(), validate_url_strict(), safe_httpx_get(), safe_fetch_html().
+    Blocks: private/loopback/reserved IPs, obfuscated IPv4 (decimal/hex/octal), link-local (169.254.x.x),
+    multi-cloud metadata endpoints (AWS IMDS, Azure, GCP, Oracle, Alibaba).
+    DNS pinning via _pin_dns() context manager (socket.getaddrinfo patch under lock).
+    Use safe_fetch_html() for any tool that fetches an arbitrary user-supplied URL.
+    Adapted from claude-seo (agricidaniel, MIT).
+
+  drift.py (3 tools): drift_baseline, drift_compare, drift_history
+    drift_baseline: fetch page via safe_fetch_html + store SEO snapshot in SQLite.
+    drift_compare: fetch live + apply 17 rules (8 CRITICAL, 6 WARNING, 3 INFO). Dan Colta methodology.
+    drift_history: read stored comparisons for a URL.
+    Storage: sqlite3 in platformdirs.user_data_dir("gsc-mcp")/drift/baselines.db (WAL mode).
+    CWV comparison optional, requires CRUX_API_KEY. No Google API calls otherwise.
+    Adapted from claude-seo (Dan Colta, MIT).
 
 ## Security Rules (always apply)
 
@@ -86,10 +107,10 @@ TOOLS:
 2. TOKEN STORAGE: Write tokens as JSON (not pickle). Atomic write (tempfile + os.replace()).
    chmod 0o600 on file, 0o700 on directory.
 
-3. SSRF (sitemap_audit): Validate child sitemap URL origin against parent origin before fetching.
-   follow_redirects=False at all times.
-
-4. SSRF (schema_validate): Currently no origin restriction. Only expose to trusted clients.
+3. SSRF (sitemap_audit + schema_validate + drift tools): All arbitrary URL fetches go through
+   url_safety.validate_url_strict() or safe_fetch_html() from src/gsc_mcp/url_safety.py.
+   Blocks private IPs, cloud metadata endpoints, obfuscated IPv4, localhost, link-local addresses.
+   sitemap_audit additionally enforces origin match on child URLs + follow_redirects=False.
 
 5. REAL PROPERTY IDs: Never hardcode real GSC property IDs or domains in tests or docs.
    Use sc-domain:example.com or https://example.com/ as fixtures.
@@ -104,16 +125,16 @@ TOOLS:
 
 ## Adding a New Tool (checklist)
 
-1. Implement in tools/<module>.py : @with_retry() if Google API call.
+1. Implement in tools/<module>.py : @with_retry() if Google API call; no decorator for non-API tools.
 2. Return json.dumps(with_meta(data, tool="name", params={...})).
-3. Import + register in server.py: mcp.tool()(my_tool).
-4. Add name to _ALL_TOOLS in properties.py.
-5. Update count in get_capabilities() docstring.
-6. Write tests in tests/test_<module>.py : mock all Google API calls.
+3. If the tool fetches an arbitrary user-supplied URL, use safe_fetch_html() from url_safety.py.
+4. Import + add to TOOLS tuple in registry.py (server.py and gsc-cli pick it up automatically).
+5. Add name to _ALL_TOOLS in properties.py. Update count in get_capabilities() docstring.
+6. Write tests in tests/test_<module>.py : mock all Google API calls (never make real requests).
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 282 tests, fully mocked.
+SETUP: pytest tests/ : 429 tests, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -125,9 +146,12 @@ FIXTURE CHEAT SHEET:
 PATCH AT CALL SITE (not in module declaration):
   gsc_mcp.tools.analytics.get_searchconsole_service
   gsc_mcp.tools.ga4.get_ga4_service
-  gsc_mcp.tools.crux.httpx.Client         ← context manager pattern
-  gsc_mcp.tools.sitemaps.httpx.Client     ← context manager pattern
+  gsc_mcp.tools.crux.httpx.Client              ← context manager pattern
+  gsc_mcp.tools.sitemaps.httpx.Client          ← context manager pattern
   gsc_mcp.tools.sitemaps.get_search_analytics  ← module-level import, patch here
+  gsc_mcp.url_safety.socket.getaddrinfo        ← DNS mock for schema_validate + drift tools
+  gsc_mcp.tools.drift.safe_fetch_html          ← patch directly for drift tests
+  gsc_mcp.tools.drift._fetch_cwv               ← patch to return None or a CWV dict
 
 ## Environment Variables
 
@@ -144,7 +168,7 @@ CRUX_API_KEY              : crux_page_vitals, crux_history. Plain Google API key
 - New GA4 tool → ga4.py, add hostname+country filter via _build_dimension_filter, with_meta
 - New GA4 alpha API tool → ga4.py, use get_alpha_ga4_service()
 - New cross-platform tool → cross.py, use _normalize_url for GSC+GA4 join
-- New tool fetching external URLs → httpx + SSRF origin check + follow_redirects=False
+- New tool fetching external URLs → use safe_fetch_html() from url_safety.py (SSRF, DNS rebinding, metadata blocklist)
 - New tool parsing external XML → defusedxml.ElementTree
 - Any Google API call → @with_retry()
 - Any tool return → json.dumps(with_meta(...))

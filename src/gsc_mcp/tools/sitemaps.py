@@ -115,6 +115,11 @@ def sitemap_audit(site: str, sitemap_url: str) -> str:
         if urlparse(url).netloc != origin:
             return None
         try:
+            from gsc_mcp.url_safety import URLSafetyError, validate_url_strict
+            validate_url_strict(url)
+        except Exception:
+            return None
+        try:
             with httpx.Client(timeout=15, follow_redirects=False) as client:
                 resp = client.get(url, headers={"User-Agent": "gsc-mcp-sitemap-audit/1.0"})
                 resp.raise_for_status()

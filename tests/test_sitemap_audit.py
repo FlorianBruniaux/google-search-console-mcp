@@ -8,6 +8,20 @@ import pytest
 
 from gsc_mcp.tools.sitemaps import sitemap_audit
 
+
+@pytest.fixture(autouse=True)
+def _mock_dns(monkeypatch):
+    """Return a public IP for any hostname -- prevents real DNS calls.
+
+    validate_url_strict (called inside _fetch_xml) resolves the hostname before
+    opening any socket. Without this fixture the tests make real DNS calls to
+    example.com and would fail in offline / CI environments.
+    """
+    monkeypatch.setattr(
+        "gsc_mcp.url_safety.socket.getaddrinfo",
+        lambda *args, **kwargs: [(None, None, None, None, ("93.184.216.34", 0))],
+    )
+
 SITE = "sc-domain:example.com"
 SITEMAP_URL = "https://example.com/sitemap.xml"
 

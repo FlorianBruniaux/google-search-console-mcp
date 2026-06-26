@@ -1,11 +1,11 @@
-"""gsc-cli: shell frontend for the 43 gsc-mcp tools.
+"""gsc-cli: shell frontend for the 47 gsc-mcp tools.
 
 Generates all subcommands by introspecting registry.TOOLS at startup. Both the MCP
 server and this CLI share the same tool functions; the CLI adds nothing and hides
 nothing from the core.
 
 Usage:
-    gsc-cli list                            list all 43 commands
+    gsc-cli list                            list all 47 commands
     gsc-cli <command> [--flag value ...]    run a tool
     gsc-cli <command> --help                show flags for a command
     gsc-cli auth login --allow-browser      interactive OAuth flow
@@ -35,7 +35,7 @@ from gsc_mcp.registry import TOOLS
 def _type_kind(ann) -> str:
     """Return a normalised tag for a parameter type annotation.
 
-    Tags: "str", "int", "float", "list_str", "list_dict", "unknown".
+    Tags: "str", "int", "float", "bool", "list_str", "list_dict", "unknown".
     """
     if ann is inspect.Parameter.empty or ann is str:
         return "str"
@@ -43,6 +43,30 @@ def _type_kind(ann) -> str:
         return "int"
     if ann is float:
         return "float"
+    if ann is bool:
+        return "bool"
+    # typing.Optional[X] == typing.Union[X, None] — old-style Optional annotation
+    origin = typing.get_origin(ann)
+    if origin is typing.Union:
+        args = typing.get_args(ann)
+        non_none = [a for a in args if a is not type(None)]
+        if len(non_none) == 1:
+            inner = non_none[0]
+            if inner is str:
+                return "str"
+            if inner is int:
+                return "int"
+            if inner is float:
+                return "float"
+            if inner is bool:
+                return "bool"
+            # Optional[list[str]] or Optional[list[dict]]
+            if isinstance(inner, types.GenericAlias) and inner.__origin__ is list:
+                item = typing.get_args(inner)
+                if item and item[0] is str:
+                    return "list_str"
+                if item and item[0] is dict:
+                    return "list_dict"
     # Union types built with X | Y syntax (Python 3.10+)
     if isinstance(ann, types.UnionType):
         args = typing.get_args(ann)
@@ -102,6 +126,10 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
             kw = {"type": float, "required": required}
             if not required:
                 kw["default"] = default
+        elif kind == "bool":
+            # Bool params always have a default and use store_true / store_false.
+            kw = {"action": "store_false" if default is True else "store_true",
+                  "default": False if default is inspect.Parameter.empty else default}
         elif kind == "list_str":
             kw = {"action": "append", "required": required}
             if not required:
@@ -138,12 +166,12 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
 
 
 def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
-    """Build the root parser with `list`, `auth`, and 43 tool subcommands."""
+    """Build the root parser with `list`, `auth`, and 47 tool subcommands."""
     parser = argparse.ArgumentParser(
         prog="gsc-cli",
         description=(
             "Shell frontend for gsc-mcp: Google Search Console, GA4, and CrUX. "
-            "Run `gsc-cli list` to see all 43 available commands."
+            "Run `gsc-cli list` to see all 47 available commands."
         ),
     )
     subparsers = parser.add_subparsers(dest="command", metavar="command")
@@ -152,7 +180,7 @@ def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
     # Utility: list
     subparsers.add_parser(
         "list",
-        help="List all 43 available commands with a one-line description.",
+        help="List all 47 available commands with a one-line description.",
     )
 
     # Utility: auth

@@ -2,10 +2,10 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-282%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-429%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 43 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation, and composite health scoring. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 47 tools covering search analytics, URL inspection, the Google Indexing API, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, and composite health scoring. Built on Python 3.11+ and FastMCP.
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
@@ -15,12 +15,12 @@ No SEO expertise required. You can ask "run a full site audit", "why did my traf
 
 ## What you can do with it
 
-The 43 tools span ten families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), and Sitemaps (list, submit, audit coverage against GSC data). The remaining four families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals from the Chrome UX Report API), and Technical (JSON-LD schema validation with pattern-based suggestions).
+The 47 tools span eleven families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), and Sitemaps (list, submit, audit coverage against GSC data). The remaining five families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals from the Chrome UX Report API), Technical (JSON-LD schema validation and generation), and Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs).
 
-## Tools (43)
+## Tools (47)
 
 <details>
-<summary>Show all 43 tools</summary>
+<summary>Show all 47 tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -67,6 +67,10 @@ The 43 tools span ten families: Properties (list and inspect GSC sites), Analyti
 | CrUX | `crux_page_vitals` | Real-user Core Web Vitals (LCP, INP, CLS, FCP, TTFB) for a URL from the Chrome UX Report API |
 | CrUX | `crux_history` | Historical Core Web Vitals trend (weekly data points) for a URL |
 | Technical | `schema_validate` | Fetch any public URL and validate its JSON-LD schemas; suggests missing schemas by URL pattern |
+| Technical | `schema_generate` | Generate a Schema.org JSON-LD block for Reservation, OrderAction, DiscussionForumPosting, or ProfilePage |
+| Drift | `drift_baseline` | Capture a baseline snapshot of a page (title, H1-H3, schema, canonical, CWV) stored locally in SQLite |
+| Drift | `drift_compare` | Diff a live fetch against the stored baseline and apply 17 rules (8 CRITICAL, 6 WARNING, 3 INFO) |
+| Drift | `drift_history` | List previous comparison runs for a URL with triggered findings per run |
 
 </details>
 
@@ -149,10 +153,10 @@ traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 
 ## CLI usage (gsc-cli)
 
-After installation, `gsc-cli` is available as a standalone shell command. It wraps all 43 tools from the MCP server and uses the same authentication.
+After installation, `gsc-cli` is available as a standalone shell command. It wraps all 47 tools from the MCP server and uses the same authentication.
 
 ```bash
-# List all 43 commands
+# List all 47 commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)
@@ -241,7 +245,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
-- `llms.txt`: quick reference covering all 43 tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `llms.txt`: quick reference covering all 47 tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 15 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
@@ -257,7 +261,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-282 tests, all mocked (no real Google API calls needed).
+429 tests, all mocked (no real Google API calls needed).
 
 ## Troubleshooting
 
@@ -299,6 +303,17 @@ This project takes the auth and SEO patterns from the first, the Indexing API sc
 | Retry on 429/5xx | No | No | Yes, exponential backoff |
 | Quota tracking | No | No | Yes, warns at 180/200 |
 | Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
+
+## Credits
+
+This project took inspiration from [claude-seo](https://github.com/AgriciDaniel/claude-seo) (MIT, agricidaniel). Four components were adapted:
+
+- **SSRF protection** (`src/gsc_mcp/url_safety.py`): the URL safety module with DNS-rebinding mitigation, IPv4 obfuscation normalization, and multi-cloud metadata endpoint blocklist, ported from `requests` to `httpx`.
+- **JSON-LD generators** (`schema_generate` tool): the four high-leverage schema types (Reservation, OrderAction, DiscussionForumPosting, ProfilePage) adapted from `scripts/schema_generate.py`.
+- **Schema templates** (`src/gsc_mcp/data/schema_templates.json`): 11 JSON-LD placeholder templates (VideoObject, ProductGroup, ItemList, Certification, etc.) from `schema/templates.json`.
+- **SEO drift monitoring** (`src/gsc_mcp/tools/drift.py`): the 17-rule diff methodology from `scripts/drift_baseline.py` and `scripts/drift_compare.py`, credited to Dan Colta in the original CONTRIBUTORS.md.
+
+Assets with incompatible licenses (CC BY-SA 4.0, CC BY 4.0) were excluded. See `NOTICE` for full attribution.
 
 ## License
 

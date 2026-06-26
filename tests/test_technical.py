@@ -1,4 +1,4 @@
-"""Tests for schema_validate tool (Phase 4, v0.5.0)."""
+"""Tests for schema_validate and schema_generate tools."""
 
 import json
 from unittest.mock import MagicMock, patch
@@ -6,14 +6,14 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from gsc_mcp.tools.technical import schema_validate, _JsonLdExtractor
+from gsc_mcp.tools.technical import schema_validate, schema_generate, _JsonLdExtractor
 
 
 @pytest.fixture(autouse=True)
 def _mock_dns(monkeypatch):
     """Return a public IP for any hostname to prevent real DNS calls in tests."""
     monkeypatch.setattr(
-        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        "gsc_mcp.url_safety.socket.getaddrinfo",
         lambda *args, **kwargs: [(None, None, None, None, ("93.184.216.34", 0))],
     )
 
@@ -183,20 +183,20 @@ def test_schema_validate_meta():
 
 
 def test_schema_validate_ssrf_private_ip_blocked():
-    """Private IP address resolving hostname → fetch_error, no HTTP call made."""
+    """Private IP from DNS resolution → fetch_error (DNS rebinding refused message)."""
     with patch(
-        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        "gsc_mcp.url_safety.socket.getaddrinfo",
         return_value=[(None, None, None, None, ("192.168.1.1", 0))],
     ):
         result = json.loads(schema_validate("http://internal.corp/"))
     assert result["verdict"] == "fetch_error"
-    assert "Blocked" in result["error"]
+    assert "192.168.1.1" in result["error"]
 
 
 def test_schema_validate_ssrf_loopback_blocked():
     """Loopback IP → fetch_error."""
     with patch(
-        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        "gsc_mcp.url_safety.socket.getaddrinfo",
         return_value=[(None, None, None, None, ("127.0.0.1", 0))],
     ):
         result = json.loads(schema_validate("http://localhost/"))
@@ -207,12 +207,160 @@ def test_schema_validate_ssrf_loopback_blocked():
 def test_schema_validate_ssrf_metadata_ip_blocked():
     """AWS metadata IP 169.254.169.254 → fetch_error."""
     with patch(
-        "gsc_mcp.tools.technical.socket.getaddrinfo",
+        "gsc_mcp.url_safety.socket.getaddrinfo",
         return_value=[(None, None, None, None, ("169.254.169.254", 0))],
     ):
         result = json.loads(schema_validate("http://169.254.169.254/latest/meta-data/"))
     assert result["verdict"] == "fetch_error"
     assert "Blocked" in result["error"]
+
+
+# ---------------------------------------------------------------------------
+# schema_generate
+# ---------------------------------------------------------------------------
+
+
+class TestSchemaGenerateProfile:
+    def test_basic(self):
+        result = json.loads(schema_generate(
+            schema_type="profile",
+            name="Alice Dupont",
+            profile_url="https://example.com/about",
+        ))
+        assert result["verdict"] == "generated"
+        assert result["schema_type"] == "profile"
+        ld = result["json_ld"]
+        assert ld["@type"] == "ProfilePage"
+        assert ld["mainEntity"]["name"] == "Alice Dupont"
+        assert ld["mainEntity"]["url"] == "https://example.com/about"
+
+    def test_optional_fields(self):
+        result = json.loads(schema_generate(
+            schema_type="profile",
+            name="Bob",
+            profile_url="https://example.com/bob",
+            job_title="Developer",
+            works_for="Acme Corp",
+            same_as=["https://linkedin.com/in/bob"],
+        ))
+        ld = result["json_ld"]["mainEntity"]
+        assert ld["jobTitle"] == "Developer"
+        assert ld["worksFor"]["name"] == "Acme Corp"
+        assert "https://linkedin.com/in/bob" in ld["sameAs"]
+
+    def test_missing_required_fields(self):
+        result = json.loads(schema_generate(schema_type="profile", name="Alice"))
+        assert result["verdict"] == "error"
+        assert "profile_url" in result["error"]
+
+    def test_meta(self):
+        result = json.loads(schema_generate(
+            schema_type="profile",
+            name="Test",
+            profile_url="https://example.com/",
+        ))
+        assert result["_meta"]["tool"] == "schema_generate"
+        assert result["_meta"]["params"]["schema_type"] == "profile"
+
+    def test_strip_nones(self):
+        """None optional fields must not appear in the output."""
+        result = json.loads(schema_generate(
+            schema_type="profile",
+            name="Min",
+            profile_url="https://example.com/min",
+        ))
+        ld = result["json_ld"]["mainEntity"]
+        assert "description" not in ld
+        assert "sameAs" not in ld
+        assert "image" not in ld
+
+
+class TestSchemaGenerateReservation:
+    def test_basic(self):
+        result = json.loads(schema_generate(
+            schema_type="reservation",
+            provider="Le Bistrot",
+            start_time="2026-07-15T20:00",
+        ))
+        assert result["verdict"] == "generated"
+        ld = result["json_ld"]
+        assert ld["@type"] == "FoodEstablishmentReservation"
+        assert ld["provider"]["name"] == "Le Bistrot"
+
+    def test_missing_required(self):
+        result = json.loads(schema_generate(schema_type="reservation", provider="Resto"))
+        assert result["verdict"] == "error"
+
+    def test_optional_end_time_and_party_size(self):
+        result = json.loads(schema_generate(
+            schema_type="reservation",
+            provider="Bistro",
+            start_time="2026-07-15T20:00",
+            end_time="2026-07-15T22:00",
+            party_size=4,
+        ))
+        ld = result["json_ld"]
+        assert ld["endTime"] == "2026-07-15T22:00"
+        assert ld["partySize"] == 4
+
+
+class TestSchemaGenerateOrderAction:
+    def test_basic(self):
+        result = json.loads(schema_generate(
+            schema_type="order_action",
+            merchant="Pizza Palace",
+            order_url="https://order.pizzapalace.com/",
+        ))
+        assert result["verdict"] == "generated"
+        ld = result["json_ld"]
+        assert ld["@type"] == "OrderAction"
+        assert ld["merchant"]["name"] == "Pizza Palace"
+        assert ld["target"]["urlTemplate"] == "https://order.pizzapalace.com/"
+
+    def test_missing_required(self):
+        result = json.loads(schema_generate(schema_type="order_action", merchant="X"))
+        assert result["verdict"] == "error"
+
+
+class TestSchemaGenerateDiscussion:
+    def test_basic(self):
+        result = json.loads(schema_generate(
+            schema_type="discussion",
+            headline="Comment choisir son stack ?",
+            author="Marie",
+            url="https://forum.example.com/topic/42",
+            date_published="2026-01-10",
+        ))
+        assert result["verdict"] == "generated"
+        ld = result["json_ld"]
+        assert ld["@type"] == "DiscussionForumPosting"
+        assert ld["headline"] == "Comment choisir son stack ?"
+        assert ld["author"]["name"] == "Marie"
+
+    def test_missing_required(self):
+        result = json.loads(schema_generate(
+            schema_type="discussion",
+            headline="Missing fields",
+        ))
+        assert result["verdict"] == "error"
+
+    def test_optional_comment_count(self):
+        result = json.loads(schema_generate(
+            schema_type="discussion",
+            headline="H",
+            author="A",
+            url="https://example.com/post",
+            date_published="2026-01-01",
+            comment_count=17,
+        ))
+        assert result["json_ld"]["commentCount"] == 17
+
+
+class TestSchemaGenerateUnknownType:
+    def test_unknown_type_returns_error(self):
+        result = json.loads(schema_generate(schema_type="unknown_type"))
+        assert result["verdict"] == "error"
+        assert "unknown_type" in result["error"].lower()
 
 
 def test_schema_validate_fields_present_excludes_at_fields():

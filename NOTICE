@@ -1,0 +1,53 @@
+This project incorporates methodology and code adapted from claude-seo
+(https://github.com/AgriciDaniel/claude-seo), licensed under the MIT License.
+
+Copyright (c) 2026 agricidaniel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+The following components were adapted from claude-seo:
+
+- SSRF/DNS-rebinding protection module (src/gsc_mcp/url_safety.py)
+  Source: scripts/url_safety.py
+  Original author: agricidaniel
+
+- JSON-LD schema generators (src/gsc_mcp/tools/technical.py, schema_generate function)
+  Source: scripts/schema_generate.py
+  Original author: agricidaniel
+
+- Schema templates catalog (src/gsc_mcp/data/schema_templates.json)
+  Source: schema/templates.json
+  Original author: agricidaniel
+
+- SEO drift monitoring module (src/gsc_mcp/tools/drift.py)
+  Source: scripts/drift_baseline.py, scripts/drift_compare.py, scripts/drift_history.py
+  Original methodology: Dan Colta (credited in claude-seo CONTRIBUTORS.md)
+
+---
+
+Excluded from this project (incompatible licenses):
+
+- content_quality.py, content_verify.py, content_humanize.py
+  Reason: word lists sourced from Wikipedia AI Cleanup project (CC BY-SA 4.0,
+  copyleft share-alike; incompatible with MIT distribution)
+
+- seo-flow skill
+  Reason: licensed under CC BY 4.0 (not MIT)
