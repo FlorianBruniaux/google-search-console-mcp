@@ -289,6 +289,18 @@ The service account needs **Owner-level** access on the GSC property, not just F
 
 The Indexing API default quota is 200 requests per day per GCP project. The tool warns at 180. To increase it, request a quota increase in Google Cloud Console under APIs & Services > Quotas.
 
+## Why an MCP server for GSC
+
+GSC data is private. No web search agent can read it.
+
+Given "which of my pages are wasting impressions with zero clicks?", an AI without API access has two honest options: admit it cannot answer, or guess from publicly visible signals. Neither is a diagnosis.
+
+With this server, Claude pulls the actual numbers: `/projects/` at position 10.1 with 87 impressions and 0 clicks, CTR benchmark 2.3% at that rank. That is the concrete gap between "you should optimize your meta titles" (available from any AI with internet access) and "your /projects/ page has 87 impressions and 0 clicks, rewrite the title" (requires your numbers).
+
+Some tasks work without private data: checking indexation with `site:`, parsing sitemap structure, reading robots.txt. For those, any web-capable agent gets you there. But for anything that requires private GSC metrics (traffic drops, striking-distance queries, CTR anomalies, Indexing API submissions), there is no substitute for API access.
+
+The server also handles the Google API mechanics: service account or OAuth authentication, exponential backoff on 429s and 5xx errors, true HTTP batch for indexing requests, quota tracking at 200 req/day, and structured JSON output across all 47 tools so Claude can reason across results without parsing ambiguity.
+
 ## Why this exists
 
 Two projects shaped the approach here. [AminForou/mcp-gsc](https://github.com/AminForou/mcp-gsc) (Python, 1k+ stars) has strong search analytics and handles OAuth and Service Account auth cleanly, but does not include the Google Indexing API at all. [Suganthan-Mohanadasan/Suganthans-GSC-MCP](https://github.com/Suganthan-Mohanadasan/Suganthans-GSC-MCP) (Node.js) adds the Indexing API but implements `submit_batch` as a sequential loop with a 100ms delay between requests, not a real HTTP batch, and mixes plain-text and JSON outputs with no retry logic.
