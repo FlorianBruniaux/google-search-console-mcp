@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.9.0] - 2026-06-26
+
+54 tools (+4), 518 tests (+51). Wave B de la seconde intégration `claude-seo` (MIT uniquement).
+
+### Added
+
+**Content : `preload_audit`**
+
+- `preload_audit(url)` : fetch via `safe_httpx_get` (retourne le `httpx.Response` complet, donc headers inclus, SSRF-safe). Détecte : blocs `<script type="speculationrules">` parsés en JSON pour les actions `prefetch`/`prerender`, header HTTP `Speculation-Rules` (Chrome 122+), `<link rel="preload">` avec extraction des attributs `as`/`href`/`fetchpriority`, `<link rel="prerender">` déprécié (sunset Chrome 120), bloqueur bfcache `cache-control: no-store`. Génère une liste d'issues avec sévérité (`high`/`medium`/`low`) et `check`. Verdicts : `optimised` (prefetch+prerender + pas de bfcache killer) | `improvements_available` (règles présentes mais issues) | `not_implemented` (aucune Speculation Rules) | `fetch_error`.
+
+**CrUX : `crux_lcp_subparts`**
+
+- `crux_lcp_subparts(url, form_factor="PHONE")` : même endpoint CrUX que `crux_page_vitals`, requête 5 métriques simultanément (LCP global + 4 subparts). Retourne `lcp_p75_ms`, `lcp_rating`, et `subparts` : `ttfb_ms`, `resource_load_delay_ms`, `resource_load_duration_ms`, `render_delay_ms`, `dominant_phase` (nom court du subpart avec la valeur p75 la plus élevée). Clé API absente = `verdict="missing_key"` (pas de RuntimeError, contrairement à `crux_page_vitals`). Verdicts : `good` | `needs_improvement` | `poor` | `not_enough_data` | `missing_key` | `fetch_error`.
+
+**Indexing : `indexnow_submit`**
+
+- `indexnow_submit(site, key, urls)` : POST vers `https://api.indexnow.org/indexnow`. Protocole open source, consommé par Bing, Yandex, Seznam, Naver (pas Google). `validate_url_strict` sur chaque URL avant envoi (SSRF-safe), URLs invalides comptées dans `skipped_invalid`. Host extrait du paramètre `site` via `urlparse`. `keyLocation` dérivé automatiquement : `{site}/{key}.txt`. Sans `@with_retry` (pas une API Google). HTTP 200/202 = `ok` si aucun skip, `partial` si skips ; autres codes = `error`. Verdicts : `ok` | `partial` | `error`.
+
+**SEO : `parasite_risk`**
+
+- `parasite_risk(site, urls)` : analyse pure de chemins URL, sans fetch HTTP. Détecte les patterns de la politique Google du 2024-11-19 sur le site-reputation abuse. Trois niveaux de risque par URL : high (`/sponsored/`, `/affiliate/`, `/partner/`, `/brand-studio/`, `/paid-content/`, `/native-advertising/`, sections commerce produit `best-deals/top-picks`), medium (`/advisor/`, `/underscored/`, `/select/`, `/commerce/` d'après Forbes Advisor / CNN Underscored / WSJ), low (query params `?ref=`, `?aff=`, `?partner=`). `site_risk` = risque maximum sur toutes les URLs. Verdicts : `clean` | `at_risk` | `high_risk`. Pas d'auth requise. Adapté de `claude-seo` (agricidaniel, MIT).
+
+### Changed
+
+- `registry.py` : import + enregistrement des 4 nouveaux tools. Docstring : 50 → 54 tools.
+- `properties.py` : `_ALL_TOOLS` += 4 entrées. Docstring `get_capabilities` : 50 → 54.
+- `tests/test_registry.py` et `tests/test_properties.py` : compteurs 50 → 54.
+- `README.md` : badge tests 467 → 518, comptes tools 50 → 54 (intro, section Tools, CLI, feature set), 4 nouvelles lignes dans le tableau.
+- `docs/machine-readable/llms.txt` : module map complété pour les 4 nouveaux tools, comptes 50 → 54 et 467 → 518, patch points ajoutés.
+
+### Tool count
+
+50 → 54 tools. Test count : 467 → 518.
+
 ## [0.8.0] - 2026-06-26
 
 50 tools (+3), 467 tests (+38). Wave A de la seconde intégration `claude-seo` (MIT uniquement).

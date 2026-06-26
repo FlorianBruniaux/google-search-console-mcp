@@ -1,6 +1,6 @@
 """Central tool registry for gsc-mcp.
 
-Single source of truth for all 50 tool functions. Both the MCP server (server.py)
+Single source of truth for all 54 tool functions. Both the MCP server (server.py)
 and the CLI (cli.py) import from here, so no more three-way manual sync between
 server.py imports, mcp.tool() calls, and _ALL_TOOLS in properties.py.
 
@@ -35,9 +35,10 @@ from gsc_mcp.tools.seo import (
     seo_striking_distance,
     seo_cannibalization,
     seo_lost_queries,
+    parasite_risk,
 )
 from gsc_mcp.tools.inspection import inspect_url, batch_url_inspection, check_indexing_issues
-from gsc_mcp.tools.indexing import submit_url, submit_batch
+from gsc_mcp.tools.indexing import submit_url, submit_batch, indexnow_submit
 from gsc_mcp.tools.sitemaps import (
     list_sitemaps,
     submit_sitemap,
@@ -55,10 +56,10 @@ from gsc_mcp.tools.ga4 import (
     ga4_funnel,
 )
 from gsc_mcp.tools.cross import traffic_health_check, page_analysis, page_health_score, content_brief
-from gsc_mcp.tools.crux import crux_page_vitals, crux_history
+from gsc_mcp.tools.crux import crux_page_vitals, crux_history, crux_lcp_subparts
 from gsc_mcp.tools.technical import schema_validate, schema_generate
 from gsc_mcp.tools.drift import drift_baseline, drift_compare, drift_history
-from gsc_mcp.tools.content import content_quality, hreflang_audit, page_technical_audit
+from gsc_mcp.tools.content import content_quality, hreflang_audit, page_technical_audit, preload_audit
 
 
 TOOLS: dict[str, Callable[..., str]] = {
@@ -114,6 +115,10 @@ TOOLS: dict[str, Callable[..., str]] = {
         content_quality,
         hreflang_audit,
         page_technical_audit,
+        preload_audit,
+        crux_lcp_subparts,
+        indexnow_submit,
+        parasite_risk,
     )
 }
 

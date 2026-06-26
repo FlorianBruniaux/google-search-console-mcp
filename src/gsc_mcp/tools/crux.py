@@ -7,6 +7,27 @@ from gsc_mcp.meta import with_meta
 
 _CRUX_BASE = "https://chromeuxreport.googleapis.com/v1/records"
 
+_LCP_SUBPART_METRICS = [
+    "largest_contentful_paint_image_time_to_first_byte",
+    "largest_contentful_paint_image_resource_load_delay",
+    "largest_contentful_paint_image_resource_load_duration",
+    "largest_contentful_paint_image_element_render_delay",
+]
+
+_LCP_SUBPART_KEY_MAP = {
+    "largest_contentful_paint_image_time_to_first_byte": "ttfb_ms",
+    "largest_contentful_paint_image_resource_load_delay": "resource_load_delay_ms",
+    "largest_contentful_paint_image_resource_load_duration": "resource_load_duration_ms",
+    "largest_contentful_paint_image_element_render_delay": "render_delay_ms",
+}
+
+_LCP_SUBPART_PHASE_MAP = {
+    "ttfb_ms": "ttfb",
+    "resource_load_delay_ms": "resource_load_delay",
+    "resource_load_duration_ms": "resource_load_duration",
+    "render_delay_ms": "render_delay",
+}
+
 _THRESHOLDS = {
     "largest_contentful_paint":        (2500, 4000),
     "interaction_to_next_paint":       (200, 500),
@@ -141,4 +162,108 @@ def crux_history(
         {"url": url, "form_factor": form_factor, "metric": metric, "weeks": len(history), "history": history},
         tool="crux_history",
         params={"url": url, "form_factor": form_factor, "metric": metric},
+    ))
+
+
+def crux_lcp_subparts(url: str, form_factor: str = "PHONE") -> str:
+    """Decompose LCP into its four subparts via the CrUX API for actionable performance diagnosis.
+
+    Returns p75 values for TTFB, resource load delay, resource load duration, and element
+    render delay, plus the dominant phase (the subpart with the highest p75 ms). Knowing
+    which phase dominates turns "LCP is 4.2s" into a specific fix (server, preload, image
+    size, or render-blocking resources).
+
+    form_factor: "PHONE" (default) | "DESKTOP" | "TABLET" | "ALL_FORM_FACTORS"
+    Requires CRUX_API_KEY environment variable.
+    Verdicts: good | needs_improvement | poor | not_enough_data | missing_key | fetch_error.
+    Adapted from claude-seo lcp_subparts.py (agricidaniel, MIT).
+    """
+    api_key = os.environ.get("CRUX_API_KEY", "").strip()
+    if not api_key:
+        return json.dumps(with_meta(
+            {"url": url, "form_factor": form_factor, "verdict": "missing_key"},
+            tool="crux_lcp_subparts",
+            params={"url": url, "form_factor": form_factor},
+        ))
+
+    payload: dict = {
+        "url": url,
+        "metrics": _LCP_SUBPART_METRICS + ["largest_contentful_paint"],
+    }
+    if form_factor != "ALL_FORM_FACTORS":
+        payload["formFactor"] = form_factor
+
+    with httpx.Client(timeout=15) as client:
+        resp = client.post(
+            f"{_CRUX_BASE}:queryRecord",
+            params={"key": api_key},
+            json=payload,
+        )
+
+    if resp.status_code == 404:
+        return json.dumps(with_meta(
+            {
+                "url": url,
+                "form_factor": form_factor,
+                "verdict": "not_enough_data",
+                "note": "URL not in CrUX dataset (requires 1000+ real users over 28 days).",
+            },
+            tool="crux_lcp_subparts",
+            params={"url": url, "form_factor": form_factor},
+        ))
+
+    resp.raise_for_status()
+    metrics_raw = resp.json().get("record", {}).get("metrics", {})
+
+    def _p75(key: str):
+        m = metrics_raw.get(key)
+        if not m:
+            return None
+        val = m.get("percentiles", {}).get("p75")
+        if val is None:
+            return None
+        try:
+            return float(val)
+        except (TypeError, ValueError):
+            return None
+
+    lcp_p75 = _p75("largest_contentful_paint")
+    lcp_rating = _rate("largest_contentful_paint", lcp_p75)
+
+    subpart_values: dict[str, float | None] = {
+        _LCP_SUBPART_KEY_MAP[k]: _p75(k)
+        for k in _LCP_SUBPART_METRICS
+    }
+
+    # Dominant phase: short key name of the subpart with the highest p75 value
+    valid_subparts = {k: v for k, v in subpart_values.items() if v is not None}
+    if valid_subparts:
+        dominant_key = max(valid_subparts, key=lambda k: valid_subparts[k])  # type: ignore[arg-type]
+        dominant_phase = _LCP_SUBPART_PHASE_MAP.get(dominant_key)
+    else:
+        dominant_phase = None
+
+    subparts = {**subpart_values, "dominant_phase": dominant_phase}
+
+    # Verdict matches LCP rating when data is present
+    if lcp_p75 is None:
+        verdict = "not_enough_data"
+    elif lcp_rating == "good":
+        verdict = "good"
+    elif lcp_rating == "needs_improvement":
+        verdict = "needs_improvement"
+    else:
+        verdict = "poor"
+
+    return json.dumps(with_meta(
+        {
+            "url": url,
+            "form_factor": form_factor,
+            "lcp_p75_ms": lcp_p75,
+            "lcp_rating": lcp_rating,
+            "subparts": subparts,
+            "verdict": verdict,
+        },
+        tool="crux_lcp_subparts",
+        params={"url": url, "form_factor": form_factor},
     ))

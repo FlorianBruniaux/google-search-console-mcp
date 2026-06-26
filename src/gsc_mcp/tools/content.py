@@ -18,7 +18,7 @@ from html.parser import HTMLParser
 import httpx
 
 from gsc_mcp.meta import with_meta
-from gsc_mcp.url_safety import URLSafetyError, safe_fetch_html, validate_url_strict
+from gsc_mcp.url_safety import URLSafetyError, safe_fetch_html, safe_httpx_get, validate_url_strict
 
 
 # ---------------------------------------------------------------------------
@@ -548,5 +548,197 @@ def page_technical_audit(url: str) -> str:
             "verdict": verdict,
         },
         tool="page_technical_audit",
+        params={"url": url},
+    ))
+
+
+# ---------------------------------------------------------------------------
+# preload_audit
+# ---------------------------------------------------------------------------
+
+_SPECULATION_BLOCK_RE = re.compile(
+    r'<script\b[^>]*\btype\s*=\s*["\']speculationrules["\'][^>]*>(?P<body>.*?)</script>',
+    re.IGNORECASE | re.DOTALL,
+)
+_PRELOAD_LINK_RE = re.compile(
+    r'<link\b[^>]*\brel\s*=\s*["\']preload["\'][^>]*>',
+    re.IGNORECASE,
+)
+_PRERENDER_LINK_RE = re.compile(
+    r'<link\b[^>]*\brel\s*=\s*["\']prerender["\'][^>]*>',
+    re.IGNORECASE,
+)
+_PRELOAD_AS_ATTR_RE = re.compile(r'\bas\s*=\s*["\']([^"\']*)["\']', re.IGNORECASE)
+_PRELOAD_HREF_ATTR_RE = re.compile(r'\bhref\s*=\s*["\']([^"\']*)["\']', re.IGNORECASE)
+_PRELOAD_FETCHPRIORITY_ATTR_RE = re.compile(r'\bfetchpriority\s*=\s*["\']([^"\']*)["\']', re.IGNORECASE)
+
+
+def _parse_speculation_actions(body: str) -> list[str]:
+    """Extract action keys (prefetch, prerender) from a speculationrules JSON body."""
+    actions: set[str] = set()
+    try:
+        payload = json.loads(body.strip())
+    except json.JSONDecodeError:
+        return []
+    for action_kind in ("prefetch", "prerender"):
+        if isinstance(payload.get(action_kind), list):
+            actions.add(action_kind)
+    return sorted(actions)
+
+
+def preload_audit(url: str) -> str:
+    """Audit Speculation Rules, bfcache eligibility, and LCP preload signals for a URL.
+
+    Fetches the page and response headers (SSRF-safe via safe_httpx_get), then checks:
+    - Speculation Rules: <script type="speculationrules"> (prefetch/prerender actions)
+    - Speculation-Rules HTTP response header (Chrome 122+)
+    - <link rel="preload"> tags with as/href/fetchpriority attributes
+    - Deprecated <link rel="prerender"> tags (removed in Chrome 120)
+    - bfcache blocker: Cache-Control: no-store in response headers
+
+    Verdicts: optimised | improvements_available | not_implemented | fetch_error.
+    No Google API calls. No authentication required.
+    Adapted from claude-seo preload_check.py (agricidaniel, MIT).
+    """
+    try:
+        resp = safe_httpx_get(url, follow_redirects=False)
+    except URLSafetyError as exc:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(exc), "verdict": "fetch_error"},
+            tool="preload_audit",
+            params={"url": url},
+        ))
+    except httpx.HTTPError as exc:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(exc), "verdict": "fetch_error"},
+            tool="preload_audit",
+            params={"url": url},
+        ))
+
+    if resp.status_code >= 400:
+        return json.dumps(with_meta(
+            {"url": url, "error": f"HTTP {resp.status_code}", "verdict": "fetch_error"},
+            tool="preload_audit",
+            params={"url": url},
+        ))
+
+    html = resp.text
+    headers = dict(resp.headers)
+
+    # Speculation Rules — inline blocks
+    spec_blocks = list(_SPECULATION_BLOCK_RE.finditer(html))
+    actions: set[str] = set()
+    for m in spec_blocks:
+        for a in _parse_speculation_actions(m.group("body")):
+            actions.add(a)
+    speculation_rules_html = len(spec_blocks) > 0
+
+    # Speculation-Rules response header
+    speculation_rules_header = "speculation-rules" in {k.lower() for k in headers}
+
+    speculation_actions = sorted(actions)
+
+    # <link rel="preload"> tags
+    preload_tags = []
+    for m in _PRELOAD_LINK_RE.finditer(html):
+        tag = m.group(0)
+        as_m = _PRELOAD_AS_ATTR_RE.search(tag)
+        href_m = _PRELOAD_HREF_ATTR_RE.search(tag)
+        fp_m = _PRELOAD_FETCHPRIORITY_ATTR_RE.search(tag)
+        preload_tags.append({
+            "as": as_m.group(1) if as_m else None,
+            "href": href_m.group(1) if href_m else None,
+            "fetchpriority": fp_m.group(1) if fp_m else None,
+        })
+
+    # Deprecated <link rel="prerender">
+    prerender_deprecated = bool(_PRERENDER_LINK_RE.search(html))
+
+    # bfcache blocker: Cache-Control: no-store
+    bfcache_no_store = False
+    for k, v in headers.items():
+        if k.lower() == "cache-control":
+            bfcache_no_store = "no-store" in (v or "").lower()
+            break
+
+    # Build issue list
+    issues: list[dict] = []
+
+    if not speculation_rules_html and not speculation_rules_header:
+        issues.append({
+            "severity": "high",
+            "check": "speculation_rules",
+            "message": (
+                "No Speculation Rules found. Add <script type=\"speculationrules\"> "
+                "with prefetch and prerender entries to enable instant next-navigation."
+            ),
+        })
+    else:
+        if "prefetch" not in speculation_actions:
+            issues.append({
+                "severity": "medium",
+                "check": "speculation_rules_prefetch",
+                "message": "Speculation Rules present but no prefetch action defined.",
+            })
+        if "prerender" not in speculation_actions:
+            issues.append({
+                "severity": "medium",
+                "check": "speculation_rules_prerender",
+                "message": "Speculation Rules present but no prerender action defined.",
+            })
+
+    if bfcache_no_store:
+        issues.append({
+            "severity": "high",
+            "check": "bfcache",
+            "message": (
+                "cache-control: no-store disqualifies this page from bfcache, "
+                "preventing instant back-forward navigation."
+            ),
+        })
+
+    if prerender_deprecated:
+        issues.append({
+            "severity": "medium",
+            "check": "prerender_deprecated",
+            "message": (
+                "Deprecated <link rel=\"prerender\"> found. "
+                "Migrate to Speculation Rules (Chrome 120+ dropped rel=prerender support)."
+            ),
+        })
+
+    image_preloads = [t for t in preload_tags if t.get("as") == "image"]
+    if image_preloads and not any(t.get("fetchpriority") == "high" for t in image_preloads):
+        issues.append({
+            "severity": "medium",
+            "check": "lcp_fetchpriority",
+            "message": (
+                "Image <link rel=\"preload\"> present but none has fetchpriority=\"high\". "
+                "Add fetchpriority=\"high\" to the LCP hero image preload."
+            ),
+        })
+
+    # Verdict
+    has_rules = speculation_rules_html or speculation_rules_header
+    if not has_rules:
+        verdict = "not_implemented"
+    elif set(speculation_actions) >= {"prefetch", "prerender"} and not bfcache_no_store:
+        verdict = "optimised"
+    else:
+        verdict = "improvements_available"
+
+    return json.dumps(with_meta(
+        {
+            "url": url,
+            "speculation_rules_html": speculation_rules_html,
+            "speculation_rules_header": speculation_rules_header,
+            "speculation_actions": speculation_actions,
+            "preload_tags": preload_tags,
+            "prerender_deprecated": prerender_deprecated,
+            "bfcache_no_store": bfcache_no_store,
+            "issues": issues,
+            "verdict": verdict,
+        },
+        tool="preload_audit",
         params={"url": url},
     ))

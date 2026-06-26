@@ -1,10 +1,17 @@
 import json
+from urllib.parse import urlparse
+
+import httpx
 from googleapiclient.errors import HttpError  # noqa: F401 — imported for @with_retry HttpError detection
+
 from gsc_mcp.auth import get_indexing_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.quota import QuotaTracker
 from gsc_mcp.constants import QUOTA_INDEXING_LIMIT, QUOTA_INDEXING_WARN_AT
 from gsc_mcp.retry import with_retry
+from gsc_mcp.url_safety import URLSafetyError, validate_url_strict
+
+_INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow"
 
 _BATCH_SIZE = 100
 
@@ -75,3 +82,88 @@ def submit_batch(urls: list[str], url_type: str = "URL_UPDATED") -> str:
         payload["quota_warning"] = True
 
     return json.dumps(with_meta(payload, tool="submit_batch", params={"url_count": len(urls), "type": url_type}))
+
+
+def indexnow_submit(site: str, key: str, urls: list[str]) -> str:
+    """Submit URLs to IndexNow, notifying Bing, Yandex, Seznam, and Naver simultaneously.
+
+    IndexNow is an open protocol independent of Google. One POST to api.indexnow.org
+    dispatches to all four participating engines. Each URL is validated with
+    validate_url_strict (SSRF-safe) before submission. Invalid URLs are skipped and
+    counted in skipped_invalid. The key must be 8-128 characters; you are responsible
+    for hosting the key file at {site}/{key}.txt.
+
+    Verdicts: ok (all valid, 200/202) | partial (some skipped, 200/202) | error.
+    No Google API calls. No Google authentication required.
+    """
+    valid_urls: list[str] = []
+    skipped_invalid = 0
+    for u in urls:
+        try:
+            validate_url_strict(u)
+            valid_urls.append(u)
+        except URLSafetyError:
+            skipped_invalid += 1
+
+    if not valid_urls:
+        return json.dumps(with_meta(
+            {
+                "site": site,
+                "submitted": 0,
+                "skipped_invalid": skipped_invalid,
+                "status_code": None,
+                "verdict": "error",
+            },
+            tool="indexnow_submit",
+            params={"site": site, "url_count": len(urls)},
+        ))
+
+    parsed = urlparse(site)
+    host = parsed.hostname or site
+    key_location = f"{site.rstrip('/')}/{key}.txt"
+
+    payload = {
+        "host": host,
+        "key": key,
+        "keyLocation": key_location,
+        "urlList": valid_urls,
+    }
+
+    try:
+        with httpx.Client(timeout=15) as client:
+            resp = client.post(
+                _INDEXNOW_ENDPOINT,
+                json=payload,
+                headers={"Content-Type": "application/json; charset=utf-8"},
+            )
+    except httpx.HTTPError as exc:
+        return json.dumps(with_meta(
+            {
+                "site": site,
+                "submitted": 0,
+                "skipped_invalid": skipped_invalid,
+                "status_code": None,
+                "error": str(exc),
+                "verdict": "error",
+            },
+            tool="indexnow_submit",
+            params={"site": site, "url_count": len(urls)},
+        ))
+
+    status = resp.status_code
+    if status in (200, 202):
+        verdict = "ok" if skipped_invalid == 0 else "partial"
+    else:
+        verdict = "error"
+
+    return json.dumps(with_meta(
+        {
+            "site": site,
+            "submitted": len(valid_urls),
+            "skipped_invalid": skipped_invalid,
+            "status_code": status,
+            "verdict": verdict,
+        },
+        tool="indexnow_submit",
+        params={"site": site, "url_count": len(urls)},
+    ))

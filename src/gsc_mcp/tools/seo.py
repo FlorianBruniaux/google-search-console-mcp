@@ -1,5 +1,8 @@
 import json
+import re
 from datetime import date, timedelta
+from urllib.parse import urlparse
+
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.constants import CTR_BENCHMARKS
@@ -352,4 +355,113 @@ def check_alerts(site: str, days: int = 28) -> str:
         {"site": site, "date_range": {"start": start, "end": end}, "alerts": alerts},
         tool="check_alerts",
         params={"site": site, "days": days},
+    ))
+
+
+# ---------------------------------------------------------------------------
+# parasite_risk
+# ---------------------------------------------------------------------------
+
+# Direct parasite SEO indicators in URL paths (high risk).
+# These path segments map directly to Google's 2024-11-19 site-reputation policy.
+_PARASITE_HIGH_PATH_PATTERNS: tuple[tuple[str, str], ...] = (
+    (r"/sponsored/", "sponsored"),
+    (r"/partner/", "partner"),
+    (r"/partners/", "partners"),
+    (r"/affiliate/", "affiliate"),
+    (r"/brand-studio/", "brand-studio"),
+    (r"/paid-content/", "paid-content"),
+    (r"/native-advertising/", "native-advertising"),
+    (r"\b(?:best|top)\b.+\b(?:deals?|products?|picks?|reviews?)\b", "commercial-section"),
+)
+
+# Known editorial domain parasite patterns (medium risk).
+# Forbes Advisor, CNN Underscored, WSJ Select/Commerce received manual actions Nov 2024.
+_PARASITE_MEDIUM_PATH_PATTERNS: tuple[tuple[str, str], ...] = (
+    (r"/advisor/", "advisor"),
+    (r"/underscored/", "underscored"),
+    (r"/select/", "select"),
+    (r"/commerce/", "commerce"),
+)
+
+# Affiliate query parameter signals (low risk on their own).
+_PARASITE_LOW_QUERY_PATTERNS: tuple[tuple[str, str], ...] = (
+    (r"(?:^|&)(?:ref|aff|partner)=", "affiliate-param"),
+)
+
+
+def _parasite_check_url(url: str) -> dict:
+    """Classify a single URL by parasite SEO risk based on path and query patterns."""
+    parsed = urlparse(url)
+    path = parsed.path.lower()
+    query = (parsed.query or "").lower()
+
+    matched: list[str] = []
+
+    for pattern, name in _PARASITE_HIGH_PATH_PATTERNS:
+        if re.search(pattern, path, re.IGNORECASE):
+            matched.append(name)
+
+    for pattern, name in _PARASITE_MEDIUM_PATH_PATTERNS:
+        if re.search(pattern, path, re.IGNORECASE):
+            matched.append(name)
+
+    for pattern, name in _PARASITE_LOW_QUERY_PATTERNS:
+        if re.search(pattern, query, re.IGNORECASE):
+            matched.append(name)
+
+    # Risk level: highest-tier match wins
+    high_names = {name for _, name in _PARASITE_HIGH_PATH_PATTERNS}
+    medium_names = {name for _, name in _PARASITE_MEDIUM_PATH_PATTERNS}
+
+    if any(m in high_names for m in matched):
+        risk = "high"
+    elif any(m in medium_names for m in matched):
+        risk = "medium"
+    elif matched:
+        risk = "low"
+    else:
+        risk = "none"
+
+    return {"url": url, "risk": risk, "patterns": matched}
+
+
+def parasite_risk(site: str, urls: list[str]) -> str:
+    """Scan URL paths for parasite SEO patterns matching Google's 2024-11-19 site-reputation policy.
+
+    Pure URL analysis, no HTTP fetches. Detects sponsored/affiliate/partner path segments,
+    commercial product sections (/best-deals/, /top-picks/), known editorial domain patterns
+    (Forbes Advisor /advisor/, CNN Underscored /underscored/, /select/, /commerce/),
+    and affiliate query parameters (?ref=, ?aff=, ?partner=).
+
+    site_risk is the maximum risk level across all URLs.
+    Verdicts: clean | at_risk | high_risk.
+    No Google API calls. No authentication required.
+    Adapted from claude-seo parasite_risk.py (agricidaniel, MIT).
+    """
+    results = [_parasite_check_url(u) for u in urls]
+
+    risk_order = {"high": 3, "medium": 2, "low": 1, "none": 0}
+    max_risk = max((r["risk"] for r in results), key=lambda r: risk_order[r], default="none")
+
+    high_risk_count = sum(1 for r in results if r["risk"] == "high")
+
+    if max_risk == "high":
+        verdict = "high_risk"
+    elif max_risk in ("medium", "low"):
+        verdict = "at_risk"
+    else:
+        verdict = "clean"
+
+    return json.dumps(with_meta(
+        {
+            "site": site,
+            "urls_analysed": len(urls),
+            "high_risk_count": high_risk_count,
+            "results": results,
+            "site_risk": max_risk,
+            "verdict": verdict,
+        },
+        tool="parasite_risk",
+        params={"site": site, "url_count": len(urls)},
     ))

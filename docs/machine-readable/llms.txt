@@ -1,16 +1,16 @@
 # gsc-mcp Architecture Quick Reference for AI Assistants
-# Source: 15 ADRs + code archaeology (2026-06-26, v0.8.0)
+# Source: 15 ADRs + code archaeology (2026-06-26, v0.9.0)
 # Load in CLAUDE.md: @docs/machine-readable/llms.txt
 
 ## What This Project Is
 
-Python MCP server exposing 50 Google Search Console / GA4 / CrUX / drift-monitoring / content-audit tools to AI agents.
+Python MCP server exposing 54 Google Search Console / GA4 / CrUX / IndexNow / drift-monitoring / content-audit tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 50 tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 54 tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
@@ -42,15 +42,22 @@ TOOLS:
     discover_performance, news_performance, search_type_breakdown, ai_overviews_impact
     Core: _fetch_rows() wrapped with @with_retry : shared by all analytics + SEO tools.
 
-  seo.py (6 tools):
+  seo.py (7 tools):
     quick_wins, traffic_drops, seo_striking_distance, seo_cannibalization,
-    seo_lost_queries, check_alerts
+    seo_lost_queries, check_alerts, parasite_risk
     Built on _fetch_rows from analytics.py.
+    parasite_risk: pure URL-path analysis (no HTTP fetch). Regex patterns for
+      Google 2024-11-19 parasite SEO policy: sponsored/affiliate/partner paths (high),
+      /advisor/ /underscored/ /select/ /commerce/ (medium), affiliate query params (low).
+      site_risk = max risk across URLs. Verdicts: clean | at_risk | high_risk.
 
   inspection.py (3 tools): inspect_url, batch_url_inspection, check_indexing_issues
 
-  indexing.py (2 tools): submit_url, submit_batch
+  indexing.py (3 tools): submit_url, submit_batch, indexnow_submit
     submit_batch: true multipart HTTP batch via svc.new_batch_http_request(), 100 URLs/request.
+    indexnow_submit: POST to https://api.indexnow.org/indexnow (not Google, targets Bing/Yandex/Seznam/Naver).
+      validate_url_strict per URL (SSRF-safe). No @with_retry (not a Google API).
+      Verdicts: ok (200/202, 0 skipped) | partial (200/202, some skipped) | error.
 
   sitemaps.py (4 + 1 special):
     list_sitemaps, sitemaps_get, sitemaps_delete, submit_sitemap
@@ -72,9 +79,13 @@ TOOLS:
     Compose analytics.py + ga4.py. Join via _normalize_url() (strips scheme/host/query/trailing-slash).
     engagement_rate = engaged_sessions / sessions.
 
-  crux.py (2 tools): crux_page_vitals, crux_history
+  crux.py (3 tools): crux_page_vitals, crux_history, crux_lcp_subparts
     HTTP client: httpx (POST to Chrome UX Report API). Auth: CRUX_API_KEY (plain Google API key).
     HTTP 404 = verdict "not_enough_data" (not an error condition).
+    crux_lcp_subparts: requests 5 metrics (lcp + 4 subparts). Missing CRUX_API_KEY = verdict "missing_key".
+      Subparts: ttfb_ms, resource_load_delay_ms, resource_load_duration_ms, render_delay_ms.
+      dominant_phase = short key name of subpart with highest p75 value.
+      Verdicts: good | needs_improvement | poor | not_enough_data | missing_key | fetch_error.
 
   technical.py (2 tools): schema_validate, schema_generate
     schema_validate: httpx fetch + html.parser (stdlib) extraction of <script type="application/ld+json">.
@@ -99,7 +110,7 @@ TOOLS:
     CWV comparison optional, requires CRUX_API_KEY. No Google API calls otherwise.
     Adapted from claude-seo (Dan Colta, MIT).
 
-  content.py (3 tools): content_quality, hreflang_audit, page_technical_audit
+  content.py (4 tools): content_quality, hreflang_audit, page_technical_audit, preload_audit
     content_quality: safe_fetch_html + stdlib TextExtractor (strips script/style/nav/footer). Scores:
       filler_score (hits per 1000 tokens * 25), information_density (entities+numbers/100 tokens / 10),
       repetition_score (bigram repetition * 100), overall_quality (weighted). Flags: filler, low-density,
@@ -114,6 +125,12 @@ TOOLS:
       presence + match, viewport, HTML lang, security headers (x-frame-options, x-content-type-options,
       referrer-policy), redirect detection (3xx), robots.txt Googlebot access via safe_fetch_html +
       urllib.robotparser.parse(). Verdicts: healthy | issues_found | fetch_error. No auth needed.
+    preload_audit: safe_httpx_get (returns full httpx.Response including headers, SSRF-safe).
+      Checks: <script type="speculationrules"> blocks + body JSON parsed for prefetch/prerender actions,
+      Speculation-Rules HTTP response header, <link rel="preload"> with as/href/fetchpriority attrs,
+      deprecated <link rel="prerender">, cache-control: no-store bfcache blocker.
+      Verdicts: optimised | improvements_available | not_implemented | fetch_error.
+      Mock target: gsc_mcp.tools.content.safe_httpx_get. Adapted from claude-seo (agricidaniel, MIT).
 
 ## Security Rules (always apply)
 
@@ -150,7 +167,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 467 tests, fully mocked.
+SETUP: pytest tests/ : 518 tests, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -171,6 +188,9 @@ PATCH AT CALL SITE (not in module declaration):
   gsc_mcp.tools.content.safe_fetch_html        ← patch for content_quality, hreflang_audit, page_technical_audit robots.txt
   gsc_mcp.tools.content.validate_url_strict    ← patch for page_technical_audit SSRF test
   gsc_mcp.tools.content.httpx.Client          ← context manager pattern for page_technical_audit main fetch
+  gsc_mcp.tools.content.safe_httpx_get        ← patch for preload_audit (returns MagicMock with .text, .status_code, .headers)
+  gsc_mcp.tools.indexing.httpx.Client         ← context manager pattern for indexnow_submit
+  gsc_mcp.tools.indexing.validate_url_strict  ← patch for indexnow_submit SSRF validation
 
 ## Environment Variables
 
@@ -178,7 +198,8 @@ GSC_SERVICE_ACCOUNT_PATH  : GSC + Indexing + GA4 tools. Path to service account 
 GSC_CREDENTIALS_PATH      : OAuth flow. Path to OAuth Desktop client JSON.
 GSC_SKIP_OAUTH            : Set to "true" to skip OAuth fallback entirely (requires SA path).
 GA4_PROPERTY_ID           : All GA4 + cross tools. Numeric (e.g. 12345678), validated lazily, per-call override supported.
-CRUX_API_KEY              : crux_page_vitals, crux_history. Plain Google API key (not service account).
+CRUX_API_KEY              : crux_page_vitals, crux_history, crux_lcp_subparts. Plain Google API key (not service account).
+                            Missing CRUX_API_KEY: crux_page_vitals + crux_history raise RuntimeError; crux_lcp_subparts returns verdict="missing_key".
 
 ## Quick Decision Tree
 
