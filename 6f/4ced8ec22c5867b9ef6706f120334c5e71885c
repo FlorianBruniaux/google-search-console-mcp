@@ -1,0 +1,54 @@
+src/gsc_mcp/tools/technical.py
+  s_cda408c75269f8::t_4c58c3c3bc4bf5 117,123
+  s_cda408c75269f8::t_a6bed7b8a8201d 341-596
+  s_cda408c75269f8::t_2506f0b70b3a93 27-36
+  s_cda408c75269f8::t_bb808f728a35b6 2,4,7,12
+tests/test_registry.py
+  s_cda408c75269f8::t_481f2503dbe085 12-13
+src/gsc_mcp/tools/properties.py
+  s_cda408c75269f8::t_62e0690db8cbe3 61-63,68
+src/gsc_mcp/registry.py
+  s_cda408c75269f8::t_a04a07ae5415be 128-130
+  s_cda408c75269f8::t_c2b1d78f4e4aec 3
+  s_cda408c75269f8::t_9ade909435767e 60-66
+tests/test_properties.py
+  s_cda408c75269f8::t_4c17faca56621d 7,9-10
+CHANGELOG.md
+  s_cda408c75269f8::t_f6462a35a4d1b8 3-22,24-35
+  s_cda408c75269f8::t_908eec37194d13 23
+docs/machine-readable/llms.txt
+  s_cda408c75269f8::t_69a854edc3855e 187
+  s_cda408c75269f8::t_1d76b68f4670b7 90,94-95,98-112
+  s_cda408c75269f8::t_de3a7f0811417f 211-213
+  s_cda408c75269f8::t_176017454cebcd 2,7
+  s_cda408c75269f8::t_427c4942842205 13
+  s_cda408c75269f8::t_c2364176dbe3d6 223-224
+tests/test_technical.py
+  s_cda408c75269f8::t_28297b083202da 1,9-16
+  s_cda408c75269f8::t_e698edab99d396 386-703
+README.md
+  s_cda408c75269f8::t_459be4e21f6205 8
+  s_cda408c75269f8::t_3c14ae4f871335 81-83
+  s_cda408c75269f8::t_f9b2fc0c0139cb 5
+  s_cda408c75269f8::t_aedcf3b9a7b3b1 169
+  s_cda408c75269f8::t_059635b07f61fb 14
+  s_cda408c75269f8::t_dfce5c7f7a8f40 20,23
+  s_cda408c75269f8::t_1dd2614478956d 18
+  s_cda408c75269f8::t_d6763fb311f5e4 166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "6f4ced8ec22c5867b9ef6706f120334c5e71885c",
+  "prompts": {},
+  "sessions": {
+    "s_cda408c75269f8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "76095869-95ce-4de3-8da3-93f16c3cb172",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
