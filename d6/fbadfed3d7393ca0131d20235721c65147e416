@@ -1,0 +1,20 @@
+README.md
+  s_cda408c75269f8::t_6e17fb48bf5101 267
+  s_cda408c75269f8::t_b6387a09a4c45f 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "d6fbadfed3d7393ca0131d20235721c65147e416",
+  "prompts": {},
+  "sessions": {
+    "s_cda408c75269f8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "76095869-95ce-4de3-8da3-93f16c3cb172",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
