@@ -1,0 +1,59 @@
+NOTICE
+  s_cda408c75269f8::t_2385bd633e0f61 1-53
+README.md
+  s_cda408c75269f8::t_1cba224ad82b0a 5,8,16,18,21,68-71,154,157,246,262,305-315
+docs/machine-readable/llms.txt
+  s_cda408c75269f8::t_6733c90c0450ef 7,13-16,79,82-100,110-113,128,130-133,137,149-150,152-154,171
+docs/seo-knowledge/comparison-rules.md
+  s_cda408c75269f8::t_a59230c5bb9246 1-50
+docs/seo-knowledge/cwv-thresholds.md
+  s_cda408c75269f8::t_f31507421cd4bc 1-32
+docs/seo-knowledge/local-seo-signals.md
+  s_cda408c75269f8::t_86d8bd15e3f0dc 1-43
+docs/seo-knowledge/serp-overlap-methodology.md
+  s_cda408c75269f8::t_14b2f7a1b7297f 1-43
+src/gsc_mcp/cli.py
+  s_cda408c75269f8::t_78d8dd8669c030 1,8,38,46-69,129-132,169,174,183
+src/gsc_mcp/data/schema_templates.json
+  s_cda408c75269f8::t_9b9ecd241b770b 1-274
+src/gsc_mcp/registry.py
+  s_cda408c75269f8::t_8494ae6d8ff297 3,59-60,102-105
+src/gsc_mcp/tools/drift.py
+  s_cda408c75269f8::t_35ad0be5e09106 1-820
+src/gsc_mcp/tools/properties.py
+  s_cda408c75269f8::t_a6f156599ebf5c 43-46,58
+src/gsc_mcp/tools/sitemaps.py
+  s_cda408c75269f8::t_bb13665eab600e 117-121
+src/gsc_mcp/tools/technical.py
+  s_cda408c75269f8::t_8db22a2c8da7cd 4,9,69,77-78,136-325
+src/gsc_mcp/url_safety.py
+  s_cda408c75269f8::t_647dfb80f977a3 1-383
+tests/test_drift.py
+  s_cda408c75269f8::t_7a3921b9b21623 1-350
+tests/test_properties.py
+  s_cda408c75269f8::t_b67b40adfb2b19 7,9-10
+tests/test_registry.py
+  s_cda408c75269f8::t_4d0e1dcdc23b5b 12-13
+tests/test_sitemap_audit.py
+  s_cda408c75269f8::t_b63a8dd1dcf504 11-24
+tests/test_technical.py
+  s_cda408c75269f8::t_b16ee0cb845f1c 1,9,16,186,188,193,199,210,218-365
+tests/test_url_safety.py
+  s_cda408c75269f8::t_0ad19b96be7bf1 1-200
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f107b27b118627900534f228aa2619d40984c3d9",
+  "prompts": {},
+  "sessions": {
+    "s_cda408c75269f8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "76095869-95ce-4de3-8da3-93f16c3cb172",
+        "model": "unknown"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
