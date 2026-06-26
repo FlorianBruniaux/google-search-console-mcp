@@ -1,12 +1,15 @@
 import json
+import os
 import re
+import urllib.robotparser
 from html.parser import HTMLParser
 from typing import Optional
+from urllib.parse import urlparse
 
 import httpx
 
 from gsc_mcp.meta import with_meta
-from gsc_mcp.url_safety import URLSafetyError, validate_url_strict
+from gsc_mcp.url_safety import URLSafetyError, safe_fetch_html, validate_url_strict
 
 _REQUIRED_FIELDS = {
     "LocalBusiness":       ["name", "@type"],
@@ -18,6 +21,16 @@ _REQUIRED_FIELDS = {
     "BreadcrumbList":      ["itemListElement"],
     "Product":             ["name", "offers"],
     "SoftwareApplication": ["name", "applicationCategory", "operatingSystem"],
+}
+
+
+_DEPRECATED_RICH_RESULTS = {
+    "FAQPage":              "deprecated for rich results May 2026 (Google Search Central)",
+    "HowTo":               "deprecated for rich results September 2023",
+    "ClaimReview":         "deprecated for rich results June 2025",
+    "EstimatedSalary":     "deprecated for rich results June 2025",
+    "VehicleListing":      "deprecated for rich results June 2025",
+    "SpecialAnnouncement": "deprecated for rich results June 2025",
 }
 
 
@@ -101,11 +114,13 @@ def schema_validate(url: str) -> str:
         schema_type = schema.get("@type", "Unknown")
         required = _REQUIRED_FIELDS.get(schema_type, [])
         missing = [f for f in required if f not in schema]
+        deprecated_note = _DEPRECATED_RICH_RESULTS.get(schema_type)
         detected.append({
             "type": schema_type,
             "valid": not missing,
             "missing_required_fields": missing,
             "fields_present": [k for k in schema if not k.startswith("@")],
+            "deprecated_rich_result": deprecated_note,
         })
 
     detected_types = {s["type"] for s in detected}
@@ -323,3 +338,259 @@ def schema_generate(
             tool="schema_generate",
             params={"schema_type": schema_type},
         ))
+
+
+# ---------------------------------------------------------------------------
+# ai_visibility_audit
+# ---------------------------------------------------------------------------
+
+_AI_CRAWLERS = {
+    "GPTBot":           "OpenAI ChatGPT training",
+    "Anthropic-ai":     "Anthropic Claude training",
+    "Claude-User":      "Anthropic Claude user-driven browsing",
+    "PerplexityBot":    "Perplexity AI",
+    "CCBot":            "Common Crawl (used by multiple AI labs)",
+    "Google-Extended":  "Google Gemini / Vertex AI training",
+    "cohere-ai":        "Cohere training",
+    "Bytespider":       "ByteDance (TikTok parent) crawling",
+    "OAI-SearchBot":    "OpenAI search indexing",
+}
+
+
+def ai_visibility_audit(url: str) -> str:
+    """Check robots.txt AI crawler access and llms.txt presence for a URL's origin.
+
+    Fetches {origin}/robots.txt and checks each known AI crawler agent.
+    Also checks for {origin}/llms.txt (Model Context Protocol discoverability file).
+    No authentication required.
+
+    Verdicts: open (all AI crawlers allowed) | partial (some blocked) |
+              closed (all blocked or disallow all) | fetch_error.
+    """
+    try:
+        validate_url_strict(url)
+    except URLSafetyError as e:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(e), "verdict": "fetch_error"},
+            tool="ai_visibility_audit",
+            params={"url": url},
+        ))
+
+    parsed = urlparse(url)
+    origin = f"{parsed.scheme}://{parsed.netloc}"
+
+    robots_txt_found = False
+    robots_text = ""
+    try:
+        robots_text, _ = safe_fetch_html(f"{origin}/robots.txt")
+        robots_txt_found = True
+    except (httpx.HTTPError, URLSafetyError):
+        robots_txt_found = False
+
+    rp = urllib.robotparser.RobotFileParser()
+    if robots_txt_found:
+        rp.parse(robots_text.splitlines())
+
+    crawlers: list[dict] = []
+    for agent, description in _AI_CRAWLERS.items():
+        allowed = rp.can_fetch(agent, url) if robots_txt_found else True
+        crawlers.append({"agent": agent, "description": description, "allowed": allowed})
+
+    llms_txt_present = False
+    try:
+        safe_fetch_html(f"{origin}/llms.txt")
+        llms_txt_present = True
+    except (httpx.HTTPError, URLSafetyError):
+        llms_txt_present = False
+
+    allowed_count = sum(c["allowed"] for c in crawlers)
+    total_crawlers = len(crawlers)
+
+    if not robots_txt_found:
+        verdict = "open"
+    elif allowed_count == total_crawlers:
+        verdict = "open"
+    elif allowed_count == 0:
+        verdict = "closed"
+    else:
+        verdict = "partial"
+
+    return json.dumps(with_meta(
+        {
+            "url": url,
+            "origin": origin,
+            "robots_txt_found": robots_txt_found,
+            "llms_txt_present": llms_txt_present,
+            "crawlers": crawlers,
+            "allowed_count": allowed_count,
+            "total_crawlers": total_crawlers,
+            "verdict": verdict,
+        },
+        tool="ai_visibility_audit",
+        params={"url": url},
+    ))
+
+
+# ---------------------------------------------------------------------------
+# gbp_deprecation_lint
+# ---------------------------------------------------------------------------
+
+_GBP_DEPRECATED_PATTERNS = [
+    (r"widget\.appointments\.google\.com", "GBP appointment widget embed (deprecated)"),
+    (r"reservewithgoogle\.com", "Reserve with Google (deprecated June 2025)"),
+    (r"\.business\.site", "business.site link (GBP websites deprecated March 2024)"),
+    (r"google\.com/maps/reserve", "Google Maps Reserve (deprecated flow)"),
+    (r"gbp[_-]chat[_-]?widget|gmbchatwidget", "GBP chat widget (deprecated)"),
+]
+
+
+def gbp_deprecation_lint(url: str) -> str:
+    """Scan a page for deprecated Google Business Profile (GBP) features.
+
+    Checks for GBP chat widget embed scripts, dead .business.site links, and
+    Reserve with Google (deprecated) integrations. No authentication required.
+
+    Verdicts: clean | deprecated_found | fetch_error.
+    """
+    try:
+        validate_url_strict(url)
+    except URLSafetyError as e:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(e), "verdict": "fetch_error"},
+            tool="gbp_deprecation_lint",
+            params={"url": url},
+        ))
+
+    try:
+        html, _ = safe_fetch_html(url)
+    except (httpx.HTTPError, URLSafetyError) as e:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(e), "verdict": "fetch_error"},
+            tool="gbp_deprecation_lint",
+            params={"url": url},
+        ))
+
+    issues: list[dict] = []
+    seen_descriptions: set[str] = set()
+    for pattern, description in _GBP_DEPRECATED_PATTERNS:
+        if re.search(pattern, html, re.IGNORECASE) and description not in seen_descriptions:
+            issues.append({"pattern": pattern, "description": description})
+            seen_descriptions.add(description)
+
+    verdict = "deprecated_found" if issues else "clean"
+
+    return json.dumps(with_meta(
+        {
+            "url": url,
+            "issues_count": len(issues),
+            "issues": issues,
+            "verdict": verdict,
+        },
+        tool="gbp_deprecation_lint",
+        params={"url": url},
+    ))
+
+
+# ---------------------------------------------------------------------------
+# pagespeed_audit
+# ---------------------------------------------------------------------------
+
+
+def pagespeed_audit(url: str, strategy: str = "mobile") -> str:
+    """Run a PageSpeed Insights audit via Google's PSI API v5.
+
+    Requires GOOGLE_API_KEY environment variable (plain API key, not service account).
+    The PageSpeed Insights API must be enabled in the GCP project.
+
+    strategy: "mobile" (default) or "desktop".
+    Returns Lighthouse performance score, Core Web Vitals, and top opportunities.
+    Verdicts: good (score>=90) | needs_improvement (50-89) | poor (<50) | missing_key | fetch_error.
+    """
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        return json.dumps(with_meta(
+            {"url": url, "error": "GOOGLE_API_KEY not set", "verdict": "missing_key"},
+            tool="pagespeed_audit",
+            params={"url": url, "strategy": strategy},
+        ))
+
+    try:
+        validate_url_strict(url)
+    except URLSafetyError as e:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(e), "verdict": "fetch_error"},
+            tool="pagespeed_audit",
+            params={"url": url, "strategy": strategy},
+        ))
+
+    psi_url = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
+    try:
+        with httpx.Client(timeout=60) as client:
+            resp = client.get(psi_url, params={"url": url, "strategy": strategy, "key": api_key})
+            resp.raise_for_status()
+            data = resp.json()
+    except httpx.HTTPError as e:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(e), "verdict": "fetch_error"},
+            tool="pagespeed_audit",
+            params={"url": url, "strategy": strategy},
+        ))
+
+    lhr = data.get("lighthouseResult", {})
+    categories = lhr.get("categories", {})
+    perf_score = categories.get("performance", {}).get("score")
+    perf_score_pct = round(perf_score * 100) if perf_score is not None else None
+
+    audits = lhr.get("audits", {})
+
+    def _metric(key: str) -> dict:
+        a = audits.get(key, {})
+        return {
+            "display_value": a.get("displayValue"),
+            "score": a.get("score"),
+            "numeric_value": a.get("numericValue"),
+        }
+
+    cwv = {
+        "fcp":         _metric("first-contentful-paint"),
+        "lcp":         _metric("largest-contentful-paint"),
+        "tbt":         _metric("total-blocking-time"),
+        "cls":         _metric("cumulative-layout-shift"),
+        "speed_index": _metric("speed-index"),
+        "tti":         _metric("interactive"),
+    }
+
+    opportunities: list[dict] = []
+    for key, audit in audits.items():
+        details = audit.get("details", {})
+        if details.get("type") == "opportunity" and audit.get("score", 1) < 0.9:
+            opportunities.append({
+                "id": key,
+                "title": audit.get("title"),
+                "description": audit.get("description"),
+                "score": audit.get("score"),
+            })
+    opportunities.sort(key=lambda x: x.get("score") or 0)
+    top_opportunities = opportunities[:3]
+
+    if perf_score_pct is None:
+        verdict = "fetch_error"
+    elif perf_score_pct >= 90:
+        verdict = "good"
+    elif perf_score_pct >= 50:
+        verdict = "needs_improvement"
+    else:
+        verdict = "poor"
+
+    return json.dumps(with_meta(
+        {
+            "url": url,
+            "strategy": strategy,
+            "performance_score": perf_score_pct,
+            "cwv": cwv,
+            "top_opportunities": top_opportunities,
+            "verdict": verdict,
+        },
+        tool="pagespeed_audit",
+        params={"url": url, "strategy": strategy},
+    ))

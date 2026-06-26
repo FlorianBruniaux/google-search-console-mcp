@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.0.0] - 2026-06-26
+
+57 tools (+3), 545 tests (+27). Wave C : trois nouveaux outils Technical + enrichissement `schema_validate`.
+
+### Added
+
+**Technical : `ai_visibility_audit`**
+
+- `ai_visibility_audit(url)` : lit `{origin}/robots.txt` via `safe_fetch_html` + parse `urllib.robotparser`. Vérifie 9 crawlers IA connus : GPTBot, Anthropic-ai, Claude-User, PerplexityBot, CCBot, Google-Extended, cohere-ai, Bytespider, OAI-SearchBot. Vérifie aussi la présence de `{origin}/llms.txt` (fichier MCP/discoverability). Verdicts : `open` (tous autorisés ou pas de robots.txt) | `partial` (certains bloqués) | `closed` (tous bloqués) | `fetch_error`.
+
+**Technical : `gbp_deprecation_lint`**
+
+- `gbp_deprecation_lint(url)` : fetch via `safe_fetch_html` + scan regex sur 5 patterns de features GBP dépréciées : liens `.business.site` (GBP Websites sunset mars 2024), Reserve with Google (déprécié juin 2025), widget appointments GBP, Google Maps Reserve flow, GBP chat widget. Verdicts : `clean` | `deprecated_found` | `fetch_error`. Pas d'auth requise.
+
+**Technical : `pagespeed_audit`**
+
+- `pagespeed_audit(url, strategy="mobile")` : appelle l'API PageSpeed Insights v5 via `httpx`. Retourne score Lighthouse performance, 6 métriques CWV (FCP, LCP, TBT, CLS, Speed Index, TTI), et 3 opportunités d'amélioration prioritaires. Requiert `GOOGLE_API_KEY` env var ; retourne `verdict="missing_key"` si absente. Verdicts : `good` (≥90) | `needs_improvement` (50-89) | `poor` (<50) | `missing_key` | `fetch_error`.
+
+### Changed
+
+**`schema_validate` : détection des types dépréciés pour les rich results**
+
+- Ajout de `_DEPRECATED_RICH_RESULTS` : FAQPage (mai 2026), HowTo (sept 2023), ClaimReview, EstimatedSalary, VehicleListing, SpecialAnnouncement (juin 2025). Chaque schema détecté inclut désormais un champ `deprecated_rich_result` (string ou null).
+
+- `registry.py` : +3 tools. Docstring : 54 → 57.
+- `properties.py` : `_ALL_TOOLS` += 3 entrées. Docstring `get_capabilities` : 54 → 57.
+- `tests/test_registry.py` et `tests/test_properties.py` : compteurs 54 → 57.
+- `README.md` : badge tests 518 → 545, comptes 54 → 57.
+
+### Tool count
+
+54 → 57 tools. Test count : 518 → 545.
+
 ## [0.9.0] - 2026-06-26
 
 54 tools (+4), 518 tests (+51). Wave B de la seconde intégration `claude-seo` (MIT uniquement).

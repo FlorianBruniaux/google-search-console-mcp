@@ -9,8 +9,8 @@ from gsc_mcp.tools.properties import _ALL_TOOLS
 
 
 def test_registry_count():
-    """The registry must expose exactly 54 tools."""
-    assert len(TOOLS) == 54, f"Expected 54 tools, got {len(TOOLS)}"
+    """The registry must expose exactly 57 tools."""
+    assert len(TOOLS) == 57, f"Expected 57 tools, got {len(TOOLS)}"
 
 
 def test_registry_names_match_all_tools():

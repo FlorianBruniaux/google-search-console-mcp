@@ -2,25 +2,25 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-518%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-545%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 54 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, and on-page content/technical audits. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 57 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, on-page content/technical audits, AI crawler visibility, GBP deprecation detection, and PageSpeed Insights integration. Built on Python 3.11+ and FastMCP.
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
 No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
 
-**Latest: v0.9.0** (54 tools, Wave B: `preload_audit`, `crux_lcp_subparts`, `indexnow_submit`, `parasite_risk`). See the [full changelog](CHANGELOG.md).
+**Latest: v1.0.0** (57 tools, Wave C: `ai_visibility_audit`, `gbp_deprecation_lint`, `pagespeed_audit` + `schema_validate` deprecated-rich-results detection). See the [full changelog](CHANGELOG.md).
 
 ## What you can do with it
 
-The 54 tools span thirteen families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries, parasite SEO risk), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), IndexNow (Bing/Yandex/Seznam/Naver notification), and Sitemaps (list, submit, audit coverage against GSC data). The remaining six families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals + LCP subpart breakdown), Technical (JSON-LD schema validation and generation), Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs), and Content (on-page quality scoring, hreflang validation, technical meta + robots.txt audit, preload/bfcache audit).
+The 57 tools span thirteen families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries, parasite SEO risk), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), IndexNow (Bing/Yandex/Seznam/Naver notification), and Sitemaps (list, submit, audit coverage against GSC data). The remaining six families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals + LCP subpart breakdown), Technical (JSON-LD schema validation with deprecated-rich-results detection, schema generation, AI crawler visibility audit, GBP deprecation lint, PageSpeed Insights), Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs), and Content (on-page quality scoring, hreflang validation, technical meta + robots.txt audit, preload/bfcache audit).
 
-## Tools (54)
+## Tools (57)
 
 <details>
-<summary>Show all 54 tools</summary>
+<summary>Show all 57 tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -78,6 +78,9 @@ The 54 tools span thirteen families: Properties (list and inspect GSC sites), An
 | CrUX | `crux_lcp_subparts` | Decompose LCP into four subparts (TTFB, resource load delay, duration, render delay) with dominant phase identification for targeted CWV remediation |
 | Indexing | `indexnow_submit` | Submit URLs to IndexNow (Bing, Yandex, Seznam, Naver) via one POST; SSRF-safe URL validation, skipped-invalid count, ok/partial/error verdict |
 | SEO | `parasite_risk` | Scan URL paths for parasite SEO patterns matching Google's 2024-11-19 site-reputation policy: sponsored/affiliate sections, Forbes Advisor, CNN Underscored patterns, affiliate query params |
+| Technical | `ai_visibility_audit` | Check robots.txt AI crawler access (GPTBot, Anthropic-ai, PerplexityBot, Google-Extended, CCBot, 9 agents) and llms.txt presence for an origin |
+| Technical | `gbp_deprecation_lint` | Scan a page for deprecated Google Business Profile features: .business.site links, Reserve with Google, GBP appointment widgets |
+| Technical | `pagespeed_audit` | Run a PageSpeed Insights API v5 audit: Lighthouse performance score, Core Web Vitals, top 3 improvement opportunities (requires GOOGLE_API_KEY) |
 
 </details>
 
@@ -160,10 +163,10 @@ traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 
 ## CLI usage (gsc-cli)
 
-After installation, `gsc-cli` is available as a standalone shell command. It wraps all 54 tools from the MCP server and uses the same authentication.
+After installation, `gsc-cli` is available as a standalone shell command. It wraps all 57 tools from the MCP server and uses the same authentication.
 
 ```bash
-# List all 54 commands
+# List all 57 commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)

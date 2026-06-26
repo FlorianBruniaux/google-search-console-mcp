@@ -1,16 +1,16 @@
 # gsc-mcp Architecture Quick Reference for AI Assistants
-# Source: 15 ADRs + code archaeology (2026-06-26, v0.9.0)
+# Source: 15 ADRs + code archaeology (2026-06-26, v1.0.0)
 # Load in CLAUDE.md: @docs/machine-readable/llms.txt
 
 ## What This Project Is
 
-Python MCP server exposing 54 Google Search Console / GA4 / CrUX / IndexNow / drift-monitoring / content-audit tools to AI agents.
+Python MCP server exposing 57 Google Search Console / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 54 tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 57 tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
@@ -87,12 +87,29 @@ TOOLS:
       dominant_phase = short key name of subpart with highest p75 value.
       Verdicts: good | needs_improvement | poor | not_enough_data | missing_key | fetch_error.
 
-  technical.py (2 tools): schema_validate, schema_generate
+  technical.py (5 tools): schema_validate, schema_generate, ai_visibility_audit, gbp_deprecation_lint, pagespeed_audit
     schema_validate: httpx fetch + html.parser (stdlib) extraction of <script type="application/ld+json">.
     No auth needed. Validates: Article, LocalBusiness, FAQPage, Product, WebSite, BreadcrumbList,
     SoftwareApplication, BlogPosting. SSRF-checked via url_safety.validate_url_strict.
+    _DEPRECATED_RICH_RESULTS: FAQPage (May 2026), HowTo (Sep 2023), ClaimReview/EstimatedSalary/
+      VehicleListing/SpecialAnnouncement (June 2025). Each schema dict includes deprecated_rich_result field.
     schema_generate: builds JSON-LD blocks for Reservation, OrderAction, DiscussionForumPosting, ProfilePage.
     No network calls. No auth needed.
+    ai_visibility_audit: fetches {origin}/robots.txt via safe_fetch_html, parses with urllib.robotparser.
+      Checks 9 AI crawlers: GPTBot, Anthropic-ai, Claude-User, PerplexityBot, CCBot, Google-Extended,
+      cohere-ai, Bytespider, OAI-SearchBot. Also checks {origin}/llms.txt for MCP discoverability.
+      Verdicts: open | partial | closed | fetch_error.
+      Mock targets: gsc_mcp.tools.technical.safe_fetch_html, gsc_mcp.tools.technical.validate_url_strict.
+    gbp_deprecation_lint: safe_fetch_html + 5 regex patterns for deprecated GBP features.
+      Patterns: .business.site links (sunset Mar 2024), Reserve with Google (deprecated Jun 2025),
+      appointments widget, Maps Reserve flow, GBP chat widget.
+      Verdicts: clean | deprecated_found | fetch_error. No auth needed.
+    pagespeed_audit(url, strategy="mobile"): calls PSI API v5 via httpx.
+      Returns Lighthouse performance score (0-100), 6 CWV metrics (fcp/lcp/tbt/cls/speed_index/tti),
+      top 3 opportunities sorted by score ascending.
+      Requires GOOGLE_API_KEY env var. Missing key = verdict "missing_key".
+      Verdicts: good (>=90) | needs_improvement (50-89) | poor (<50) | missing_key | fetch_error.
+      Mock target: gsc_mcp.tools.technical.httpx.Client (context manager pattern).
 
   url_safety.py (module, no tool): SSRF/DNS-rebinding protection.
     Public API: validate_url(), validate_url_strict(), safe_httpx_get(), safe_fetch_html().
@@ -167,7 +184,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 518 tests, fully mocked.
+SETUP: pytest tests/ : 545 tests, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -191,6 +208,9 @@ PATCH AT CALL SITE (not in module declaration):
   gsc_mcp.tools.content.safe_httpx_get        ← patch for preload_audit (returns MagicMock with .text, .status_code, .headers)
   gsc_mcp.tools.indexing.httpx.Client         ← context manager pattern for indexnow_submit
   gsc_mcp.tools.indexing.validate_url_strict  ← patch for indexnow_submit SSRF validation
+  gsc_mcp.tools.technical.safe_fetch_html     ← patch for ai_visibility_audit + gbp_deprecation_lint
+  gsc_mcp.tools.technical.validate_url_strict ← patch for ai_visibility_audit + gbp_deprecation_lint + pagespeed_audit SSRF
+  gsc_mcp.tools.technical.httpx.Client        ← context manager pattern for pagespeed_audit
 
 ## Environment Variables
 
@@ -200,6 +220,8 @@ GSC_SKIP_OAUTH            : Set to "true" to skip OAuth fallback entirely (requi
 GA4_PROPERTY_ID           : All GA4 + cross tools. Numeric (e.g. 12345678), validated lazily, per-call override supported.
 CRUX_API_KEY              : crux_page_vitals, crux_history, crux_lcp_subparts. Plain Google API key (not service account).
                             Missing CRUX_API_KEY: crux_page_vitals + crux_history raise RuntimeError; crux_lcp_subparts returns verdict="missing_key".
+GOOGLE_API_KEY            : pagespeed_audit only. Plain Google API key with PageSpeed Insights API enabled in GCP.
+                            Missing GOOGLE_API_KEY: returns verdict="missing_key" (no exception).
 
 ## Quick Decision Tree
 
