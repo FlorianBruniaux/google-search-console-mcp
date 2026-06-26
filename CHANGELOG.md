@@ -1,5 +1,55 @@
 # Changelog
 
+## [0.7.0] - 2026-06-26
+
+47 tools (+4), 429 tests (+147). Intégration sélective d'assets MIT de `AgriciDaniel/claude-seo`.
+
+### Added
+
+**Sécurité : module SSRF unifié**
+
+- `src/gsc_mcp/url_safety.py` : protection SSRF et DNS-rebinding centralisée. Bloque les IPs privées/loopback/réservées, l'IPv4 obfusqué (décimal, hexadécimal, octal, FQDN avec trailing dot), les endpoints de métadonnées cloud (AWS IMDS `169.254.169.254`, Azure `169.254.169.254/metadata`, GCP `metadata.google.internal`, Oracle, Alibaba). DNS-pinning via patch de `socket.getaddrinfo` sous lock pour sécuriser les redirections. API publique : `validate_url()`, `validate_url_strict()`, `safe_httpx_get()`, `safe_fetch_html()`. Remplace les guards ad-hoc présents dans `technical.py` et `sitemaps.py`. Adapté de `claude-seo` (agricidaniel, MIT).
+
+**Technical : génération JSON-LD**
+
+- `schema_generate(schema_type, ...)` : génère un bloc JSON-LD Schema.org pour quatre types à fort impact SEO. `reservation` (FoodEstablishmentReservation avec provider, start_time, party_size, customer), `order_action` (OrderAction avec merchant, order_url, delivery methods), `discussion` (DiscussionForumPosting avec headline, author, url, date_published, comment_count optionnel), `profile` (ProfilePage avec mainEntity Person, sameAs, knowsAbout, worksFor). Aucun appel réseau, aucune auth requise. Adapté de `claude-seo` (agricidaniel, MIT).
+
+**Drift monitoring : 3 nouveaux tools**
+
+- `drift_baseline(url, with_cwv)` : capture un snapshot SEO d'une URL (title, meta description, robots, canonical, H1-H3, JSON-LD, OpenGraph, status HTTP, SHA-256 du HTML et des schemas). Stocké en SQLite via `platformdirs.user_data_dir("gsc-mcp")/drift/baselines.db` (WAL mode). CWV optionnel si `CRUX_API_KEY` est configuré.
+- `drift_compare(url, with_cwv)` : fetch live puis applique 17 règles de diff (méthodologie Dan Colta, MIT) : 8 CRITICAL (changement de title, H1, canonical, meta robots, suppression de schema, perte de status 200, régression LCP/CLS), 6 WARNING (ajout/suppression H2-H3, modification meta description, ajout noindex, dégradation INP), 3 INFO (modification OpenGraph, ajout schema, variation de longueur HTML > 20%). Verdict global : `no_drift` | `drift_detected`.
+- `drift_history(url, limit)` : liste les comparaisons stockées pour une URL avec le résumé des findings par run.
+
+**Documentation SEO sourcée**
+
+- `docs/seo-knowledge/comparison-rules.md` : 17 règles de drift avec seuils et sévérités. Source : Dan Colta (MIT).
+- `docs/seo-knowledge/cwv-thresholds.md` : seuils LCP/INP/CLS/FCP/TTFB avec méthodologie de scoring (INP remplace FID).
+- `docs/seo-knowledge/local-seo-signals.md` : signaux 2026 Whitespark/BrightLocal/Sterling Sky pour le SEO local et l'AI search.
+- `docs/seo-knowledge/serp-overlap-methodology.md` : algorithme de clustering par overlap top-10 (Lutfiya Miller).
+
+**Attribution**
+
+- `NOTICE` : copyright MIT de `claude-seo` (Copyright (c) 2026 agricidaniel), contribution de Dan Colta, liste des assets portés, exclusions explicites (CC BY-SA word lists).
+- `README.md` : section Credits pointant vers `github.com/AgriciDaniel/claude-seo`.
+
+### Changed
+
+- `technical.py` : `_reject_ssrf` interne remplacé par `url_safety.validate_url_strict`. Trois annotations `Optional[list]` corrigées en `Optional[list[str]]` pour la compatibilité CLI.
+- `sitemaps.py` : origin-check des URLs enfant rebranché sur `url_safety.validate_url_strict`.
+- `cli.py` : `_type_kind()` étend la détection aux annotations `typing.Optional[X]` (= `typing.Union[X, None]`) et `bool`. `_build_subparser()` gère le cas `bool` avec `store_true`/`store_false`. Corrigeait un `sys.exit(1)` silencieux qui cassait la construction des 47 parsers.
+- `registry.py` + `properties.py` : 4 nouveaux tools enregistrés (`schema_generate`, `drift_baseline`, `drift_compare`, `drift_history`).
+
+### Fixed
+
+- CLI : 56 tests en échec causés par `_type_kind()` qui ne gérait pas `typing.Optional` ni `bool` (annotations des tools drift et schema_generate).
+- Tests `test_technical.py` + `test_sitemap_audit.py` : cible de mock DNS corrigée (`gsc_mcp.url_safety.socket.getaddrinfo` au lieu de `gsc_mcp.tools.technical.socket.getaddrinfo`).
+- `test_technical.py` : assertion SSRF corrigée (`"192.168.1.1" in result["error"]` au lieu de `"Blocked"`).
+- `test_properties.py` + `test_registry.py` : compteurs hardcodés 43 → 47.
+
+### Tool count
+
+43 → 47 tools. Test count : 282 → 429.
+
 ## [0.6.2] - 2026-06-25
 
 ### Added
