@@ -1,0 +1,67 @@
+README.md
+  s_cda408c75269f8::t_f157124acc2525 14
+  s_cda408c75269f8::t_4ddcbbdec23bed 163,255,309
+  s_cda408c75269f8::t_8fbcf014c7a897 77-80
+  s_cda408c75269f8::t_8ee43a1dce3ec3 5
+  s_cda408c75269f8::t_87f18f531bb20d 166
+  s_cda408c75269f8::t_9e1de9d38e0731 8
+  s_cda408c75269f8::t_36f068dd5d2850 18
+  s_cda408c75269f8::t_8cdc80e577f3d8 20,23
+docs/machine-readable/llms.txt
+  s_cda408c75269f8::t_937f0788f5e4c2 56,59-60
+  s_cda408c75269f8::t_a0b863d67ae186 113
+  s_cda408c75269f8::t_d7836aa1ace818 58
+  s_cda408c75269f8::t_eb15179a5b3783 201-202
+  s_cda408c75269f8::t_1f37f534a3f5ec 82,85-88
+  s_cda408c75269f8::t_b8fd673c0cca7b 2,7,13
+  s_cda408c75269f8::t_976afa682b2957 128-133
+  s_cda408c75269f8::t_f714567830bbc9 170
+  s_cda408c75269f8::t_5c7d06b3ce7057 191-193
+  s_cda408c75269f8::t_d641c2e4f0e51b 45,47,49-52
+tests/test_wave_b.py
+  s_cda408c75269f8::t_70dc2bf24e6d82 1-630
+src/gsc_mcp/tools/crux.py
+  s_cda408c75269f8::t_2aede6ae95e57e 166-269
+  s_cda408c75269f8::t_0eafea5e232304 10-30
+src/gsc_mcp/tools/seo.py
+  s_cda408c75269f8::t_95634c2f789157 2,4-5
+  s_cda408c75269f8::t_cfd6457caa263e 359-467
+src/gsc_mcp/tools/content.py
+  s_cda408c75269f8::t_ba62eb06b72263 21
+  s_cda408c75269f8::t_4cf2afba5f5cfe 553-744
+src/gsc_mcp/registry.py
+  s_cda408c75269f8::t_0ed3b025a78360 118-121
+  s_cda408c75269f8::t_9a1174cfe73d23 38
+  s_cda408c75269f8::t_173b167205a6dc 3
+  s_cda408c75269f8::t_0aebb4574ff948 41
+  s_cda408c75269f8::t_e35714ea464e4f 59
+  s_cda408c75269f8::t_19209d01d918cf 62
+tests/test_registry.py
+  s_cda408c75269f8::t_e91213519ef2b2 12-13
+CHANGELOG.md
+  s_cda408c75269f8::t_cd8fcba2344e48 3-36
+src/gsc_mcp/tools/properties.py
+  s_cda408c75269f8::t_94360c5a2e8367 65
+  s_cda408c75269f8::t_e26a8f8e929052 57-60
+src/gsc_mcp/tools/indexing.py
+  s_cda408c75269f8::t_e2c545dcf791b3 85-169
+  s_cda408c75269f8::t_978afc51d9186b 2-4,6,12-14
+tests/test_properties.py
+  s_cda408c75269f8::t_659bdac0fcb224 7,9-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "1a823dd1a8d8f4a23ee5c999a232e58a458e9a40",
+  "prompts": {},
+  "sessions": {
+    "s_cda408c75269f8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "76095869-95ce-4de3-8da3-93f16c3cb172",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
