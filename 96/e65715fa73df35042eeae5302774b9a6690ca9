@@ -1,0 +1,38 @@
+pyproject.toml
+  s_d62d67713ea5e0::t_38f6e77b544c7f 7-8
+README.md
+  s_d62d67713ea5e0::t_0cba1a19c20661 14
+  s_d62d67713ea5e0::t_985d748561edfb 5
+docs/machine-readable/llms.txt
+  s_d62d67713ea5e0::t_599dc899aed5a5 194
+  s_d62d67713ea5e0::t_e5ea354aa65794 39-43
+  s_d62d67713ea5e0::t_149386b7d54325 25-26
+  s_d62d67713ea5e0::t_269f748aba69bd 2
+CLAUDE.md
+  s_d62d67713ea5e0::t_aa896aa8000f22 77,83
+  s_d62d67713ea5e0::t_fc140a1ebda103 78-82
+CHANGELOG.md
+  s_d62d67713ea5e0::t_f4be35056a09db 3-33
+src/gsc_mcp/auth.py
+  s_d62d67713ea5e0::t_d1a2277a762600 5
+  s_d62d67713ea5e0::t_da898415dcd899 53-61
+tests/test_auth.py
+  s_d62d67713ea5e0::t_72e09e0090b87d 38-60
+  s_d62d67713ea5e0::t_a0cdfb900ac611 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "96e65715fa73df35042eeae5302774b9a6690ca9",
+  "prompts": {},
+  "sessions": {
+    "s_d62d67713ea5e0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0ec7583b-ea4d-4f23-a9f7-2806cd7c3e37",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
