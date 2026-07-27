@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.0.1] - 2026-07-27
+
+Durcissement suite à un scouting concurrentiel (6 MCP Google Ads/GA4/GSC analysés). Pas de nouveau tool.
+
+### Fixed
+
+**Auth : fallback sur refresh token révoqué**
+
+- `auth.py` : `_get_oauth_creds` catch désormais `google.auth.exceptions.RefreshError` autour de `creds.refresh(Request())`. Un refresh token révoqué ou expiré côté Google supprime le token en cache et retombe sur le flux de ré-auth normal, au lieu de lever la même exception à chaque appel jusqu'à intervention manuelle.
+- `tests/test_auth.py` : `test_oauth_creds_refresh_error_falls_back_to_reauth` couvre le nouveau chemin (token supprimé, fallback vers `RuntimeError("No credentials...")` quand `GSC_CREDENTIALS_PATH` est absent).
+
+### Added
+
+**Documentation : protocole de confirmation pour les tools d'écriture**
+
+- `CLAUDE.md` : nouvelle section décrivant les 4 étapes attendues des agents/skills appelants avant d'invoquer un tool qui mute un état externe (`submit_url`, `submit_batch`, `sitemaps_delete`, `indexnow_submit`, `submit_sitemap`) : état actuel, rayon d'impact, confirmation explicite, vérification post-appel. Convention d'appel documentée, pas de changement de comportement dans les tools eux-mêmes.
+- `docs/machine-readable/llms.txt` : section `WRITE-TOOL PROTOCOL` ajoutée en écho, plus une ligne sur le fallback `RefreshError` dans le bloc `AUTH`.
+
+### Changed
+
+- `pyproject.toml` : version 0.6.2 → 1.0.1 (rattrapage du drift : les waves 0.7.0 à 1.0.0 avaient mis à jour `CHANGELOG.md` sans bumper `pyproject.toml`). Description mise à jour pour refléter les 57 tools actuels au lieu des 43 d'origine.
+- `README.md` : badge tests 545 → 546, ligne "Latest" mise à jour.
+
+### Écarté (évalué, non fait)
+
+- Catégorisation centralisée des erreurs HTTP (403/404 → message actionnable) dans `retry.py`, sur le modèle du fork Google `fourdots/Google-Marketing-MCPs`. `ai_overviews_impact` (`analytics.py:314`) catch déjà `HttpError` au cas par cas pour transformer un 403 en réponse structurée ; généraliser dans `retry.py` aurait cassé ce pattern existant pour un gain flou.
+
+### Tool count
+
+57 tools (inchangé). Test count : 545 → 546.
+
 ## [1.0.0] - 2026-06-26
 
 57 tools (+3), 545 tests (+27). Wave C : trois nouveaux outils Technical + enrichissement `schema_validate`.

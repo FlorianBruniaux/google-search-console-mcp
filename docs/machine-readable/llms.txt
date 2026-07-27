@@ -1,5 +1,5 @@
 # gsc-mcp Architecture Quick Reference for AI Assistants
-# Source: 15 ADRs + code archaeology (2026-06-26, v1.0.0)
+# Source: 15 ADRs + code archaeology (2026-07-27, v1.0.1)
 # Load in CLAUDE.md: @docs/machine-readable/llms.txt
 
 ## What This Project Is
@@ -22,6 +22,8 @@ AUTH: src/gsc_mcp/auth.py : Three API service helpers:
   Resolution order: GSC_SERVICE_ACCOUNT_PATH env → OAuth JSON token at platformdirs user_data_dir.
   Token: JSON (NOT pickle), chmod 0o600, written atomically via tempfile + os.replace() (TOCTOU fix).
   Directory: chmod 0o700.
+  Refresh: RefreshError on an expired token's refresh() call deletes the stale cached token and falls
+  through to a normal re-auth instead of failing the same way on every subsequent call (v1.0.1).
 
 OUTPUT CONTRACT: src/gsc_mcp/meta.py : with_meta(data, tool, params). Every tool returns:
   json.dumps(with_meta(data, tool="tool_name", params={...}))
@@ -33,6 +35,11 @@ RETRY: src/gsc_mcp/retry.py : @with_retry(max_retries=3, base_delay=1.0). Apply 
 
 QUOTA: src/gsc_mcp/quota.py : QuotaTracker singleton. Indexing API limit: 200 req/day, warn at 180.
   In-memory only (resets on restart).
+
+WRITE-TOOL PROTOCOL (calling convention, not enforced in code): submit_url, submit_batch,
+  sitemaps_delete, indexnow_submit, submit_sitemap mutate external state. Callers (agents/skills)
+  should read current state first, state the blast radius, get explicit confirmation naming the
+  exact action, then verify the tool's actual return value. See CLAUDE.md (v1.0.1).
 
 TOOLS:
 
@@ -184,7 +191,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 545 tests, fully mocked.
+SETUP: pytest tests/ : 546 tests, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 

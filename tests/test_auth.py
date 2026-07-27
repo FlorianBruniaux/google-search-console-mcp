@@ -1,4 +1,5 @@
 import pytest
+from google.auth.exceptions import RefreshError
 from unittest.mock import patch, MagicMock
 from gsc_mcp import constants
 from gsc_mcp import auth
@@ -32,6 +33,29 @@ def test_get_indexing_service_raises_without_credentials(monkeypatch):
     monkeypatch.setenv("GSC_SKIP_OAUTH", "true")
     with pytest.raises(RuntimeError, match="No credentials"):
         auth.get_indexing_service()
+
+
+def test_oauth_creds_refresh_error_falls_back_to_reauth(tmp_path, monkeypatch):
+    monkeypatch.delenv("GSC_SERVICE_ACCOUNT_PATH", raising=False)
+    monkeypatch.delenv("GSC_CREDENTIALS_PATH", raising=False)
+    monkeypatch.delenv("GSC_SKIP_OAUTH", raising=False)
+
+    token_path = tmp_path / "token_gsc.json"
+    token_path.write_text("{}")
+
+    fake_creds = MagicMock()
+    fake_creds.valid = False
+    fake_creds.expired = True
+    fake_creds.refresh_token = "stale-refresh-token"
+    fake_creds.refresh.side_effect = RefreshError(
+        "invalid_grant: Token has been expired or revoked."
+    )
+
+    with patch("gsc_mcp.auth._load_oauth_token", return_value=fake_creds):
+        with pytest.raises(RuntimeError, match="No credentials"):
+            auth._get_oauth_creds(constants.SCOPES_GSC, token_path)
+
+    assert not token_path.exists()
 
 
 def test_get_searchconsole_service_via_service_account(tmp_path, monkeypatch):

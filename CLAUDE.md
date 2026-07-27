@@ -74,6 +74,13 @@ Applied to `_fetch_rows` in `analytics.py` (covers all GSC analytics/SEO tools) 
 
 **Batching** (`indexing.py`): `submit_batch` uses `svc.new_batch_http_request()` chunked at 100 URLs per HTTP request. True multipart batch, not a sequential loop.
 
+**Write-tool confirmation protocol**: Any tool that mutates external state (`submit_url`, `submit_batch`, `sitemaps_delete`, `indexnow_submit`, `submit_sitemap`) is destructive or hard to reverse from the caller's side (Google re-crawls, IndexNow pings third-party search engines, sitemap deletion removes it from GSC tracking). Callers driving these tools (agents, skills) must follow four steps before invoking one:
+1. **State**: read the current state first (e.g. `list_sitemaps` before `sitemaps_delete`, `check_indexing_issues` before `submit_batch`).
+2. **Blast radius**: state plainly what will change and how many URLs/entities are affected.
+3. **Confirm**: get explicit user confirmation naming the exact action, not a generic "ok to proceed?".
+4. **Verify**: after the call, report what the tool actually returned (`QuotaTracker` counts, batch success/failure split), not just "done".
+This is a calling-convention rule for agents/skills built on top of `gsc-mcp`, not code enforced inside the tools themselves, the tools stay pure API wrappers.
+
 ## Adding a new tool
 
 1. Implement the function in the relevant `tools/` module (or create a new one).

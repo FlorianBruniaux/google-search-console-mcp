@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 
+from google.auth.exceptions import RefreshError
 from google.oauth2 import service_account
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -49,9 +50,15 @@ def _get_oauth_creds(scopes: list[str], token_path: Path) -> Credentials:
         return creds
 
     if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-        _save_oauth_token(token_path, creds)
-        return creds
+        try:
+            creds.refresh(Request())
+            _save_oauth_token(token_path, creds)
+            return creds
+        except RefreshError:
+            # Refresh token revoked/expired on Google's side: the cached token is
+            # dead weight. Drop it and fall through to a normal re-auth below
+            # instead of failing the same way on every subsequent call.
+            token_path.unlink(missing_ok=True)
 
     credentials_path = os.environ.get("GSC_CREDENTIALS_PATH", "")
     if not credentials_path or not Path(credentials_path).exists():

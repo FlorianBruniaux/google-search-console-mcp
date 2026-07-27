@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-545%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-546%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Google Search Console MCP server with 57 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, on-page content/technical audits, AI crawler visibility, GBP deprecation detection, and PageSpeed Insights integration. Built on Python 3.11+ and FastMCP.
@@ -11,7 +11,7 @@ Google Search Console MCP server with 57 tools covering search analytics, URL in
 
 No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
 
-**Latest: v1.0.0** (57 tools, Wave C: `ai_visibility_audit`, `gbp_deprecation_lint`, `pagespeed_audit` + `schema_validate` deprecated-rich-results detection). See the [full changelog](CHANGELOG.md).
+**Latest: v1.0.1** (OAuth refresh-token hardening: a revoked/expired refresh token now falls back to re-auth instead of failing on every call, plus a documented confirmation protocol for write tools). See the [full changelog](CHANGELOG.md).
 
 ## What you can do with it
 
