@@ -465,3 +465,103 @@ def parasite_risk(site: str, urls: list[str]) -> str:
         tool="parasite_risk",
         params={"site": site, "url_count": len(urls)},
     ))
+
+
+# ---------------------------------------------------------------------------
+# prune_candidates
+# ---------------------------------------------------------------------------
+
+# A page earning clicks is never a pruning candidate, whatever its word count or
+# how templated it looks. Off-the-shelf SEO tools routinely advise deleting whole
+# sets of working local pages because they read thinner than a nearby article;
+# this tool classifies on measured traffic and refuses to make that call.
+_PRUNE_IMPRESSION_FLOOR = 10
+
+
+def prune_candidates(site: str, days: int = 180, max_pages: int = 500) -> str:
+    """Classify pages by measured traffic before any pruning decision is taken.
+
+    Buckets every page Search Console reports over `days`:
+    - has_traffic: at least one click. Never a candidate. Full stop.
+    - impressions_no_clicks: seen in results, never clicked. Review, do not delete.
+    - low_impressions: under 10 impressions. Weak signal, needs a human look.
+    - zero_impressions: no impressions at all. The only defensible candidates.
+
+    The tool deliberately returns no "delete these" list. It returns evidence, and
+    the buckets carry the recommended action. A page absent from this report was
+    absent from Search Console too, which is a crawling question, not a pruning one.
+
+    Pair with content_quality and internal_links_audit before acting: a page with
+    no impressions and no internal link may be starved rather than worthless.
+    """
+    start, end = _date_range(days)
+    svc = get_searchconsole_service()
+    body = {
+        "startDate": start,
+        "endDate": end,
+        "dimensions": ["page"],
+        "rowLimit": _MAX_ROWS_PER_PAGE,
+    }
+    raw = _fetch_rows(svc, site, body)
+
+    buckets: dict[str, list[dict]] = {
+        "has_traffic": [],
+        "impressions_no_clicks": [],
+        "low_impressions": [],
+        "zero_impressions": [],
+    }
+
+    # _fetch_rows already maps GSC "keys" onto the requested dimensions, so rows
+    # arrive as {"page": ..., "clicks": ...}, not with a raw keys list.
+    for row in raw[:max_pages]:
+        page = row.get("page")
+        if not page:
+            continue
+        clicks = row.get("clicks", 0)
+        impressions = row.get("impressions", 0)
+        entry = {
+            "url": page,
+            "clicks": clicks,
+            "impressions": impressions,
+            "position": round(row.get("position", 0), 1),
+        }
+        if clicks > 0:
+            entry["action"] = "keep, this page brings traffic"
+            buckets["has_traffic"].append(entry)
+        elif impressions >= _PRUNE_IMPRESSION_FLOOR:
+            entry["action"] = "review intent and title, Google shows it but nobody clicks"
+            buckets["impressions_no_clicks"].append(entry)
+        elif impressions > 0:
+            entry["action"] = "weak signal, check internal links before judging"
+            buckets["low_impressions"].append(entry)
+        else:
+            entry["action"] = "defensible pruning candidate, confirm indexing first"
+            buckets["zero_impressions"].append(entry)
+
+    for name in buckets:
+        buckets[name].sort(key=lambda e: (e["clicks"], e["impressions"]), reverse=True)
+
+    counts = {name: len(rows) for name, rows in buckets.items()}
+    protected = counts["has_traffic"] + counts["impressions_no_clicks"]
+
+    return json.dumps(with_meta(
+        {
+            "site": site,
+            "days": days,
+            "pages_analysed": sum(counts.values()),
+            "counts": counts,
+            "protected_from_pruning": protected,
+            "has_traffic": buckets["has_traffic"][:50],
+            "impressions_no_clicks": buckets["impressions_no_clicks"][:50],
+            "low_impressions": buckets["low_impressions"][:50],
+            "zero_impressions": buckets["zero_impressions"][:50],
+            "guard_rail": (
+                f"{protected} page(s) earn clicks or impressions and are excluded from "
+                "pruning by construction. Content length and template similarity are not "
+                "grounds for deletion when the traffic data disagrees."
+            ),
+            "verdict": "candidates_found" if counts["zero_impressions"] else "nothing_to_prune",
+        },
+        tool="prune_candidates",
+        params={"site": site, "days": days},
+    ))

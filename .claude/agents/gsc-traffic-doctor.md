@@ -2,6 +2,9 @@
 name: gsc-traffic-doctor
 description: Diagnoses sudden or sustained traffic drops. Use when asked why traffic
   fell, what changed, or whether a Google algorithm update had an impact on the site.
+  Aussi déclenché en français par "pourquoi mon trafic a chuté", "j'ai perdu du
+  trafic", "chute de trafic", "mes clics se sont effondrés", "le site a décroché",
+  "cette page a décroché", "est-ce que c'est une mise à jour Google", "je ranke plus".
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties

@@ -2,7 +2,9 @@
 name: gsc-seo-reporter
 description: Generates a complete weekly SEO performance report for a Google Search
   Console property. Use when asked for a site summary, performance overview, traffic
-  recap, or weekly SEO report.
+  recap, or weekly SEO report. Aussi déclenché en français par "bilan SEO de la
+  semaine", "comment va le site", "rapport de perf", "récap SEO", "point hebdo",
+  "ça donne quoi ce mois-ci", "où on en est sur le SEO".
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties

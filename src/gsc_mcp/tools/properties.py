@@ -61,11 +61,15 @@ _ALL_TOOLS = [
     "ai_visibility_audit",
     "gbp_deprecation_lint",
     "pagespeed_audit",
+    "heading_audit",
+    "internal_links_audit",
+    "link_equity_map",
+    "prune_candidates",
 ]
 
 
 def get_capabilities() -> str:
-    """List all 57 available tool names in this MCP server."""
+    """List all 61 available tool names in this MCP server."""
     return json.dumps(with_meta(
         {"total": len(_ALL_TOOLS), "tools": _ALL_TOOLS},
         tool="get_capabilities",

@@ -2,25 +2,25 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-546%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-607%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 57 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, on-page content/technical audits, AI crawler visibility, GBP deprecation detection, and PageSpeed Insights integration. Built on Python 3.11+ and FastMCP.
+Google Search Console MCP server with 61 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, on-page content/technical audits, heading structure, zone-weighted internal linking, site-wide link equity mapping, AI crawler visibility, GBP deprecation detection, and PageSpeed Insights integration. Built on Python 3.11+ and FastMCP.
 
 **TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
 
 No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
 
-**Latest: v1.0.1** (OAuth refresh-token hardening: a revoked/expired refresh token now falls back to re-auth instead of failing on every call, plus a documented confirmation protocol for write tools). See the [full changelog](CHANGELOG.md).
+**Latest: v1.1.0** (heading structure audit, zone-weighted internal linking audit, site-wide link equity mapping crossed with GSC positions, and a traffic-backed pruning classifier that never flags a page with clicks). See the [full changelog](CHANGELOG.md).
 
 ## What you can do with it
 
-The 57 tools span thirteen families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries, parasite SEO risk), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), IndexNow (Bing/Yandex/Seznam/Naver notification), and Sitemaps (list, submit, audit coverage against GSC data). The remaining six families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals + LCP subpart breakdown), Technical (JSON-LD schema validation with deprecated-rich-results detection, schema generation, AI crawler visibility audit, GBP deprecation lint, PageSpeed Insights), Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs), and Content (on-page quality scoring, hreflang validation, technical meta + robots.txt audit, preload/bfcache audit).
+The 61 tools span fourteen families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries, parasite SEO risk, traffic-backed pruning candidates), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), IndexNow (Bing/Yandex/Seznam/Naver notification), and Sitemaps (list, submit, audit coverage against GSC data). The remaining six families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals + LCP subpart breakdown), Technical (JSON-LD schema validation with deprecated-rich-results detection, schema generation, AI crawler visibility audit, GBP deprecation lint, PageSpeed Insights), Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs), Content (on-page quality scoring, hreflang validation, technical meta + robots.txt audit, preload/bfcache audit, heading structure), and Links (zone-weighted internal link audit on a page, plus a site-wide link equity map crossed with GSC positions).
 
-## Tools (57)
+## Tools (61)
 
 <details>
-<summary>Show all 57 tools</summary>
+<summary>Show all 61 tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -81,6 +81,10 @@ The 57 tools span thirteen families: Properties (list and inspect GSC sites), An
 | Technical | `ai_visibility_audit` | Check robots.txt AI crawler access (GPTBot, Anthropic-ai, PerplexityBot, Google-Extended, CCBot, 9 agents) and llms.txt presence for an origin |
 | Technical | `gbp_deprecation_lint` | Scan a page for deprecated Google Business Profile features: .business.site links, Reserve with Google, GBP appointment widgets |
 | Technical | `pagespeed_audit` | Run a PageSpeed Insights API v5 audit: Lighthouse performance score, Core Web Vitals, top 3 improvement opportunities (requires GOOGLE_API_KEY) |
+| Content | `heading_audit` | Audit heading structure: H1 uniqueness, level jumps (H2 to H4), title vs H1 word-for-word duplication, headings carrying no information, words per H2 |
+| Links | `internal_links_audit` | Audit a page's internal links weighted by zone (body, nav, footer, header, aside): targets linked only from footer/nav, generic and empty anchors, internal nofollow, self-links |
+| Links | `link_equity_map` | Crawl the top pages by impressions, build the internal link graph, cross it with GSC: pages at position 11-20 with no body inbound link, orphan candidates, footer-only targets, hubs |
+| SEO | `prune_candidates` | Classify pages by measured traffic (has_traffic, impressions_no_clicks, low_impressions, zero_impressions) before any pruning call; a page with clicks is never a candidate |
 
 </details>
 
@@ -163,10 +167,10 @@ traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 
 ## CLI usage (gsc-cli)
 
-After installation, `gsc-cli` is available as a standalone shell command. It wraps all 57 tools from the MCP server and uses the same authentication.
+After installation, `gsc-cli` is available as a standalone shell command. It wraps all 61 tools from the MCP server and uses the same authentication.
 
 ```bash
-# List all 57 commands
+# List all 61 commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)
@@ -255,7 +259,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
-- `llms.txt`: quick reference covering all 54 tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `llms.txt`: quick reference covering all 61 tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 15 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
@@ -271,7 +275,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-467 tests, all mocked (no real Google API calls needed).
+607 tests, all mocked (no real Google API calls needed).
 
 ## Troubleshooting
 
@@ -309,7 +313,7 @@ With this server, Claude pulls the actual numbers: `/projects/` at position 10.1
 
 Some tasks work without private data: checking indexation with `site:`, parsing sitemap structure, reading robots.txt. For those, any web-capable agent gets you there. But for anything that requires private GSC metrics (traffic drops, striking-distance queries, CTR anomalies, Indexing API submissions), there is no substitute for API access.
 
-The server also handles the Google API mechanics: service account or OAuth authentication, exponential backoff on 429s and 5xx errors, true HTTP batch for indexing requests, quota tracking at 200 req/day, and structured JSON output across all 54 tools so Claude can reason across results without parsing ambiguity.
+The server also handles the Google API mechanics: service account or OAuth authentication, exponential backoff on 429s and 5xx errors, true HTTP batch for indexing requests, quota tracking at 200 req/day, and structured JSON output across all 61 tools so Claude can reason across results without parsing ambiguity.
 
 ## Why this exists
 

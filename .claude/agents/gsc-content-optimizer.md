@@ -1,8 +1,11 @@
 ---
 name: gsc-content-optimizer
-description: Finds content optimization targets across two zones: striking distance
+description: Finds content optimization targets across two zones, striking distance
   (positions 4-10) and page-two quick wins (positions 11-20). Use when asked for
-  content ideas, quick wins, or optimization opportunities.
+  content ideas, quick wins, or optimization opportunities. Aussi déclenché en
+  français par "quelles pages optimiser en priorité", "où je peux gagner vite",
+  "mes pages en page 2", "je suis en position 11 comment je passe en page 1",
+  "des idées de contenu", "sur quoi je bosse en premier".
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties

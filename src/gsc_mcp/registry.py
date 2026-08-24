@@ -1,6 +1,6 @@
 """Central tool registry for gsc-mcp.
 
-Single source of truth for all 57 tool functions. Both the MCP server (server.py)
+Single source of truth for all 61 tool functions. Both the MCP server (server.py)
 and the CLI (cli.py) import from here, so no more three-way manual sync between
 server.py imports, mcp.tool() calls, and _ALL_TOOLS in properties.py.
 
@@ -36,6 +36,7 @@ from gsc_mcp.tools.seo import (
     seo_cannibalization,
     seo_lost_queries,
     parasite_risk,
+    prune_candidates,
 )
 from gsc_mcp.tools.inspection import inspect_url, batch_url_inspection, check_indexing_issues
 from gsc_mcp.tools.indexing import submit_url, submit_batch, indexnow_submit
@@ -65,7 +66,14 @@ from gsc_mcp.tools.technical import (
     pagespeed_audit,
 )
 from gsc_mcp.tools.drift import drift_baseline, drift_compare, drift_history
-from gsc_mcp.tools.content import content_quality, hreflang_audit, page_technical_audit, preload_audit
+from gsc_mcp.tools.content import (
+    content_quality,
+    hreflang_audit,
+    page_technical_audit,
+    preload_audit,
+    heading_audit,
+)
+from gsc_mcp.tools.links import internal_links_audit, link_equity_map
 
 
 TOOLS: dict[str, Callable[..., str]] = {
@@ -128,6 +136,10 @@ TOOLS: dict[str, Callable[..., str]] = {
         ai_visibility_audit,
         gbp_deprecation_lint,
         pagespeed_audit,
+        heading_audit,
+        internal_links_audit,
+        link_equity_map,
+        prune_candidates,
     )
 }
 

@@ -8,6 +8,7 @@ import pytest
 
 from gsc_mcp.tools.content import (
     content_quality,
+    heading_audit,
     hreflang_audit,
     page_technical_audit,
 )
@@ -443,3 +444,175 @@ class TestPageTechnicalAudit:
             result = json.loads(page_technical_audit("https://example.com/"))
         lang_issues = [i for i in result["issues"] if i.get("check") == "html_lang"]
         assert len(lang_issues) > 0
+
+
+# ---------------------------------------------------------------------------
+# heading_audit
+# ---------------------------------------------------------------------------
+
+HEADING_URL = "https://example.com/guide"
+
+
+def _heading_audit(html, url=HEADING_URL):
+    with patch("gsc_mcp.tools.content.safe_fetch_html", return_value=(html, 200)):
+        return json.loads(heading_audit(url))
+
+
+class TestHeadingAuditH1:
+    def test_missing_h1_is_high_severity(self):
+        html = "<html><head><title>Guide</title></head><body><h2>Une section</h2></body></html>"
+        result = _heading_audit(html)
+        assert result["h1_count"] == 0
+        assert any(i["check"] == "h1_missing" and i["severity"] == "high"
+                   for i in result["issues"])
+
+    def test_two_h1_is_high_severity(self):
+        html = """<html><head><title>Guide</title></head><body>
+          <h1>Premier titre</h1><h2>Section</h2><h1>Second titre</h1>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["h1_count"] == 2
+        assert any(i["check"] == "h1_duplicate" and i["severity"] == "high"
+                   for i in result["issues"])
+
+    def test_single_h1_passes(self):
+        html = """<html><head><title>Autre formulation du sujet</title></head><body>
+          <h1>Titre principal de la page</h1><h2>Une section utile</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["h1_count"] == 1
+        assert not any(i["check"].startswith("h1_") for i in result["issues"])
+
+
+class TestHeadingAuditHierarchy:
+    def test_level_jump_detected(self):
+        html = """<html><head><title>T</title></head><body>
+          <h1>Titre</h1><h2>Section</h2><h4>Sous-sous-section orpheline</h4>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["hierarchy_jumps"] == [
+            {"from": "H2", "to": "H4", "text": "Sous-sous-section orpheline"}
+        ]
+        assert any(i["check"] == "hierarchy_jump" for i in result["issues"])
+
+    def test_clean_hierarchy_has_no_jump(self):
+        html = """<html><head><title>T</title></head><body>
+          <h1>Titre</h1><h2>Section</h2><h3>Detail</h3><h2>Autre section</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["hierarchy_jumps"] == []
+
+    def test_going_back_up_is_not_a_jump(self):
+        html = """<html><head><title>T</title></head><body>
+          <h1>Titre</h1><h2>A</h2><h3>A1</h3><h2>B</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["hierarchy_jumps"] == []
+
+
+class TestHeadingAuditTitleVsH1:
+    def test_identical_title_and_h1_flagged(self):
+        """Cyril's rule: a duplicated title wastes a second angle on the keyword."""
+        html = """<html><head><title>Audit SEO technique</title></head><body>
+          <h1>Audit SEO technique</h1><h2>Une section</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["title_h1_identical"] is True
+        assert result["title_h1_overlap"] == 1.0
+        assert any(i["check"] == "title_h1_identical" for i in result["issues"])
+
+    def test_complementary_title_not_flagged(self):
+        html = """<html><head><title>Combien coute un audit SEO en 2026</title></head><body>
+          <h1>Audit SEO technique, la methode complete</h1><h2>Une section</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["title_h1_identical"] is False
+        assert result["title_h1_overlap"] < 1.0
+        assert not any(i["check"] == "title_h1_identical" for i in result["issues"])
+
+    def test_case_and_spacing_differences_still_count_as_identical(self):
+        html = """<html><head><title>Audit SEO Technique</title></head><body>
+          <h1>audit seo technique</h1><h2>Section</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["title_h1_identical"] is True
+
+
+class TestHeadingAuditContent:
+    def test_empty_headings_detected(self):
+        html = """<html><head><title>T</title></head><body>
+          <h1>Titre</h1><h2>Introduction</h2><h2>Conclusion</h2><h2>Nos tarifs 2026</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert set(result["empty_headings"]) == {"Introduction", "Conclusion"}
+        assert result["descriptive_ratio"] == 0.5
+        assert any(i["check"] == "empty_heading" for i in result["issues"])
+
+    def test_descriptive_headings_score_one(self):
+        html = """<html><head><title>Un autre angle</title></head><body>
+          <h1>Comment auditer un site</h1><h2>Verifier l indexation</h2>
+          <h2>Analyser le maillage interne</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["empty_headings"] == []
+        assert result["descriptive_ratio"] == 1.0
+
+    def test_long_page_without_h2_flagged(self):
+        body = " ".join(["mot"] * 700)
+        html = f"<html><head><title>T</title></head><body><h1>Titre</h1><p>{body}</p></body></html>"
+        result = _heading_audit(html)
+        assert result["word_count"] >= 600
+        assert result["words_per_h2"] is None
+        assert any(i["check"] == "no_subheadings" for i in result["issues"])
+
+    def test_low_subheading_density_flagged(self):
+        body = " ".join(["mot"] * 900)
+        html = (f"<html><head><title>T</title></head><body><h1>Titre</h1>"
+                f"<h2>Une seule section</h2><p>{body}</p></body></html>")
+        result = _heading_audit(html)
+        assert result["words_per_h2"] > 400
+        assert any(i["check"] == "subheading_density" for i in result["issues"])
+
+
+class TestHeadingAuditContract:
+    def test_headings_kept_in_document_order(self):
+        html = """<html><head><title>T</title></head><body>
+          <h1>Un</h1><h2>Deux</h2><h3>Trois</h3><h2>Quatre</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert [h["text"] for h in result["headings"]] == ["Un", "Deux", "Trois", "Quatre"]
+        assert [h["level"] for h in result["headings"]] == [1, 2, 3, 2]
+
+    def test_nested_markup_inside_heading_is_flattened(self):
+        html = """<html><head><title>T</title></head><body>
+          <h1>Titre avec <strong>du gras</strong> dedans</h1><h2>Section</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["h1"] == ["Titre avec du gras dedans"]
+
+    def test_healthy_page_verdict(self):
+        html = """<html><head><title>Combien coute un audit SEO</title></head><body>
+          <h1>Audit SEO, la methode complete</h1>
+          <h2>Verifier l indexation des pages</h2>
+          <h2>Analyser le maillage interne</h2>
+        </body></html>"""
+        result = _heading_audit(html)
+        assert result["issues"] == []
+        assert result["verdict"] == "healthy"
+
+    def test_url_safety_error_returns_fetch_error(self):
+        with patch("gsc_mcp.tools.content.safe_fetch_html",
+                   side_effect=URLSafetyError("blocked host")):
+            result = json.loads(heading_audit("http://169.254.169.254/"))
+        assert result["verdict"] == "fetch_error"
+
+    def test_http_error_returns_fetch_error(self):
+        with patch("gsc_mcp.tools.content.safe_fetch_html",
+                   side_effect=httpx.ConnectError("boom")):
+            result = json.loads(heading_audit(HEADING_URL))
+        assert result["verdict"] == "fetch_error"
+
+    def test_meta_block_present(self):
+        result = _heading_audit("<html><head><title>T</title></head><body><h1>X</h1></body></html>")
+        assert result["_meta"]["tool"] == "heading_audit"
+        assert result["_meta"]["params"] == {"url": HEADING_URL}

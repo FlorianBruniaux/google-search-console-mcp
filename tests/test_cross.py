@@ -642,6 +642,31 @@ def test_content_brief_question_queries_classified():
     assert len(result["question_queries"]) == 3
 
 
+def test_content_brief_french_question_queries_classified():
+    """French question starters are classified, including accent-less and multi-word forms."""
+    rows = [
+        _gsc_qp_row("comment referencer son site", PAGE_URL, clicks=90),
+        _gsc_qp_row("pourquoi mon site ne ranke pas", PAGE_URL, clicks=70),
+        _gsc_qp_row("est-ce que le seo est mort", PAGE_URL, clicks=50),
+        _gsc_qp_row("combien coute un audit seo", PAGE_URL, clicks=40),
+        _gsc_qp_row("ou trouver un consultant seo", PAGE_URL, clicks=30),
+        _gsc_qp_row("quelle agence seo choisir", PAGE_URL, clicks=25),
+        _gsc_qp_row("agence seo paris", PAGE_URL, clicks=200),
+        _gsc_qp_row("tarif referencement naturel", PAGE_URL, clicks=15),
+    ]
+    result = _cb(rows)
+    found = [q["query"] for q in result["question_queries"]]
+    assert "comment referencer son site" in found
+    assert "pourquoi mon site ne ranke pas" in found
+    assert "est-ce que le seo est mort" in found
+    assert "combien coute un audit seo" in found
+    assert "ou trouver un consultant seo" in found
+    assert "quelle agence seo choisir" in found
+    assert "agence seo paris" not in found
+    assert "tarif referencement naturel" not in found
+    assert len(result["question_queries"]) == 6
+
+
 def test_content_brief_ga4_runtime_error_returns_none():
     """GA4 RuntimeError -> ga4 field is None, no crash."""
     rows = [_gsc_qp_row("seo guide", PAGE_URL, clicks=50)]

@@ -2,7 +2,9 @@
 name: seo-weekly-report
 description: Generate a complete weekly SEO performance report for a site, including
   alerts, anomalies, and period-over-period comparison. Use when asked for a site
-  summary, performance overview, or weekly report.
+  summary, performance overview, or weekly report. Aussi déclenché en français par
+  "bilan SEO de la semaine", "comment va le site", "rapport de perf", "récap SEO",
+  "point hebdo", "ça donne quoi ce mois-ci", "où on en est sur le SEO".
 ---
 
 # SEO Weekly Report

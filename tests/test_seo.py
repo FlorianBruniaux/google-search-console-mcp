@@ -2,7 +2,7 @@ import json
 import pytest
 from datetime import date, timedelta
 from unittest.mock import patch
-from gsc_mcp.tools.seo import quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries
+from gsc_mcp.tools.seo import quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries, prune_candidates
 
 SITE = "https://example.com/"
 
@@ -566,3 +566,95 @@ def test_lost_queries_empty_curr_flags_prev_above_threshold(mock_gsc_service):
     assert "python guide" in lost
     assert "stable query" in lost
     assert "small traffic" not in lost
+
+
+# ---------------------------------------------------------------------------
+# prune_candidates
+# ---------------------------------------------------------------------------
+
+def _prune(rows, mock_gsc_service, days=180):
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        "rows": rows
+    }
+    with patch("gsc_mcp.tools.seo.get_searchconsole_service", return_value=mock_gsc_service):
+        return json.loads(prune_candidates(SITE, days=days))
+
+
+def test_prune_never_flags_a_page_with_clicks(mock_gsc_service):
+    rows = [
+        {"keys": ["https://example.com/gagnante"], "clicks": 42, "impressions": 900,
+         "ctr": 0.05, "position": 4.2},
+    ]
+    result = _prune(rows, mock_gsc_service)
+    assert result["counts"]["has_traffic"] == 1
+    assert result["counts"]["zero_impressions"] == 0
+    assert result["verdict"] == "nothing_to_prune"
+    assert result["has_traffic"][0]["action"].startswith("keep")
+
+
+def test_prune_solar_panel_local_pages_are_protected(mock_gsc_service):
+    """The Chat SEO failure case: 300 short local pages, indexed, bringing traffic.
+
+    A tool that ranks pages by content length would advise deleting all of them.
+    Every one of these earns clicks, so none may appear as a pruning candidate.
+    """
+    rows = [
+        {"keys": [f"https://example.com/installation-panneaux-solaires-ville-{i}"],
+         "clicks": 3 + (i % 5), "impressions": 120 + i, "ctr": 0.03, "position": 7.5}
+        for i in range(300)
+    ]
+    rows.append(
+        {"keys": ["https://example.com/blog/guide-photovoltaique-complet"],
+         "clicks": 400, "impressions": 9000, "ctr": 0.044, "position": 3.1}
+    )
+    result = _prune(rows, mock_gsc_service)
+
+    assert result["counts"]["has_traffic"] == 301
+    assert result["counts"]["zero_impressions"] == 0
+    assert result["protected_from_pruning"] == 301
+    assert result["verdict"] == "nothing_to_prune"
+
+    local_urls = {e["url"] for e in result["has_traffic"]}
+    assert any("panneaux-solaires-ville" in u for u in local_urls)
+
+
+def test_prune_buckets_by_measured_traffic(mock_gsc_service):
+    rows = [
+        {"keys": ["https://example.com/traffic"], "clicks": 10, "impressions": 300,
+         "ctr": 0.03, "position": 5.0},
+        {"keys": ["https://example.com/vue-jamais-cliquee"], "clicks": 0, "impressions": 250,
+         "ctr": 0.0, "position": 18.0},
+        {"keys": ["https://example.com/signal-faible"], "clicks": 0, "impressions": 4,
+         "ctr": 0.0, "position": 40.0},
+        {"keys": ["https://example.com/fantome"], "clicks": 0, "impressions": 0,
+         "ctr": 0.0, "position": 0.0},
+    ]
+    result = _prune(rows, mock_gsc_service)
+    assert result["counts"] == {
+        "has_traffic": 1,
+        "impressions_no_clicks": 1,
+        "low_impressions": 1,
+        "zero_impressions": 1,
+    }
+    assert result["verdict"] == "candidates_found"
+    assert result["zero_impressions"][0]["url"].endswith("/fantome")
+    assert "confirm indexing" in result["zero_impressions"][0]["action"]
+
+
+def test_prune_guard_rail_message_counts_protected_pages(mock_gsc_service):
+    rows = [
+        {"keys": ["https://example.com/a"], "clicks": 5, "impressions": 100, "ctr": 0.05, "position": 6.0},
+        {"keys": ["https://example.com/b"], "clicks": 0, "impressions": 60, "ctr": 0.0, "position": 15.0},
+        {"keys": ["https://example.com/c"], "clicks": 0, "impressions": 0, "ctr": 0.0, "position": 0.0},
+    ]
+    result = _prune(rows, mock_gsc_service)
+    assert result["protected_from_pruning"] == 2
+    assert "2 page(s) earn clicks or impressions" in result["guard_rail"]
+
+
+def test_prune_meta_block(mock_gsc_service):
+    rows = [{"keys": ["https://example.com/a"], "clicks": 1, "impressions": 10,
+             "ctr": 0.1, "position": 9.0}]
+    result = _prune(rows, mock_gsc_service)
+    assert result["_meta"]["tool"] == "prune_candidates"
+    assert result["_meta"]["params"] == {"site": SITE, "days": 180}

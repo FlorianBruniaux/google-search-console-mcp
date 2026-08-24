@@ -1,0 +1,27 @@
+{
+  "target": "link-equity-map",
+  "type": "command",
+  "positive": [
+    "cartographie le maillage de tout mon site",
+    "quelles pages de mon site ont besoin de liens internes",
+    "mes pages orphelines sur l'ensemble du site",
+    "où placer des liens pour gagner des positions",
+    "architecture de mon maillage interne",
+    "quelles pages en page 2 ne reçoivent aucun lien",
+    "graphe des liens internes du site",
+    "mes hubs distribuent vers quoi",
+    "site wide internal link map",
+    "which pages across the site get no inbound link",
+    "map link equity across my whole site",
+    "orphan pages across the entire site"
+  ],
+  "negative": [
+    "audit du maillage interne de cette page",
+    "internal link placement on this url",
+    "mes balises h1 h2 h3",
+    "audit seo complet de cette page",
+    "trouve-moi des backlinks externes",
+    "quelles pages je peux supprimer",
+    "pourquoi mon trafic a chuté"
+  ]
+}

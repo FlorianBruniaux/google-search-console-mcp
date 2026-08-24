@@ -2,7 +2,11 @@
 name: indexing-audit
 description: Audit indexing status with a site-wide overview first, then per-page
   deep-dive on top pages. Use when asked about crawling, indexing issues, or whether
-  pages are indexed by Google.
+  pages are indexed by Google. Aussi déclenché en français par "pourquoi mes pages
+  sont pas indexées", "problème d'indexation", "mes pages sont pas dans Google",
+  "Google ne crawle pas mon site", "combien de pages indexées", "découverte mais
+  non indexée", "explorée mais non indexée", "est-ce que Google voit mes pages",
+  "audit d'indexation".
 ---
 
 # Indexing Audit

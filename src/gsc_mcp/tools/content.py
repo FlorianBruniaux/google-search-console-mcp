@@ -742,3 +742,224 @@ def preload_audit(url: str) -> str:
         tool="preload_audit",
         params={"url": url},
     ))
+
+
+# ---------------------------------------------------------------------------
+# heading_audit
+# ---------------------------------------------------------------------------
+
+# Headings that occupy a slot without telling the reader anything. The test they
+# fail: can someone understand the page by reading only its headings?
+_EMPTY_HEADINGS: frozenset[str] = frozenset({
+    # French
+    "introduction", "conclusion", "presentation", "présentation", "generalites",
+    "généralités", "en savoir plus", "pour aller plus loin", "notre approche",
+    "sommaire", "resume", "résumé", "divers", "autres", "le mot de la fin",
+    "en bref", "contexte",
+    # English
+    "introduction", "conclusion", "overview", "summary", "background",
+    "getting started", "learn more", "read more", "misc", "miscellaneous",
+    "final thoughts", "wrapping up", "in conclusion", "tl;dr",
+})
+
+# One H2 per ~300 words keeps a page scannable; past this a page reads as a wall.
+_WORDS_PER_H2_LIMIT = 400
+
+
+class _HeadingParser(HTMLParser):
+    """Collect headings h1-h6 in document order, plus the <title>.
+
+    drift.py has its own heading parser, but it only handles h1-h3 and discards
+    document order, both of which this audit needs. Its output shape is persisted
+    in drift baselines, so it is deliberately left alone.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self._in_title = False
+        self._title_chunks: list[str] = []
+        self._level: int | None = None
+        self._chunks: list[str] = []
+        self.title: str | None = None
+        self.headings: list[dict] = []
+
+    def handle_starttag(self, tag: str, attrs) -> None:
+        tag_lower = tag.lower()
+        if tag_lower == "title":
+            self._in_title = True
+            self._title_chunks = []
+        elif len(tag_lower) == 2 and tag_lower[0] == "h" and tag_lower[1] in "123456":
+            self._level = int(tag_lower[1])
+            self._chunks = []
+
+    def handle_endtag(self, tag: str) -> None:
+        tag_lower = tag.lower()
+        if tag_lower == "title" and self._in_title:
+            self._in_title = False
+            self.title = " ".join("".join(self._title_chunks).split()) or None
+        elif (
+            len(tag_lower) == 2
+            and tag_lower[0] == "h"
+            and self._level is not None
+            and tag_lower[1] == str(self._level)
+        ):
+            text = " ".join("".join(self._chunks).split())
+            if text:
+                self.headings.append({"level": self._level, "text": text})
+            self._level = None
+
+    def handle_data(self, data: str) -> None:
+        if self._in_title:
+            self._title_chunks.append(data)
+        elif self._level is not None:
+            self._chunks.append(data)
+
+
+def _token_set(value: str) -> set[str]:
+    return {t.lower() for t in _TOKEN_RE.findall(value)}
+
+
+def heading_audit(url: str) -> str:
+    """Audit the heading structure of a page: H1 uniqueness, hierarchy, and title overlap.
+
+    Checks that exactly one H1 exists, that heading levels do not skip (H2 straight
+    to H4), that the <title> is not a word-for-word copy of the H1 (a duplicate
+    wastes a second angle on the target keyword), and that headings actually say
+    something rather than filling a slot ("Introduction", "Conclusion").
+
+    Also reports words per H2, since a long page with no subheadings reads as a wall.
+
+    No Google API calls. No authentication required.
+    Verdicts: healthy | issues_found | fetch_error.
+    """
+    params = {"url": url}
+    try:
+        html, _status = safe_fetch_html(url)
+    except (URLSafetyError, httpx.HTTPError) as exc:
+        return json.dumps(with_meta(
+            {"url": url, "error": str(exc), "verdict": "fetch_error"},
+            tool="heading_audit",
+            params=params,
+        ))
+
+    parser = _HeadingParser()
+    parser.feed(html)
+
+    text_extractor = _TextExtractor()
+    text_extractor.feed(html)
+    word_count = len(_TOKEN_RE.findall(text_extractor.text))
+
+    headings = parser.headings
+    h1s = [h["text"] for h in headings if h["level"] == 1]
+    h2_count = sum(1 for h in headings if h["level"] == 2)
+
+    issues: list[dict] = []
+
+    # H1 uniqueness
+    if not h1s:
+        issues.append({
+            "severity": "high",
+            "check": "h1_missing",
+            "message": "No H1 on the page.",
+        })
+    elif len(h1s) > 1:
+        issues.append({
+            "severity": "high",
+            "check": "h1_duplicate",
+            "message": f"{len(h1s)} H1 tags found; a page should carry exactly one.",
+        })
+
+    # Hierarchy jumps
+    jumps: list[dict] = []
+    previous = 0
+    for heading in headings:
+        level = heading["level"]
+        if previous and level > previous + 1:
+            jumps.append({"from": f"H{previous}", "to": f"H{level}", "text": heading["text"]})
+        previous = level
+    if jumps:
+        issues.append({
+            "severity": "medium",
+            "check": "hierarchy_jump",
+            "message": (
+                f"{len(jumps)} heading level jump(s) (e.g. H2 straight to H4). "
+                "The outline stops being readable on its own."
+            ),
+        })
+
+    # Title vs H1 — Cyril's two-angles rule
+    title = parser.title
+    title_h1_identical = False
+    title_h1_overlap = None
+    if title and h1s:
+        title_h1_identical = title.strip().lower() == h1s[0].strip().lower()
+        title_tokens, h1_tokens = _token_set(title), _token_set(h1s[0])
+        if title_tokens and h1_tokens:
+            title_h1_overlap = round(
+                len(title_tokens & h1_tokens) / len(title_tokens | h1_tokens), 3
+            )
+        if title_h1_identical:
+            issues.append({
+                "severity": "low",
+                "check": "title_h1_identical",
+                "message": (
+                    "Title and H1 are word for word identical. Phrasing them differently "
+                    "attacks the target keyword from a second angle at no cost."
+                ),
+            })
+
+    # Headings that say nothing
+    empty_headings = [h["text"] for h in headings if h["text"].strip().lower() in _EMPTY_HEADINGS]
+    if empty_headings:
+        issues.append({
+            "severity": "low",
+            "check": "empty_heading",
+            "message": (
+                f"{len(empty_headings)} heading(s) carry no information "
+                "(\"Introduction\", \"Conclusion\", ...)."
+            ),
+        })
+
+    descriptive_ratio = (
+        round(1 - len(empty_headings) / len(headings), 3) if headings else None
+    )
+
+    # Subheading density
+    words_per_h2 = round(word_count / h2_count, 1) if h2_count else None
+    if word_count >= 600 and h2_count == 0:
+        issues.append({
+            "severity": "medium",
+            "check": "no_subheadings",
+            "message": f"{word_count} words and no H2 at all; the page reads as a wall.",
+        })
+    elif words_per_h2 and words_per_h2 > _WORDS_PER_H2_LIMIT:
+        issues.append({
+            "severity": "low",
+            "check": "subheading_density",
+            "message": (
+                f"{words_per_h2} words per H2 (over {_WORDS_PER_H2_LIMIT}). "
+                "More subheadings would make the page scannable."
+            ),
+        })
+
+    return json.dumps(with_meta(
+        {
+            "url": url,
+            "title": title,
+            "h1": h1s,
+            "h1_count": len(h1s),
+            "heading_count": len(headings),
+            "headings": headings[:50],
+            "hierarchy_jumps": jumps,
+            "title_h1_identical": title_h1_identical,
+            "title_h1_overlap": title_h1_overlap,
+            "empty_headings": empty_headings,
+            "descriptive_ratio": descriptive_ratio,
+            "word_count": word_count,
+            "words_per_h2": words_per_h2,
+            "issues": issues,
+            "verdict": "issues_found" if issues else "healthy",
+        },
+        tool="heading_audit",
+        params=params,
+    ))

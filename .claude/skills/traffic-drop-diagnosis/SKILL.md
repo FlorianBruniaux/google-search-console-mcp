@@ -2,7 +2,11 @@
 name: traffic-drop-diagnosis
 description: Diagnose sudden or sustained traffic drops by finding the affected period,
   lost queries, and most likely root cause. Use when asked why traffic fell, what
-  changed, or whether a Google algorithm update had an impact.
+  changed, or whether a Google algorithm update had an impact. Aussi déclenché en
+  français par "pourquoi mon trafic a chuté", "j'ai perdu du trafic", "chute de
+  trafic", "mes clics se sont effondrés", "le site a décroché", "cette page a
+  décroché", "est-ce que c'est une mise à jour Google", "qu'est-ce qui s'est passé
+  sur mon site", "je ranke plus".
 ---
 
 # Traffic Drop Diagnosis

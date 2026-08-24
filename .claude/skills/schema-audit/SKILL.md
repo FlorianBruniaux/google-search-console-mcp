@@ -2,7 +2,10 @@
 name: schema-audit
 description: Audit structured data (schema markup) across the top pages to surface
   errors blocking rich results eligibility. Use when asked about rich results, schema
-  errors, or structured data health.
+  errors, or structured data health. Aussi déclenché en français par "données
+  structurées", "balisage schema", "mes rich results marchent pas", "extraits
+  enrichis", "les étoiles dans Google", "JSON-LD", "mon FAQ s'affiche pas dans
+  Google".
 ---
 
 # Schema Audit

@@ -259,11 +259,20 @@ def content_brief(
         for row in filtered[:20]
     ]
 
-    question_words = {"who", "what", "when", "where", "why", "how"}
+    # English question intent is carried by a single leading word; French needs both
+    # a first-token set and multi-word prefixes ("est-ce que"). Accent-less variants
+    # are included because search queries are routinely typed without accents.
+    question_words = {
+        "who", "what", "when", "where", "why", "how", "which",
+        "comment", "pourquoi", "quand", "où", "ou", "qui", "quoi",
+        "quel", "quelle", "quels", "quelles", "combien",
+    }
+    question_prefixes = ("est-ce que", "est ce que", "qu'est-ce", "qu est ce")
     question_queries = []
     for row in filtered:
-        words = row["query"].lower().split()
-        if words and words[0] in question_words:
+        q_lower = row["query"].lower()
+        words = q_lower.split()
+        if (words and words[0] in question_words) or q_lower.startswith(question_prefixes):
             question_queries.append({"query": row["query"], "clicks": row["clicks"]})
 
     ga4_result = None

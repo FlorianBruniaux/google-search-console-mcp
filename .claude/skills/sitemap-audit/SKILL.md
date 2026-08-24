@@ -2,6 +2,9 @@
 name: sitemap-audit
 description: Audit sitemap health and coverage across all submitted sitemaps. Use
   when asked about sitemap issues, submitted vs. indexed counts, or sitemap errors.
+  Aussi déclenché en français par "mon sitemap est à jour", "problème de sitemap",
+  "pourquoi les URLs de mon sitemap sont pas indexées", "combien d'URLs soumises
+  contre indexées", "mon plan de site".
 ---
 
 # Sitemap Audit

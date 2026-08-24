@@ -2,7 +2,10 @@
 name: page-deep-dive
 description: Full diagnostic for a single URL combining indexing status, search performance,
   Core Web Vitals, and query breakdown. Use when asked to analyze a specific page
-  or diagnose why a particular URL is underperforming.
+  or diagnose why a particular URL is underperforming. Aussi déclenché en français
+  par "analyse cette page", "diagnostic complet de cette URL", "pourquoi cette page
+  ne ranke pas", "qu'est-ce qui cloche sur cette page", "cette page marche pas",
+  "audit de cette page".
 ---
 
 # Page Deep Dive

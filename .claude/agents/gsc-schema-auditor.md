@@ -2,7 +2,10 @@
 name: gsc-schema-auditor
 description: Validates structured data (schema markup) across the top pages to surface
   errors blocking rich results eligibility. Use when asked about rich results, JSON-LD
-  errors, schema markup issues, or structured data health.
+  errors, schema markup issues, or structured data health. Aussi déclenché en
+  français par "données structurées", "balisage schema", "mes rich results marchent
+  pas", "extraits enrichis", "les étoiles dans Google", "mon FAQ s'affiche pas dans
+  Google".
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties

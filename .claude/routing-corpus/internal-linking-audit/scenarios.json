@@ -1,0 +1,30 @@
+{
+  "target": "internal-linking-audit",
+  "type": "command",
+  "positive": [
+    "audit du maillage interne de cette page",
+    "les liens de cette page sont mal placés",
+    "sur cette page mes liens importants sont coincés en footer",
+    "mes textes d'ancre ne veulent rien dire",
+    "les ancres des liens de cette url sont à revoir",
+    "j'ai des liens internes en nofollow sur cette page",
+    "combien de liens dans le corps contre le footer sur cette page",
+    "anchor text audit for the links on this url",
+    "my important links are stuck in the footer of this page",
+    "internal link placement on this url",
+    "check the outgoing internal links of this page",
+    "nofollow on the internal links of this page"
+  ],
+  "negative": [
+    "cartographie le maillage de tout mon site",
+    "quelles pages en page 2 ne reçoivent aucun lien",
+    "mes pages orphelines sur l'ensemble du site",
+    "quelles pages de mon site ont besoin de liens internes",
+    "orphan pages across the entire site",
+    "mon title et mon h1 sont identiques",
+    "audit des balises hn",
+    "audit seo complet de cette page",
+    "trouve-moi des backlinks externes",
+    "pourquoi mon trafic a chuté"
+  ]
+}

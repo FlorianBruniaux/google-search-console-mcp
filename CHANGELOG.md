@@ -1,5 +1,54 @@
 # Changelog
 
+## [1.1.0] - 2026-08-24
+
+61 tools (+4), 607 tests (+61). Maillage interne et structure de titres, déclenchés par un appel avec un consultant SEO externe (2026-08-06) : deux leviers de ranking sur lesquels aucun tool existant ne mesurait rien.
+
+### Added
+
+**Links : nouveau module, 2 tools sans auth Google**
+
+- `internal_links_audit(url)` : `src/gsc_mcp/tools/links.py`, nouveau module. `_LinkParser` (stack-based, gère les conteneurs imbriqués comme un `<nav>` dans un `<header>`) tague chaque `<a href>` avec la zone sémantique où il se trouve (`body`, `nav`, `footer`, `header`, `aside` ; `role="navigation"`/`contentinfo`/`banner`/`complementary` traités comme leurs balises équivalentes). Sortie principale : `footer_only_targets`, les cibles internes liées depuis la nav/footer/aside et depuis le corps d'aucune page. Détecte aussi les ancres génériques et vides (FR+EN), les liens internes en `rel=nofollow`, les self-links. Verdicts : `healthy` | `issues_found` | `fetch_error`.
+- `link_equity_map(site, days=90, max_pages=25, delay_seconds=0.2)` : prend les pages les plus vues dans GSC, les crawle avec le même parser zoné, construit le graphe de liens internes, et croise avec les positions. `underlinked_striking_distance` (position 11-20 sans lien entrant en corps de page) est le mouvement de ranking le moins cher disponible. Reporte aussi `orphan_candidates`, `footer_only_targets` (site-wide) et `hub_pages`. `max_pages` plafonné à 100 ; `pages_crawled`/`pages_failed`/`coverage_note` toujours retournés, aucune couverture silencieusement tronquée.
+
+**Content : `heading_audit`, un 4e tool sans auth**
+
+- `heading_audit(url)` : `_HeadingParser` dédié dans `content.py` (le parser de `drift.py` ne couvre que h1-h3 et jette l'ordre du document ; son format de sortie est persisté dans les baselines drift, donc laissé intact). Vérifie l'unicité du H1, les sauts de niveau (H2 direct à H4), la duplication mot pour mot du title et du H1 (gâche un second angle sur le mot clé visé), les titres qui ne portent aucune information (liste noire FR+EN), et la densité de mots par H2. Verdicts : `healthy` | `issues_found` | `fetch_error`.
+
+**SEO : `prune_candidates`, garde-fou anti-suppression**
+
+- `prune_candidates(site, days=180)` : classe les pages en `has_traffic`, `impressions_no_clicks`, `low_impressions`, `zero_impressions` sur 180 jours de données GSC, et ne retourne volontairement aucune liste « à supprimer ». Une page avec des clics ne peut jamais apparaître comme candidate, par construction. Cas de non-régression : `tests/test_seo.py::test_prune_solar_panel_local_pages_are_protected`, 300 pages locales courtes indexées et amenant du trafic, le genre de pages qu'un outil basé sur la longueur du contenu recommande de supprimer.
+- `CLAUDE.md` : nouvelle règle « No destructive recommendation without data », aucun appelant (agent ou skill) ne peut proposer une suppression, un `noindex` ou une consolidation sans avoir lu clics/impressions/statut d'indexation sur au moins 90 jours.
+
+**Détection de questions en français**
+
+- `cross.py` : `content_brief` ne classait les requêtes-questions que sur `who/what/when/where/why/how`, un site francophone remontait donc systématiquement zéro question détectée. Ajout de 12 mots FR, des formes multi-mots (`est-ce que`), et des variantes sans accent.
+
+**4 skills projet + corpus de routage**
+
+- `.claude/skills/internal-linking-audit/`, `heading-audit/`, `link-equity-map/`, `onpage-audit/` : le dernier enchaîne les 4 nouveaux tools plus `page_technical_audit`, `content_quality`, `schema_validate`, `content_brief` et `crux_page_vitals` sur une URL, avec la règle anti-suppression appliquée à chaque recommandation.
+- `.claude/routing-corpus/` : scénarios positifs/négatifs pour le routage BM25 des 4 nouveaux skills, au format lu par le corpus de routage global (`~/.claude/hooks/routing/`). Nécessite une version du routeur qui scanne aussi `$CLAUDE_PROJECT_DIR/.claude/routing-corpus/` en plus du corpus global, changement hors dépôt.
+- `scripts/routing-eval.js` : recalcule les scores BM25 et les seuils de calibration sans toucher au cache du routeur global, pour mesurer les collisions entre cibles avant de committer un nouveau corpus.
+
+### Fixed
+
+**Deux skills invisibles depuis leur création**
+
+- `.claude/skills/content-opportunities/SKILL.md` : un `:` dans la description cassait le parsing YAML du frontmatter ; le skill retombait sur son titre H1 comme description et ne s'est jamais auto-déclenché correctement.
+- `.claude/agents/gsc-content-optimizer.md` : même cause, mais l'agent n'apparaissait pas du tout dans la liste des agents disponibles.
+
+### Changed
+
+**Déclenchement en français**
+
+- 9 skills (`ai-overviews-impact`, `cannibalization-check`, `content-opportunities`, `indexing-audit`, `page-deep-dive`, `schema-audit`, `seo-weekly-report`, `sitemap-audit`, `traffic-drop-diagnosis`) et 9 agents `gsc-*` : descriptions enrichies avec des verbatims français réels pour le matching du modèle. Distinct du routage BM25, qui indexe des scénarios séparés, pas les descriptions.
+
+- `README.md`, `pyproject.toml`, `src/gsc_mcp/cli.py`, `docs/machine-readable/llms.txt` : comptes 57 → 61 tools, 546 → 607 tests, partout où ils apparaissaient (badges, docstrings, tableau des tools, module map, section decision tree).
+
+### Tool count
+
+57 → 61 tools. Test count : 546 → 607.
+
 ## [1.0.1] - 2026-07-27
 
 Durcissement suite à un scouting concurrentiel (6 MCP Google Ads/GA4/GSC analysés). Pas de nouveau tool.

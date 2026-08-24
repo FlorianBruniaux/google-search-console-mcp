@@ -1,16 +1,16 @@
 # gsc-mcp Architecture Quick Reference for AI Assistants
-# Source: 15 ADRs + code archaeology (2026-07-27, v1.0.1)
+# Source: 15 ADRs + code archaeology (2026-08-24, v1.1.0)
 # Load in CLAUDE.md: @docs/machine-readable/llms.txt
 
 ## What This Project Is
 
-Python MCP server exposing 57 Google Search Console / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / AI-visibility tools to AI agents.
+Python MCP server exposing 61 Google Search Console / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 57 tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 61 tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
@@ -49,14 +49,19 @@ TOOLS:
     discover_performance, news_performance, search_type_breakdown, ai_overviews_impact
     Core: _fetch_rows() wrapped with @with_retry : shared by all analytics + SEO tools.
 
-  seo.py (7 tools):
+  seo.py (8 tools):
     quick_wins, traffic_drops, seo_striking_distance, seo_cannibalization,
-    seo_lost_queries, check_alerts, parasite_risk
+    seo_lost_queries, check_alerts, parasite_risk, prune_candidates
     Built on _fetch_rows from analytics.py.
     parasite_risk: pure URL-path analysis (no HTTP fetch). Regex patterns for
       Google 2024-11-19 parasite SEO policy: sponsored/affiliate/partner paths (high),
       /advisor/ /underscored/ /select/ /commerce/ (medium), affiliate query params (low).
       site_risk = max risk across URLs. Verdicts: clean | at_risk | high_risk.
+    prune_candidates: classifies pages into has_traffic, impressions_no_clicks,
+      low_impressions, zero_impressions from 180 days of GSC data. Returns no
+      "delete these" list by design; a page with clicks can never appear as a
+      candidate. Non-regression case: 300 indexed local pages with traffic must
+      never be recommended for deletion (tests/test_seo.py::test_prune_solar_panel_local_pages_are_protected).
 
   inspection.py (3 tools): inspect_url, batch_url_inspection, check_indexing_issues
 
@@ -134,7 +139,7 @@ TOOLS:
     CWV comparison optional, requires CRUX_API_KEY. No Google API calls otherwise.
     Adapted from claude-seo (Dan Colta, MIT).
 
-  content.py (4 tools): content_quality, hreflang_audit, page_technical_audit, preload_audit
+  content.py (5 tools): content_quality, hreflang_audit, page_technical_audit, preload_audit, heading_audit
     content_quality: safe_fetch_html + stdlib TextExtractor (strips script/style/nav/footer). Scores:
       filler_score (hits per 1000 tokens * 25), information_density (entities+numbers/100 tokens / 10),
       repetition_score (bigram repetition * 100), overall_quality (weighted). Flags: filler, low-density,
@@ -155,6 +160,34 @@ TOOLS:
       deprecated <link rel="prerender">, cache-control: no-store bfcache blocker.
       Verdicts: optimised | improvements_available | not_implemented | fetch_error.
       Mock target: gsc_mcp.tools.content.safe_httpx_get. Adapted from claude-seo (agricidaniel, MIT).
+    heading_audit: safe_fetch_html + a dedicated _HeadingParser (drift.py's parser only
+      covers h1-h3 and discards document order, both needed here; its output shape is
+      persisted in drift baselines so it is deliberately left alone). Checks: H1 count
+      (0 or 2+ = high severity), heading level jumps (H2 straight to H4), title vs H1
+      word-for-word duplication (wastes a second angle on the keyword), headings carrying
+      no information (FR+EN blocklist: "Introduction", "Conclusion", ...), words per H2.
+      Verdicts: healthy | issues_found | fetch_error.
+
+  links.py (2 tools): internal_links_audit, link_equity_map
+    No auth needed, no quota consumed. Rules encoded from a working SEO consultant call
+    (2026-08-06): a link only in the footer or nav carries far less weight than the same
+    link in the body, and internal linking is worth as much as off-site link building.
+    internal_links_audit(url): _LinkParser (stack-based, handles nested containers e.g.
+      <nav> inside <header>) tags every <a href> with its zone (body, nav, footer, header,
+      aside; role="navigation"/"contentinfo"/"banner"/"complementary" treated like their
+      semantic tags). Headline output: footer_only_targets, internal targets linked from
+      nav/footer/aside but from no page body. Also reports generic/empty anchors (FR+EN),
+      internal rel=nofollow, self-links. Paths compared with trailing slash stripped.
+      Verdicts: healthy | issues_found | fetch_error.
+    link_equity_map(site, days=90, max_pages=25, delay_seconds=0.2): takes the top
+      max_pages pages by impressions from get_search_analytics, crawls each with the same
+      zone-aware parser, builds a directed internal-link graph, joins it to the GSC numbers.
+      Outputs: underlinked_striking_distance (position 11-20 with no body inbound link,
+      the cheapest ranking move), orphan_candidates (impressions but no body inbound link),
+      footer_only_targets (site-wide), hub_pages (top body-link distributors). max_pages
+      capped at 100. pages_crawled/pages_failed/coverage_note always returned; only crawled
+      pages act as link sources, so "orphan" is scoped to that set, never a site-wide fact.
+      Verdicts: healthy | issues_found | no_data.
 
 ## Security Rules (always apply)
 
@@ -191,7 +224,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 546 tests, fully mocked.
+SETUP: pytest tests/ : 607 tests, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -218,6 +251,9 @@ PATCH AT CALL SITE (not in module declaration):
   gsc_mcp.tools.technical.safe_fetch_html     ← patch for ai_visibility_audit + gbp_deprecation_lint
   gsc_mcp.tools.technical.validate_url_strict ← patch for ai_visibility_audit + gbp_deprecation_lint + pagespeed_audit SSRF
   gsc_mcp.tools.technical.httpx.Client        ← context manager pattern for pagespeed_audit
+  gsc_mcp.tools.content.safe_fetch_html       ← also covers heading_audit
+  gsc_mcp.tools.links.safe_fetch_html         ← internal_links_audit fetch + SSRF/HTTP error paths
+  gsc_mcp.tools.links.get_search_analytics    ← link_equity_map GSC page list (module-level import)
 
 ## Environment Variables
 
@@ -239,6 +275,7 @@ GOOGLE_API_KEY            : pagespeed_audit only. Plain Google API key with Page
 - New cross-platform tool → cross.py, use _normalize_url for GSC+GA4 join
 - New tool fetching external URLs → use safe_fetch_html() from url_safety.py (SSRF, DNS rebinding, metadata blocklist)
 - New tool parsing external XML → defusedxml.ElementTree
+- New tool proposing deletion/noindex/consolidation → read clicks + impressions + indexing status over >=90 days first (prune_candidates or get_search_analytics); never rank on content length or template similarity alone
 - Any Google API call → @with_retry()
 - Any tool return → json.dumps(with_meta(...))
 - New tool registered → update _ALL_TOOLS in properties.py + get_capabilities count

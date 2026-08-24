@@ -2,7 +2,10 @@
 name: cannibalization-check
 description: Detect keyword cannibalization, meaning queries where multiple pages compete
   for the same rankings. Use when asked about competing pages, keyword overlap, or
-  cannibalization.
+  cannibalization. Aussi déclenché en français par "cannibalisation", "deux pages
+  qui se battent sur le même mot clé", "mes pages se font concurrence", "j'ai du
+  contenu en double qui ranke", "quelle page ranke sur ce mot clé", "Google prend
+  pas la bonne page".
 ---
 
 # Keyword Cannibalization Check

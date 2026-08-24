@@ -1,11 +1,11 @@
-"""gsc-cli: shell frontend for the 47 gsc-mcp tools.
+"""gsc-cli: shell frontend for the 61 gsc-mcp tools.
 
 Generates all subcommands by introspecting registry.TOOLS at startup. Both the MCP
 server and this CLI share the same tool functions; the CLI adds nothing and hides
 nothing from the core.
 
 Usage:
-    gsc-cli list                            list all 47 commands
+    gsc-cli list                            list all 61 commands
     gsc-cli <command> [--flag value ...]    run a tool
     gsc-cli <command> --help                show flags for a command
     gsc-cli auth login --allow-browser      interactive OAuth flow
@@ -166,12 +166,12 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
 
 
 def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
-    """Build the root parser with `list`, `auth`, and 47 tool subcommands."""
+    """Build the root parser with `list`, `auth`, and 61 tool subcommands."""
     parser = argparse.ArgumentParser(
         prog="gsc-cli",
         description=(
             "Shell frontend for gsc-mcp: Google Search Console, GA4, and CrUX. "
-            "Run `gsc-cli list` to see all 47 available commands."
+            "Run `gsc-cli list` to see all 61 available commands."
         ),
     )
     subparsers = parser.add_subparsers(dest="command", metavar="command")
@@ -180,7 +180,7 @@ def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
     # Utility: list
     subparsers.add_parser(
         "list",
-        help="List all 47 available commands with a one-line description.",
+        help="List all 61 available commands with a one-line description.",
     )
 
     # Utility: auth

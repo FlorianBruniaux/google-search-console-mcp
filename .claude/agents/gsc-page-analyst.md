@@ -2,7 +2,10 @@
 name: gsc-page-analyst
 description: Full diagnostic for a single URL combining indexing status, search performance,
   Core Web Vitals, and query breakdown. Use when asked to analyze a specific page,
-  diagnose why a URL is underperforming, or get a complete page report.
+  diagnose why a URL is underperforming, or get a complete page report. Aussi
+  déclenché en français par "analyse cette page", "diagnostic complet de cette URL",
+  "pourquoi cette page ne ranke pas", "qu'est-ce qui cloche sur cette page",
+  "cette page marche pas", "audit de cette page".
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties

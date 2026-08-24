@@ -1,0 +1,31 @@
+{
+  "target": "onpage-audit",
+  "type": "command",
+  "positive": [
+    "audit seo complet de cette page",
+    "fais-moi un audit on-page complet",
+    "passe cette url au peigne fin côté seo",
+    "tout ce qui cloche en seo sur cette page",
+    "qu'est-ce que je corrige en seo sur cette url",
+    "audit seo global de cette url",
+    "la liste de tout ce qu'il faut corriger en seo sur cette page",
+    "check seo tout-en-un de cette page",
+    "full on-page seo audit of this url",
+    "everything wrong seo-wise with this page",
+    "complete seo fix list for this single page",
+    "comprehensive on-page seo review of this url",
+    "audit seo de fond en comble sur cette page",
+    "diagnostic seo exhaustif de cette url"
+  ],
+  "negative": [
+    "audit de sécurité complet sur ce module",
+    "audit complet avant de passer en prod",
+    "audit des balises hn de cette url",
+    "audit du maillage interne de cette page",
+    "internal link placement on this url",
+    "juste mes balises h1",
+    "audit seo de tout mon site",
+    "pourquoi mon trafic a chuté",
+    "quelles pages optimiser en priorité"
+  ]
+}
