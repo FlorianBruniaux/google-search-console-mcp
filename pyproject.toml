@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gsc-mcp-tools"
-version = "1.1.0"
+version = "1.1.1"
 description = "Google Search Console MCP server with 61 tools: search analytics, URL inspection, Indexing API, IndexNow, GA4, CrUX, sitemap audit, JSON-LD schema validation and generation, drift monitoring, on-page content/technical audits, heading structure, zone-weighted internal linking, site-wide link equity mapping, traffic-backed pruning, AI crawler visibility, GBP deprecation detection, PageSpeed Insights, and composite health scoring"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,7 +24,7 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
 ]
 dependencies = [
-    "mcp[cli]>=1.0.0",
+    "mcp[cli]>=1.0.0,<2",
     "google-api-python-client>=2.100.0",
     "google-auth-oauthlib>=1.1.0",
     "google-analytics-data>=0.18.0",

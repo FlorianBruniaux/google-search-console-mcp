@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.1] - 2026-08-26
+
+Incident de production : tout `uvx gsc-mcp-tools` lancé sans lock depuis le 2026-07-28 (sortie de `mcp` 2.0.0) crashait à l'import, avant même l'ouverture du stdio MCP.
+
+### Fixed
+
+**Dépendance `mcp` sans borne haute, résolue vers une v2 incompatible**
+
+- `pyproject.toml` : `mcp[cli]>=1.0.0` n'avait pas de borne haute. `uv` résolvait la dernière version publiée, `mcp` 2.1.1, qui a supprimé `mcp.server.fastmcp.FastMCP` (renommé `MCPServer`, changement d'API mentionné dans le message d'erreur du SDK). `src/gsc_mcp/server.py:6` importe encore `from mcp.server.fastmcp import FastMCP`, donc le process mourait à l'import avec `ModuleNotFoundError`, avant toute négociation MCP. Côté client (Claude Code), ça remonte comme un simple `CONNECTION_CLOSED`, sans indiquer la cause.
+- Fix : `mcp[cli]>=1.0.0,<2` dans `pyproject.toml`. Migration vers `MCPServer` non faite dans ce correctif, seul le pin de sécurité est appliqué.
+- Détecté en testant `uvx gsc-mcp-tools` en direct depuis une session externe, hors de tout environnement de dev avec un `mcp` 1.x déjà en cache.
+
 ## [1.1.0] - 2026-08-24
 
 61 tools (+4), 607 tests (+61). Maillage interne et structure de titres, déclenchés par un appel avec un consultant SEO externe (2026-08-06) : deux leviers de ranking sur lesquels aucun tool existant ne mesurait rien.
