@@ -407,3 +407,91 @@ def test_equity_map_meta_block():
     html = {rows[0]["page"]: "<html><body><main><p>x</p></main></body></html>"}
     result = _equity(rows, html)
     assert result["_meta"]["tool"] == "link_equity_map"
+
+
+# ---------------------------------------------------------------------------
+# Redirect following (bug: a page GSC reports as http:// with a real https://
+# canonical used to come back as a crawl failure instead of being followed).
+# Each hop must re-enter safe_fetch_html, so a redirect to a blocked host is
+# refused exactly like a direct request would be.
+# ---------------------------------------------------------------------------
+
+def _redirect_error(location, status=301, url="http://example.com/"):
+    request = httpx.Request("GET", url)
+    response = httpx.Response(status, headers={"location": location}, request=request)
+    return httpx.HTTPStatusError(
+        f"Redirect response '{status}' for url '{url}'", request=request, response=response
+    )
+
+
+def test_internal_links_audit_follows_http_to_https_redirect():
+    html = "<html><body><main><a href='/x'>Guide detaille complet</a></main></body></html>"
+
+    def fake_fetch(url, **_):
+        if url == "http://example.com/":
+            raise _redirect_error("https://example.com/", url=url)
+        assert url == "https://example.com/"
+        return (html, 200)
+
+    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+        result = json.loads(internal_links_audit("http://example.com/"))
+
+    assert result["verdict"] == "healthy"
+    assert result["internal_count"] == 1
+
+
+def test_internal_links_audit_stops_following_after_max_hops():
+    def fake_fetch(url, **_):
+        n = int(url.rsplit("/", 1)[-1])
+        raise _redirect_error(f"https://example.com/{n + 1}", url=url)
+
+    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+        result = json.loads(internal_links_audit("https://example.com/0"))
+
+    assert result["verdict"] == "fetch_error"
+    assert "Too many redirects" in result["error"]
+
+
+def test_internal_links_audit_redirect_to_blocked_host_still_refused():
+    """SSRF protection survives redirect-following: the target hop is re-checked."""
+    def fake_fetch(url, **_):
+        if url == "http://example.com/":
+            raise _redirect_error("http://169.254.169.254/", url=url)
+        raise URLSafetyError(f"Blocked IP literal: 169.254.169.254")
+
+    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+        result = json.loads(internal_links_audit("http://example.com/"))
+
+    assert result["verdict"] == "fetch_error"
+    assert "Blocked IP literal" in result["error"]
+
+
+def test_link_equity_map_crawls_page_reached_via_redirect():
+    """A GSC row stored as http:// with an https:// canonical is now crawled,
+    not dropped into pages_failed (the exact failure mode from dogfooding 1.1.0
+    against a real property: the redirecting page kept its GSC facts because
+    the source path is keyed by the original page URL, not the final hop)."""
+    hub = "https://example.com/guide"
+    redirecting = "http://example.com/legacy-page"
+    redirect_target = "https://example.com/legacy-page"
+
+    def fake_fetch(url, **_):
+        if url == redirecting:
+            raise _redirect_error(redirect_target, url=url)
+        if url == hub:
+            return ("<html><body><main><p>Rien.</p></main></body></html>", 200)
+        if url == redirect_target:
+            return ("<html><body><main><p>Cible.</p></main></body></html>", 200)
+        raise httpx.ConnectError(f"no mock for {url}")
+
+    with patch("gsc_mcp.tools.links.get_search_analytics",
+               return_value=_gsc_pages([
+                   {"page": hub, "clicks": 10, "impressions": 500, "position": 5.0},
+                   {"page": redirecting, "clicks": 1, "impressions": 900, "position": 12.0},
+               ])), \
+         patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+        result = json.loads(link_equity_map(SITE, delay_seconds=0))
+
+    assert result["pages_failed"] == 0
+    assert result["pages_crawled"] == 2
+    assert result["failed_sample"] == []

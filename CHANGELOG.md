@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.2] - 2026-08-26
+
+Dogfooding des 4 tools ajoutés en 1.1.0 sur une propriété réelle (`cc.bruniaux.com`, 400+ pages) : `link_equity_map` a échoué sur 3 pages des 25 ciblées.
+
+### Fixed
+
+**`internal_links_audit` et `link_equity_map` traitaient un redirect 301/302 comme un échec de crawl**
+
+- `safe_fetch_html` (`url_safety.py`) fixe volontairement `follow_redirects=False` : suivre un redirect avec le client `httpx` standard connecterait au serveur cible sans revalider son IP, ce qui contourne le DNS-pinning anti-SSRF. `resp.raise_for_status()` traite donc tout 3xx comme une erreur (`httpx.HTTPStatusError`), remontée comme échec de fetch.
+- Sur `cc.bruniaux.com`, Search Console référence encore 3 pages en `http://` alors que le site sert du `https://` (redirect 301 permanent, scheme uniquement, même host et même path). `link_equity_map` classait les 3 dans `pages_failed` au lieu de les crawler.
+- Fix : `_fetch_following_redirects()` dans `links.py` boucle sur `safe_fetch_html` (bornée à 5 sauts), en relisant l'en-tête `Location` sur l'exception `httpx.HTTPStatusError` interceptée. Chaque saut repasse par `safe_fetch_html`, donc chaque nouvelle cible est re-vérifiée par le DNS-pinning : un redirect vers une IP privée ou un endpoint de metadata cloud reste refusé au même titre qu'une requête directe. `internal_links_audit` et `link_equity_map` utilisent maintenant cette fonction ; les autres tools (`page_technical_audit`, `schema_validate`, `sitemap_audit`, ...) gardent `follow_redirects=False` sans changement, un redirect y est un résultat d'audit à signaler, pas une erreur de fetch à masquer.
+- 4 tests ajoutés dans `test_links.py` : redirect http→https suivi avec succès, boucle bornée à 5 sauts (au-delà, `fetch_error` avec message explicite), redirect vers un hôte bloqué toujours refusé (SSRF préservé), page `link_equity_map` récupérée via redirect sortant de `pages_failed`. 611 tests passent (607 + 4), aucune régression sur les 32 tests existants de `test_links.py`.
+
 ## [1.1.1] - 2026-08-26
 
 Incident de production : tout `uvx gsc-mcp-tools` lancé sans lock depuis le 2026-07-28 (sortie de `mcp` 2.0.0) crashait à l'import, avant même l'ouverture du stdio MCP.
