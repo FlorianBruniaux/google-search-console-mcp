@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-607%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-611%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Google Search Console MCP server with 61 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, on-page content/technical audits, heading structure, zone-weighted internal linking, site-wide link equity mapping, AI crawler visibility, GBP deprecation detection, and PageSpeed Insights integration. Built on Python 3.11+ and FastMCP.
@@ -11,7 +11,7 @@ Google Search Console MCP server with 61 tools covering search analytics, URL in
 
 No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
 
-**Latest: v1.1.1** (fixes a crash-on-launch for `uvx gsc-mcp-tools` caused by an unbounded `mcp` dependency resolving to an incompatible v2). v1.1.0 added heading structure audit, zone-weighted internal linking audit, site-wide link equity mapping crossed with GSC positions, and a traffic-backed pruning classifier that never flags a page with clicks. See the [full changelog](CHANGELOG.md).
+**Latest: v1.1.2** (`internal_links_audit` and `link_equity_map` now follow redirects through the same SSRF-safe DNS-pinning check instead of treating a 301/302 as a crawl failure). v1.1.1 fixed a crash-on-launch for `uvx gsc-mcp-tools` caused by an unbounded `mcp` dependency resolving to an incompatible v2. v1.1.0 added heading structure audit, zone-weighted internal linking audit, site-wide link equity mapping crossed with GSC positions, and a traffic-backed pruning classifier that never flags a page with clicks. See the [full changelog](CHANGELOG.md).
 
 ## What you can do with it
 
@@ -275,7 +275,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-607 tests, all mocked (no real Google API calls needed).
+611 tests, all mocked (no real Google API calls needed).
 
 ## Troubleshooting
 

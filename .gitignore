@@ -15,3 +15,4 @@ token_*.json
 .claude/commands/
 .claude/todos/
 .idea/
+.DS_Store

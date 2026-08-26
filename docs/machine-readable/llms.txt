@@ -224,7 +224,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 607 tests, fully mocked.
+SETUP: pytest tests/ : 611 tests, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
