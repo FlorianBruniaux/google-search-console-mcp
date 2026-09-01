@@ -353,6 +353,18 @@ This project took inspiration from [claude-seo](https://github.com/AgriciDaniel/
 
 Assets with incompatible licenses (CC BY-SA 4.0, CC BY 4.0) were excluded. See `NOTICE` for full attribution.
 
+<!-- BEGIN GENERATED RELATED PROJECTS -->
+<!-- Source: https://github.com/FlorianBruniaux/FlorianBruniaux/blob/main/ecosystem/projects.json; project: google-search-console-mcp -->
+## Explore the ecosystem
+
+These projects extend the workflow without duplicating this tool:
+
+- **Research with [yt-insights](https://github.com/FlorianBruniaux/youtube-video-insights)**: connect corpus building to post-publication performance measurement.
+- **Learn with [Claude Code Ultimate Guide](https://github.com/FlorianBruniaux/claude-code-ultimate-guide)**: frame MCP choice, permissions, and research workflows.
+
+[Browse the complete open-source galaxy](https://github.com/FlorianBruniaux#open-source-galaxy)
+<!-- END GENERATED RELATED PROJECTS -->
+
 ## License
 
 MIT
