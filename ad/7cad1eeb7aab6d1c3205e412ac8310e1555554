@@ -1,0 +1,40 @@
+tests/test_bing_live_validator.py
+  s_b091cb578646a0::t_574a425dfbf4e7 6,9-10,12-13,16,18,46-48,73-86,88
+  s_b091cb578646a0::t_6bfd99bffd9344 2,4,285-321
+  s_b091cb578646a0::t_1f2b88046d4654 8,236-262,284
+  s_b091cb578646a0::t_9b454124317f58 15,148-196
+  s_b091cb578646a0::t_6111c85f58c7b2 3,11,89-147
+  s_b091cb578646a0::t_f9f0e5e4fc9e1e 1,5,7,17,19-45,87
+  s_b091cb578646a0::t_d16e3a8dcfc31f 49-72
+  s_b091cb578646a0::t_6089854323ec78 14,263-283
+  s_b091cb578646a0::t_bf5820bf2e3595 197-235
+scripts/validate_bing_live.py
+  s_b091cb578646a0::t_76faf777045f43 1-5,14,202-219,226-228,237,239-248,254-256,258-260
+  s_b091cb578646a0::t_66cd6aec995e62 11,56-97
+  s_b091cb578646a0::t_00d838ebcebb7a 7,10,15,27-33,35-41,44-47,53-55
+  s_b091cb578646a0::t_639c82b10b670f 126-127,138-146
+  s_b091cb578646a0::t_63f322b6411278 26,98-125,147-166,196
+  s_b091cb578646a0::t_57c3046490fa54 42-43,48-52
+  s_b091cb578646a0::t_effd4ee1049af7 8,34,220-225,229-236,238,249-253,257
+  s_b091cb578646a0::t_e5dcb91dc8873a 6,9,12-13,16-25,167-195,197-201
+  s_b091cb578646a0::t_4cad0349281969 128-137
+  s_b091cb578646a0::t_09728b7add268f 261-264
+docs/validation/bing-api-contract.md
+  s_b091cb578646a0::t_c512431b6b386f 1-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ad7cad1eeb7aab6d1c3205e412ac8310e1555554",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
