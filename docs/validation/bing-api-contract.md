@@ -14,7 +14,9 @@
 - Réseau: aucun appel effectué.
 - Preuve disponible: tests offline du validateur de forme et de ses garde-fous de redaction. Ces tests ne prouvent ni le contrat Bing réel, ni les codes HTTP, ni la fraîcheur des données.
 
-Le validateur appelle uniquement les 17 méthodes présentes dans `READ_METHODS`. Il ne produit que les noms de champs, les types, les comptes, les bornes de dates dérivées et les métadonnées d'erreur déjà expurgées. Il ne produit aucun paramètre d'appel, payload brut, clé API, URL, requête, `AuthenticationCode` ou `DnsVerificationCode`.
+Le validateur appelle uniquement les 17 méthodes présentes dans `READ_METHODS`. Pour chaque succès, il conserve le statut HTTP réellement retourné par le transport. Il ne l'infère pas depuis `ok=true`. Il ne produit ensuite que les noms de champs autorisés, les types, les comptes et les bornes de dates dérivées. Il ne produit aucun paramètre d'appel, payload brut, clé API, URL, requête, `AuthenticationCode` ou `DnsVerificationCode`.
+
+Les noms de champs exposés appartiennent à une allowlist fermée issue des schémas Bing documentés utilisés par ce canari. Tout nom inconnu devient `<redacted-key>`, même s'il respecte la syntaxe d'un identifiant. Un code d'erreur Bing brut n'est jamais sérialisé: `Timeout`, `TransportError` et `InvalidJson`, générés localement, ont une catégorie fixe; tout autre code devient `api_error`.
 
 ## Matrice d'observation
 

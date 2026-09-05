@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import sys
 from collections.abc import Mapping
 from datetime import date, timedelta
@@ -31,7 +30,63 @@ REQUIRED_ENVIRONMENT = (
     "BING_TEST_FEED",
     "BING_TEST_QUERY",
 )
-_FIELD_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,63}$")
+_BING_SCHEMA_FIELDS = frozenset(
+    {
+        "AllOtherCodes",
+        "AnchorCount",
+        "AnchorText",
+        "AuthenticationCode",
+        "AvgClickPosition",
+        "AvgImpressionPosition",
+        "BlockedByRobotsTxt",
+        "BroadImpressions",
+        "Clicks",
+        "Code2xx",
+        "Code301",
+        "Code302",
+        "Code4xx",
+        "Code5xx",
+        "Compressed",
+        "ConnectionTimeout",
+        "ContainsMalware",
+        "Count",
+        "CrawlErrors",
+        "CrawledPages",
+        "CrawlRate",
+        "DailyQuota",
+        "Date",
+        "Details",
+        "DiscoveryDate",
+        "DnsFailures",
+        "DnsVerificationCode",
+        "DocumentSize",
+        "FileSize",
+        "HttpStatus",
+        "Impressions",
+        "InIndex",
+        "InLinks",
+        "IsPage",
+        "IsVerified",
+        "Issues",
+        "LastCrawled",
+        "LastCrawledDate",
+        "Links",
+        "MonthlyQuota",
+        "Query",
+        "Status",
+        "Submitted",
+        "TotalChildUrlCount",
+        "TotalPages",
+        "Type",
+        "Url",
+        "UrlCount",
+    }
+)
+_ERROR_CATEGORIES = {
+    "InvalidJson": "invalid_json",
+    "Timeout": "timeout",
+    "TransportError": "transport_error",
+}
 
 
 class MissingConfigurationError(RuntimeError):
@@ -113,7 +168,7 @@ def _observed_dates(payload: object) -> list[str]:
 
 
 def run_canary(
-    client: object, config: Mapping[str, str], *, today: date
+    client: Any, config: Mapping[str, str], *, today: date
 ) -> dict[str, object]:
     calls = build_read_calls(config, today=today)
     methods = tuple(method for method, _ in calls)
@@ -124,14 +179,20 @@ def run_canary(
     verified_site_present = False
     for method, params in calls:
         try:
-            payload = client.read(method, params)  # type: ignore[attr-defined]
+            payload, http_status = client.read_with_status(
+                method,
+                params,
+            )
         except BingApiError as error:
             records.append(
                 {
                     "method": method,
                     "ok": False,
                     "http_status": error.status_code,
-                    "error_code": error.code,
+                    "error_category": _ERROR_CATEGORIES.get(
+                        error.code,
+                        "api_error",
+                    ),
                 }
             )
             continue
@@ -147,6 +208,7 @@ def run_canary(
         record: dict[str, object] = {
             "method": method,
             "ok": True,
+            "http_status": http_status,
             "shape": describe_shape(payload),
         }
         dates = _observed_dates(payload)
@@ -218,7 +280,7 @@ def _type_name(value: object) -> str:
 
 
 def _field_name(value: object) -> str:
-    if isinstance(value, str) and _FIELD_NAME.fullmatch(value):
+    if isinstance(value, str) and value in _BING_SCHEMA_FIELDS:
         return value
     return "<redacted-key>"
 

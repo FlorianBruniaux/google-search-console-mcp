@@ -71,6 +71,19 @@ def test_read_unwraps_d_and_strips_type_recursively(monkeypatch):
     )
 
 
+def test_read_with_status_returns_actual_success_status(monkeypatch):
+    response = MagicMock(status_code=206)
+    response.json.return_value = {"d": [{"Url": "https://example.com"}]}
+    _mock_http_client(monkeypatch, response)
+
+    payload, status = BingWebmasterClient("secret-key").read_with_status(
+        "GetUserSites", {}
+    )
+
+    assert payload == [{"Url": "https://example.com"}]
+    assert status == 206
+
+
 def test_write_posts_json_and_unwraps_d(monkeypatch):
     response = MagicMock(status_code=200)
     response.json.return_value = {"d": {"Submitted": True, "__type": "Result"}}
@@ -292,6 +305,8 @@ def test_deadline_prevents_retry_after_budget_is_spent(monkeypatch):
     [
         ("read", "SubmitUrl"),
         ("read", "UnknownMethod"),
+        ("read_with_status", "SubmitUrl"),
+        ("read_with_status", "UnknownMethod"),
         ("write", "GetUserSites"),
         ("write", "UnknownMethod"),
     ],

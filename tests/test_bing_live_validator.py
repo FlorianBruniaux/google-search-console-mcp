@@ -3,9 +3,10 @@ import runpy
 from datetime import date
 from pathlib import Path
 
+import httpx
 import pytest
 
-from gsc_mcp.providers.bing import BingApiError, READ_METHODS
+from gsc_mcp.providers.bing import BingApiError, BingWebmasterClient, READ_METHODS
 from scripts.validate_bing_live import (
     MissingConfigurationError,
     build_read_calls,
@@ -62,10 +63,32 @@ def test_describe_shape_redacts_non_field_dictionary_keys():
     assert result == {
         "type": "list",
         "count": 1,
-        "item_keys": ["<redacted-key>", "SafeField"],
+        "item_keys": ["<redacted-key>"],
         "item_types": {
             "<redacted-key>": ["str"],
-            "SafeField": ["str"],
+        },
+    }
+
+
+def test_describe_shape_redacts_identifier_like_unknown_field_names():
+    secret_payload = [
+        {
+            "Clicks": 1,
+            "privateCustomerQuery": "another private value",
+        }
+    ]
+
+    result = describe_shape(secret_payload)
+    serialized = json.dumps(result)
+
+    assert "privateCustomerQuery" not in serialized
+    assert result == {
+        "type": "list",
+        "count": 1,
+        "item_keys": ["<redacted-key>", "Clicks"],
+        "item_types": {
+            "<redacted-key>": ["str"],
+            "Clicks": ["int"],
         },
     }
 
@@ -160,19 +183,22 @@ def test_run_canary_calls_only_reads_and_never_serializes_payload_values():
         def __init__(self):
             self.read_methods = []
 
-        def read(self, method, params):
+        def read_with_status(self, method, params):
             self.read_methods.append(method)
-            return [
-                {
-                    "AuthenticationCode": "authentication-secret",
-                    "Clicks": 42,
-                    "Date": "/Date(1788566400000+0000)/",
-                    "DnsVerificationCode": "dns-secret",
-                    "IsVerified": True,
-                    "Query": config["BING_TEST_QUERY"],
-                    "Url": config["BING_TEST_PAGE"],
-                }
-            ]
+            return (
+                [
+                    {
+                        "AuthenticationCode": "authentication-secret",
+                        "Clicks": 42,
+                        "Date": "/Date(1788566400000+0000)/",
+                        "DnsVerificationCode": "dns-secret",
+                        "IsVerified": True,
+                        "Query": config["BING_TEST_QUERY"],
+                        "Url": config["BING_TEST_PAGE"],
+                    }
+                ],
+                207,
+            )
 
         def write(self, method, body):
             raise AssertionError(f"mutation attempted: {method}")
@@ -185,6 +211,7 @@ def test_run_canary_calls_only_reads_and_never_serializes_payload_values():
     assert len(client.read_methods) == 17
     assert set(client.read_methods) == READ_METHODS
     assert report["verified_site_present"] is True
+    assert report["methods"][1]["http_status"] == 207
     assert report["methods"][1]["observed_min_date"] == "2026-09-05"
     assert report["methods"][1]["observed_max_date"] == "2026-09-05"
     for forbidden in (
@@ -194,6 +221,29 @@ def test_run_canary_calls_only_reads_and_never_serializes_payload_values():
         "42",
     ):
         assert forbidden not in serialized
+
+
+def test_run_canary_records_actual_success_status():
+    config = {
+        "BING_WEBMASTER_API_KEY": "api-key-secret",
+        "BING_TEST_SITE": "site-secret",
+        "BING_TEST_PAGE": "page-secret",
+        "BING_TEST_FEED": "feed-secret",
+        "BING_TEST_QUERY": "query-secret",
+    }
+
+    class StatusReadClient:
+        def read(self, method, params):
+            raise AssertionError("status-losing read path used")
+
+        def read_with_status(self, method, params):
+            payload = [{"IsVerified": True}] if method == "GetUserSites" else []
+            return payload, 206
+
+    report = run_canary(StatusReadClient(), config, today=date(2026, 9, 5))
+
+    assert report["methods"][0]["ok"] is True
+    assert report["methods"][0]["http_status"] == 206
 
 
 def test_run_canary_redacts_unexpected_errors_and_continues():
@@ -209,13 +259,13 @@ def test_run_canary_redacts_unexpected_errors_and_continues():
         def __init__(self):
             self.read_methods = []
 
-        def read(self, method, params):
+        def read_with_status(self, method, params):
             self.read_methods.append(method)
             if method == "GetPageStats":
                 raise RuntimeError(
                     "private failure api-key-secret site-secret query-secret"
                 )
-            return []
+            return [], 200
 
     client = FailingReadClient()
 
@@ -245,10 +295,10 @@ def test_run_canary_keeps_only_expurgated_bing_error_metadata():
     }
 
     class BingErrorClient:
-        def read(self, method, params):
+        def read_with_status(self, method, params):
             if method == "GetCrawlStats":
                 raise BingApiError(403, method, "AccessDenied")
-            return []
+            return [], 200
 
     report = run_canary(BingErrorClient(), config, today=date(2026, 9, 5))
     failed = next(
@@ -259,7 +309,46 @@ def test_run_canary_keeps_only_expurgated_bing_error_metadata():
         "method": "GetCrawlStats",
         "ok": False,
         "http_status": 403,
-        "error_code": "AccessDenied",
+        "error_category": "api_error",
+    }
+
+
+def test_real_client_error_code_cannot_leak_private_query(monkeypatch):
+    import gsc_mcp.providers.bing as bing
+
+    config = {
+        "BING_WEBMASTER_API_KEY": "api-key-secret",
+        "BING_TEST_SITE": "site-secret",
+        "BING_TEST_PAGE": "page-secret",
+        "BING_TEST_FEED": "feed-secret",
+        "BING_TEST_QUERY": "privateCustomerQuery",
+    }
+    real_client = httpx.Client
+
+    def handler(request):
+        return httpx.Response(
+            400,
+            json={"error": {"code": "privateCustomerQuery"}},
+        )
+
+    def client_factory(**kwargs):
+        return real_client(transport=httpx.MockTransport(handler), **kwargs)
+
+    monkeypatch.setattr(bing.httpx, "Client", client_factory)
+
+    report = run_canary(
+        BingWebmasterClient(config["BING_WEBMASTER_API_KEY"]),
+        config,
+        today=date(2026, 9, 5),
+    )
+    serialized = json.dumps(report)
+
+    assert "privateCustomerQuery" not in serialized
+    assert report["methods"][0] == {
+        "method": "GetUserSites",
+        "ok": False,
+        "http_status": 400,
+        "error_category": "api_error",
     }
 
 
@@ -303,10 +392,10 @@ def test_direct_entrypoint_uses_defined_redactor_without_network(
         def __init__(self, api_key):
             assert api_key == "api-key-secret"
 
-        def read(self, method, params):
+        def read_with_status(self, method, params):
             if method == "GetUserSites":
-                return [{"IsVerified": True, "Url": "site-secret"}]
-            return []
+                return [{"IsVerified": True, "Url": "site-secret"}], 200
+            return [], 200
 
     monkeypatch.setattr(bing, "BingWebmasterClient", OfflineClient)
     script = Path(__file__).parents[1] / "scripts" / "validate_bing_live.py"

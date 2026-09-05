@@ -113,6 +113,13 @@ class BingWebmasterClient:
             raise ValueError(f"Bing read method is not allowed: {method}")
         return self._request("GET", method, params=params)
 
+    def read_with_status(
+        self, method: str, params: dict[str, object]
+    ) -> tuple[object, int]:
+        if method not in READ_METHODS:
+            raise ValueError(f"Bing read method is not allowed: {method}")
+        return self._request_with_status("GET", method, params=params)
+
     def write(self, method: str, body: dict[str, object]) -> object:
         if method not in WRITE_METHODS:
             raise ValueError(f"Bing write method is not allowed: {method}")
@@ -126,6 +133,22 @@ class BingWebmasterClient:
         params: dict[str, object] | None = None,
         body: dict[str, object] | None = None,
     ) -> object:
+        payload, _ = self._request_with_status(
+            http_method,
+            method,
+            params=params,
+            body=body,
+        )
+        return payload
+
+    def _request_with_status(
+        self,
+        http_method: str,
+        method: str,
+        *,
+        params: dict[str, object] | None = None,
+        body: dict[str, object] | None = None,
+    ) -> tuple[object, int]:
         url = f"{_BING_API_BASE}/{method}"
         request_params = dict(params or {})
         request_params["apikey"] = self._api_key
@@ -173,7 +196,7 @@ class BingWebmasterClient:
                 payload = self._parse_response(response, method)
                 if 200 <= response.status_code < 300:
                     data = payload.get("d") if isinstance(payload, dict) else None
-                    return _strip_type(data)
+                    return _strip_type(data), response.status_code
 
                 code = self._error_code(payload)
                 raise BingApiError(response.status_code, method, code)
