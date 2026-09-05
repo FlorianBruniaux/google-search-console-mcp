@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 from pathlib import Path
 
 from google.auth.exceptions import RefreshError
@@ -29,9 +30,23 @@ def _load_oauth_token(token_path: Path) -> Credentials | None:
 
 def _save_oauth_token(token_path: Path, creds: Credentials) -> None:
     token_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    fd = os.open(token_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "w") as f:
-        f.write(creds.to_json())
+    fd, temp_name = tempfile.mkstemp(
+        prefix=f".{token_path.name}.",
+        dir=token_path.parent,
+    )
+    temp_path = Path(temp_name)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w") as handle:
+            fd = -1
+            handle.write(creds.to_json())
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, token_path)
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        temp_path.unlink(missing_ok=True)
 
 
 def _get_service_account_creds(scopes: list[str]) -> service_account.Credentials:

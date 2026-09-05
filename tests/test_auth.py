@@ -1,8 +1,50 @@
+import json
+import os
+import stat
+from pathlib import Path
+
 import pytest
 from google.auth.exceptions import RefreshError
 from unittest.mock import patch, MagicMock
 from gsc_mcp import constants
 from gsc_mcp import auth
+
+
+def test_save_oauth_token_replaces_atomically(tmp_path, monkeypatch):
+    token_path = tmp_path / "tokens" / "token.json"
+    replaced = {}
+
+    real_replace = os.replace
+
+    def record_replace(source, destination):
+        replaced["source"] = Path(source)
+        replaced["destination"] = Path(destination)
+        real_replace(source, destination)
+
+    monkeypatch.setattr("gsc_mcp.auth.os.replace", record_replace)
+    creds = MagicMock()
+    creds.to_json.return_value = '{"token":"secret"}'
+
+    auth._save_oauth_token(token_path, creds)
+
+    assert replaced["destination"] == token_path
+    assert replaced["source"] != token_path
+    assert stat.S_IMODE(token_path.stat().st_mode) == 0o600
+    assert json.loads(token_path.read_text()) == {"token": "secret"}
+
+
+def test_save_oauth_token_removes_temp_file_on_failure(tmp_path, monkeypatch):
+    token_path = tmp_path / "token.json"
+    creds = MagicMock()
+    creds.to_json.return_value = '{"token":"secret"}'
+    monkeypatch.setattr(
+        "gsc_mcp.auth.os.replace", MagicMock(side_effect=OSError("replace failed"))
+    )
+
+    with pytest.raises(OSError, match="replace failed"):
+        auth._save_oauth_token(token_path, creds)
+
+    assert list(tmp_path.glob(".token.json.*")) == []
 
 
 def test_gsc_scope_in_constants():
