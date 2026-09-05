@@ -21,6 +21,15 @@ _TOKEN_GSC = _TOKEN_DIR / "token_gsc.json"
 _TOKEN_INDEXING = _TOKEN_DIR / "token_indexing.json"
 
 
+def get_bing_api_key() -> str:
+    api_key = os.environ.get("BING_WEBMASTER_API_KEY", "").strip()
+    if not api_key:
+        raise RuntimeError(
+            "No Bing config: BING_WEBMASTER_API_KEY environment variable is not set"
+        )
+    return api_key
+
+
 def _load_oauth_token(token_path: Path) -> Credentials | None:
     if not token_path.exists():
         return None
