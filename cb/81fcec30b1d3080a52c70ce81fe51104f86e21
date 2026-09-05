@@ -1,0 +1,30 @@
+tests/test_auth.py
+  s_b091cb578646a0::t_c5003d8de131ce 1-5,13-47
+  s_ee20f818a9ee85::t_a5a3fb4f222e65 48-49
+src/gsc_mcp/auth.py
+  s_b091cb578646a0::t_ca9baca4401297 3,33-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "cb81fcec30b1d3080a52c70ce81fe51104f86e21",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ee20f818a9ee85": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06ad6-f0a4-7952-8275-efa2b81678a2",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
