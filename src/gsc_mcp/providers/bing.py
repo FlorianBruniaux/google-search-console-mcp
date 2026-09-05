@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import re
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Any
 
@@ -14,7 +17,9 @@ from gsc_mcp.auth import get_bing_api_key
 _BING_API_BASE = "https://ssl.bing.com/webmaster/api.svc/json"
 _RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 _MAX_RETRIES = 3
+_OPERATION_TIMEOUT = 15.0
 _BING_DATE = re.compile(r"^/Date\((?P<millis>-?\d+)(?P<offset>[+-]\d{4})?\)/$")
+_SAFE_ERROR_CODE = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
 
 READ_METHODS = frozenset(
     {
@@ -38,6 +43,22 @@ READ_METHODS = frozenset(
     }
 )
 WRITE_METHODS = frozenset({"SubmitUrl", "SubmitUrlBatch", "SubmitFeed", "RemoveFeed"})
+
+
+class _BlockAllLogs(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return False
+
+
+@contextmanager
+def _suppress_httpx_logs() -> Iterator[None]:
+    logger = logging.getLogger("httpx")
+    log_filter = _BlockAllLogs()
+    logger.addFilter(log_filter)
+    try:
+        yield
+    finally:
+        logger.removeFilter(log_filter)
 
 
 class BingApiError(RuntimeError):
@@ -108,15 +129,28 @@ class BingWebmasterClient:
         url = f"{_BING_API_BASE}/{method}"
         request_params = dict(params or {})
         request_params["apikey"] = self._api_key
+        deadline = time.monotonic() + _OPERATION_TIMEOUT
 
         with httpx.Client(timeout=15, follow_redirects=False) as client:
             for attempt in range(_MAX_RETRIES + 1):
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise BingApiError(None, method, "Timeout")
+
                 transport_error = None
                 try:
-                    if http_method == "GET":
-                        response = client.get(url, params=request_params)
-                    else:
-                        response = client.post(url, params=request_params, json=body)
+                    with _suppress_httpx_logs():
+                        if http_method == "GET":
+                            response = client.get(
+                                url, params=request_params, timeout=remaining
+                            )
+                        else:
+                            response = client.post(
+                                url,
+                                params=request_params,
+                                json=body,
+                                timeout=remaining,
+                            )
                 except httpx.TimeoutException:
                     transport_error = "Timeout"
                 except httpx.RequestError:
@@ -125,11 +159,15 @@ class BingWebmasterClient:
                 if transport_error is not None:
                     raise BingApiError(None, method, transport_error)
 
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise BingApiError(None, method, "Timeout")
+
                 if (
                     response.status_code in _RETRYABLE_STATUSES
                     and attempt < _MAX_RETRIES
                 ):
-                    time.sleep(2**attempt)
+                    time.sleep(min(2**attempt, remaining))
                     continue
 
                 payload = self._parse_response(response, method)
@@ -143,10 +181,15 @@ class BingWebmasterClient:
         raise AssertionError("unreachable")
 
     def _parse_response(self, response: httpx.Response, method: str) -> object:
+        invalid_json = False
         try:
-            return response.json()
-        except (TypeError, ValueError) as exc:
-            raise BingApiError(response.status_code, method, "InvalidJson") from exc
+            payload = response.json()
+        except (TypeError, ValueError):
+            invalid_json = True
+
+        if invalid_json:
+            raise BingApiError(response.status_code, method, "InvalidJson")
+        return payload
 
     def _error_code(self, payload: object) -> str | None:
         if not isinstance(payload, dict):
@@ -157,7 +200,11 @@ class BingWebmasterClient:
         code = error.get("code")
         if not isinstance(code, str):
             return None
-        return code.replace(self._api_key, "[REDACTED]")
+        if not _SAFE_ERROR_CODE.fullmatch(code):
+            return None
+        if self._api_key and self._api_key in code:
+            return None
+        return code
 
 
 def get_bing_client() -> BingWebmasterClient:
