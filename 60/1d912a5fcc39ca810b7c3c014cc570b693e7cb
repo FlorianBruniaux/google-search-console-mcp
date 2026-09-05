@@ -1,0 +1,27 @@
+tests/test_bing_client.py
+  s_b091cb578646a0::t_32d9d77683b695 182-183
+  s_b091cb578646a0::t_cb1c0316ebc4ef 1-181,184-235
+src/gsc_mcp/auth.py
+  s_b091cb578646a0::t_85db0018d715c7 24-32
+src/gsc_mcp/providers/bing.py
+  s_b091cb578646a0::t_85db0018d715c7 1-113,115-119,127-164
+  s_b091cb578646a0::t_ac7c412a6c2880 114,120-126
+src/gsc_mcp/providers/__init__.py
+  s_b091cb578646a0::t_85db0018d715c7 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "601d912a5fcc39ca810b7c3c014cc570b693e7cb",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
