@@ -43,6 +43,14 @@ _PATTERN_RECOMMENDATIONS = [
 ]
 
 
+def _unwrap_graph(item: dict) -> list[dict]:
+    """Return the nodes of an @graph container (Rank Math, Yoast), or the item itself."""
+    graph = item.get("@graph") if isinstance(item, dict) else None
+    if isinstance(graph, list):
+        return [node for node in graph if isinstance(node, dict)]
+    return [item]
+
+
 class _JsonLdExtractor(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -62,10 +70,8 @@ class _JsonLdExtractor(HTMLParser):
             if raw:
                 try:
                     data = json.loads(raw)
-                    if isinstance(data, list):
-                        self.schemas.extend(data)
-                    else:
-                        self.schemas.append(data)
+                    for item in data if isinstance(data, list) else [data]:
+                        self.schemas.extend(_unwrap_graph(item))
                 except json.JSONDecodeError:
                     pass
 

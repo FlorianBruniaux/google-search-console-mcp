@@ -182,6 +182,37 @@ def test_schema_validate_array_jsonld():
     assert types == {"WebSite", "Organization"}
 
 
+def test_schema_validate_graph_is_unwrapped():
+    """Schemas nested under @graph (Rank Math, Yoast) are validated one by one."""
+    html = """<html><head>
+    <script type="application/ld+json">
+    {"@context": "https://schema.org", "@graph": [
+      {"@type": "Organization", "name": "Org"},
+      {"@type": "WebSite", "name": "Example", "url": "https://example.com"}
+    ]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["schemas_detected"] == 2
+    types = {s["type"] for s in result["schemas"]}
+    assert types == {"Organization", "WebSite"}
+
+
+def test_schema_validate_graph_invalid_schema_is_not_healthy():
+    """An Article missing required fields inside @graph must not pass as healthy."""
+    html = """<html><head>
+    <script type="application/ld+json">
+    {"@context": "https://schema.org", "@graph": [
+      {"@type": "Article", "headline": "Only a headline"}
+    ]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "invalid_schemas"
+    assert result["schemas"][0]["type"] == "Article"
+    assert result["schemas"][0]["missing_required_fields"]
+
+
 def test_schema_validate_meta():
     with patch("httpx.Client", return_value=_mock_http_get(NO_SCHEMA_HTML)):
         result = json.loads(schema_validate("https://example.com/test"))
