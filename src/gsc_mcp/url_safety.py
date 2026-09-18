@@ -42,7 +42,7 @@ import socket
 import threading
 from contextlib import contextmanager
 from typing import Iterator
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import httpx
 
@@ -56,6 +56,7 @@ __all__ = [
     "safe_httpx_get",
     "safe_httpx_client",
     "safe_fetch_html",
+    "fetch_html_following_redirects",
 ]
 
 
@@ -333,6 +334,39 @@ def safe_fetch_html(url: str, *, timeout: int = 15) -> tuple[str, int]:
     )
     resp.raise_for_status()
     return resp.text, resp.status_code
+
+
+# Bare scheme/host redirects (http -> https, bare domain -> www, trailing-slash
+# canonicalization) are common and not worth reporting as a fetch failure. Each
+# hop below re-enters safe_fetch_html, so it gets the same DNS-pinned SSRF
+# check as a direct request; nothing here trusts httpx's own follow_redirects.
+_MAX_REDIRECT_HOPS = 5
+
+
+def fetch_html_following_redirects(
+    url: str, max_redirects: int = _MAX_REDIRECT_HOPS, *, timeout: int = 15
+) -> tuple[str, int]:
+    """Fetch url, following redirects one safety-checked hop at a time.
+
+    safe_fetch_html itself never follows a redirect (follow_redirects=False,
+    by SSRF design: httpx's built-in following would connect to the redirect
+    target without re-running DNS-pinning on it). This wraps it in a bounded
+    loop instead: each hop is a fresh safe_fetch_html call, which re-validates
+    and re-pins the new host exactly as it would for a direct request. A
+    redirect to a private or metadata address is refused at that hop like any
+    other unsafe URL, rather than silently followed.
+    """
+    current = url
+    for _ in range(max_redirects + 1):
+        try:
+            return safe_fetch_html(current, timeout=timeout)
+        except httpx.HTTPError as exc:
+            response = getattr(exc, "response", None)
+            location = response.headers.get("location") if response is not None else None
+            if not location:
+                raise
+            current = urljoin(current, location)
+    raise URLSafetyError(f"Too many redirects (> {max_redirects}) starting at {url}")
 
 
 def _cli() -> None:

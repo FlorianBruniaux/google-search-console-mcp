@@ -1,7 +1,7 @@
 """Tests for internal_links_audit.
 
 All fetches are mocked; no network access. safe_fetch_html is patched at the call
-site (gsc_mcp.tools.links.safe_fetch_html), matching the convention used by the
+site (gsc_mcp.url_safety.safe_fetch_html), matching the convention used by the
 content.py tests.
 """
 
@@ -18,7 +18,7 @@ PAGE = "https://example.com/guide/seo"
 
 
 def _audit(html, url=PAGE):
-    with patch("gsc_mcp.tools.links.safe_fetch_html", return_value=(html, 200)):
+    with patch("gsc_mcp.url_safety.safe_fetch_html", return_value=(html, 200)):
         return json.loads(internal_links_audit(url))
 
 
@@ -226,14 +226,14 @@ def test_page_without_internal_links_flagged():
 
 
 def test_url_safety_error_returns_fetch_error():
-    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=URLSafetyError("blocked host")):
+    with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=URLSafetyError("blocked host")):
         result = json.loads(internal_links_audit("http://169.254.169.254/"))
     assert result["verdict"] == "fetch_error"
     assert "blocked host" in result["error"]
 
 
 def test_http_error_returns_fetch_error():
-    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=httpx.ConnectError("boom")):
+    with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=httpx.ConnectError("boom")):
         result = json.loads(internal_links_audit(PAGE))
     assert result["verdict"] == "fetch_error"
 
@@ -277,7 +277,7 @@ def _equity(gsc_rows, pages_html, **kwargs):
         raise httpx.ConnectError(f"no mock for {url}")
 
     with patch("gsc_mcp.tools.links.get_search_analytics", return_value=_gsc_pages(gsc_rows)), \
-         patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+         patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
         kwargs.setdefault("delay_seconds", 0)
         return json.loads(link_equity_map(SITE, **kwargs))
 
@@ -433,7 +433,7 @@ def test_internal_links_audit_follows_http_to_https_redirect():
         assert url == "https://example.com/"
         return (html, 200)
 
-    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+    with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
         result = json.loads(internal_links_audit("http://example.com/"))
 
     assert result["verdict"] == "healthy"
@@ -445,7 +445,7 @@ def test_internal_links_audit_stops_following_after_max_hops():
         n = int(url.rsplit("/", 1)[-1])
         raise _redirect_error(f"https://example.com/{n + 1}", url=url)
 
-    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+    with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
         result = json.loads(internal_links_audit("https://example.com/0"))
 
     assert result["verdict"] == "fetch_error"
@@ -459,7 +459,7 @@ def test_internal_links_audit_redirect_to_blocked_host_still_refused():
             raise _redirect_error("http://169.254.169.254/", url=url)
         raise URLSafetyError(f"Blocked IP literal: 169.254.169.254")
 
-    with patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+    with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
         result = json.loads(internal_links_audit("http://example.com/"))
 
     assert result["verdict"] == "fetch_error"
@@ -489,7 +489,7 @@ def test_link_equity_map_crawls_page_reached_via_redirect():
                    {"page": hub, "clicks": 10, "impressions": 500, "position": 5.0},
                    {"page": redirecting, "clicks": 1, "impressions": 900, "position": 12.0},
                ])), \
-         patch("gsc_mcp.tools.links.safe_fetch_html", side_effect=fake_fetch):
+         patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
         result = json.loads(link_equity_map(SITE, delay_seconds=0))
 
     assert result["pages_failed"] == 0

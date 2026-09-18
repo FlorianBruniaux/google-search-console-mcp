@@ -213,6 +213,43 @@ def test_schema_validate_graph_invalid_schema_is_not_healthy():
     assert result["schemas"][0]["missing_required_fields"]
 
 
+def _redirect_client(redirects: dict[str, str], final_html: str):
+    """Mock httpx.Client whose get() answers a real 301 for urls in `redirects`, 200 otherwise."""
+    def fake_get(url, **_):
+        request = httpx.Request("GET", url)
+        if url in redirects:
+            return httpx.Response(301, headers={"location": redirects[url]}, request=request)
+        return httpx.Response(200, text=final_html, request=request)
+
+    client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
+    client.get.side_effect = fake_get
+    return client
+
+
+def test_schema_validate_follows_same_domain_redirect():
+    """A bare-domain URL that 301s to its www canonical is audited, not reported as fetch_error."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@type": "WebSite", "name": "Example", "url": "https://www.example.com"}
+    </script></head></html>"""
+    client = _redirect_client({"https://example.com/": "https://www.example.com/"}, html)
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "healthy"
+    assert result["schemas_detected"] == 1
+    assert result["schemas"][0]["type"] == "WebSite"
+
+
+def test_schema_validate_redirect_to_blocked_host_is_refused():
+    """SSRF protection survives redirect-following: the target hop is re-checked."""
+    client = _redirect_client({"https://example.com/": "http://169.254.169.254/"}, "<html></html>")
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "fetch_error"
+    assert "169.254.169.254" in result["error"]
+
+
 def test_schema_validate_meta():
     with patch("httpx.Client", return_value=_mock_http_get(NO_SCHEMA_HTML)):
         result = json.loads(schema_validate("https://example.com/test"))

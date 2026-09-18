@@ -9,7 +9,12 @@ from urllib.parse import urlparse
 import httpx
 
 from gsc_mcp.meta import with_meta
-from gsc_mcp.url_safety import URLSafetyError, safe_fetch_html, validate_url_strict
+from gsc_mcp.url_safety import (
+    URLSafetyError,
+    fetch_html_following_redirects,
+    safe_fetch_html,
+    validate_url_strict,
+)
 
 _REQUIRED_FIELDS = {
     "LocalBusiness":       ["name", "@type"],
@@ -93,19 +98,8 @@ def schema_validate(url: str) -> str:
               fetch_error (URL not reachable).
     """
     try:
-        validate_url_strict(url)
-    except URLSafetyError as e:
-        return json.dumps(with_meta(
-            {"url": url, "error": str(e), "verdict": "fetch_error"},
-            tool="schema_validate",
-            params={"url": url},
-        ))
-    try:
-        with httpx.Client(timeout=15, follow_redirects=False) as client:
-            resp = client.get(url, headers={"User-Agent": "gsc-mcp-schema-validator/1.0"})
-            resp.raise_for_status()
-            html = resp.text
-    except httpx.HTTPError as e:
+        html, _status = fetch_html_following_redirects(url)
+    except (URLSafetyError, httpx.HTTPError) as e:
         return json.dumps(with_meta(
             {"url": url, "error": str(e), "verdict": "fetch_error"},
             tool="schema_validate",
