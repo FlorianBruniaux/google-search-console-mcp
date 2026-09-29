@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased]
+
+Dogfooding de `schema_validate` sur une propriété réelle (`dobet.it`, WordPress + Rank Math) : le tool répondait `healthy` sans rien valider, et `fetch_error` sur l'URL sans `www`.
+
+### Fixed
+
+**`schema_validate` ne validait pas les schémas emballés dans `@graph`**
+
+- Rank Math et Yoast émettent un seul bloc JSON-LD de la forme `{"@context": ..., "@graph": [...]}`. `_JsonLdExtractor` traitait l'enveloppe comme un schéma unique : pas de `@type` au premier niveau, donc `type: "Unknown"`, `valid: true`, verdict `healthy`, et aucun nœud interne vérifié. Un `Article` sans `author`/`datePublished` dans un `@graph` passait comme sain.
+- Fix : `_unwrap_graph()` aplatit `@graph` à l'extraction, la boucle de validation ne change pas. Sur `dobet.it`, 4 schémas (Organization, WebSite, ImageObject, FAQPage) au lieu d'un `Unknown`.
+- Un `@type` en liste (`["Person", "Organization"]`) faisait planter le tool (`TypeError: unhashable type`) une fois `@graph` déplié. `_primary_type()` retient la première entrée qui a une règle dans `_REQUIRED_FIELDS`, sinon la première entrée.
+
+**`schema_validate` traitait un redirect vers le même site comme un échec de fetch**
+
+- `https://dobet.it/` redirige en 301 vers `https://www.dobet.it/` ; le tool répondait `fetch_error` au lieu d'auditer la cible. Même famille que le correctif 1.1.2 sur `internal_links_audit` / `link_equity_map`.
+- Fix : `_fetch_following_redirects` déménage de `links.py` vers `url_safety.fetch_html_following_redirects`, partagé par les trois tools. Chaque saut repasse par `safe_fetch_html`, donc le DNS-pinning est rejoué sur chaque cible ; 5 sauts maximum.
+- Seuls les statuts 301/302/303/307/308 sont suivis (un 404 ou un 500 avec un en-tête `Location` ne l'est plus), et seulement vers le **même site** : même host à un `www.` près, même port explicite, le scheme peut changer. Un redirect vers un autre site lève `URLSafetyError("Cross-site redirect refused: ...")`, remonté en `fetch_error` : suivre l'aurait fait auditer le JSON-LD d'un autre site sous l'URL d'origine. Le comportement 1.1.2 des deux tools de liens suivait n'importe quel host public ; il est resserré de la même façon.
+- `schema_validate` et `internal_links_audit` renvoient maintenant `final_url` (l'URL réellement servie). `internal_links_audit` et `link_equity_map` classent les liens contre cette `final_url` : après un redirect domaine nu → `www`, les liens vers le host `www` sont internes (sur `dobet.it`, 171 liens internes au lieu de 1).
+- Effet de bord : `schema_validate` passe par `safe_fetch_html` au lieu d'un `httpx.Client` nu, donc gagne le DNS-pinning des autres tools. Le User-Agent envoyé change de `gsc-mcp-schema-validator/1.0` à `gsc-mcp/1.0`.
+- Tests : `test_technical.py` +6, `test_url_safety.py` +12 (classe `TestFetchHtmlFollowingRedirects`), `test_links.py` +2, et les 9 patchs de `test_links.py` visent `gsc_mcp.url_safety.safe_fetch_html`. 630 tests.
+
 ## [1.1.2] - 2026-08-26
 
 Dogfooding des 4 tools ajoutés en 1.1.0 sur une propriété réelle (`cc.bruniaux.com`, 400+ pages) : `link_equity_map` a échoué sur 3 pages des 25 ciblées.

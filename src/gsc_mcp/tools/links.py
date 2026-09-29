@@ -161,7 +161,7 @@ def internal_links_audit(url: str) -> str:
     """
     params = {"url": url}
     try:
-        html, _status = fetch_html_following_redirects(url)
+        html, _status, final_url = fetch_html_following_redirects(url)
     except (URLSafetyError, httpx.HTTPError) as exc:
         return json.dumps(with_meta(
             {"url": url, "error": str(exc), "verdict": "fetch_error"},
@@ -171,7 +171,9 @@ def internal_links_audit(url: str) -> str:
 
     parser = _LinkParser()
     parser.feed(html)
-    links = _classify(parser.links, url)
+    # Classify against the URL actually served: after a bare-domain -> www
+    # redirect, links to the www host are internal and the page is its own self-link.
+    links = _classify(parser.links, final_url)
 
     internal = [link for link in links if link["internal"]]
     external = [link for link in links if not link["internal"]]
@@ -285,6 +287,7 @@ def internal_links_audit(url: str) -> str:
     return json.dumps(with_meta(
         {
             "url": url,
+            "final_url": final_url,
             "total_links": len(links),
             "internal_count": len(internal),
             "external_count": len(external),
@@ -389,7 +392,7 @@ def link_equity_map(
         if i and delay_seconds:
             time.sleep(delay_seconds)
         try:
-            html, _status = fetch_html_following_redirects(page_url)
+            html, _status, final_url = fetch_html_following_redirects(page_url)
         except (URLSafetyError, httpx.HTTPError) as exc:
             failed.append({"url": page_url, "error": str(exc)})
             continue
@@ -399,7 +402,7 @@ def link_equity_map(
 
         parser = _LinkParser()
         parser.feed(html)
-        for link in _classify(parser.links, page_url):
+        for link in _classify(parser.links, final_url):
             if not link["internal"] or link["self_link"]:
                 continue
             target = link["path"]

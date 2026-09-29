@@ -228,7 +228,7 @@ def _redirect_client(redirects: dict[str, str], final_html: str):
     return client
 
 
-def test_schema_validate_follows_same_domain_redirect():
+def test_schema_validate_follows_www_redirect():
     """A bare-domain URL that 301s to its www canonical is audited, not reported as fetch_error."""
     html = """<html><head><script type="application/ld+json">
     {"@context": "https://schema.org", "@type": "WebSite", "name": "Example", "url": "https://www.example.com"}
@@ -239,6 +239,21 @@ def test_schema_validate_follows_same_domain_redirect():
     assert result["verdict"] == "healthy"
     assert result["schemas_detected"] == 1
     assert result["schemas"][0]["type"] == "WebSite"
+    assert result["final_url"] == "https://www.example.com/"
+
+
+def test_schema_validate_cross_host_redirect_is_refused():
+    """A redirect to another site is not followed: the audit would otherwise validate
+    another site's JSON-LD under the original URL."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@type": "WebSite", "name": "Evil", "url": "https://evil.example.net"}
+    </script></head></html>"""
+    client = _redirect_client({"https://example.com/": "https://evil.example.net/"}, html)
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "fetch_error"
+    assert "Cross-site redirect refused" in result["error"]
+    assert "evil.example.net" in result["error"]
 
 
 def test_schema_validate_redirect_to_blocked_host_is_refused():
@@ -247,7 +262,23 @@ def test_schema_validate_redirect_to_blocked_host_is_refused():
     with patch("httpx.Client", return_value=client):
         result = json.loads(schema_validate("https://example.com/"))
     assert result["verdict"] == "fetch_error"
-    assert "169.254.169.254" in result["error"]
+    assert "Blocked hostname" in result["error"] or "Cross-site redirect refused" in result["error"]
+    assert "Redirect response" not in result["error"]
+
+
+def test_schema_validate_list_valued_type_is_normalised():
+    """@type may be a list (["Person", "Organization"]); it must not crash and the
+    entry with known required fields is the one validated."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@graph": [
+      {"@type": ["Person", "Organization"], "name": "O"}
+    ]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "healthy"
+    assert result["schemas"][0]["type"] == "Organization"
+    assert result["schemas"][0]["valid"] is True
 
 
 def test_schema_validate_meta():

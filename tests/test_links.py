@@ -440,6 +440,29 @@ def test_internal_links_audit_follows_http_to_https_redirect():
     assert result["internal_count"] == 1
 
 
+def test_internal_links_audit_classifies_links_against_final_url():
+    """After a bare-domain -> www redirect, links to www.example.com are internal,
+    and the page's own www URL is a self-link, not an external one."""
+    html = ("<html><body><main>"
+            "<a href='https://www.example.com/guide'>Guide detaille complet</a>"
+            "<a href='https://www.example.com/'>Accueil du site</a>"
+            "</main></body></html>")
+
+    def fake_fetch(url, **_):
+        if url == "https://example.com/":
+            raise _redirect_error("https://www.example.com/", url=url)
+        assert url == "https://www.example.com/"
+        return (html, 200)
+
+    with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
+        result = json.loads(internal_links_audit("https://example.com/"))
+
+    assert result["final_url"] == "https://www.example.com/"
+    assert result["internal_count"] == 2
+    assert result["external_count"] == 0
+    assert result["self_link_count"] == 1
+
+
 def test_internal_links_audit_stops_following_after_max_hops():
     def fake_fetch(url, **_):
         n = int(url.rsplit("/", 1)[-1])
@@ -453,17 +476,35 @@ def test_internal_links_audit_stops_following_after_max_hops():
 
 
 def test_internal_links_audit_redirect_to_blocked_host_still_refused():
-    """SSRF protection survives redirect-following: the target hop is re-checked."""
+    """SSRF protection survives redirect-following: the target hop is re-checked.
+
+    The hop stays on the same site (so the same-site rule lets it through) but
+    resolves to a blocked address at fetch time, as a DNS-rebinding target would.
+    """
     def fake_fetch(url, **_):
         if url == "http://example.com/":
-            raise _redirect_error("http://169.254.169.254/", url=url)
-        raise URLSafetyError(f"Blocked IP literal: 169.254.169.254")
+            raise _redirect_error("http://example.com/internal", url=url)
+        raise URLSafetyError("Blocked IP: 169.254.169.254")
 
     with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
         result = json.loads(internal_links_audit("http://example.com/"))
 
     assert result["verdict"] == "fetch_error"
-    assert "Blocked IP literal" in result["error"]
+    assert "Blocked IP" in result["error"]
+
+
+def test_internal_links_audit_cross_site_redirect_refused():
+    """A redirect to another site is not crawled as if it were the audited page."""
+    def fake_fetch(url, **_):
+        if url == "http://example.com/":
+            raise _redirect_error("https://other.example.net/", url=url)
+        raise AssertionError("the cross-site hop must not be fetched")
+
+    with patch("gsc_mcp.url_safety.safe_fetch_html", side_effect=fake_fetch):
+        result = json.loads(internal_links_audit("http://example.com/"))
+
+    assert result["verdict"] == "fetch_error"
+    assert "Cross-site redirect refused" in result["error"]
 
 
 def test_link_equity_map_crawls_page_reached_via_redirect():

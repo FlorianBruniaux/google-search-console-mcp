@@ -48,6 +48,20 @@ _PATTERN_RECOMMENDATIONS = [
 ]
 
 
+def _primary_type(schema_type) -> str:
+    """Reduce a list-valued @type (["Person", "Organization"]) to one string.
+
+    Prefers the first entry that has a required-fields rule, so validation is
+    as strict as the data allows; falls back to the first entry.
+    """
+    if isinstance(schema_type, list):
+        names = [t for t in schema_type if isinstance(t, str)]
+        if not names:
+            return "Unknown"
+        return next((t for t in names if t in _REQUIRED_FIELDS), names[0])
+    return schema_type if isinstance(schema_type, str) else "Unknown"
+
+
 def _unwrap_graph(item: dict) -> list[dict]:
     """Return the nodes of an @graph container (Rank Math, Yoast), or the item itself."""
     graph = item.get("@graph") if isinstance(item, dict) else None
@@ -98,7 +112,7 @@ def schema_validate(url: str) -> str:
               fetch_error (URL not reachable).
     """
     try:
-        html, _status = fetch_html_following_redirects(url)
+        html, _status, final_url = fetch_html_following_redirects(url)
     except (URLSafetyError, httpx.HTTPError) as e:
         return json.dumps(with_meta(
             {"url": url, "error": str(e), "verdict": "fetch_error"},
@@ -111,7 +125,7 @@ def schema_validate(url: str) -> str:
 
     detected: list[dict] = []
     for schema in parser.schemas:
-        schema_type = schema.get("@type", "Unknown")
+        schema_type = _primary_type(schema.get("@type", "Unknown"))
         required = _REQUIRED_FIELDS.get(schema_type, [])
         missing = [f for f in required if f not in schema]
         deprecated_note = _DEPRECATED_RICH_RESULTS.get(schema_type)
@@ -140,6 +154,7 @@ def schema_validate(url: str) -> str:
     return json.dumps(with_meta(
         {
             "url": url,
+            "final_url": final_url,
             "schemas_detected": len(detected),
             "schemas": detected,
             "recommendations": recommendations,
