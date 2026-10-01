@@ -5,6 +5,7 @@ All tests are fully mocked -- no real DNS resolution or network connections.
 import socket
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 
 from gsc_mcp.url_safety import (
@@ -15,6 +16,7 @@ from gsc_mcp.url_safety import (
     validate_url_strict,
     safe_httpx_get,
     safe_fetch_html,
+    fetch_html_following_redirects,
 )
 
 
@@ -198,3 +200,73 @@ class TestSafeFetchHtml:
     def test_blocked_url_raises_safety_error(self):
         with pytest.raises(URLSafetyError):
             safe_fetch_html("http://169.254.169.254/")
+
+
+class TestFetchHtmlFollowingRedirects:
+    """Bounded, same-site redirect following on top of safe_fetch_html."""
+
+    @staticmethod
+    def _client(responses: dict[str, tuple[int, dict]]):
+        def fake_get(url, **_):
+            status, headers = responses[url]
+            return httpx.Response(status, headers=headers, text="<html></html>",
+                                  request=httpx.Request("GET", url))
+        client = MagicMock()
+        client.__enter__ = MagicMock(return_value=client)
+        client.__exit__ = MagicMock(return_value=False)
+        client.get.side_effect = fake_get
+        return client
+
+    @pytest.fixture(autouse=True)
+    def _public_dns(self):
+        fake = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 80))]
+        with patch("socket.getaddrinfo", return_value=fake):
+            yield
+
+    @pytest.mark.parametrize("status", [301, 302, 303, 307, 308])
+    def test_follows_redirect_statuses(self, status):
+        client = self._client({
+            "http://example.com/": (status, {"location": "https://example.com/"}),
+            "https://example.com/": (200, {}),
+        })
+        with patch("httpx.Client", return_value=client):
+            _html, code, final = fetch_html_following_redirects("http://example.com/")
+        assert code == 200
+        assert final == "https://example.com/"
+
+    @pytest.mark.parametrize("status", [304, 404, 500])
+    def test_location_on_non_redirect_status_is_not_followed(self, status):
+        client = self._client({
+            "https://example.com/": (status, {"location": "https://example.com/other"}),
+        })
+        with patch("httpx.Client", return_value=client):
+            with pytest.raises(httpx.HTTPStatusError):
+                fetch_html_following_redirects("https://example.com/")
+        assert client.get.call_count == 1
+
+    def test_www_prefix_is_same_site(self):
+        client = self._client({
+            "https://www.example.com/": (301, {"location": "https://example.com/"}),
+            "https://example.com/": (200, {}),
+        })
+        with patch("httpx.Client", return_value=client):
+            _html, code, final = fetch_html_following_redirects("https://www.example.com/")
+        assert code == 200
+        assert final == "https://example.com/"
+
+    def test_cross_host_redirect_raises(self):
+        client = self._client({
+            "https://example.com/": (301, {"location": "https://evil.example.net/"}),
+        })
+        with patch("httpx.Client", return_value=client):
+            with pytest.raises(URLSafetyError, match="Cross-site redirect refused"):
+                fetch_html_following_redirects("https://example.com/")
+        assert client.get.call_count == 1
+
+    def test_subdomain_is_not_same_site(self):
+        client = self._client({
+            "https://example.com/": (301, {"location": "https://cdn.example.com/"}),
+        })
+        with patch("httpx.Client", return_value=client):
+            with pytest.raises(URLSafetyError, match="Cross-site redirect refused"):
+                fetch_html_following_redirects("https://example.com/")
