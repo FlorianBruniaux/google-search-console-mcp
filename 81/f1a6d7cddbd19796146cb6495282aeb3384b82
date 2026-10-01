@@ -1,0 +1,37 @@
+.agents/skills/indexing-audit/SKILL.md
+  s_ac2d166590f8d7::t_3e426e60de40ea 1-20
+.agents/skills/indexing-audit/evals/scenarios.json
+  s_ac2d166590f8d7::t_c6af90673b69dc 1-29
+.agents/skills/sitemap-audit/SKILL.md
+  s_ac2d166590f8d7::t_9afdd787621d3a 1-20
+.agents/skills/sitemap-audit/evals/scenarios.json
+  s_ac2d166590f8d7::t_97dbd3f1b446b7 1-27
+.claude/agents/gsc-indexing-auditor.md
+  s_ac2d166590f8d7::t_87ca355e5cfff7 3-5
+.claude/agents/gsc-sitemap-auditor.md
+  s_ac2d166590f8d7::t_b5e1647e672b21 3-7
+.claude/routing-corpus/indexing-audit/scenarios.json
+  s_ac2d166590f8d7::t_5cf62467cce377 1
+.claude/routing-corpus/sitemap-audit/scenarios.json
+  s_ac2d166590f8d7::t_522871cfe825bd 1
+.claude/skills/indexing-audit/SKILL.md
+  s_ac2d166590f8d7::t_fca48141621da6 1
+.claude/skills/sitemap-audit/SKILL.md
+  s_ac2d166590f8d7::t_0f0b58d9b54e27 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "81f1a6d7cddbd19796146cb6495282aeb3384b82",
+  "prompts": {},
+  "sessions": {
+    "s_ac2d166590f8d7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f6aa-515b-7223-85d4-9a109125730c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
