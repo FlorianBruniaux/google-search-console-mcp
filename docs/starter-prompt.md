@@ -39,7 +39,8 @@ Run a complete SEO audit in this order:
    How many pages fall into each category?
 
 10. Sitemap audit: use sitemap_audit to check my main sitemap. How many URLs
-    are declared vs. found in GSC? Report the verdict and the missing_sample.
+    are declared vs. have Search Analytics page rows? Report visibility_verdict
+    and without_search_data_sample. Do not infer indexation from this comparison.
 
 11. Page-level deep dive on the top 3 pages by clicks:
     - Search analytics (queries, CTR, position)
@@ -165,7 +166,7 @@ Run a GA4 performance audit for property ID 123456789, last 28 days:
 
 ## Sitemap audit
 
-Use when you want to check sitemap coverage against GSC:
+Use when you want to compare a sitemap with Search Analytics visibility:
 
 ```
 Audit my sitemap at https://example.com/sitemap.xml for the property sc-domain:example.com.
@@ -174,6 +175,6 @@ Use sitemap_audit and report:
 1. Is this a sitemap index or a regular urlset?
 2. How many URLs are declared in the sitemap?
 3. How many of those URLs appear in GSC search data (last 90 days)?
-4. Verdict: healthy, partial, empty, or fetch_error?
-5. If partial, show the missing_sample so I can investigate which pages are absent.
+4. What is visibility_verdict? This measures search data, not indexation.
+5. If partial_search_visibility, show without_search_data_sample for URL inspection.
 ```

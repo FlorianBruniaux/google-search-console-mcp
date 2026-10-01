@@ -64,7 +64,7 @@ The 61 tools span fourteen families: Properties (list and inspect GSC sites), An
 | Sitemaps | `submit_sitemap` | Submit a sitemap URL |
 | Sitemaps | `sitemaps_get` | Fetch details for a single sitemap |
 | Sitemaps | `sitemaps_delete` | Delete a submitted sitemap (with safety check) |
-| Sitemaps | `sitemap_audit` | Fetch a sitemap, parse its URLs, cross-reference against 90 days of GSC coverage |
+| Sitemaps | `sitemap_audit` | Fetch a sitemap and compare its URLs with 90 days of Search Analytics page rows; does not measure indexation |
 | GA4 | `ga4_organic_landing_pages` | Sessions and engagement for organic landing pages |
 | GA4 | `ga4_traffic_sources` | Sessions and conversions by channel, source and medium |
 | GA4 | `ga4_page_performance` | 7 metrics per page path, optional CONTAINS filter |

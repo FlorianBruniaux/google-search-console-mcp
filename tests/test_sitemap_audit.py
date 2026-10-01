@@ -90,28 +90,33 @@ def test_sitemap_audit_empty_urlset():
     assert result["urls_declared"] == 0
 
 
-def test_sitemap_audit_healthy():
-    """3 URLs in sitemap, all 3 in GSC → verdict=healthy."""
+def test_sitemap_audit_search_visibility_present():
+    """All 3 sitemap URLs have Search Analytics page rows."""
     http_client = _make_httpx_client([_mock_http_response(URLSET_3)])
     with patch("gsc_mcp.tools.sitemaps.httpx.Client", return_value=http_client), \
          patch("gsc_mcp.tools.sitemaps.get_search_analytics", return_value=GSC_JSON_3):
         result = json.loads(sitemap_audit(SITE, SITEMAP_URL))
     assert result["verdict"] == "healthy"
+    assert result["visibility_verdict"] == "search_visibility_present"
     assert result["urls_declared"] == 3
-    assert result["urls_in_gsc"] == 3
-    assert result["urls_missing_from_gsc"] == 0
+    assert result["urls_with_search_data"] == 3
+    assert result["urls_without_search_data"] == 0
+    assert result["urls_in_gsc"] == result["urls_with_search_data"]
+    assert result["urls_missing_from_gsc"] == result["urls_without_search_data"]
 
 
-def test_sitemap_audit_partial():
-    """5 URLs in sitemap, 4 missing from GSC (80% missing > 20% threshold) → verdict=partial."""
+def test_sitemap_audit_partial_search_visibility():
+    """Four of five sitemap URLs lack Search Analytics page rows."""
     gsc_json = json.dumps({"rows": [{"page": "https://example.com/page1"}], "site": SITE, "date_range": {}})
     http_client = _make_httpx_client([_mock_http_response(URLSET_5)])
     with patch("gsc_mcp.tools.sitemaps.httpx.Client", return_value=http_client), \
          patch("gsc_mcp.tools.sitemaps.get_search_analytics", return_value=gsc_json):
         result = json.loads(sitemap_audit(SITE, SITEMAP_URL))
     assert result["verdict"] == "partial"
+    assert result["visibility_verdict"] == "partial_search_visibility"
     assert result["urls_declared"] == 5
-    assert result["urls_missing_from_gsc"] == 4
+    assert result["urls_without_search_data"] == 4
+    assert result["urls_missing_from_gsc"] == result["urls_without_search_data"]
 
 
 def test_sitemap_audit_fetch_error():
@@ -176,8 +181,9 @@ def test_sitemap_audit_missing_sample_capped_at_20():
     with patch("gsc_mcp.tools.sitemaps.httpx.Client", return_value=http_client), \
          patch("gsc_mcp.tools.sitemaps.get_search_analytics", return_value=gsc_json):
         result = json.loads(sitemap_audit(SITE, SITEMAP_URL))
-    assert len(result["missing_sample"]) == 20
-    assert result["urls_missing_from_gsc"] == 25
+    assert len(result["without_search_data_sample"]) == 20
+    assert result["urls_without_search_data"] == 25
+    assert result["missing_sample"] == result["without_search_data_sample"]
 
 
 # ---------------------------------------------------------------------------

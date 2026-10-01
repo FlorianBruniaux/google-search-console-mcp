@@ -330,7 +330,8 @@ def check_alerts(site: str, days: int = 28) -> str:
     rows = _fetch_rows(svc, site, body)
 
     alerts = []
-    total_clicks = sum(r["clicks"] for r in rows)
+    property_rows = _fetch_rows(svc, site, {"startDate": start, "endDate": end})
+    total_clicks = sum(r["clicks"] for r in property_rows)
 
     for r in rows:
         share = r["clicks"] / total_clicks if total_clicks else 0
@@ -340,7 +341,7 @@ def check_alerts(site: str, days: int = 28) -> str:
                 "severity": "high",
                 "page": r.get("page"),
                 "query": r.get("query"),
-                "message": f"Single query drives {share:.0%} of all clicks — single point of failure.",
+                "message": f"This page/query pair drives {share:.0%} of property clicks.",
             })
         elif r["position"] > 10 and r["impressions"] > 5000:
             alerts.append({
