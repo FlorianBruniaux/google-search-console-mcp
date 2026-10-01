@@ -1,0 +1,27 @@
+{
+  "target": "sitemap-audit",
+  "type": "command",
+  "positive": [
+    "mon sitemap est-il à jour dans Search Console",
+    "vérifie les erreurs du plan de site soumis",
+    "combien d'URL sont déclarées dans mon sitemap XML",
+    "Google a-t-il retéléchargé mon sitemap récemment",
+    "compare les URL du sitemap aux pages ayant des données Search Analytics",
+    "quelles URL du sitemap n'ont pas de données de recherche",
+    "audit du sitemap et de ses fichiers enfants",
+    "mon sitemap renvoie-t-il une erreur de téléchargement",
+    "check my submitted sitemap status and download date",
+    "compare sitemap URLs with Search Analytics page rows"
+  ],
+  "negative": [
+    "cette page précise est-elle indexée par Google",
+    "pourquoi cette URL est découverte mais non indexée",
+    "quel est le statut de récupération de cette URL",
+    "mes H1 et H2 sont-ils corrects sur cette page",
+    "trouve les liens internes absents de cette page",
+    "Analyse les requêtes qui font baisser mon trafic",
+    "Relis ce plan de développement avant exécution",
+    "Optimise le CTR de mes pages dans Google Search Console"
+  ],
+  "skill": "sitemap-audit"
+}
