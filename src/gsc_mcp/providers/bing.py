@@ -13,6 +13,11 @@ from typing import Any
 import httpx
 
 from gsc_mcp.auth import get_bing_api_key
+from gsc_mcp.providers.base import (
+    SearchMetricBatch,
+    SearchMetricRow,
+    UnsupportedProviderFeature,
+)
 
 _BING_API_BASE = "https://ssl.bing.com/webmaster/api.svc/json"
 _RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
@@ -232,3 +237,187 @@ class BingWebmasterClient:
 
 def get_bing_client() -> BingWebmasterClient:
     return BingWebmasterClient(get_bing_api_key())
+
+
+_METRIC_METHODS = {
+    ("query",): "GetQueryStats",
+    ("page",): "GetPageStats",
+    ("date",): "GetRankAndTrafficStats",
+}
+
+
+def _metric_int(value: object) -> int:
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _metric_float(value: object) -> float | None:
+    try:
+        return float(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _weighted_value(total: float, weight: int) -> float | None:
+    return round(total / weight, 1) if weight else None
+
+
+class BingSearchProvider:
+    def fetch(
+        self,
+        site: str,
+        start_date: str,
+        end_date: str,
+        dimensions: tuple[str, ...],
+    ) -> SearchMetricBatch:
+        method = _METRIC_METHODS.get(dimensions)
+        if method is None:
+            raise UnsupportedProviderFeature(
+                f"Bing does not support dimensions {dimensions!r}"
+            )
+
+        raw_rows = get_bing_client().read(method, {"siteUrl": site})
+        filtered_rows, observed_dates = self._filter_rows(
+            raw_rows, start_date, end_date
+        )
+        if dimensions == ("date",):
+            rows = self._aggregate_dates(filtered_rows)
+            position_semantics = "unavailable"
+        else:
+            dimension = dimensions[0]
+            rows = self._aggregate_positions(filtered_rows, dimension)
+            position_semantics = "bing_average_impression_position"
+
+        return SearchMetricBatch(
+            engine="bing",
+            dimensions=dimensions,
+            rows=rows,
+            requested_start=start_date,
+            requested_end=end_date,
+            observed_start=min(observed_dates) if observed_dates else None,
+            observed_end=max(observed_dates) if observed_dates else None,
+            window_exact=False,
+            position_semantics=position_semantics,
+        )
+
+    @staticmethod
+    def _filter_rows(
+        raw_rows: object, start_date: str, end_date: str
+    ) -> tuple[list[tuple[dict, str]], list[str]]:
+        filtered: list[tuple[dict, str]] = []
+        observed_dates: list[str] = []
+        if not isinstance(raw_rows, list):
+            return filtered, observed_dates
+
+        for raw in raw_rows:
+            if not isinstance(raw, dict):
+                continue
+            observed_date = parse_bing_date(raw.get("Date"))
+            if observed_date is None or not start_date <= observed_date <= end_date:
+                continue
+            filtered.append((raw, observed_date))
+            observed_dates.append(observed_date)
+        return filtered, observed_dates
+
+    @staticmethod
+    def _aggregate_dates(
+        filtered_rows: list[tuple[dict, str]],
+    ) -> tuple[SearchMetricRow, ...]:
+        aggregates: dict[str, dict[str, int]] = {}
+        for raw, observed_date in filtered_rows:
+            aggregate = aggregates.setdefault(
+                observed_date, {"clicks": 0, "impressions": 0}
+            )
+            aggregate["clicks"] += _metric_int(raw.get("Clicks"))
+            aggregate["impressions"] += _metric_int(raw.get("Impressions"))
+
+        rows = []
+        for observed_date in sorted(aggregates):
+            aggregate = aggregates[observed_date]
+            clicks = aggregate["clicks"]
+            impressions = aggregate["impressions"]
+            rows.append(
+                SearchMetricRow(
+                    engine="bing",
+                    date=observed_date,
+                    query=None,
+                    page=None,
+                    clicks=clicks,
+                    impressions=impressions,
+                    ctr=round(clicks / impressions, 4) if impressions else 0.0,
+                    position=None,
+                )
+            )
+        return tuple(rows)
+
+    @staticmethod
+    def _aggregate_positions(
+        filtered_rows: list[tuple[dict, str]], dimension: str
+    ) -> tuple[SearchMetricRow, ...]:
+        aggregates: dict[str | None, dict[str, int | float]] = {}
+        for raw, _ in filtered_rows:
+            raw_key = raw.get("Query")
+            key = str(raw_key) if raw_key is not None else None
+            aggregate = aggregates.setdefault(
+                key,
+                {
+                    "clicks": 0,
+                    "impressions": 0,
+                    "click_position_total": 0.0,
+                    "click_position_weight": 0,
+                    "impression_position_total": 0.0,
+                    "impression_position_weight": 0,
+                },
+            )
+            impressions = _metric_int(raw.get("Impressions"))
+            aggregate["clicks"] += _metric_int(raw.get("Clicks"))
+            aggregate["impressions"] += impressions
+
+            avg_click_position = _metric_float(raw.get("AvgClickPosition"))
+            if avg_click_position is not None and impressions:
+                aggregate["click_position_total"] += (
+                    avg_click_position * impressions
+                )
+                aggregate["click_position_weight"] += impressions
+
+            avg_impression_position = _metric_float(
+                raw.get("AvgImpressionPosition")
+            )
+            if avg_impression_position is not None and impressions:
+                aggregate["impression_position_total"] += (
+                    avg_impression_position * impressions
+                )
+                aggregate["impression_position_weight"] += impressions
+
+        rows = []
+        for key, aggregate in aggregates.items():
+            clicks = int(aggregate["clicks"])
+            impressions = int(aggregate["impressions"])
+            avg_click_position = _weighted_value(
+                float(aggregate["click_position_total"]),
+                int(aggregate["click_position_weight"]),
+            )
+            avg_impression_position = _weighted_value(
+                float(aggregate["impression_position_total"]),
+                int(aggregate["impression_position_weight"]),
+            )
+            rows.append(
+                SearchMetricRow(
+                    engine="bing",
+                    date=None,
+                    query=key if dimension == "query" else None,
+                    page=key if dimension == "page" else None,
+                    clicks=clicks,
+                    impressions=impressions,
+                    ctr=round(clicks / impressions, 4) if impressions else 0.0,
+                    position=avg_impression_position,
+                    provider_metrics={
+                        "avg_click_position": avg_click_position,
+                        "avg_impression_position": avg_impression_position,
+                    },
+                )
+            )
+        rows.sort(key=lambda row: row.impressions, reverse=True)
+        return tuple(rows)
