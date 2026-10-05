@@ -340,3 +340,7 @@ def main(argv=None) -> int:
     fn_name = cmd.replace("-", "_")
     keep_meta = getattr(namespace, "meta", False)
     return _call_tool(fn_name, namespace, keep_meta)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

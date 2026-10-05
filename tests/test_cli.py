@@ -11,6 +11,9 @@ or cli.py, so the test is independent of how cli.py wires things up.
 import json
 import inspect
 import os
+from pathlib import Path
+import subprocess
+import sys
 import typing
 
 import pytest
@@ -75,6 +78,30 @@ def test_root_help_displays_literal_percent(capsys):
     captured = capsys.readouterr()
     assert "80%+ fewer clicks" in captured.out
     assert "80%%+ fewer clicks" not in captured.out
+
+
+def test_module_invocation_lists_registered_commands():
+    source_root = Path(__file__).resolve().parents[1] / "src"
+    env = os.environ.copy()
+    existing_pythonpath = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (str(source_root), existing_pythonpath) if part
+    )
+
+    completed = subprocess.run(
+        [sys.executable, "-m", "gsc_mcp.cli", "list"],
+        cwd=source_root.parent,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    listed_commands = [line for line in completed.stdout.splitlines() if line.strip()]
+    assert len(listed_commands) == len(TOOLS)
+    assert "bing-sites-list" in completed.stdout
+    assert "compare-search-engines" in completed.stdout
 
 
 def test_new_tool_annotations_are_supported():
