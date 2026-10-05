@@ -1,0 +1,19 @@
+docs/machine-readable/constraints.yaml
+  s_b091cb578646a0::t_587196cfc952d6 201-204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cbd49884a850b7995a690407bef9cdd6be809f65",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
