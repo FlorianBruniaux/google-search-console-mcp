@@ -198,7 +198,10 @@ required_patterns:
 
   - id: "BING-POSITION-SEMANTICS"
     context: "normalisation ou comparaison des positions Bing"
-    pattern: "Conserver bing_average_impression_position et les métriques Bing dans provider_metrics."
+    pattern: >
+      Stocker le label bing_average_impression_position dans
+      SearchMetricBatch.position_semantics; stocker avg_click_position et
+      avg_impression_position dans SearchMetricRow.provider_metrics.
     note: "Les positions Google et Bing restent côte à côte; aucune soustraction cross-engine."
     source_adrs: [ADR-0016]
 
