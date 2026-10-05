@@ -1,0 +1,21 @@
+CHANGELOG.md
+  s_b091cb578646a0::t_60c70168dcd29b 3-23
+pyproject.toml
+  s_b091cb578646a0::t_60c70168dcd29b 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "926300fe2720c3b2fcce6c88d8acf713f78e900a",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
