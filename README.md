@@ -14,25 +14,27 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-611%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-846%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 61 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, on-page content/technical audits, heading structure, zone-weighted internal linking, site-wide link equity mapping, AI crawler visibility, GBP deprecation detection, and PageSpeed Insights integration. Built on Python 3.11+ and FastMCP.
+Search visibility MCP server with 81 tools covering Google Search Console, Bing Webmaster Tools, Google Analytics 4, IndexNow, Core Web Vitals (CrUX), technical SEO, content audits, internal linking and guarded search-engine submissions. Built on Python 3.11+ and FastMCP.
 
-**TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
+**TL;DR:** Configure Google, Bing or both, then ask Claude to analyse measured search data before recommending changes. The server handles API calls, validation, retries and bounded submissions. Every output is structured JSON. A successful submission is reported as accepted, never as proof of crawl or indexation.
 
 No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
 
 **Latest: v1.1.2** (`internal_links_audit` and `link_equity_map` now follow redirects through the same SSRF-safe DNS-pinning check instead of treating a 301/302 as a crawl failure). v1.1.1 fixed a crash-on-launch for `uvx gsc-mcp-tools` caused by an unbounded `mcp` dependency resolving to an incompatible v2. v1.1.0 added heading structure audit, zone-weighted internal linking audit, site-wide link equity mapping crossed with GSC positions, and a traffic-backed pruning classifier that never flags a page with clicks. See the [full changelog](CHANGELOG.md).
 
+The published `1.1.2` package does not include the Bing provider. The 81-tool catalogue documented below describes this source checkout; run it from source until a release containing these changes is published. Existing global MCP configurations pinned to `gsc-mcp-tools==1.1.2` remain unchanged.
+
 ## What you can do with it
 
-The 61 tools span fourteen families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries, parasite SEO risk, traffic-backed pruning candidates), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), IndexNow (Bing/Yandex/Seznam/Naver notification), and Sitemaps (list, submit, audit coverage against GSC data). The remaining six families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals + LCP subpart breakdown), Technical (JSON-LD schema validation with deprecated-rich-results detection, schema generation, AI crawler visibility audit, GBP deprecation lint, PageSpeed Insights), Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs), Content (on-page quality scoring, hreflang validation, technical meta + robots.txt audit, preload/bfcache audit, heading structure), and Links (zone-weighted internal link audit on a page, plus a site-wide link equity map crossed with GSC positions).
+The registry contains the existing catalogue, 19 Bing tools and `compare_search_engines`. The Bing family contains 15 reads and 4 guarded writes. Google and Bing share a minimal metrics contract for clicks, impressions, derived CTR and provider-specific position semantics. Bing-specific values remain in `provider_metrics` instead of being forced into Google fields.
 
-## Tools (61)
+## Tools (81)
 
 <details>
-<summary>Show all 61 tools</summary>
+<summary>Show all 81 tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -97,14 +99,34 @@ The 61 tools span fourteen families: Properties (list and inspect GSC sites), An
 | Links | `internal_links_audit` | Audit a page's internal links weighted by zone (body, nav, footer, header, aside): targets linked only from footer/nav, generic and empty anchors, internal nofollow, self-links |
 | Links | `link_equity_map` | Crawl the top pages by impressions, build the internal link graph, cross it with GSC: pages at position 11-20 with no body inbound link, orphan candidates, footer-only targets, hubs |
 | SEO | `prune_candidates` | Classify pages by measured traffic (has_traffic, impressions_no_clicks, low_impressions, zero_impressions) before any pruning call; a page with clicks is never a candidate |
+| Bing read | `bing_sites_list` | List sites visible to the Bing account and their observed verified state |
+| Bing read | `bing_query_stats` | Query performance in Bing's observed rolling window |
+| Bing read | `bing_page_stats` | Page performance in Bing's observed rolling window |
+| Bing read | `bing_page_query_stats` | Query performance for one page |
+| Bing read | `bing_rank_traffic_stats` | Daily clicks and impressions; no rank field is inferred |
+| Bing read | `bing_crawl_stats` | Dated crawl counters in the requested local window |
+| Bing read | `bing_crawl_issues` | Crawl issue flags; non-empty live item shape remains unverified |
+| Bing read | `bing_crawl_settings_get` | Observed crawl-rate setting from the partial contract |
+| Bing read | `bing_url_info` | Observed URL fields and last crawl date, without an indexation verdict |
+| Bing read | `bing_url_traffic` | URL clicks, impressions and derived CTR |
+| Bing read | `bing_feeds_list` | List registered Bing feeds |
+| Bing read | `bing_feed_details` | Return every observed feed-detail row |
+| Bing read | `bing_url_submission_quota` | Return quota integers with total-versus-remaining semantics marked unknown |
+| Bing read | `bing_link_counts` | Backlink count page; nested runtime shape remains unverified |
+| Bing read | `bing_url_links` | Backlinks for one URL; nested runtime shape remains unverified |
+| Bing write | `bing_url_submit` | Submit one same-origin URL; acceptance does not prove indexation |
+| Bing write | `bing_urls_submit_batch` | Validate a batch, then refuse it while quota semantics remain unknown |
+| Bing write | `bing_feed_submit` | Submit one same-origin feed without claiming crawl or indexation |
+| Bing write | `bing_feed_remove` | Remove a registered same-origin feed after explicit `confirm=true`; runtime contract unverified |
+| Cross-engine | `compare_search_engines` | Compare query or page metrics; deltas require equal exact observed windows and positions stay side by side |
 
 </details>
 
 ## Requirements
 
 - Python 3.11+
-- A Google Cloud project with the Search Console API, Web Search Indexing API, and Google Analytics Data API enabled
-- A Service Account JSON key (recommended) or OAuth Desktop credentials
+- For Google tools: a Google Cloud project with the Search Console API, Web Search Indexing API and Google Analytics Data API enabled, plus a Service Account JSON key or OAuth Desktop credentials
+- For Bing tools: a Bing Webmaster Tools account, at least one verified site and a Bing Webmaster API key
 
 ## Installation
 
@@ -140,6 +162,7 @@ export GSC_SERVICE_ACCOUNT_PATH=/absolute/path/to/service-account.json
 export GSC_SKIP_OAUTH=true
 export GA4_PROPERTY_ID=123456789   # only needed for GA4 tools
 export CRUX_API_KEY=AIza...        # only needed for crux_page_vitals, crux_history
+export BING_WEBMASTER_API_KEY='<from-your-secret-store>'  # only needed for bing_* tools
 gsc-mcp
 ```
 
@@ -159,14 +182,74 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
         "GSC_SKIP_OAUTH": "true",
         "GA4_PROPERTY_ID": "123456789",
-        "CRUX_API_KEY": "AIza..."
+        "CRUX_API_KEY": "AIza...",
+        "BING_WEBMASTER_API_KEY": "<from-your-secret-store>"
       }
     }
   }
 }
 ```
 
-Remove `GA4_PROPERTY_ID` if you are not using GA4 tools. Restart Claude Desktop after saving.
+Remove credentials for tool families you do not use. Restart Claude Desktop after saving. For Bing support before its first published release, set `command` to the absolute `gsc-mcp` executable from this source checkout instead of `uvx`.
+
+### Bing Webmaster API key
+
+1. Sign in to [Bing Webmaster Tools](https://www.bing.com/webmasters/) and verify every site you want the account to access.
+2. Open the API access settings and generate an API key.
+3. Store the key in your secret manager or local environment as `BING_WEBMASTER_API_KEY`. Never pass it as a tool argument or commit it to a file.
+4. Call each Bing tool with its `site` argument, for example `https://example.com/`. One user-level key can access every verified site visible to that account.
+
+The Bing Webmaster API key and the IndexNow key have different scopes:
+
+- Bing Webmaster API reads private account data and manages verified sites. The server reads its user-level key from `BING_WEBMASTER_API_KEY`.
+- IndexNow notifies participating engines about changed URLs. Its key must be verifiable on each target host or subdomain, and `indexnow_submit` currently receives that key as an explicit argument.
+- The Bing Webmaster Tools web interface exposes features that the public API does not. Full URL Inspection and AI Performance are not available through the public API used here.
+
+Do not reuse the Bing Webmaster API key as an IndexNow key.
+
+### Bing from the CLI
+
+```bash
+# Load BING_WEBMASTER_API_KEY from your local secret store before this command.
+gsc-cli bing-sites-list
+gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 100
+gsc-cli compare-search-engines \
+  --google-site sc-domain:example.com \
+  --bing-site https://example.com/ \
+  --days 28 \
+  --dimension query
+```
+
+`BING_WEBMASTER_API_KEY` is process configuration. It never appears in the CLI flags, tool parameters, result metadata or sanitized Bing errors.
+
+### Analysis support by search engine
+
+| Analysis | Google | Bing |
+|---|---|---|
+| Raw query, page and date metrics | Supported | Supported within Bing's observed window |
+| `quick_wins` | Supported | Supported with `engine="bing"` when position is present |
+| `seo_striking_distance` | Supported | Supported with `engine="bing"` when position is present |
+| `prune_candidates` | Supported | Supported with `engine="bing"`; indexation must be checked separately |
+| `traffic_drops`, `seo_lost_queries` | Supported | Explicit refusal: exact period comparison unavailable |
+| `check_alerts`, `seo_cannibalization` | Supported | Explicit refusal: bulk page-query dimension unavailable |
+| Cross-engine query or page comparison | Supported through `compare_search_engines` | Deltas are omitted unless both observed windows are exact and equal |
+
+Bing keyword-research endpoints are not exposed. `GetKeywordStats` and `GetRelatedKeywords` returned HTTP 400 in the redacted live canary, so their contract remains `UNKNOWN`.
+
+### Submission workflow and confirmation
+
+There are nine tools that mutate remote state: five existing tools (`submit_url`, `submit_batch`, `submit_sitemap`, `sitemaps_delete`, `indexnow_submit`) and four Bing tools (`bing_url_submit`, `bing_urls_submit_batch`, `bing_feed_submit`, `bing_feed_remove`). Before any call, the agent must read the current state, name the exact target and volume, obtain explicit confirmation, call the tool once, then report its returned status without extrapolation.
+
+Use this sequence for search changes:
+
+1. Analyse measured data and state its observed window.
+2. Recommend a change, separating measured facts, derived metrics and recommendations.
+3. Correct the page or feed outside this MCP server.
+4. Submit only after explicit confirmation and same-origin validation.
+5. Verify the returned API status. An accepted request proves neither crawl nor indexation.
+6. Measure a later comparable window before attributing an effect.
+
+Current Bing runtime limits are explicit: data freshness is unknown; quota integers are not known to represent totals or remaining capacity; non-empty crawl issues, nested backlink rows and `RemoveFeed` remain unverified against live production data. No Bing write was executed against a production site during validation. Batch URL submission is therefore refused before mutation. `bing_url_info` can report a last crawl date, but it cannot provide a complete public URL Inspection verdict.
 
 ### Multi-property support
 
@@ -179,10 +262,10 @@ traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 
 ## CLI usage (gsc-cli)
 
-After installation, `gsc-cli` is available as a standalone shell command. It wraps all 61 tools from the MCP server and uses the same authentication.
+After installation, `gsc-cli` is available as a standalone shell command. It derives all 81 commands from the same registry as the MCP server.
 
 ```bash
-# List all 61 commands
+# List all 81 commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)
@@ -271,8 +354,8 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
-- `llms.txt`: quick reference covering all 61 tools, module map, security rules, test patterns, and a decision tree for common tasks
-- `adr-index.yaml`: 15 Architecture Decision Records reconstructed from git history
+- `llms.txt`: quick reference covering all 81 tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `adr-index.yaml`: 16 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
 - `tech-decisions.yaml`: stack decisions by domain (auth, retry, output contract, packaging...)
@@ -287,7 +370,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-611 tests, all mocked (no real Google API calls needed).
+846 tests at this branch baseline, all mocked with no real external API calls.
 
 ## Troubleshooting
 
@@ -325,7 +408,7 @@ With this server, Claude pulls the actual numbers: `/projects/` at position 10.1
 
 Some tasks work without private data: checking indexation with `site:`, parsing sitemap structure, reading robots.txt. For those, any web-capable agent gets you there. But for anything that requires private GSC metrics (traffic drops, striking-distance queries, CTR anomalies, Indexing API submissions), there is no substitute for API access.
 
-The server also handles the Google API mechanics: service account or OAuth authentication, exponential backoff on 429s and 5xx errors, true HTTP batch for indexing requests, quota tracking at 200 req/day, and structured JSON output across all 61 tools so Claude can reason across results without parsing ambiguity.
+The server also handles Google and Bing API mechanics: isolated credentials, bounded retries, same-origin checks for Bing writes, true HTTP batch for Google indexing requests, and structured JSON output across all 81 tools. The two providers keep distinct position semantics and expose uncertainty instead of forcing incomparable data into one claim.
 
 ## Why this exists
 

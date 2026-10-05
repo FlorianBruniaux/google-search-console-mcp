@@ -2,12 +2,21 @@
 # Source: src/gsc_mcp/ + tests/
 # Usage: @docs/machine-readable/code-map.yaml
 
-version: "1.0.0"
-generated: "2026-06-24"
+version: "1.1.0"
+generated: "2026-10-05"
 package: gsc-mcp-tools
 python_min: "3.11"
-total_tools: 43
-total_tests: 282
+total_tools: 81
+total_tests: 846
+
+tool_inventory:
+  previous_surface: 61
+  bing_reads: 15
+  bing_writes: 4
+  cross_engine: 1
+  total: 81
+  source_of_truth: src/gsc_mcp/registry.py
+  invariant: "set(registry.TOOLS) == set(properties._ALL_TOOLS)"
 
 entry_points:
   - name: gsc-mcp
@@ -15,208 +24,201 @@ entry_points:
   - name: gsc-mcp-tools
     points_to: gsc_mcp.server:main
     note: "alias for uvx gsc-mcp-tools compatibility"
+  - name: gsc-cli
+    points_to: gsc_mcp.cli:main
+    note: "subcommands and count labels derive from registry.TOOLS"
 
 core_modules:
   - path: src/gsc_mcp/server.py
-    role: "FastMCP instance + explicit tool registration (43 imports)"
+    role: "FastMCP instance; registers every function from registry.TOOLS"
     type: entry_point
 
+  - path: src/gsc_mcp/registry.py
+    role: "Shared MCP and CLI registry for all 81 tools"
+    exports: [TOOLS]
+
+  - path: src/gsc_mcp/cli.py
+    role: "Flag-only CLI generated from registered function signatures"
+
   - path: src/gsc_mcp/auth.py
-    role: "Credential resolution (service account || OAuth), three API service helpers"
-    exports:
-      - get_searchconsole_service
-      - get_indexing_service
-      - get_ga4_service
-      - get_alpha_ga4_service
-    env_vars:
-      - GSC_SERVICE_ACCOUNT_PATH
-      - GSC_CREDENTIALS_PATH
-      - GSC_SKIP_OAUTH
+    role: "Google credential resolution, GA4 property resolution, Bing env-key reader"
+    exports: [get_bing_api_key, get_searchconsole_service, get_indexing_service, get_ga4_service, get_alpha_ga4_service]
+    env_vars: [GSC_SERVICE_ACCOUNT_PATH, GSC_CREDENTIALS_PATH, GSC_SKIP_OAUTH, GA4_PROPERTY_ID, BING_WEBMASTER_API_KEY]
 
   - path: src/gsc_mcp/meta.py
-    role: "Output contract : with_meta(data, tool, params) wrapper"
+    role: "Output contract: with_meta(data, tool, params) wrapper"
     exports: [with_meta]
 
   - path: src/gsc_mcp/retry.py
-    role: "Retry decorator @with_retry for transient Google API errors"
+    role: "Retry decorator for transient Google API errors"
     exports: [with_retry]
     retries_on: [429, 500, 502, 503, 504, ServiceUnavailable, ResourceExhausted, InternalServerError, BadGateway, RetryError]
 
   - path: src/gsc_mcp/quota.py
-    role: "QuotaTracker singleton : Indexing API 200 req/day limit, warn at 180"
+    role: "In-process Google Indexing API quota counter"
     exports: [QuotaTracker]
-    note: "in-memory only, resets on process restart"
+    note: "resets on process restart"
 
   - path: src/gsc_mcp/constants.py
-    role: "Shared constants (default date range, pagination limits, etc.)"
+    role: "Shared scopes, quotas and CTR benchmarks"
+
+  - path: src/gsc_mcp/url_safety.py
+    role: "SSRF, DNS-rebinding and cloud-metadata protection for external URL fetches"
+    exports: [validate_url, validate_url_strict, validate_same_origin, safe_httpx_get, safe_fetch_html]
+
+provider_modules:
+  - path: src/gsc_mcp/providers/__init__.py
+    role: "Factory exposing only google and bing search providers"
+    exports: [get_search_provider]
+
+  - path: src/gsc_mcp/providers/base.py
+    role: "Minimal normalized search metrics protocol"
+    exports: [SearchEngine, SearchMetricRow, SearchMetricBatch, SearchMetricsProvider, UnsupportedProviderFeature]
+    shared_metrics: [date, query, page, clicks, impressions, ctr, position]
+    provider_specific_field: provider_metrics
+
+  - path: src/gsc_mcp/providers/google.py
+    role: "Google Search Console metrics adapter"
+    dimensions: [query, page, date, country, device]
+    window_exact: true
+
+  - path: src/gsc_mcp/providers/bing.py
+    role: "Redacted Bing JSON/HTTP client and metrics adapter"
+    dimensions: [query, page, date]
+    window_exact: false
+    env_vars: [BING_WEBMASTER_API_KEY]
+    transport_rules:
+      - "fixed JSON/HTTP endpoint and method allowlists"
+      - "no redirects"
+      - "15-second operation deadline"
+      - "redacted BingApiError"
 
 tool_modules:
+  - path: src/gsc_mcp/tools/properties.py
+    tools: 3
+    tool_names: [get_capabilities, list_properties, get_site_details]
+
   - path: src/gsc_mcp/tools/analytics.py
-    tools: 6
-    tool_names:
-      - get_search_analytics
-      - get_advanced_search_analytics
-      - get_performance_overview
-      - get_search_by_page_query
-      - compare_search_periods
-      - discover_performance
-    key_function: "_fetch_rows (wrapped with @with_retry, shared by all analytics tools)"
-    env_vars: []
+    tools: 10
+    tool_names: [get_search_analytics, get_performance_overview, compare_search_periods, get_search_by_page_query, get_advanced_search_analytics, analytics_anomalies, discover_performance, news_performance, search_type_breakdown, ai_overviews_impact]
 
   - path: src/gsc_mcp/tools/seo.py
     tools: 8
-    tool_names:
-      - quick_wins
-      - traffic_drops
-      - seo_cannibalization
-      - analytics_anomalies
-      - seo_lost_queries
-      - seo_striking_distance
-      - news_performance
-      - search_type_breakdown
-    note: "Built on top of _fetch_rows from analytics.py"
+    tool_names: [quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries, parasite_risk, prune_candidates]
+    bing_supported: [quick_wins, seo_striking_distance, prune_candidates]
+    bing_refuses_exact_period: [traffic_drops, seo_lost_queries]
+    bing_refuses_bulk_page_query: [check_alerts, seo_cannibalization]
+    provider_independent: [parasite_risk]
 
   - path: src/gsc_mcp/tools/inspection.py
     tools: 3
-    tool_names:
-      - inspect_url
-      - batch_url_inspection
-      - check_indexing_issues
+    tool_names: [inspect_url, batch_url_inspection, check_indexing_issues]
 
   - path: src/gsc_mcp/tools/indexing.py
-    tools: 2
-    tool_names:
-      - submit_url
-      - submit_batch
-    note: "submit_batch uses true multipart HTTP batch, 100 URLs/request. QuotaTracker enforced."
+    tools: 3
+    tool_names: [submit_url, submit_batch, indexnow_submit]
+    note: "IndexNow key is a tool argument and must be verifiable on each target host"
 
   - path: src/gsc_mcp/tools/sitemaps.py
-    tools: 4
-    tool_names:
-      - list_sitemaps
-      - sitemaps_get
-      - sitemaps_delete
-      - submit_sitemap
-    special_tool: sitemap_audit
-    sitemap_audit_notes: "defusedxml parsing, SSRF origin check, 90 days GSC cross-ref, missing_sample capped at 20"
-
-  - path: src/gsc_mcp/tools/properties.py
-    tools: 3
-    tool_names:
-      - list_properties
-      - get_site_details
-      - get_capabilities
-    note: "_ALL_TOOLS list here, must be updated when tools are added"
+    tools: 5
+    tool_names: [list_sitemaps, submit_sitemap, sitemaps_delete, sitemaps_get, sitemap_audit]
 
   - path: src/gsc_mcp/tools/ga4.py
-    tools: 6
-    tool_names:
-      - ga4_traffic_sources
-      - ga4_organic_landing_pages
-      - ga4_page_performance
-      - ga4_user_behavior
-      - ga4_realtime
-      - ga4_conversion_funnel
-    special_tool: ga4_funnel
-    key_function: "_build_dimension_filter(hostname, country, base_filter)"
+    tools: 7
+    tool_names: [ga4_organic_landing_pages, ga4_traffic_sources, ga4_page_performance, ga4_realtime, ga4_user_behavior, ga4_conversion_funnel, ga4_funnel]
     env_vars: [GA4_PROPERTY_ID]
 
   - path: src/gsc_mcp/tools/cross.py
     tools: 4
-    tool_names:
-      - traffic_health_check
-      - page_analysis
-      - content_brief
-      - page_health_score
-    key_function: "_normalize_url (strips scheme/host/query/trailing-slash for GSC+GA4 join)"
-    note: "Compose analytics.py + ga4.py results via json.loads + _normalize_url join"
+    tool_names: [traffic_health_check, page_analysis, page_health_score, content_brief]
 
   - path: src/gsc_mcp/tools/crux.py
-    tools: 2
-    tool_names:
-      - crux_page_vitals
-      - crux_history
-    http_client: httpx
-    auth_type: "CRUX_API_KEY (plain Google API key, not service account)"
-    note: "HTTP 404 = not_enough_data (not an error). Chrome UX Report API must be enabled in GCP."
+    tools: 3
+    tool_names: [crux_page_vitals, crux_history, crux_lcp_subparts]
+    env_vars: [CRUX_API_KEY]
 
   - path: src/gsc_mcp/tools/technical.py
+    tools: 5
+    tool_names: [schema_validate, schema_generate, ai_visibility_audit, gbp_deprecation_lint, pagespeed_audit]
+    env_vars: [GOOGLE_API_KEY]
+
+  - path: src/gsc_mcp/tools/drift.py
+    tools: 3
+    tool_names: [drift_baseline, drift_compare, drift_history]
+
+  - path: src/gsc_mcp/tools/content.py
+    tools: 5
+    tool_names: [content_quality, hreflang_audit, page_technical_audit, preload_audit, heading_audit]
+
+  - path: src/gsc_mcp/tools/links.py
     tools: 2
-    tool_names:
-      - schema_validate
-      - check_alerts
-    note: "schema_validate uses html.parser (stdlib), no auth needed. check_alerts wraps GSC alerts."
+    tool_names: [internal_links_audit, link_equity_map]
+
+  - path: src/gsc_mcp/tools/bing_analytics.py
+    tools: 6
+    reads: [bing_query_stats, bing_page_stats, bing_page_query_stats, bing_rank_traffic_stats, bing_link_counts, bing_url_links]
+    runtime_limits:
+      bing_link_counts: "UNVERIFIED_RUNTIME nested item schema"
+      bing_url_links: "UNVERIFIED_RUNTIME nested item schema"
+
+  - path: src/gsc_mcp/tools/bing_webmaster.py
+    tools: 13
+    reads: [bing_sites_list, bing_crawl_stats, bing_crawl_issues, bing_crawl_settings_get, bing_url_info, bing_url_traffic, bing_feeds_list, bing_feed_details, bing_url_submission_quota]
+    writes: [bing_url_submit, bing_urls_submit_batch, bing_feed_submit, bing_feed_remove]
+    mutation_guards:
+      - "strict public URL and same-origin validation"
+      - "batch refused while quota semantics are unknown"
+      - "feed removal requires confirm=true and current registration"
+
+  - path: src/gsc_mcp/tools/search_compare.py
+    tools: 1
+    tool_names: [compare_search_engines]
+    rule: "deltas require equal exact observed windows; positions remain side by side"
 
 test_files:
-  - path: tests/conftest.py
-    role: "Shared fixtures: mock_gsc_service, mock_indexing_service, GA4_PROPERTY_ID autouse"
-
-  - path: tests/test_analytics.py
-    tools_covered: [get_search_analytics, get_advanced_search_analytics, get_performance_overview, get_search_by_page_query, compare_search_periods, discover_performance, news_performance, search_type_breakdown, ai_overviews_impact]
-
-  - path: tests/test_seo.py
-    tools_covered: [quick_wins, traffic_drops, seo_cannibalization, analytics_anomalies, seo_lost_queries, seo_striking_distance]
-
-  - path: tests/test_cross.py
-    tools_covered: [traffic_health_check, page_analysis, content_brief, page_health_score]
-
-  - path: tests/test_ga4.py
-    tools_covered: [ga4_traffic_sources, ga4_organic_landing_pages, ga4_page_performance, ga4_user_behavior, ga4_realtime, ga4_conversion_funnel, ga4_funnel]
-
-  - path: tests/test_crux.py
-    tools_covered: [crux_page_vitals, crux_history]
-    mock_pattern: "httpx.Client as context manager (__enter__ returns mock, .get.side_effect controls responses)"
-
-  - path: tests/test_sitemap_audit.py
-    mock_pattern: "gsc_mcp.tools.sitemaps.httpx.Client + gsc_mcp.tools.sitemaps.get_search_analytics (module-level import)"
-
-  - path: tests/test_technical.py
-    tools_covered: [schema_validate]
-    mock_pattern: "httpx.Client direct (module-level in technical.py)"
-
-  - path: tests/test_indexing.py
-    tools_covered: [submit_url, submit_batch]
-
-  - path: tests/test_inspection.py
-    tools_covered: [inspect_url, batch_url_inspection, check_indexing_issues]
-
-  - path: tests/test_sitemaps.py
-    tools_covered: [list_sitemaps, sitemaps_get, sitemaps_delete, submit_sitemap]
-
-  - path: tests/test_properties.py
-    tools_covered: [list_properties, get_site_details, get_capabilities]
-
-  - path: tests/test_auth.py
-    tools_covered: [get_searchconsole_service, token cache, chmod]
-
-  - path: tests/test_utilities.py
-    tools_covered: [with_meta, with_retry, QuotaTracker, _normalize_url]
+  shared: [tests/conftest.py, tests/test_registry.py, tests/test_properties.py, tests/test_cli.py]
+  google_and_common:
+    - tests/test_audit_regressions.py
+    - tests/test_analytics.py
+    - tests/test_seo.py
+    - tests/test_inspection.py
+    - tests/test_indexing.py
+    - tests/test_sitemaps.py
+    - tests/test_sitemap_audit.py
+    - tests/test_ga4.py
+    - tests/test_cross.py
+    - tests/test_crux.py
+    - tests/test_technical.py
+    - tests/test_drift.py
+    - tests/test_content.py
+    - tests/test_links.py
+    - tests/test_url_safety.py
+    - tests/test_auth.py
+    - tests/test_utilities.py
+    - tests/test_wave_b.py
+  bing_and_multi_provider:
+    - tests/test_bing_client.py
+    - tests/test_bing_live_validator.py
+    - tests/test_bing_analytics.py
+    - tests/test_bing_webmaster.py
+    - tests/test_search_providers.py
+    - tests/test_search_compare.py
+  rule: "all tests use mocks or synthetic fixtures; no real network or credential"
 
 dependencies:
   runtime:
     - name: mcp[cli]
-      version: ">=1.0.0"
       role: FastMCP server framework
     - name: google-api-python-client
-      version: ">=2.100.0"
-      role: GSC + Indexing API client
+      role: GSC and Google Indexing API client
     - name: google-auth-oauthlib
-      version: ">=1.1.0"
-      role: OAuth2 flow
+      role: Google OAuth2 flow
     - name: google-analytics-data
-      version: ">=0.18.0"
-      role: GA4 Data API (gRPC)
+      role: GA4 Data API clients
     - name: platformdirs
-      version: ">=4.0.0"
-      role: OS user data dir resolution (token cache location)
+      role: OS user data directories
     - name: httpx
-      version: ">=0.27.0"
-      role: CrUX API calls + sitemap fetch + schema_validate fetch
+      role: Bing, CrUX, IndexNow and guarded page fetches
     - name: defusedxml
-      version: ">=0.7.1"
-      role: Safe XML parsing for sitemap_audit (XXE prevention)
-  dev:
-    - name: pytest
-      version: ">=8.0.0"
-    - name: pytest-mock
-      version: ">=3.12.0"
+      role: Safe external sitemap XML parsing
+  dev: [pytest, pytest-mock]

@@ -1,9 +1,9 @@
 # Décisions techniques gsc-mcp, synthèse machine-readable
-# Basé sur 15 ADRs + git archaeology (2026-06-22/24)
+# Basé sur 16 ADRs + git archaeology (mise à jour 2026-10-05)
 # Usage: référence rapide pour agents IA lors de suggestions de stack
 
-version: "1.0.0"
-generated: "2026-06-24"
+version: "1.1.0"
+generated: "2026-10-05"
 
 stack_standards:
 
@@ -13,17 +13,18 @@ stack_standards:
         version: "mcp[cli]>=1.0.0"
         context: "MCP server Python officiel, API stdio native"
         pattern: "FastMCP('gsc-mcp') + mcp.tool()(fn) par outil"
-        registration: "explicite dans server.py, pas de discovery dynamique"
+        registration: "server.py itère registry.TOOLS; le CLI partage le même registre"
     source_adrs: [ADR-0001]
 
   http_client:
     adopted:
       - name: httpx
         version: ">=0.27.0"
-        context: "CrUX API + sitemap fetch + schema_validate"
+        context: "Bing JSON/HTTP + CrUX + IndexNow + fetches SEO gardés"
         usage: "context manager pattern (with httpx.Client() as client)"
     not_used_for:
       - "Appels APIs Google (utiliser googleapiclient ou google-analytics-data)"
+      - "Anciennes interfaces Bing SOAP/POX"
     source_adrs: [ADR-0007, ADR-0008, ADR-0009]
 
   google_api_clients:
@@ -64,7 +65,7 @@ stack_standards:
         write_pattern: "tempfile.mkstemp() + os.replace() (atomic, TOCTOU-safe)"
     forbidden:
       - name: pickle
-        reason: "Deserialisation = exécution de code arbitraire potentielle"
+        reason: "Une désérialisation pickle peut exécuter du code arbitraire."
     source_adrs: [ADR-0003]
 
   authentication:
@@ -83,6 +84,44 @@ stack_standards:
         helper: get_alpha_ga4_service()
         note: "Uniquement pour ga4_funnel (RunFunnelReport)"
     source_adrs: [ADR-0002, ADR-0013]
+
+  bing_authentication:
+    env_var: BING_WEBMASTER_API_KEY
+    scope: "clé utilisateur globale pour tous les sites vérifiés visibles au compte"
+    site_selection: "argument site sur chaque appel Bing"
+    forbidden_surfaces: [tool_arguments, meta_params, error_messages, logs]
+    note: "distincte de la clé IndexNow vérifiable par host"
+    source_adrs: [ADR-0016]
+
+  search_providers:
+    protocol: SearchMetricsProvider
+    module: src/gsc_mcp/providers/base.py
+    common_metrics: [date, query, page, clicks, impressions, ctr, position]
+    provider_specific: provider_metrics
+    adapters:
+      google:
+        module: src/gsc_mcp/providers/google.py
+        window_exact: true
+        position_semantics: google_average_position
+      bing:
+        module: src/gsc_mcp/providers/bing.py
+        window_exact: false
+        position_semantics: bing_average_impression_position
+        dimensions: [query, page, date]
+    comparison:
+      deltas: "uniquement si les fenêtres observées sont exactes et égales"
+      positions: "côte à côte, sans delta"
+      causality: "jamais inférée"
+    package_rename: false
+    source_adrs: [ADR-0016]
+
+  bing_writes:
+    tools: [bing_url_submit, bing_urls_submit_batch, bing_feed_submit, bing_feed_remove]
+    target_validation: "validate_url_strict puis validate_same_origin"
+    acceptance_semantics: "accepted ne prouve ni crawl ni indexation"
+    batch_status: "refusé avant mutation tant que la sémantique quota reste UNKNOWN"
+    feed_remove: "confirm=true + feed enregistré; contrat live UNVERIFIED_RUNTIME"
+    source_adrs: [ADR-0016]
 
   output_contract:
     pattern: "json.dumps(with_meta(data, tool='name', params={...}))"
@@ -119,8 +158,8 @@ stack_standards:
   testing:
     framework: pytest
     version: ">=8.0.0"
-    total_tests: 282
-    rule: "Zéro appel réel aux APIs Google dans les tests"
+    total_tests: 846
+    rule: "Zéro appel réseau réel; services Google et clients Bing sont mockés"
     fixtures:
       - name: mock_gsc_service
         type: MagicMock
@@ -140,7 +179,7 @@ stack_standards:
 
   packaging:
     pypi_name: gsc-mcp-tools
-    version: "0.6.1"
+    version: "1.1.2"
     entrypoints:
       - name: gsc-mcp
         points_to: gsc_mcp.server:main
@@ -150,6 +189,7 @@ stack_standards:
     build_backend: hatchling
     python_min: "3.11"
     source_adrs: [ADR-0011]
+    runtime_limit: "la version publiée 1.1.2 ne contient pas encore le fournisseur Bing de cette branche"
 
   ci_cd:
     tool: GitHub Actions
@@ -201,6 +241,7 @@ stack_standards:
       - SoftwareApplication
       - BlogPosting
     suggests_missing: "Basé sur les patterns de chemin URL (/faq, /blog/, etc.)"
+    ssrf_protection: "validate_url_strict + safe_fetch_html"
     source_adrs: [ADR-0009]
 
   crux_tools:
@@ -224,17 +265,19 @@ open_issues:
     description: "ga4_funnel dépend de v1alpha RunFunnelReport susceptible de breaking changes"
     risk: stability
 
-  - id: "CRUX-MISSING-ENV-GUARD"
-    description: "CRUX_API_KEY absent provoque erreur obscure plutôt que message actionnable"
-    risk: ux
-    fix_candidate: "Guard explicite en tête des fonctions CrUX avec message clair"
-
-  - id: "SCHEMA-VALIDATE-NO-SSRF-GUARD"
-    description: "schema_validate fetche n'importe quelle URL publique sans validation d'origine"
-    risk: ssrf-medium
-    note: "Faible si serveur MCP tourne en local"
-
   - id: "TOOL-COUNT-MANUAL"
-    description: "_ALL_TOOLS dans properties.py et count dans get_capabilities mis à jour manuellement"
-    risk: regression
-    fix_candidate: "Dériver le count dynamiquement depuis les outils enregistrés FastMCP"
+    description: "registry.TOOLS et properties._ALL_TOOLS restent deux listes à modifier"
+    risk: startup-failure
+    current_guard: "assertion de set exact à l'import + tests de registre"
+    fix_candidate: "Une seule source de noms sans cycle d'import"
+
+  - id: "INDEXNOW-KEY-IN-MCP-ARGUMENT"
+    description: "indexnow_submit reçoit une clé vérifiable par host comme argument MCP"
+    risk: secret-exposure
+    constraint: "Ne jamais réutiliser BING_WEBMASTER_API_KEY pour IndexNow"
+    fix_candidate: "Stockage local par host avec migration explicite du contrat public"
+
+  - id: "BING-LIVE-CONTRACT-GAPS"
+    description: "Fraîcheur, quota total/restant, crawl issues non vides, backlinks imbriqués et RemoveFeed incomplets"
+    risk: incorrect-inference
+    mitigation: "Marquer UNKNOWN, PARTIAL ou UNVERIFIED_RUNTIME et refuser SubmitUrlBatch"

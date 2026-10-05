@@ -2,9 +2,9 @@
 # Source: git archaeology (git log reverse, 2026-06-22/24)
 # Usage: @docs/machine-readable/adr-index.yaml
 
-version: "1.0.0"
-generated: "2026-06-24"
-total: 15
+version: "1.1.0"
+generated: "2026-10-05"
+total: 16
 repo: google-search-console-mcp
 
 adrs:
@@ -19,8 +19,8 @@ adrs:
       - "src/gsc_mcp/server.py"
     context: >
       FastMCP est le framework officiel de l'écosystème MCP (Model Context Protocol).
-      Crée une instance FastMCP("gsc-mcp") et enregistre tous les outils via mcp.tool()().
-      Pas de discovery dynamique : chaque outil est importé et enregistré explicitement dans server.py.
+      Crée une instance FastMCP("gsc-mcp") et enregistre chaque fonction de registry.TOOLS
+      via mcp.tool()(). Le serveur et le CLI partagent ce registre.
     rationale: "API simple, support stdio natif, compatibilité Claude Desktop et Claude Code MCP config."
 
   - id: ADR-0002
@@ -158,7 +158,7 @@ adrs:
     date: 2026-06-22
     criticite: C1
     domaine: Testing
-    titre: Tests entièrement mockés : zéro appel réel à l'API Google
+    titre: "Tests entièrement mockés: zéro appel réel à une API externe"
     tags: [testing, mocking, pytest, conftest, fixtures, google-api]
     sources:
       - "commit `8ac864d` (2026-06-22)"
@@ -167,7 +167,7 @@ adrs:
       Deux fixtures partagées dans conftest.py :
       mock_gsc_service (MagicMock wirée pour sites/searchanalytics/sitemaps/urlInspection)
       et mock_indexing_service (MagicMock avec new_batch_http_request() synchrone).
-      Tous les tests patchent le service au point d'appel (ex: gsc_mcp.tools.analytics.get_searchconsole_service).
+      Tous les tests patchent le service ou client au point d'appel, y compris le client Bing.
     crux_pattern: "Patch httpx.Client en context manager (__enter__ retourne le mock lui-même)."
     sitemap_pattern: "Patch gsc_mcp.tools.sitemaps.httpx.Client ET gsc_mcp.tools.sitemaps.get_search_analytics (import module-level)."
     ga4_pattern: "Fixture autouse pour GA4_PROPERTY_ID."
@@ -248,3 +248,33 @@ adrs:
       un FilterExpression simple si un seul est défini,
       un AND group FilterExpressionList si les deux sont définis.
     applies_to: "Tous les outils GA4 + outils cross.py qui appellent des outils GA4."
+
+  - id: ADR-0016
+    date: 2026-10-05
+    criticite: C1
+    domaine: Multi-provider Search
+    titre: Fournisseur Bing séparé et schéma commun minimal sans renommer le package
+    tags: [bing, provider, search-metrics, api-key, comparison, compatibility]
+    sources:
+      - "commit `601d912` (client Bing JSON/HTTP expurgé)"
+      - "commit `2af889a` (normalisation des fournisseurs de métriques search)"
+      - "commit `2a43099` (registre MCP et CLI multi-moteurs)"
+      - "src/gsc_mcp/providers/base.py"
+      - "src/gsc_mcp/providers/bing.py"
+      - "src/gsc_mcp/tools/search_compare.py"
+    decision: >
+      Conserver GoogleSearchProvider et BingSearchProvider comme adaptateurs séparés.
+      Partager seulement date, query, page, clicks, impressions, ctr et position;
+      conserver les métriques spécifiques dans provider_metrics avec leur sémantique.
+    comparison_rule: >
+      Les deltas de clics et impressions exigent des fenêtres observées exactes et égales.
+      Les positions Google et Bing restent côte à côte, sans delta.
+    credentials: >
+      BING_WEBMASTER_API_KEY est une clé utilisateur globale lue depuis l'environnement.
+      Le site reste un argument de chaque appel et la clé n'entre jamais dans les arguments MCP.
+    packaging: >
+      Le package PyPI et les entrypoints gardent les noms gsc-mcp-tools, gsc-mcp et
+      gsc-mcp-tools pour préserver la compatibilité existante.
+    exclusions: >
+      GetKeywordStats et GetRelatedKeywords ne sont pas exposés après HTTP 400 observé.
+      Full URL Inspection et AI Performance n'ont pas de contrat dans l'API publique utilisée.

@@ -1,9 +1,9 @@
 # Contraintes architecturales gsc-mcp
 # À charger dans CLAUDE.md via @docs/machine-readable/constraints.yaml
-# Basé sur les 15 ADRs + audit sécurité (2026-06-23/24)
+# Basé sur 16 ADRs + audit sécurité (mise à jour 2026-10-05)
 
-version: "1.0.0"
-generated: "2026-06-24"
+version: "1.1.0"
+generated: "2026-10-05"
 
 # Patterns INTERDITS : rejeter tout code contenant ces patterns
 forbidden_patterns:
@@ -88,13 +88,13 @@ forbidden_patterns:
     source_adrs: [ADR-0009]
 
   - id: "NO-REAL-API-CALLS-IN-TESTS"
-    pattern: "appel réel aux services Google dans les tests (sans patch)"
+    pattern: "appel réel à un service Google, Bing, IndexNow ou HTTP tiers dans les tests"
     severity: critical
     reason: >
-      Les tests doivent rester reproductibles sans credentials Google.
+      Les tests doivent rester reproductibles sans credentials ni réseau.
       Un appel réel consomme du quota, dépend d'internet, et peut exposer
       des données propriétaires dans les logs CI.
-    fix: "Patch get_searchconsole_service / get_indexing_service / get_ga4_service au point d'appel."
+    fix: "Patcher le service ou client au point d'appel, y compris get_bing_client."
     source_adrs: [ADR-0010]
 
   - id: "NO-HARDCODED-PROPERTY-ID"
@@ -104,6 +104,36 @@ forbidden_patterns:
       Des IDs propriétés GSC réels ont été trouvés commités (commit `680d510`).
       Remplacés par des valeurs fictives (sc-domain:example.com, 12345678).
     source_adrs: [ADR-0010]
+
+  - id: "NO-BING-KEY-IN-TOOL-ARGS"
+    pattern: "BING_WEBMASTER_API_KEY ou api_key dans une signature d'outil MCP Bing"
+    severity: critical
+    reason: >
+      La clé Bing est une configuration utilisateur globale. Un argument d'outil
+      l'exposerait dans les paramètres MCP, les métadonnées et les historiques clients.
+    fix: "Lire BING_WEBMASTER_API_KEY uniquement dans auth.get_bing_api_key()."
+    source_adrs: [ADR-0016]
+
+  - id: "NO-BING-KEY-IN-ERRORS"
+    pattern: "corps de réponse, paramètres ou clé Bing recopiés dans une exception ou un log"
+    severity: critical
+    reason: "Les erreurs distantes et logs de transport peuvent contenir des données privées ou la clé API."
+    fix: "Retourner seulement status, méthode allowlistée et code expurgé via BingApiError."
+    source_adrs: [ADR-0016]
+
+  - id: "BING-JSON-HTTP-ONLY"
+    pattern: "nouvel appel Bing SOAP ou POX"
+    severity: high
+    reason: "Le fournisseur implémenté utilise uniquement le contrat JSON/HTTP allowlisté."
+    fix: "Ajouter la méthode au client JSON/HTTP après validation expurgée de son contrat."
+    source_adrs: [ADR-0016]
+
+  - id: "NO-CROSS-ENGINE-DELTA-WITHOUT-EQUAL-WINDOWS"
+    pattern: "delta Google/Bing calculé quand les fenêtres observées ne sont pas exactes et égales"
+    severity: high
+    reason: "Un écart calculé sur des périodes différentes n'est pas une comparaison de trafic valide."
+    fix: "Retourner le delta à null et reason=observed_windows_differ."
+    source_adrs: [ADR-0016]
 
 
 # Patterns REQUIS : à appliquer systématiquement
@@ -143,14 +173,14 @@ required_patterns:
     source_adrs: [ADR-0015]
 
   - id: "TOOL-REGISTRATION-EXPLICIT"
-    context: "ajout d'un nouvel outil dans server.py"
+    context: "ajout d'un nouvel outil au registre partagé"
     steps:
       - "Implémenter la fonction dans tools/<module>.py"
       - "Décorer avec @with_retry() si appel Google API direct"
       - "Retourner json.dumps(with_meta(...))"
-      - "Importer et enregistrer dans server.py via mcp.tool()(ma_fonction)"
+      - "Importer la fonction et l'ajouter au tuple de src/gsc_mcp/registry.py"
       - "Ajouter le nom dans _ALL_TOOLS dans properties.py"
-      - "Mettre à jour le count dans la docstring de get_capabilities"
+      - "Laisser server.py, le CLI et get_capabilities dériver leurs surfaces du registre ou de _ALL_TOOLS"
       - "Écrire les tests dans tests/test_<module>.py"
     source_adrs: [ADR-0001, ADR-0004]
 
@@ -159,6 +189,18 @@ required_patterns:
     pattern: "CRUX_API_KEY requis, distinct des credentials GSC/GA4"
     note: "404 de l'API = verdict not_enough_data, pas une exception"
     source_adrs: [ADR-0008]
+
+  - id: "BING-WRITES-SAME-ORIGIN"
+    context: "bing_url_submit, bing_urls_submit_batch, bing_feed_submit, bing_feed_remove"
+    pattern: "validate_url_strict(target) puis validate_same_origin(site, target) avant toute écriture"
+    note: "La validation de tous les éléments du batch précède la lecture du quota et la mutation."
+    source_adrs: [ADR-0016]
+
+  - id: "BING-POSITION-SEMANTICS"
+    context: "normalisation ou comparaison des positions Bing"
+    pattern: "Conserver bing_average_impression_position et les métriques Bing dans provider_metrics."
+    note: "Les positions Google et Bing restent côte à côte; aucune soustraction cross-engine."
+    source_adrs: [ADR-0016]
 
 
 # Décisions actées à ne pas remettre en question sans nouvel ADR
@@ -205,6 +247,10 @@ settled_decisions:
     date: "2026-06-22"
     source_adr: ADR-0004
 
+  - decision: "Fournisseur Bing séparé avec schéma commun minimal et provider_metrics"
+    date: "2026-10-05"
+    source_adr: ADR-0016
+
 
 # Tensions ouvertes (à traiter avant décision)
 open_tensions:
@@ -223,22 +269,15 @@ open_tensions:
     impact: "La v1alpha peut être retirée ou modifiée sans notice préalable"
     monitoring: "Surveiller les annonces GA4 API changelog"
 
-  - id: "CRUX-EXTERNAL-DEPENDENCY"
-    description: "crux_page_vitals et crux_history n'ont pas de circuit-breaker sur CRUX_API_KEY absent"
-    risk: ux
-    impact: "Si CRUX_API_KEY non configuré, outil échoue avec une erreur obscure plutôt qu'un message clair"
-    fix_candidate: "Guard explicite en tête des outils CrUX avec message d'erreur actionnable"
-
-  - id: "SCHEMA-VALIDATE-NO-AUTH"
-    description: "schema_validate fetche n'importe quelle URL publique sans contrainte"
-    risk: ssrf-medium
-    impact: >
-      Contrairement à sitemap_audit, schema_validate n'a pas de validation d'origine.
-      Un utilisateur pourrait l'utiliser pour fetcher des URLs internes d'un réseau.
-    note: "Risque faible si le serveur MCP tourne sur un poste local ou dans un réseau de confiance"
-
   - id: "TOOL-COUNT-DRIFT"
-    description: "_ALL_TOOLS dans properties.py et le count dans get_capabilities doivent être mis à jour manuellement"
-    risk: regression
-    impact: "get_capabilities peut retourner un count inexact si un outil est ajouté sans mise à jour"
-    fix_candidate: "Dériver le count dynamiquement depuis la liste d'outils enregistrés"
+    description: "registry.TOOLS et properties._ALL_TOOLS restent deux listes à modifier"
+    risk: startup-failure
+    impact: "Une omission fait échouer l'assertion d'import avant le démarrage du MCP."
+    fix_candidate: "Conserver une seule source de noms tout en évitant un cycle d'import."
+
+  - id: "INDEXNOW-KEY-IN-MCP-ARGUMENT"
+    description: "indexnow_submit reçoit encore la clé vérifiable par host comme argument MCP explicite"
+    risk: secret-exposure
+    impact: "La clé peut apparaître dans les paramètres, métadonnées ou historiques du client MCP."
+    constraint: "Ne pas la confondre avec BING_WEBMASTER_API_KEY, qui reste une variable d'environnement."
+    fix_candidate: "Concevoir un stockage local par host avant de retirer l'argument public."

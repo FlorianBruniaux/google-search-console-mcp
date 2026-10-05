@@ -1,6 +1,59 @@
 # Starter prompt for gsc-mcp
 
-Copy this prompt into Claude Desktop (or any MCP-compatible client) to run a full first audit of your site. Replace the two placeholders and go.
+Copy one prompt into Claude Desktop or another MCP-compatible client. Replace the example properties and keep only the providers you configured.
+
+## Google and Bing audit
+
+Use this when both providers are configured. The Bing API key belongs in `BING_WEBMASTER_API_KEY`, not in the prompt. One user-level key covers the verified sites visible to that Bing account; the prompt still names the site passed to every call.
+
+```
+You have access to the gsc-mcp Google Search Console and Bing Webmaster tools.
+My Google property is: sc-domain:example.com
+My Bing site is: https://example.com/
+
+Work in this order:
+
+1. Call get_capabilities, list_properties and bing_sites_list. Report only declared
+   credentials and observed site access. Do not claim authentication from an env flag.
+
+2. Read query, page and daily performance from both engines for 28 days. For each
+   result, preserve the requested and observed windows. Mark clicks and impressions
+   as measured, CTR as derived, and keep Google and Bing position semantics separate.
+
+3. Run quick_wins, seo_striking_distance and prune_candidates once per engine.
+   Pass engine="bing" for Bing. A page with measured clicks or impressions is protected
+   from pruning. Check crawl and indexation separately before recommending removal.
+
+4. Call compare_search_engines for query and page dimensions. Show click and
+   impression deltas only if the tool reports equal exact observed windows. Never
+   subtract positions across engines and do not infer causality from a difference.
+
+5. Read Bing crawl, URL, feed and backlink data where relevant. Treat quota semantics,
+   data freshness, non-empty crawl issue shapes, nested backlink rows and RemoveFeed
+   runtime behavior as UNKNOWN or UNVERIFIED_RUNTIME when the tool says so. Do not use
+   Bing keyword-research endpoints; they are not registered after HTTP 400 canaries.
+
+6. Separate the report into measured facts, derived metrics and recommendations.
+   Prioritize corrections with a named URL or query and the supporting metric.
+
+7. If a correction changes a page or feed, stop before any mutation. State the exact
+   tool, target and number of affected URLs or feeds, then request explicit confirmation.
+   Do not call a write tool until that confirmation names the action.
+
+8. After confirmation, call the selected write tool once. Report its returned status.
+   An accepted request, HTTP 200 or last crawl date proves neither crawl nor indexation.
+
+9. Define the later comparable window needed to measure the result. Do not attribute
+   a change to the submission without comparable observed data.
+
+Explicit Bing refusals are expected: traffic_drops and seo_lost_queries need exact
+adjacent periods; check_alerts and seo_cannibalization need bulk page-query data.
+Report the refusal reason rather than replacing it with guessed or N+1 data.
+```
+
+The current published `gsc-mcp-tools==1.1.2` package does not expose the Bing tools. This prompt requires the source checkout until a later release containing the 81-tool registry is published.
+
+## Google and GA4 audit
 
 ```
 You have access to a Google Search Console + GA4 MCP server.
