@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 from dataclasses import FrozenInstanceError, asdict
 from unittest.mock import MagicMock
 
@@ -51,6 +52,11 @@ def test_metric_models_are_frozen_and_serialize_to_plain_dicts():
     with pytest.raises(FrozenInstanceError):
         batch.window_exact = False
 
+    row_dict = asdict(row)
+    assert type(row_dict["provider_metrics"]) is dict
+    row_dict["provider_metrics"]["country"] = "usa"
+    assert row.provider_metrics["country"] == "fra"
+
     assert asdict(batch) == {
         "engine": "google",
         "dimensions": ("query",),
@@ -90,11 +96,22 @@ def test_provider_metrics_are_deeply_immutable_and_json_serializable():
     row = _metric_row(provider_metrics=source)
     source["country"] = "usa"
     source["segments"]["devices"].append("desktop")
+    nested = row.provider_metrics["segments"]
 
     with pytest.raises(TypeError):
         row.provider_metrics["country"] = "usa"
     with pytest.raises(TypeError):
-        row.provider_metrics["segments"]["devices"] = ("desktop",)
+        nested["devices"] = ("desktop",)
+    with pytest.raises(TypeError):
+        row.provider_metrics.__init__({"country": "usa"})
+    with pytest.raises(TypeError):
+        nested.__init__({"devices": ["desktop"]})
+
+    copied = deepcopy(row)
+    with pytest.raises(TypeError):
+        copied.provider_metrics["country"] = "usa"
+    with pytest.raises(TypeError):
+        copied.provider_metrics["segments"]["devices"] = ("desktop",)
 
     assert json.loads(json.dumps(row.to_dict()))["provider_metrics"] == {
         "country": "fra",

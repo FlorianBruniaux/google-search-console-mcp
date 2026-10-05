@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Literal, Protocol
@@ -15,34 +15,46 @@ class UnsupportedProviderFeature(ValueError):
     """Raised when a provider cannot supply a requested metric dimension."""
 
 
-class _FrozenDict(dict):
-    """Dict-compatible immutable storage for provider-specific metrics."""
+class _FrozenMetrics(Mapping[str, object]):
+    """Sealed mapping for provider metrics with plain-dict deep copies."""
 
-    @staticmethod
-    def _immutable(*args: object, **kwargs: object) -> None:
+    __slots__ = ("_items",)
+
+    def __init__(self, values: Mapping[str, object]) -> None:
+        if hasattr(self, "_items"):
+            raise TypeError("provider_metrics is immutable")
+        object.__setattr__(self, "_items", tuple(values.items()))
+
+    def __setattr__(self, name: str, value: object) -> None:
         raise TypeError("provider_metrics is immutable")
 
-    __setitem__ = _immutable
-    __delitem__ = _immutable
-    clear = _immutable
-    pop = _immutable
-    popitem = _immutable
-    setdefault = _immutable
-    update = _immutable
-    __ior__ = _immutable
+    def __delattr__(self, name: str) -> None:
+        raise TypeError("provider_metrics is immutable")
 
-    def __deepcopy__(self, memo: dict[int, object]) -> _FrozenDict:
-        copied = type(self)(
-            (deepcopy(key, memo), deepcopy(value, memo))
-            for key, value in self.items()
-        )
+    def __getitem__(self, key: str) -> object:
+        for candidate, value in self._items:
+            if candidate == key:
+                return value
+        raise KeyError(key)
+
+    def __iter__(self) -> Iterator[str]:
+        return (key for key, _ in self._items)
+
+    def __len__(self) -> int:
+        return len(self._items)
+
+    def __deepcopy__(self, memo: dict[int, object]) -> dict[str, object]:
+        copied = {
+            deepcopy(key, memo): deepcopy(value, memo)
+            for key, value in self._items
+        }
         memo[id(self)] = copied
         return copied
 
 
 def _freeze_metric_value(value: object) -> object:
     if isinstance(value, Mapping):
-        return _FrozenDict(
+        return _FrozenMetrics(
             {key: _freeze_metric_value(child) for key, child in value.items()}
         )
     if isinstance(value, (list, tuple)):
@@ -99,6 +111,21 @@ class SearchMetricRow:
             "position": self.position,
             "provider_metrics": _json_metric_value(self.provider_metrics),
         }
+
+    def __deepcopy__(self, memo: dict[int, object]) -> SearchMetricRow:
+        copied = type(self)(
+            engine=self.engine,
+            date=self.date,
+            query=self.query,
+            page=self.page,
+            clicks=self.clicks,
+            impressions=self.impressions,
+            ctr=self.ctr,
+            position=self.position,
+            provider_metrics=deepcopy(self.provider_metrics, memo),
+        )
+        memo[id(self)] = copied
+        return copied
 
 
 @dataclass(frozen=True)
