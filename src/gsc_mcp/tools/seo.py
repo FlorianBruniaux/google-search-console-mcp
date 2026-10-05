@@ -105,6 +105,8 @@ def quick_wins(
     opportunities = []
     for r in raw:
         pos = r.get("position", 0.0)
+        if pos is None:
+            continue
         imp = r.get("impressions", 0)
         if not (_WIN_MIN_POSITION <= pos <= _WIN_MAX_POSITION and imp >= min_impressions):
             continue
@@ -235,6 +237,8 @@ def seo_striking_distance(
     candidates = []
     for r in raw:
         pos = r.get("position", 0.0)
+        if pos is None:
+            continue
         imp = r.get("impressions", 0)
         if not (_STRIKING_MIN_POSITION <= pos <= _STRIKING_MAX_POSITION and imp >= min_impressions):
             continue
@@ -633,11 +637,12 @@ def prune_candidates(
             continue
         clicks = row.get("clicks", 0)
         impressions = row.get("impressions", 0)
+        position = row.get("position", 0)
         entry = {
             "url": page,
             "clicks": clicks,
             "impressions": impressions,
-            "position": round(row.get("position", 0), 1),
+            "position": round(position, 1) if position is not None else None,
         }
         if clicks > 0:
             entry["action"] = (

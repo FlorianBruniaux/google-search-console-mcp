@@ -256,6 +256,17 @@ def test_quick_wins_reuses_bing_page_metrics_without_claiming_indexation():
     assert "indexed" not in json.dumps(result).lower()
 
 
+def test_quick_wins_ignores_bing_rows_without_position():
+    provider = _FixedBingProvider(
+        ("page",),
+        [_bing_row(page="https://example.com/no-position", position=None)],
+    )
+    with patch("gsc_mcp.tools.seo.get_search_provider", return_value=provider):
+        result = json.loads(quick_wins(SITE, engine="bing"))
+
+    assert result["opportunities"] == []
+
+
 def test_striking_distance_reuses_bing_query_metrics():
     provider = _FixedBingProvider(
         ("query",),
@@ -281,6 +292,17 @@ def test_striking_distance_reuses_bing_query_metrics():
             "ctr": 0.02,
         }
     ]
+
+
+def test_striking_distance_ignores_bing_rows_without_position():
+    provider = _FixedBingProvider(
+        ("query",),
+        [_bing_row(query="no position query", position=None)],
+    )
+    with patch("gsc_mcp.tools.seo.get_search_provider", return_value=provider):
+        result = json.loads(seo_striking_distance(SITE, engine="bing"))
+
+    assert result["queries"] == []
 
 
 def test_prune_candidates_reuses_bing_page_metrics_with_measured_wording():
@@ -312,6 +334,26 @@ def test_prune_candidates_reuses_bing_page_metrics_with_measured_wording():
         "review intent and title, measured Bing impressions: 250; clicks: 0"
     )
     assert "is indexed" not in json.dumps(result).lower()
+
+
+def test_prune_candidates_keeps_bing_row_with_null_position():
+    provider = _FixedBingProvider(
+        ("page",),
+        [
+            _bing_row(
+                page="https://example.com/null-position",
+                clicks=3,
+                impressions=30,
+                ctr=0.1,
+                position=None,
+            )
+        ],
+    )
+    with patch("gsc_mcp.tools.seo.get_search_provider", return_value=provider):
+        result = json.loads(prune_candidates(SITE, engine="bing"))
+
+    assert result["counts"]["has_traffic"] == 1
+    assert result["has_traffic"][0]["position"] is None
 
 
 # ===========================
