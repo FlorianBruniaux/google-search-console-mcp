@@ -1,0 +1,21 @@
+src/gsc_mcp/tools/bing_webmaster.py
+  s_b091cb578646a0::t_59c1d5e7a20a38 1-285
+tests/test_bing_webmaster.py
+  s_b091cb578646a0::t_c28eda1d6f72a4 1-353
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dacbd5a80267806ff6568223811885288c4350b8",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
