@@ -1,0 +1,22 @@
+tests/test_url_safety.py
+  s_b091cb578646a0::t_8bfacfbbe83c30 194,196,204-208
+  s_b091cb578646a0::t_00a5e1e6a958f2 209
+src/gsc_mcp/url_safety.py
+  s_b091cb578646a0::t_b562239c1451be 264-268
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5a47d051df3e4ed617103a230691d315367916ef",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
