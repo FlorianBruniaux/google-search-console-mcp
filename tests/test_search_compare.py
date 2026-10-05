@@ -265,6 +265,60 @@ def test_page_comparison_normalizes_scheme_host_and_trailing_slash_only(
     )
 
 
+def test_google_only_row_has_no_delta_even_when_windows_are_comparable(
+    monkeypatch,
+):
+    google = _batch(
+        "google",
+        "query",
+        (_row("google", "query", "google only", clicks=3, impressions=10),),
+    )
+    bing = _batch("bing", "query", ())
+    _install_providers(monkeypatch, google, bing)
+
+    result = json.loads(
+        compare_search_engines(
+            "sc-domain:example.com", "https://example.com/"
+        )
+    )
+
+    assert result["windows_comparable"] is True
+    assert result["rows"][0]["windows_comparable"] is True
+    assert result["rows"][0]["click_delta"] is None
+    assert result["rows"][0]["impression_delta"] is None
+    assert (
+        result["rows"][0]["reason"]
+        == "dimension_not_present_in_both_providers"
+    )
+
+
+def test_bing_only_row_has_no_delta_even_when_windows_are_comparable(
+    monkeypatch,
+):
+    google = _batch("google", "query", ())
+    bing = _batch(
+        "bing",
+        "query",
+        (_row("bing", "query", "bing only", clicks=4, impressions=20),),
+    )
+    _install_providers(monkeypatch, google, bing)
+
+    result = json.loads(
+        compare_search_engines(
+            "sc-domain:example.com", "https://example.com/"
+        )
+    )
+
+    assert result["windows_comparable"] is True
+    assert result["rows"][0]["windows_comparable"] is True
+    assert result["rows"][0]["click_delta"] is None
+    assert result["rows"][0]["impression_delta"] is None
+    assert (
+        result["rows"][0]["reason"]
+        == "dimension_not_present_in_both_providers"
+    )
+
+
 def test_comparison_is_descriptive_when_observed_windows_are_not_exact(
     monkeypatch,
 ):

@@ -101,21 +101,27 @@ def _comparison_fields(
     bing: dict[str, int | float | None | bool],
     comparable: bool,
 ) -> dict[str, bool | int | None | str]:
+    both_present = bool(
+        google.get("present", True) and bing.get("present", True)
+    )
+    can_calculate_delta = comparable and both_present
     fields: dict[str, bool | int | None | str] = {
         "windows_comparable": comparable,
         "click_delta": (
             int(bing["clicks"]) - int(google["clicks"])
-            if comparable
+            if can_calculate_delta
             else None
         ),
         "impression_delta": (
             int(bing["impressions"]) - int(google["impressions"])
-            if comparable
+            if can_calculate_delta
             else None
         ),
     }
     if not comparable:
         fields["reason"] = "observed_windows_differ"
+    elif not both_present:
+        fields["reason"] = "dimension_not_present_in_both_providers"
     return fields
 
 
