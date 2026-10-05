@@ -1,0 +1,23 @@
+tests/test_search_compare.py
+  s_b091cb578646a0::t_f18ee870abe8a5 1-191,193-364
+  s_b091cb578646a0::t_97bbbf5127d8e1 192
+src/gsc_mcp/tools/search_compare.py
+  s_b091cb578646a0::t_6da6bafc94f15d 1-216,218-246
+  s_b091cb578646a0::t_d0c7ebe7dac138 217
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d04f0e501d198fdbf7abd7920796892e5632f9bc",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
