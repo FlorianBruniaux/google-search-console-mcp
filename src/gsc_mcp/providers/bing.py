@@ -25,6 +25,9 @@ _MAX_RETRIES = 3
 _OPERATION_TIMEOUT = 15.0
 _BING_DATE = re.compile(r"^/Date\((?P<millis>-?\d+)(?P<offset>[+-]\d{4})?\)/$")
 _SAFE_ERROR_CODE = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
+_PUBLIC_ERROR_CODES = frozenset(
+    {"InvalidApiKey", "InternalError", "NotFound", "ThrottleUser", "Unavailable"}
+)
 
 READ_METHODS = frozenset(
     {
@@ -232,7 +235,7 @@ class BingWebmasterClient:
             return None
         if self._api_key and self._api_key in code:
             return None
-        return code
+        return code if code in _PUBLIC_ERROR_CODES else "api_error"
 
 
 def get_bing_client() -> BingWebmasterClient:
@@ -371,16 +374,17 @@ class BingSearchProvider:
                     "impression_position_weight": 0,
                 },
             )
+            clicks = _metric_int(raw.get("Clicks"))
             impressions = _metric_int(raw.get("Impressions"))
-            aggregate["clicks"] += _metric_int(raw.get("Clicks"))
+            aggregate["clicks"] += clicks
             aggregate["impressions"] += impressions
 
             avg_click_position = _metric_float(raw.get("AvgClickPosition"))
-            if avg_click_position is not None and impressions:
+            if avg_click_position is not None and clicks:
                 aggregate["click_position_total"] += (
-                    avg_click_position * impressions
+                    avg_click_position * clicks
                 )
-                aggregate["click_position_weight"] += impressions
+                aggregate["click_position_weight"] += clicks
 
             avg_impression_position = _metric_float(
                 raw.get("AvgImpressionPosition")

@@ -34,8 +34,8 @@ forbidden_patterns:
       lire le token en clair. Utiliser write atomique via fichier temporaire + os.replace().
     fix: >
       fd, tmp = tempfile.mkstemp(dir=parent_dir)
-      os.write(fd, data); os.close(fd)
-      os.chmod(tmp, 0o600); os.replace(tmp, token_path)
+      os.fchmod(fd, 0o600); écrire puis flush; os.fsync(fd); fermer fd;
+      os.replace(tmp, token_path)
     source_adrs: [ADR-0003]
 
   - id: "NO-SSRF-UNCHECKED"
@@ -153,7 +153,10 @@ required_patterns:
 
   - id: "TOKEN-PERMISSIONS"
     context: "écriture d'un token OAuth sur disque"
-    pattern: "os.chmod(token_path, 0o600), répertoire parent 0o700"
+    pattern: >
+      répertoire parent 0o700; tempfile.mkstemp() dans ce répertoire;
+      os.fchmod(fd, 0o600) avant écriture; flush puis os.fsync(fd);
+      fermeture du descripteur; os.replace(temp_path, token_path)
     source_adrs: [ADR-0003]
 
   - id: "DEFUSEDXML-FOR-EXTERNAL-XML"

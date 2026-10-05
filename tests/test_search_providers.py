@@ -1,4 +1,5 @@
-from dataclasses import FrozenInstanceError, asdict
+import json
+from dataclasses import FrozenInstanceError
 from unittest.mock import MagicMock
 
 import pytest
@@ -50,10 +51,10 @@ def test_metric_models_are_frozen_and_serialize_to_plain_dicts():
     with pytest.raises(FrozenInstanceError):
         batch.window_exact = False
 
-    assert asdict(batch) == {
+    assert batch.to_dict() == {
         "engine": "google",
-        "dimensions": ("query",),
-        "rows": (
+        "dimensions": ["query"],
+        "rows": [
             {
                 "engine": "google",
                 "date": None,
@@ -65,13 +66,33 @@ def test_metric_models_are_frozen_and_serialize_to_plain_dicts():
                 "position": 4.5,
                 "provider_metrics": {"country": "fra"},
             },
-        ),
+        ],
         "requested_start": "2026-01-01",
         "requested_end": "2026-01-31",
         "observed_start": None,
         "observed_end": None,
         "window_exact": True,
         "position_semantics": "google_average_position",
+    }
+
+
+def test_provider_metrics_are_deeply_immutable_and_json_serializable():
+    source = {
+        "country": "fra",
+        "segments": {"devices": ["mobile"]},
+    }
+    row = _metric_row(provider_metrics=source)
+    source["country"] = "usa"
+    source["segments"]["devices"].append("desktop")
+
+    with pytest.raises(TypeError):
+        row.provider_metrics["country"] = "usa"
+    with pytest.raises(TypeError):
+        row.provider_metrics["segments"]["devices"] = ("desktop",)
+
+    assert json.loads(json.dumps(row.to_dict()))["provider_metrics"] == {
+        "country": "fra",
+        "segments": {"devices": ["mobile"]},
     }
 
 
@@ -275,15 +296,15 @@ def test_bing_query_fetch_filters_locally_and_aggregates_duplicate_dimensions(
             "Query": "same query",
             "Date": "2026-01-01",
             "Clicks": 1,
-            "Impressions": 10,
+            "Impressions": 100,
             "AvgClickPosition": 5,
             "AvgImpressionPosition": 2,
         },
         {
             "Query": "same query",
             "Date": "2026-01-02",
-            "Clicks": 3,
-            "Impressions": 30,
+            "Clicks": 9,
+            "Impressions": 10,
             "AvgClickPosition": 9,
             "AvgImpressionPosition": 4,
         },
@@ -305,13 +326,13 @@ def test_bing_query_fetch_filters_locally_and_aggregates_duplicate_dimensions(
                 date=None,
                 query="same query",
                 page=None,
-                clicks=4,
-                impressions=40,
-                ctr=0.1,
-                position=3.5,
+                clicks=10,
+                impressions=110,
+                ctr=0.0909,
+                position=2.2,
                 provider_metrics={
-                    "avg_click_position": 8.0,
-                    "avg_impression_position": 3.5,
+                    "avg_click_position": 8.6,
+                    "avg_impression_position": 2.2,
                 },
             ),
         ),
@@ -325,6 +346,31 @@ def test_bing_query_fetch_filters_locally_and_aggregates_duplicate_dimensions(
     client.read.assert_called_once_with(
         "GetQueryStats", {"siteUrl": SITE}
     )
+
+
+def test_bing_query_fetch_does_not_invent_click_position_without_clicks(
+    monkeypatch,
+):
+    client = MagicMock()
+    client.read.return_value = [
+        {
+            "Query": "zero click query",
+            "Date": "2026-01-01",
+            "Clicks": 0,
+            "Impressions": 20,
+            "AvgClickPosition": 7,
+            "AvgImpressionPosition": 3,
+        }
+    ]
+    monkeypatch.setattr(
+        "gsc_mcp.providers.bing.get_bing_client", lambda: client
+    )
+
+    batch = BingSearchProvider().fetch(
+        SITE, "2026-01-01", "2026-01-31", dimensions=("query",)
+    )
+
+    assert batch.rows[0].provider_metrics["avg_click_position"] is None
 
 
 def test_bing_page_fetch_maps_query_field_to_page(monkeypatch):

@@ -693,7 +693,8 @@ def test_bing_feed_remove_checks_registration_before_exact_write(
         "RemoveFeed", {"siteUrl": SITE, "feedUrl": feed_url}
     )
     assert result["status"] == "accepted"
-    assert result["removed"] is True
+    assert result["removal_requested"] is True
+    assert result["removed"] is None
     assert result["_meta"]["contract_status"] == "UNVERIFIED_RUNTIME"
     assert "never-return-this" not in json.dumps(result)
 

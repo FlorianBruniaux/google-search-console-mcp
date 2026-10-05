@@ -119,6 +119,20 @@ def test_error_never_contains_api_key(monkeypatch):
     assert error.code == "InvalidApiKey"
 
 
+def test_unrecognized_remote_error_code_is_replaced_with_public_code(monkeypatch):
+    response = MagicMock(status_code=400)
+    response.json.return_value = {
+        "error": {"code": "privateCustomerQuery", "message": "denied"}
+    }
+    _mock_http_client(monkeypatch, response)
+
+    with pytest.raises(BingApiError) as exc_info:
+        BingWebmasterClient("secret-key").read("GetUserSites", {})
+
+    assert exc_info.value.code == "api_error"
+    assert "privateCustomerQuery" not in str(exc_info.value)
+
+
 def test_real_httpx_logging_never_receives_keyed_url(monkeypatch, caplog):
     real_client = httpx.Client
     received_urls = []
