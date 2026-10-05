@@ -17,6 +17,10 @@ validate_url_strict(url) -> tuple[str, str]
     (normalized_url, pinned_ipv4). Raises URLSafetyError if any resolved IP is
     non-public. Use before opening any network connection to prevent DNS rebinding.
 
+validate_same_origin(site, candidate) -> None
+    Requires site to be an HTTPS origin and candidate to use the exact same
+    scheme, normalized hostname, and effective port. Performs no DNS lookup.
+
 safe_httpx_get(url, *, timeout=15, **kwargs) -> httpx.Response
     httpx.Client.get() wrapped in DNS-pinning. Validates before connect.
 
@@ -53,6 +57,7 @@ __all__ = [
     "normalize_hostname",
     "validate_url",
     "validate_url_strict",
+    "validate_same_origin",
     "safe_httpx_get",
     "safe_httpx_client",
     "safe_fetch_html",
@@ -232,6 +237,47 @@ def validate_url_strict(url: str) -> tuple[str, str]:
             )
 
     return url, resolved_ips[0]
+
+
+def _effective_port(parsed) -> int:
+    try:
+        explicit_port = parsed.port
+    except ValueError as exc:
+        raise URLSafetyError("URL has an invalid port") from exc
+    if explicit_port is not None:
+        return explicit_port
+    return 443 if parsed.scheme == "https" else 80
+
+
+def validate_same_origin(site: str, candidate: str) -> None:
+    """Require candidate to share site's exact HTTPS origin without DNS lookup."""
+    try:
+        site_parsed = urlparse(site)
+        candidate_parsed = urlparse(candidate)
+    except ValueError as exc:
+        raise URLSafetyError("Malformed URL") from exc
+    _reject_authority_confusion(site, site_parsed)
+    _reject_authority_confusion(candidate, candidate_parsed)
+
+    if site_parsed.scheme != "https" or not site_parsed.hostname:
+        raise URLSafetyError("Site must be an HTTPS origin")
+    if site_parsed.path not in ("", "/") or site_parsed.query or site_parsed.fragment:
+        raise URLSafetyError("Site must not contain a path, query, or fragment")
+    if candidate_parsed.scheme not in ("http", "https") or not candidate_parsed.hostname:
+        raise URLSafetyError("Candidate must be an HTTP(S) URL")
+
+    site_origin = (
+        site_parsed.scheme,
+        normalize_hostname(site_parsed.hostname),
+        _effective_port(site_parsed),
+    )
+    candidate_origin = (
+        candidate_parsed.scheme,
+        normalize_hostname(candidate_parsed.hostname),
+        _effective_port(candidate_parsed),
+    )
+    if candidate_origin != site_origin:
+        raise URLSafetyError("Candidate URL is outside the declared site origin")
 
 
 # A single non-blocking lock guards the global getaddrinfo monkey-patch.

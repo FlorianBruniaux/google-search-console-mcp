@@ -1,9 +1,12 @@
 import json
+import httpx
 import pytest
 from unittest.mock import patch, MagicMock
 from googleapiclient.errors import HttpError
-from gsc_mcp.tools.indexing import submit_url, submit_batch
+import gsc_mcp.tools.indexing as indexing
+from gsc_mcp.tools.indexing import indexnow_submit, submit_url, submit_batch
 from gsc_mcp.quota import QuotaTracker
+from gsc_mcp.url_safety import URLSafetyError
 
 URL = "https://example.com/page"
 SITE = "https://example.com/"
@@ -38,6 +41,16 @@ def _make_mock_indexing_svc():
     svc.new_batch_http_request = new_batch
     svc._batch_call_count = batch_call_count
     return svc
+
+
+def _make_indexnow_client(status_code: int = 200):
+    response = MagicMock()
+    response.status_code = status_code
+    client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
+    client.post.return_value = response
+    return client
 
 
 def test_submit_url(mock_indexing_service):
@@ -135,3 +148,227 @@ def test_submit_batch_closure_independence():
 
     reported_urls = [r["url"] for r in result["results"]]
     assert len(set(reported_urls)) == 3
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "aB3-5678",
+        "a" * 128,
+    ],
+)
+def test_validate_indexnow_key_accepts_protocol_alphabet_and_boundaries(key):
+    indexing.validate_indexnow_key(key)
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "a" * 7,
+        "a" * 129,
+        "abc defgh",
+        "abc/defgh",
+        "abc_defgh",
+        "abc.defgh",
+    ],
+)
+def test_validate_indexnow_key_rejects_invalid_values(key):
+    with pytest.raises(ValueError):
+        indexing.validate_indexnow_key(key)
+
+
+def test_indexnow_rejects_invalid_key_before_url_validation_or_http():
+    with patch("gsc_mcp.tools.indexing.validate_url_strict") as strict, \
+         patch("gsc_mcp.tools.indexing.httpx.Client") as client:
+        with pytest.raises(ValueError):
+            indexnow_submit(
+                "https://example.com",
+                "short",
+                ["https://example.com/a"],
+            )
+    strict.assert_not_called()
+    client.assert_not_called()
+
+
+def test_indexnow_rejects_empty_url_list_without_http():
+    with patch("gsc_mcp.tools.indexing.httpx.Client") as client:
+        with pytest.raises(ValueError):
+            indexnow_submit("https://example.com", "valid-key", [])
+    client.assert_not_called()
+
+
+def test_indexnow_accepts_ten_thousand_urls():
+    urls = ["https://example.com/a"] * 10_000
+    client = _make_indexnow_client(200)
+    with patch(
+        "gsc_mcp.tools.indexing.validate_url_strict",
+        side_effect=lambda url: (url, "93.184.216.34"),
+    ), patch("gsc_mcp.tools.indexing.httpx.Client", return_value=client):
+        result = json.loads(indexnow_submit("https://example.com", "valid-key", urls))
+
+    assert result["submitted"] == 10_000
+    client.post.assert_called_once()
+
+
+def test_indexnow_rejects_more_than_ten_thousand_urls_without_http():
+    urls = ["https://example.com/a"] * 10_001
+    with patch("gsc_mcp.tools.indexing.httpx.Client") as client:
+        with pytest.raises(ValueError):
+            indexnow_submit("https://example.com", "valid-key", urls)
+    client.assert_not_called()
+
+
+def test_indexnow_counts_invalid_and_cross_origin_urls():
+    client = _make_indexnow_client(200)
+    urls = [
+        "https://example.com/ok",
+        "https://sub.example.com/wrong-origin",
+        "https://private.example.com/blocked",
+    ]
+
+    def validate(url):
+        if "private" in url:
+            raise URLSafetyError("blocked")
+        return url, "93.184.216.34"
+
+    with patch("gsc_mcp.tools.indexing.validate_url_strict", side_effect=validate), \
+         patch("gsc_mcp.tools.indexing.httpx.Client", return_value=client):
+        result = json.loads(indexnow_submit("https://example.com", "valid-key", urls))
+
+    assert result["submitted"] == 1
+    assert result["skipped_invalid"] == 2
+    assert result["verdict"] == "partial"
+
+
+def test_indexnow_does_not_post_when_all_urls_are_invalid():
+    with patch(
+        "gsc_mcp.tools.indexing.validate_url_strict",
+        side_effect=URLSafetyError("blocked"),
+    ), patch("gsc_mcp.tools.indexing.httpx.Client") as client:
+        result = json.loads(indexnow_submit(
+            "https://example.com",
+            "valid-key",
+            ["https://private.example.com/a"],
+        ))
+
+    assert result["status"] == "error"
+    assert result["submitted"] == 0
+    assert result["skipped_invalid"] == 1
+    client.assert_not_called()
+
+
+def test_indexnow_counts_malformed_url_as_invalid():
+    with patch("gsc_mcp.tools.indexing.httpx.Client") as client:
+        result = json.loads(indexnow_submit(
+            "https://example.com",
+            "valid-key",
+            ["https://[malformed"],
+        ))
+
+    assert result["status"] == "error"
+    assert result["skipped_invalid"] == 1
+    client.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "site",
+    [
+        "http://example.com",
+        "https://example.com/path",
+        "https://example.com?query=1",
+        "https://example.com#fragment",
+    ],
+)
+def test_indexnow_rejects_invalid_site_origin_without_http(site):
+    with patch("gsc_mcp.tools.indexing.httpx.Client") as client:
+        with pytest.raises(URLSafetyError):
+            indexnow_submit(site, "valid-key", ["https://example.com/a"])
+    client.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("status_code", "key_validation"),
+    [(200, "verified"), (202, "pending")],
+)
+def test_indexnow_received_status_does_not_claim_indexation(status_code, key_validation):
+    client = _make_indexnow_client(status_code)
+    with patch(
+        "gsc_mcp.tools.indexing.validate_url_strict",
+        side_effect=lambda url: (url, "93.184.216.34"),
+    ), patch("gsc_mcp.tools.indexing.httpx.Client", return_value=client):
+        serialized = indexnow_submit(
+            "https://example.com",
+            "valid-key",
+            ["https://example.com/a"],
+        )
+    result = json.loads(serialized)
+
+    assert result["status"] == "received"
+    assert result["key_validation"] == key_validation
+    assert "indexed" not in serialized.lower()
+    assert "valid-key" not in serialized
+
+
+@pytest.mark.parametrize("status_code", [400, 403, 422, 429])
+def test_indexnow_protocol_rejections_return_only_status_code(status_code):
+    client = _make_indexnow_client(status_code)
+    client.post.return_value.text = "arbitrary upstream body with valid-key"
+    with patch(
+        "gsc_mcp.tools.indexing.validate_url_strict",
+        side_effect=lambda url: (url, "93.184.216.34"),
+    ), patch("gsc_mcp.tools.indexing.httpx.Client", return_value=client):
+        serialized = indexnow_submit(
+            "https://example.com",
+            "valid-key",
+            ["https://example.com/a"],
+        )
+    result = json.loads(serialized)
+
+    assert result["status"] == "rejected"
+    assert result["status_code"] == status_code
+    assert "arbitrary upstream body" not in serialized
+    assert "valid-key" not in serialized
+
+
+def test_indexnow_timeout_returns_redacted_stable_category():
+    client = _make_indexnow_client()
+    client.post.side_effect = httpx.TimeoutException(
+        "timeout for https://internal.example/valid-key"
+    )
+    with patch(
+        "gsc_mcp.tools.indexing.validate_url_strict",
+        side_effect=lambda url: (url, "93.184.216.34"),
+    ), patch("gsc_mcp.tools.indexing.httpx.Client", return_value=client):
+        serialized = indexnow_submit(
+            "https://example.com",
+            "valid-key",
+            ["https://example.com/a"],
+        )
+    result = json.loads(serialized)
+
+    assert result["status"] == "error"
+    assert result["error_category"] == "timeout"
+    assert "internal.example" not in serialized
+    assert "valid-key" not in serialized
+
+
+def test_indexnow_network_error_returns_redacted_stable_category():
+    client = _make_indexnow_client()
+    client.post.side_effect = httpx.ConnectError(
+        "connection failed for https://internal.example/valid-key"
+    )
+    with patch(
+        "gsc_mcp.tools.indexing.validate_url_strict",
+        side_effect=lambda url: (url, "93.184.216.34"),
+    ), patch("gsc_mcp.tools.indexing.httpx.Client", return_value=client):
+        serialized = indexnow_submit(
+            "https://example.com",
+            "valid-key",
+            ["https://example.com/a"],
+        )
+    result = json.loads(serialized)
+
+    assert result["status"] == "error"
+    assert result["error_category"] == "transport_error"
+    assert "internal.example" not in serialized
+    assert "valid-key" not in serialized

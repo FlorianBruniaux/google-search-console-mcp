@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+import gsc_mcp.url_safety as url_safety
 from gsc_mcp.url_safety import (
     URLSafetyError,
     is_safe_ip,
@@ -148,6 +149,63 @@ class TestValidateUrlStrict:
     def test_metadata_ipv4_literal_blocked(self):
         with pytest.raises(URLSafetyError):
             validate_url_strict("http://169.254.169.254/")
+
+
+class TestValidateSameOrigin:
+    def test_accepts_same_https_origin(self):
+        url_safety.validate_same_origin(
+            "https://example.com",
+            "https://example.com/a",
+        )
+
+    def test_accepts_explicit_default_https_port(self):
+        url_safety.validate_same_origin(
+            "https://example.com:443",
+            "https://example.com/a",
+        )
+
+    @pytest.mark.parametrize(
+        "candidate",
+        [
+            "https://sub.example.com/a",
+            "https://example.com.evil.test/a",
+            "https://example.com:444/a",
+            "http://example.com/a",
+            "https://user:pass@example.com/a",
+        ],
+    )
+    def test_rejects_candidate_outside_exact_origin(self, candidate):
+        with pytest.raises(URLSafetyError):
+            url_safety.validate_same_origin("https://example.com", candidate)
+
+    def test_malformed_candidate_raises_safety_error(self):
+        with pytest.raises(URLSafetyError):
+            url_safety.validate_same_origin(
+                "https://example.com",
+                "https://[malformed",
+            )
+
+    @pytest.mark.parametrize(
+        "site",
+        [
+            "http://example.com",
+            "https://example.com/path",
+            "https://example.com?query=1",
+            "https://example.com#fragment",
+            "https://user:pass@example.com",
+        ],
+    )
+    def test_rejects_site_that_is_not_a_plain_https_origin(self, site):
+        with pytest.raises(URLSafetyError):
+            url_safety.validate_same_origin(site, "https://example.com/a")
+
+    def test_does_not_resolve_dns(self):
+        with patch("socket.getaddrinfo") as mock_dns:
+            url_safety.validate_same_origin(
+                "https://example.com",
+                "https://example.com/a",
+            )
+        mock_dns.assert_not_called()
 
 
 class TestSafeHttpxGet:

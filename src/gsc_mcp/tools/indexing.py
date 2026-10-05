@@ -1,4 +1,5 @@
 import json
+import re
 from urllib.parse import urlparse
 
 import httpx
@@ -9,13 +10,24 @@ from gsc_mcp.meta import with_meta
 from gsc_mcp.quota import QuotaTracker
 from gsc_mcp.constants import QUOTA_INDEXING_LIMIT, QUOTA_INDEXING_WARN_AT
 from gsc_mcp.retry import with_retry
-from gsc_mcp.url_safety import URLSafetyError, validate_url_strict
+from gsc_mcp.url_safety import (
+    validate_same_origin,
+    validate_url_strict,
+)
 
 _INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow"
+_INDEXNOW_KEY_RE = re.compile(r"^[A-Za-z0-9-]{8,128}$")
+_INDEXNOW_MAX_URLS = 10_000
 
 _BATCH_SIZE = 100
 
 _default_quota = QuotaTracker(limit=QUOTA_INDEXING_LIMIT, warn_at=QUOTA_INDEXING_WARN_AT)
+
+
+def validate_indexnow_key(key: str) -> None:
+    """Reject IndexNow keys outside the protocol's length and alphabet."""
+    if not _INDEXNOW_KEY_RE.fullmatch(key):
+        raise ValueError("IndexNow key must contain 8-128 letters, digits, or hyphens")
 
 
 @with_retry()
@@ -87,22 +99,23 @@ def submit_batch(urls: list[str], url_type: str = "URL_UPDATED") -> str:
 def indexnow_submit(site: str, key: str, urls: list[str]) -> str:
     """Submit URLs to IndexNow, notifying Bing, Yandex, Seznam, and Naver simultaneously.
 
-    IndexNow is an open protocol independent of Google. One POST to api.indexnow.org
-    dispatches to all four participating engines. Each URL is validated with
-    validate_url_strict (SSRF-safe) before submission. Invalid URLs are skipped and
-    counted in skipped_invalid. The key must be 8-128 characters; you are responsible
-    for hosting the key file at {site}/{key}.txt.
-
-    Verdicts: ok (all valid, 200/202) | partial (some skipped, 200/202) | error.
-    No Google API calls. No Google authentication required.
+    Each URL must pass strict SSRF validation and match site's exact HTTPS origin.
+    A 200 or 202 means only that the notification was received, never that a URL
+    was crawled or indexed. The key is sent to IndexNow but never returned in output.
     """
+    validate_indexnow_key(key)
+    if not 1 <= len(urls) <= _INDEXNOW_MAX_URLS:
+        raise ValueError("IndexNow requires between 1 and 10000 URLs")
+    validate_same_origin(site, site)
+
     valid_urls: list[str] = []
     skipped_invalid = 0
     for u in urls:
         try:
             validate_url_strict(u)
+            validate_same_origin(site, u)
             valid_urls.append(u)
-        except URLSafetyError:
+        except ValueError:
             skipped_invalid += 1
 
     if not valid_urls:
@@ -112,6 +125,8 @@ def indexnow_submit(site: str, key: str, urls: list[str]) -> str:
                 "submitted": 0,
                 "skipped_invalid": skipped_invalid,
                 "status_code": None,
+                "status": "error",
+                "error_category": "no_valid_urls",
                 "verdict": "error",
             },
             tool="indexnow_submit",
@@ -136,14 +151,29 @@ def indexnow_submit(site: str, key: str, urls: list[str]) -> str:
                 json=payload,
                 headers={"Content-Type": "application/json; charset=utf-8"},
             )
-    except httpx.HTTPError as exc:
+    except httpx.TimeoutException:
         return json.dumps(with_meta(
             {
                 "site": site,
                 "submitted": 0,
                 "skipped_invalid": skipped_invalid,
                 "status_code": None,
-                "error": str(exc),
+                "status": "error",
+                "error_category": "timeout",
+                "verdict": "error",
+            },
+            tool="indexnow_submit",
+            params={"site": site, "url_count": len(urls)},
+        ))
+    except httpx.HTTPError:
+        return json.dumps(with_meta(
+            {
+                "site": site,
+                "submitted": 0,
+                "skipped_invalid": skipped_invalid,
+                "status_code": None,
+                "status": "error",
+                "error_category": "transport_error",
                 "verdict": "error",
             },
             tool="indexnow_submit",
@@ -153,17 +183,28 @@ def indexnow_submit(site: str, key: str, urls: list[str]) -> str:
     status = resp.status_code
     if status in (200, 202):
         verdict = "ok" if skipped_invalid == 0 else "partial"
+        protocol_status = "received"
+        key_validation = "verified" if status == 200 else "pending"
+        submitted = len(valid_urls)
     else:
         verdict = "error"
+        protocol_status = "rejected"
+        key_validation = None
+        submitted = 0
+
+    result = {
+        "site": site,
+        "submitted": submitted,
+        "skipped_invalid": skipped_invalid,
+        "status_code": status,
+        "status": protocol_status,
+        "verdict": verdict,
+    }
+    if key_validation is not None:
+        result["key_validation"] = key_validation
 
     return json.dumps(with_meta(
-        {
-            "site": site,
-            "submitted": len(valid_urls),
-            "skipped_invalid": skipped_invalid,
-            "status_code": status,
-            "verdict": verdict,
-        },
+        result,
         tool="indexnow_submit",
         params={"site": site, "url_count": len(urls)},
     ))
