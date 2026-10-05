@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import json
 from datetime import date, timedelta
+from urllib.parse import urlparse
 
 from gsc_mcp.meta import with_meta
 from gsc_mcp.providers.bing import get_bing_client, parse_bing_date
+from gsc_mcp.url_safety import validate_same_origin, validate_url_strict
 
 _MAX_LIMIT = 10_000
+_MAX_BING_BATCH_URLS = 500
+_BING_QUOTA_SEMANTICS = "unknown_total_or_remaining"
 _CRAWL_ISSUE_FLAGS = {
     1: "code_301",
     2: "code_302",
@@ -115,6 +119,40 @@ def _feed_row(raw: dict) -> dict:
         "url": raw.get("Url"),
         "url_count": _integer(raw.get("UrlCount")),
     }
+
+
+def _validate_target(site: str, target: str) -> None:
+    validate_url_strict(target)
+    validate_same_origin(site, target)
+
+
+def _mutation_response(
+    site: str,
+    status: str,
+    *,
+    tool: str,
+    params: dict,
+    data: dict[str, object] | None = None,
+    metadata: dict[str, object] | None = None,
+) -> str:
+    payload = {
+        "engine": "bing",
+        "site": site,
+        "status": status,
+        "indexed": False,
+        **(data or {}),
+    }
+    return _response(
+        payload,
+        tool=tool,
+        params=params,
+        metadata={"indexed_semantics": "not_verified", **(metadata or {})},
+    )
+
+
+def _is_feed_url(feed_url: str) -> bool:
+    path = urlparse(feed_url).path.lower()
+    return path.endswith((".xml", ".txt")) or "/sitemap" in path
 
 
 def bing_sites_list() -> str:
@@ -282,4 +320,151 @@ def bing_url_submission_quota(site: str) -> str:
         tool="bing_url_submission_quota",
         params={"site": site},
         metadata={"quota_semantics": "unknown_total_or_remaining"},
+    )
+
+
+def bing_url_submit(site: str, url: str) -> str:
+    """Submit one same-origin URL to Bing without claiming indexation."""
+    _validate_target(site, url)
+    get_bing_client().write("SubmitUrl", {"siteUrl": site, "url": url})
+    return _mutation_response(
+        site,
+        "accepted",
+        tool="bing_url_submit",
+        params={"site": site, "url": url},
+    )
+
+
+def bing_urls_submit_batch(site: str, urls: list[str]) -> str:
+    """Preflight a Bing URL batch and refuse while quota semantics are unknown."""
+    if not isinstance(urls, list) or not 1 <= len(urls) <= _MAX_BING_BATCH_URLS:
+        raise ValueError("urls must contain between 1 and 500 entries")
+    if not all(isinstance(url, str) for url in urls):
+        raise ValueError("urls must contain strings")
+
+    for url in urls:
+        _validate_target(site, url)
+
+    client = get_bing_client()
+    raw_quota = client.read("GetUrlSubmissionQuota", {"siteUrl": site})
+    raw_quota = raw_quota if isinstance(raw_quota, dict) else {}
+    daily_quota = _integer(raw_quota.get("DailyQuota"))
+    monthly_quota = _integer(raw_quota.get("MonthlyQuota"))
+    response_data = {
+        "submitted_count": 0,
+        "daily_quota_before": daily_quota,
+        "monthly_quota_before": monthly_quota,
+    }
+
+    if _BING_QUOTA_SEMANTICS != "remaining":
+        return _mutation_response(
+            site,
+            "refused",
+            tool="bing_urls_submit_batch",
+            params={"site": site, "url_count": len(urls)},
+            data={
+                **response_data,
+                "error_category": "bing_quota_semantics_unverified",
+            },
+            metadata={"quota_semantics": _BING_QUOTA_SEMANTICS},
+        )
+
+    if len(urls) > daily_quota or len(urls) > monthly_quota:
+        return _mutation_response(
+            site,
+            "refused",
+            tool="bing_urls_submit_batch",
+            params={"site": site, "url_count": len(urls)},
+            data={**response_data, "error_category": "bing_quota_exceeded"},
+            metadata={"quota_semantics": _BING_QUOTA_SEMANTICS},
+        )
+
+    client.write("SubmitUrlBatch", {"siteUrl": site, "urlList": urls})
+    return _mutation_response(
+        site,
+        "accepted",
+        tool="bing_urls_submit_batch",
+        params={"site": site, "url_count": len(urls)},
+        data={
+            **response_data,
+            "submitted_count": len(urls),
+        },
+        metadata={"quota_semantics": _BING_QUOTA_SEMANTICS},
+    )
+
+
+def bing_feed_submit(site: str, feed_url: str) -> str:
+    """Submit one same-origin feed to Bing without claiming indexation."""
+    _validate_target(site, feed_url)
+    get_bing_client().write(
+        "SubmitFeed", {"siteUrl": site, "feedUrl": feed_url}
+    )
+    return _mutation_response(
+        site,
+        "accepted",
+        tool="bing_feed_submit",
+        params={"site": site, "feed_url": feed_url},
+    )
+
+
+def bing_feed_remove(
+    site: str, feed_url: str, confirm: bool = False
+) -> str:
+    """Remove a registered same-origin feed only after explicit confirmation."""
+    if not isinstance(confirm, bool):
+        raise ValueError("confirm must be a boolean")
+
+    params = {"site": site, "feed_url": feed_url, "confirm": confirm}
+    metadata = {"contract_status": "UNVERIFIED_RUNTIME"}
+    if not confirm:
+        return _response(
+            {
+                "engine": "bing",
+                "site": site,
+                "status": "confirmation_required",
+                "removed": False,
+            },
+            tool="bing_feed_remove",
+            params=params,
+            metadata=metadata,
+        )
+
+    _validate_target(site, feed_url)
+    if not _is_feed_url(feed_url):
+        raise ValueError("feed_url must be an XML, TXT, or sitemap URL")
+
+    client = get_bing_client()
+    raw_feeds = client.read("GetFeeds", {"siteUrl": site})
+    registered = any(
+        raw.get("Url") == feed_url for raw in _list_of_dicts(raw_feeds)
+    )
+    if not registered:
+        return _response(
+            {
+                "engine": "bing",
+                "site": site,
+                "status": "refused",
+                "removed": False,
+                "error_category": "feed_not_registered",
+            },
+            tool="bing_feed_remove",
+            params=params,
+            metadata=metadata,
+        )
+
+    client.write("RemoveFeed", {"siteUrl": site, "feedUrl": feed_url})
+    return _response(
+        {
+            "engine": "bing",
+            "site": site,
+            "status": "accepted",
+            "indexed": False,
+            "removed": True,
+        },
+        tool="bing_feed_remove",
+        params=params,
+        metadata={
+            **metadata,
+            "indexed_semantics": "not_verified",
+        },
     )

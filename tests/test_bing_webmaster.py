@@ -4,6 +4,7 @@ from datetime import date, timedelta
 import pytest
 
 from gsc_mcp.tools import bing_webmaster
+from gsc_mcp.url_safety import URLSafetyError
 
 
 SITE = "https://example.com/"
@@ -351,3 +352,369 @@ def test_bing_crawl_stats_rejects_invalid_days(days):
 def test_bing_crawl_issues_rejects_invalid_limit(limit):
     with pytest.raises(ValueError, match="limit must be between 1 and 10000"):
         bing_webmaster.bing_crawl_issues(SITE, limit=limit)
+
+
+def _allow_safe_urls(monkeypatch):
+    strict_calls = []
+    origin_calls = []
+
+    def validate_strict(url):
+        strict_calls.append(url)
+        return url, "93.184.216.34"
+
+    def validate_origin(site, candidate):
+        origin_calls.append((site, candidate))
+
+    monkeypatch.setattr(bing_webmaster, "validate_url_strict", validate_strict)
+    monkeypatch.setattr(bing_webmaster, "validate_same_origin", validate_origin)
+    return strict_calls, origin_calls
+
+
+def test_bing_url_submit_validates_before_exact_write_and_marks_indexing_unverified(
+    monkeypatch, mock_bing_client
+):
+    page_url = "https://example.com/page"
+    strict_calls, origin_calls = _allow_safe_urls(monkeypatch)
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(bing_webmaster.bing_url_submit(SITE, page_url))
+
+    assert strict_calls == [page_url]
+    assert origin_calls == [(SITE, page_url)]
+    mock_bing_client.write.assert_called_once_with(
+        "SubmitUrl", {"siteUrl": SITE, "url": page_url}
+    )
+    assert {key for key in result if key != "_meta"} == {
+        "engine",
+        "site",
+        "status",
+        "indexed",
+    }
+    assert result == {
+        "engine": "bing",
+        "site": SITE,
+        "status": "accepted",
+        "indexed": False,
+        "_meta": {
+            "tool": "bing_url_submit",
+            "params": {"site": SITE, "url": page_url},
+            "engine": "bing",
+            "indexed_semantics": "not_verified",
+        },
+    }
+
+
+def test_bing_url_submit_rejects_unsafe_url_before_client_lookup(
+    monkeypatch, mock_bing_client
+):
+    def reject(_url):
+        raise URLSafetyError("blocked")
+
+    get_client = lambda: mock_bing_client
+    monkeypatch.setattr(bing_webmaster, "validate_url_strict", reject)
+    monkeypatch.setattr(bing_webmaster, "get_bing_client", get_client)
+
+    with pytest.raises(URLSafetyError, match="blocked"):
+        bing_webmaster.bing_url_submit(SITE, "https://example.com/private")
+
+    mock_bing_client.write.assert_not_called()
+
+
+def test_bing_url_submit_rejects_cross_origin_before_write(
+    monkeypatch, mock_bing_client
+):
+    monkeypatch.setattr(
+        bing_webmaster,
+        "validate_url_strict",
+        lambda url: (url, "93.184.216.34"),
+    )
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    with pytest.raises(URLSafetyError, match="outside"):
+        bing_webmaster.bing_url_submit(SITE, "https://other.example/page")
+
+    mock_bing_client.write.assert_not_called()
+
+
+@pytest.mark.parametrize("urls", [[], ["https://example.com/a"] * 501])
+def test_bing_urls_submit_batch_rejects_outside_1_to_500_before_client(
+    monkeypatch, mock_bing_client, urls
+):
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    with pytest.raises(ValueError, match="between 1 and 500"):
+        bing_webmaster.bing_urls_submit_batch(SITE, urls)
+
+    mock_bing_client.read.assert_not_called()
+    mock_bing_client.write.assert_not_called()
+
+
+def test_bing_urls_submit_batch_validates_every_url_before_client_lookup(
+    monkeypatch, mock_bing_client
+):
+    urls = [
+        "https://example.com/valid",
+        "https://example.com/blocked",
+        "https://example.com/never-reached",
+    ]
+    validated = []
+
+    def validate(url):
+        validated.append(url)
+        if url.endswith("blocked"):
+            raise URLSafetyError("blocked")
+        return url, "93.184.216.34"
+
+    monkeypatch.setattr(bing_webmaster, "validate_url_strict", validate)
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    with pytest.raises(URLSafetyError, match="blocked"):
+        bing_webmaster.bing_urls_submit_batch(SITE, urls)
+
+    assert validated == urls[:2]
+    mock_bing_client.read.assert_not_called()
+    mock_bing_client.write.assert_not_called()
+
+
+def test_bing_urls_submit_batch_refuses_unknown_quota_semantics_after_preflight(
+    monkeypatch, mock_bing_client
+):
+    urls = ["https://example.com/a", "https://example.com/b"]
+    strict_calls, origin_calls = _allow_safe_urls(monkeypatch)
+    mock_bing_client.read.return_value = {
+        "DailyQuota": "100",
+        "MonthlyQuota": "1000",
+        "AuthenticationCode": "never-return-this",
+    }
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(bing_webmaster.bing_urls_submit_batch(SITE, urls))
+
+    assert strict_calls == urls
+    assert origin_calls == [(SITE, url) for url in urls]
+    mock_bing_client.read.assert_called_once_with(
+        "GetUrlSubmissionQuota", {"siteUrl": SITE}
+    )
+    mock_bing_client.write.assert_not_called()
+    assert result["status"] == "refused"
+    assert result["error_category"] == "bing_quota_semantics_unverified"
+    assert result["submitted_count"] == 0
+    assert result["daily_quota_before"] == 100
+    assert result["monthly_quota_before"] == 1000
+    assert "never-return-this" not in json.dumps(result)
+
+
+@pytest.mark.parametrize(
+    ("daily", "monthly"),
+    [(1, 1000), (100, 1)],
+)
+def test_bing_urls_submit_batch_rejects_exceeding_confirmed_remaining_quota(
+    monkeypatch, mock_bing_client, daily, monthly
+):
+    urls = ["https://example.com/a", "https://example.com/b"]
+    _allow_safe_urls(monkeypatch)
+    mock_bing_client.read.return_value = {
+        "DailyQuota": daily,
+        "MonthlyQuota": monthly,
+    }
+    monkeypatch.setattr(bing_webmaster, "_BING_QUOTA_SEMANTICS", "remaining")
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(bing_webmaster.bing_urls_submit_batch(SITE, urls))
+
+    assert result["status"] == "refused"
+    assert result["error_category"] == "bing_quota_exceeded"
+    assert result["submitted_count"] == 0
+    mock_bing_client.write.assert_not_called()
+
+
+def test_bing_urls_submit_batch_uses_exact_payload_when_remaining_quota_is_confirmed(
+    monkeypatch, mock_bing_client
+):
+    urls = ["https://example.com/a", "https://example.com/b"]
+    _allow_safe_urls(monkeypatch)
+    mock_bing_client.read.return_value = {
+        "DailyQuota": "2",
+        "MonthlyQuota": "20",
+    }
+    monkeypatch.setattr(bing_webmaster, "_BING_QUOTA_SEMANTICS", "remaining")
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(bing_webmaster.bing_urls_submit_batch(SITE, urls))
+
+    mock_bing_client.read.assert_called_once_with(
+        "GetUrlSubmissionQuota", {"siteUrl": SITE}
+    )
+    mock_bing_client.write.assert_called_once_with(
+        "SubmitUrlBatch", {"siteUrl": SITE, "urlList": urls}
+    )
+    assert result["engine"] == "bing"
+    assert result["status"] == "accepted"
+    assert result["indexed"] is False
+    assert result["submitted_count"] == 2
+    assert result["daily_quota_before"] == 2
+    assert result["monthly_quota_before"] == 20
+
+
+def test_bing_feed_submit_validates_before_exact_write(
+    monkeypatch, mock_bing_client
+):
+    feed_url = "https://example.com/sitemap.xml"
+    strict_calls, origin_calls = _allow_safe_urls(monkeypatch)
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(bing_webmaster.bing_feed_submit(SITE, feed_url))
+
+    assert strict_calls == [feed_url]
+    assert origin_calls == [(SITE, feed_url)]
+    mock_bing_client.write.assert_called_once_with(
+        "SubmitFeed", {"siteUrl": SITE, "feedUrl": feed_url}
+    )
+    assert result["status"] == "accepted"
+    assert result["indexed"] is False
+    assert result["_meta"]["indexed_semantics"] == "not_verified"
+
+
+def test_bing_feed_submit_rejects_unsafe_or_cross_origin_before_write(
+    monkeypatch, mock_bing_client
+):
+    monkeypatch.setattr(
+        bing_webmaster,
+        "validate_url_strict",
+        lambda url: (url, "93.184.216.34"),
+    )
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    with pytest.raises(URLSafetyError, match="outside"):
+        bing_webmaster.bing_feed_submit(
+            SITE, "https://other.example/sitemap.xml"
+        )
+
+    mock_bing_client.write.assert_not_called()
+
+
+@pytest.mark.parametrize("confirm", [1, "true", None])
+def test_bing_feed_remove_requires_a_boolean_confirmation(confirm):
+    with pytest.raises(ValueError, match="confirm must be a boolean"):
+        bing_webmaster.bing_feed_remove(
+            SITE, "https://example.com/sitemap.xml", confirm=confirm
+        )
+
+
+def test_bing_feed_remove_requires_confirmation_without_bing_call(
+    monkeypatch, mock_bing_client
+):
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(
+        bing_webmaster.bing_feed_remove(
+            SITE, "https://example.com/sitemap.xml"
+        )
+    )
+
+    assert result["status"] == "confirmation_required"
+    assert result["removed"] is False
+    assert result["_meta"]["contract_status"] == "UNVERIFIED_RUNTIME"
+    mock_bing_client.read.assert_not_called()
+    mock_bing_client.write.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "feed_url",
+    [
+        "https://example.com/feed.json",
+        "https://example.com/feed.xml.json",
+    ],
+)
+def test_bing_feed_remove_rejects_non_feed_shape_before_bing_call(
+    monkeypatch, mock_bing_client, feed_url
+):
+    strict_calls, origin_calls = _allow_safe_urls(monkeypatch)
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    with pytest.raises(ValueError, match="XML, TXT, or sitemap"):
+        bing_webmaster.bing_feed_remove(SITE, feed_url, confirm=True)
+
+    assert strict_calls == [feed_url]
+    assert origin_calls == [(SITE, feed_url)]
+    mock_bing_client.read.assert_not_called()
+    mock_bing_client.write.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "feed_url",
+    [
+        "https://example.com/feed.xml",
+        "https://example.com/feed.txt",
+        "https://example.com/sitemaps/feed",
+    ],
+)
+def test_bing_feed_remove_checks_registration_before_exact_write(
+    monkeypatch, mock_bing_client, feed_url
+):
+    _allow_safe_urls(monkeypatch)
+    mock_bing_client.read.return_value = [
+        {"Url": feed_url, "AuthenticationCode": "never-return-this"}
+    ]
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(
+        bing_webmaster.bing_feed_remove(SITE, feed_url, confirm=True)
+    )
+
+    mock_bing_client.read.assert_called_once_with(
+        "GetFeeds", {"siteUrl": SITE}
+    )
+    mock_bing_client.write.assert_called_once_with(
+        "RemoveFeed", {"siteUrl": SITE, "feedUrl": feed_url}
+    )
+    assert result["status"] == "accepted"
+    assert result["removed"] is True
+    assert result["_meta"]["contract_status"] == "UNVERIFIED_RUNTIME"
+    assert "never-return-this" not in json.dumps(result)
+
+
+def test_bing_feed_remove_refuses_unregistered_feed_without_write(
+    monkeypatch, mock_bing_client
+):
+    feed_url = "https://example.com/sitemap.xml"
+    _allow_safe_urls(monkeypatch)
+    mock_bing_client.read.return_value = [
+        {"Url": "https://example.com/other-sitemap.xml"}
+    ]
+    monkeypatch.setattr(
+        bing_webmaster, "get_bing_client", lambda: mock_bing_client
+    )
+
+    result = json.loads(
+        bing_webmaster.bing_feed_remove(SITE, feed_url, confirm=True)
+    )
+
+    assert result["status"] == "refused"
+    assert result["error_category"] == "feed_not_registered"
+    assert result["removed"] is False
+    mock_bing_client.write.assert_not_called()
