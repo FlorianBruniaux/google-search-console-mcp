@@ -1,0 +1,73 @@
+README.md
+  s_b091cb578646a0::t_19d748bba52e10 252,358
+  s_b091cb578646a0::t_8c37bb6b329d18 265,268,357,411
+  s_b091cb578646a0::t_cdceefd59f6485 17
+  s_b091cb578646a0::t_8bd9aa63705a71 20,22,28-29,34,37,102-121
+  s_b091cb578646a0::t_7985a44b69cc76 32,373
+  s_b091cb578646a0::t_ecc695ac18dcec 128-129,165,185-186,193-251
+docs/machine-readable/code-map.yaml
+  s_b091cb578646a0::t_b42391cc7d308a 5-6,9-19,27-29,33,36-42,44-46,49,53,58,60,65-69,74-94,97-100,102-103,107-111,115,118-120,123-124,127-128,133,136-138,141-143,145-147,149-151,153-155,157-176,178-180,182-197,199-206,213,215,217,219,221,223-224
+  s_b091cb578646a0::t_1b21581fc79edf 63-64,70-73,181,198
+docs/machine-readable/llms.txt
+  s_b091cb578646a0::t_454ee7574eec0f 107-108
+  s_b091cb578646a0::t_b0dce151532c36 277,307-310,322-325,334-336,342
+  s_b091cb578646a0::t_569a42f15d9223 2,7,10,14,19,29,42-46
+  s_b091cb578646a0::t_3abf1d2745af27 89-106,109-120
+  s_b091cb578646a0::t_eeed1ff82a3a1d 240-250,255,258,261,264,272-273
+  s_b091cb578646a0::t_e32e2c23d87b94 20-21
+  s_b091cb578646a0::t_d323fec233ba78 69-72
+docs/machine-readable/tech-decisions.yaml
+  s_b091cb578646a0::t_52c496ce68d2f1 5-6,16,23,27,88-125,161-162,182,192
+  s_b091cb578646a0::t_7985a44b69cc76 2
+  s_b091cb578646a0::t_791081c13f190c 244,268-272,274-278,280-283
+  s_b091cb578646a0::t_d3ccb742ea362a 68
+docs/architecture.md
+  s_b091cb578646a0::t_ad0af3e51a6a97 138
+  s_b091cb578646a0::t_f647c15d879cba 89
+  s_b091cb578646a0::t_1bef518f313a2b 130-137,139
+  s_b091cb578646a0::t_db78dc35e38542 5,11-14,19-22,24-26,28,30-39,42,54-66
+  s_160b3107588443::t_7b51a3a17714f7 67
+CLAUDE.md
+  s_b091cb578646a0::t_ad6ca1131eae70 46-47,49,53-58
+  s_b091cb578646a0::t_7985a44b69cc76 39
+  s_b091cb578646a0::t_83ba97420d5d16 67
+  s_b091cb578646a0::t_c9491465da8015 25,37,41,43,59-61,63-66,97,100-101,104,112-113,119,122,158-160
+  s_b091cb578646a0::t_ce17f6ffa50f04 102
+  s_b091cb578646a0::t_ad0af3e51a6a97 52
+  s_160b3107588443::t_b7c3be8da4a0bf 103
+docs/machine-readable/adr-index.yaml
+  s_b091cb578646a0::t_2633a8b1d88b8c 5-7,22-23,251-280
+  s_b091cb578646a0::t_aa194b0428810b 161,170
+docs/machine-readable/constraints.yaml
+  s_b091cb578646a0::t_f5a3295d168ffb 5-6,108-137,176,181,183,193-204,250-253,273-283
+  s_b091cb578646a0::t_40eeab2a37ffd4 91,94,97
+  s_b091cb578646a0::t_7985a44b69cc76 3
+docs/starter-prompt.md
+  s_b091cb578646a0::t_7b773ec8fa8b90 3-56
+.env.example
+  s_b091cb578646a0::t_03d668c2423c0f 26-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dcf40d53d92af07ba903dc28d60675d032fcaf32",
+  "prompts": {},
+  "sessions": {
+    "s_160b3107588443": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a106f2-069b-7be2-aa09-88b1bbf2331e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
