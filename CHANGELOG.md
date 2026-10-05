@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Surface portée à 81 tools. Elle ajoute 19 tools Bing Webmaster, dont 15 lectures et 4 écritures protégées, ainsi que `compare_search_engines` pour rapprocher les métriques Google et Bing sans fusionner leurs positions.
+- Les analyses `quick_wins`, `seo_striking_distance` et `prune_candidates` acceptent les données Bing lorsque les métriques requises sont présentes. Les analyses qui exigent des périodes exactes ou une dimension page-requête en masse refusent explicitement Bing.
+
+### Validation
+
+- 848 tests passent et 848 tests sont collectés sur ce checkout.
+- Les lectures Bing gardent leurs fenêtres observées, dérivent le CTR à partir des clics et impressions, et laissent les métriques propres au fournisseur dans `provider_metrics`.
+- Les quatre écritures Bing sont couvertes par des tests avec réponses simulées. Aucun appel de mutation Bing ou IndexNow n'a été exécuté pendant ce gate local, leur comportement runtime reste `UNVERIFIED_RUNTIME`.
+
+### Limits
+
+- Les fenêtres Bing ne sont pas supposées exactes et égales aux fenêtres Google. `compare_search_engines` omet les deltas lorsque cette condition n'est pas prouvée.
+- `GetKeywordStats` et `GetRelatedKeywords` ne sont pas exposés après des réponses HTTP 400 lors du canari réel expurgé.
+- Les sémantiques total-versus-restant des quotas Bing, les crawl issues non vides, les lignes imbriquées de backlinks et `RemoveFeed` restent non vérifiées en production.
+- Une réponse de soumission acceptée ne prouve ni crawl ni indexation.
+- La version reste `1.1.2`. Le bump et la régénération de `uv.lock` sont différés tant que le diff utilisateur du checkout principal n'est pas résolu explicitement.
+
 ## [1.1.2] - 2026-08-26
 
 Dogfooding des 4 tools ajoutés en 1.1.0 sur une propriété réelle (`cc.bruniaux.com`, 400+ pages) : `link_equity_map` a échoué sur 3 pages des 25 ciblées.
