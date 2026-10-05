@@ -164,10 +164,30 @@ def test_build_read_calls_covers_the_read_contract_with_exact_parameters():
         ("GetLinkCounts", {"siteUrl": "site-secret", "page": 0}),
         (
             "GetUrlLinks",
-            {"siteUrl": "site-secret", "url": "page-secret", "page": 0},
+            {"siteUrl": "site-secret", "link": "page-secret", "page": 0},
         ),
         ("GetUrlSubmissionQuota", {"siteUrl": "site-secret"}),
     )
+
+
+def test_build_read_calls_uses_link_parameter_for_get_url_links():
+    config = {
+        "BING_WEBMASTER_API_KEY": "api-key-secret",
+        "BING_TEST_SITE": "site-secret",
+        "BING_TEST_PAGE": "page-secret",
+        "BING_TEST_FEED": "feed-secret",
+        "BING_TEST_QUERY": "query-secret",
+    }
+
+    calls = build_read_calls(config, today=date(2026, 9, 5))
+    params = dict(calls)["GetUrlLinks"]
+
+    assert params == {
+        "siteUrl": "site-secret",
+        "link": "page-secret",
+        "page": 0,
+    }
+    assert "url" not in params
 
 
 def test_run_canary_calls_only_reads_and_never_serializes_payload_values():

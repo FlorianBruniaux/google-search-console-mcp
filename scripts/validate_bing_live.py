@@ -147,7 +147,7 @@ def build_read_calls(
             },
         ),
         ("GetLinkCounts", {"siteUrl": site, "page": 0}),
-        ("GetUrlLinks", {"siteUrl": site, "url": page, "page": 0}),
+        ("GetUrlLinks", {"siteUrl": site, "link": page, "page": 0}),
         ("GetUrlSubmissionQuota", {"siteUrl": site}),
     )
 
