@@ -1,0 +1,22 @@
+tests/test_search_providers.py
+  s_b091cb578646a0::t_192d0fc93cf02e 77-79
+  s_b091cb578646a0::t_d86ae5d3633683 2,54,56-57,69,80-82
+src/gsc_mcp/providers/base.py
+  s_b091cb578646a0::t_43379195021949 6,18-42,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9332db29b3457378e28235e000bf81cdd5162c15",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
