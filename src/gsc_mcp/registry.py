@@ -1,6 +1,6 @@
 """Central tool registry for gsc-mcp.
 
-Single source of truth for all 61 tool functions. Both the MCP server (server.py)
+Single source of truth for all registered tool functions. Both the MCP server (server.py)
 and the CLI (cli.py) import from here, so no more three-way manual sync between
 server.py imports, mcp.tool() calls, and _ALL_TOOLS in properties.py.
 
@@ -74,6 +74,30 @@ from gsc_mcp.tools.content import (
     heading_audit,
 )
 from gsc_mcp.tools.links import internal_links_audit, link_equity_map
+from gsc_mcp.tools.bing_analytics import (
+    bing_link_counts,
+    bing_page_query_stats,
+    bing_page_stats,
+    bing_query_stats,
+    bing_rank_traffic_stats,
+    bing_url_links,
+)
+from gsc_mcp.tools.bing_webmaster import (
+    bing_crawl_issues,
+    bing_crawl_settings_get,
+    bing_crawl_stats,
+    bing_feed_details,
+    bing_feed_remove,
+    bing_feed_submit,
+    bing_feeds_list,
+    bing_sites_list,
+    bing_url_info,
+    bing_url_submission_quota,
+    bing_url_submit,
+    bing_url_traffic,
+    bing_urls_submit_batch,
+)
+from gsc_mcp.tools.search_compare import compare_search_engines
 
 
 TOOLS: dict[str, Callable[..., str]] = {
@@ -140,6 +164,26 @@ TOOLS: dict[str, Callable[..., str]] = {
         internal_links_audit,
         link_equity_map,
         prune_candidates,
+        bing_sites_list,
+        bing_query_stats,
+        bing_page_stats,
+        bing_page_query_stats,
+        bing_rank_traffic_stats,
+        bing_crawl_stats,
+        bing_crawl_issues,
+        bing_crawl_settings_get,
+        bing_url_info,
+        bing_url_traffic,
+        bing_feeds_list,
+        bing_feed_details,
+        bing_url_submission_quota,
+        bing_link_counts,
+        bing_url_links,
+        bing_url_submit,
+        bing_urls_submit_batch,
+        bing_feed_submit,
+        bing_feed_remove,
+        compare_search_engines,
     )
 }
 
