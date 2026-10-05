@@ -1,0 +1,21 @@
+src/gsc_mcp/cli.py
+  s_b091cb578646a0::t_0bb92be9e0ae50 31-35,107,147,168,177,188-190,194-196,201-203,209
+tests/test_cli.py
+  s_b091cb578646a0::t_e3f00d3f1e4908 69-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "da4371952037cfd4e1656036ce5e66b329ea4916",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
