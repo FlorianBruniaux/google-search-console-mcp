@@ -9,7 +9,7 @@
 
 ### Validation
 
-- 848 tests passent et 848 tests sont collectés sur ce checkout.
+- 851 tests passent et 851 tests sont collectés sur ce checkout.
 - Les lectures Bing gardent leurs fenêtres observées, dérivent le CTR à partir des clics et impressions, et laissent les métriques propres au fournisseur dans `provider_metrics`.
 - Les quatre écritures Bing sont couvertes par des tests avec réponses simulées. Aucun appel de mutation Bing ou IndexNow n'a été exécuté pendant ce gate local, leur comportement runtime reste `UNVERIFIED_RUNTIME`.
 

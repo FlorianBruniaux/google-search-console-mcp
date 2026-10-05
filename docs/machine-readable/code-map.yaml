@@ -7,7 +7,7 @@ generated: "2026-10-05"
 package: gsc-mcp-tools
 python_min: "3.11"
 total_tools: 81
-total_tests: 846
+total_tests: 851
 
 tool_inventory:
   previous_surface: 61

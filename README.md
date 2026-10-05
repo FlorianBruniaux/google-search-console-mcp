@@ -14,7 +14,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-848%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Search visibility MCP server with 81 tools covering Google Search Console, Bing Webmaster Tools, Google Analytics 4, IndexNow, Core Web Vitals (CrUX), technical SEO, content audits, internal linking and guarded search-engine submissions. Built on Python 3.11+ and FastMCP.
@@ -370,7 +370,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-848 tests at this branch baseline, all mocked with no real external API calls.
+851 tests at this branch baseline, all mocked with no real external API calls.
 
 ## Troubleshooting
 
