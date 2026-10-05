@@ -34,7 +34,7 @@ Claude calls `check_indexing_issues` on your highest-traffic pages and groups re
 
 > Audit all submitted sitemaps for yourdomain.com. Are there pages in the sitemaps that aren't getting indexed?
 
-Claude calls `sitemap_audit`, cross-references declared URLs against 90 days of GSC coverage data, and flags any URL submitted in a sitemap but absent from the index.
+Claude calls `sitemap_audit` to compare declared URLs with 90 days of Search Analytics page rows. URLs without search data are candidates for URL Inspection, not evidence that they are absent from the index.
 
 ### Follow-up
 

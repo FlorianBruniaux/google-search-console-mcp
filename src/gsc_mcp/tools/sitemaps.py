@@ -97,14 +97,16 @@ def sitemaps_get(site: str, sitemap_url: str) -> str:
 
 
 def sitemap_audit(site: str, sitemap_url: str) -> str:
-    """Fetch a sitemap, parse its URLs, and cross-reference with GSC indexed pages.
+    """Fetch a sitemap and compare its URLs with pages visible in Search Analytics.
 
     Handles both regular sitemaps (<urlset>) and sitemap index files (<sitemapindex>),
     with one level of recursion for sitemap indexes. Uses defusedxml for safe XML parsing
     (prevents XXE and billion-laughs attacks from untrusted external XML).
 
-    Returns urls_declared, urls_in_gsc, urls_missing_from_gsc, a missing_sample (up to 20),
-    and a verdict: empty | fetch_error | partial | healthy.
+    Search Analytics is not an indexation inventory: a page without search data
+    can still be indexed. The original urls_in_gsc, urls_missing_from_gsc,
+    missing_sample and verdict fields are retained for compatibility, but only
+    describe Search Analytics visibility. Prefer the explicit visibility fields.
     """
     NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
@@ -180,6 +182,14 @@ def sitemap_audit(site: str, sitemap_url: str) -> str:
             "urls_in_gsc": len(in_gsc),
             "urls_missing_from_gsc": len(missing),
             "missing_sample": sorted(missing)[:20],
+            "urls_with_search_data": len(in_gsc),
+            "urls_without_search_data": len(missing),
+            "without_search_data_sample": sorted(missing)[:20],
+            "measurement": "Search Analytics page rows over 90 days; not indexation status",
+            "visibility_verdict": {
+                "partial": "partial_search_visibility",
+                "healthy": "search_visibility_present",
+            }.get(verdict, verdict),
             "verdict": verdict,
         },
         tool="sitemap_audit",
