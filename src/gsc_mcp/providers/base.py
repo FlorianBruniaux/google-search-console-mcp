@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from copy import deepcopy
 from dataclasses import dataclass, field
-from types import MappingProxyType
 from typing import Literal, Protocol
 
 
@@ -15,9 +15,34 @@ class UnsupportedProviderFeature(ValueError):
     """Raised when a provider cannot supply a requested metric dimension."""
 
 
+class _FrozenDict(dict):
+    """Dict-compatible immutable storage for provider-specific metrics."""
+
+    @staticmethod
+    def _immutable(*args: object, **kwargs: object) -> None:
+        raise TypeError("provider_metrics is immutable")
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    clear = _immutable
+    pop = _immutable
+    popitem = _immutable
+    setdefault = _immutable
+    update = _immutable
+    __ior__ = _immutable
+
+    def __deepcopy__(self, memo: dict[int, object]) -> _FrozenDict:
+        copied = type(self)(
+            (deepcopy(key, memo), deepcopy(value, memo))
+            for key, value in self.items()
+        )
+        memo[id(self)] = copied
+        return copied
+
+
 def _freeze_metric_value(value: object) -> object:
     if isinstance(value, Mapping):
-        return MappingProxyType(
+        return _FrozenDict(
             {key: _freeze_metric_value(child) for key, child in value.items()}
         )
     if isinstance(value, (list, tuple)):

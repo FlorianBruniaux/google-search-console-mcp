@@ -1,5 +1,5 @@
 import json
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, asdict
 from unittest.mock import MagicMock
 
 import pytest
@@ -51,10 +51,10 @@ def test_metric_models_are_frozen_and_serialize_to_plain_dicts():
     with pytest.raises(FrozenInstanceError):
         batch.window_exact = False
 
-    assert batch.to_dict() == {
+    assert asdict(batch) == {
         "engine": "google",
-        "dimensions": ["query"],
-        "rows": [
+        "dimensions": ("query",),
+        "rows": (
             {
                 "engine": "google",
                 "date": None,
@@ -66,7 +66,7 @@ def test_metric_models_are_frozen_and_serialize_to_plain_dicts():
                 "position": 4.5,
                 "provider_metrics": {"country": "fra"},
             },
-        ],
+        ),
         "requested_start": "2026-01-01",
         "requested_end": "2026-01-31",
         "observed_start": None,
@@ -74,6 +74,12 @@ def test_metric_models_are_frozen_and_serialize_to_plain_dicts():
         "window_exact": True,
         "position_semantics": "google_average_position",
     }
+    assert json.loads(json.dumps(asdict(batch)))["rows"][0][
+        "provider_metrics"
+    ] == {"country": "fra"}
+    assert json.loads(json.dumps(batch.to_dict()))["rows"][0][
+        "provider_metrics"
+    ] == {"country": "fra"}
 
 
 def test_provider_metrics_are_deeply_immutable_and_json_serializable():
