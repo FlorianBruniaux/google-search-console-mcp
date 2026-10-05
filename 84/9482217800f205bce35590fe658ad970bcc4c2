@@ -1,0 +1,31 @@
+src/gsc_mcp/providers/base.py
+  s_b091cb578646a0::t_e6138913c4576f 18-19,21-28,31-32,34-39,41-50,57,115-128
+  s_b091cb578646a0::t_a0548f37e59026 5,40
+  s_160b3107588443::t_9fe90309e7e6fa 129
+tests/test_search_providers.py
+  s_b091cb578646a0::t_a51ebdc0131a53 2,55-59,99,104-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "849482217800f205bce35590fe658ad970bcc4c2",
+  "prompts": {},
+  "sessions": {
+    "s_160b3107588443": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a106f2-069b-7be2-aa09-88b1bbf2331e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
