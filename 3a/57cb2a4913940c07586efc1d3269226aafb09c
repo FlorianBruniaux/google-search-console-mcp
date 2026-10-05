@@ -1,0 +1,24 @@
+scripts/validate_bing_live.py
+  s_b091cb578646a0::t_2bbd96849f17bd 150
+docs/validation/bing-api-contract.md
+  s_b091cb578646a0::t_dedb95f720cf70 5,7,9,11-15,17,21-41,44-56
+tests/test_bing_live_validator.py
+  s_b091cb578646a0::t_aaffb2e76d46e5 173-192
+  s_b091cb578646a0::t_2bbd96849f17bd 167
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3a57cb2a4913940c07586efc1d3269226aafb09c",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
