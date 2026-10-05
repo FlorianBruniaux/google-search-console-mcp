@@ -261,7 +261,11 @@ def validate_same_origin(site: str, candidate: str) -> None:
 
     if site_parsed.scheme != "https" or not site_parsed.hostname:
         raise URLSafetyError("Site must be an HTTPS origin")
-    if site_parsed.path not in ("", "/") or site_parsed.query or site_parsed.fragment:
+    if (
+        site_parsed.path not in ("", "/")
+        or "?" in site
+        or "#" in site
+    ):
         raise URLSafetyError("Site must not contain a path, query, or fragment")
     if candidate_parsed.scheme not in ("http", "https") or not candidate_parsed.hostname:
         raise URLSafetyError("Candidate must be an HTTP(S) URL")

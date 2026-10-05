@@ -191,13 +191,21 @@ class TestValidateSameOrigin:
             "http://example.com",
             "https://example.com/path",
             "https://example.com?query=1",
+            "https://example.com?",
             "https://example.com#fragment",
+            "https://example.com#",
             "https://user:pass@example.com",
         ],
     )
     def test_rejects_site_that_is_not_a_plain_https_origin(self, site):
         with pytest.raises(URLSafetyError):
             url_safety.validate_same_origin(site, "https://example.com/a")
+
+    def test_candidate_may_contain_query_and_fragment(self):
+        url_safety.validate_same_origin(
+            "https://example.com",
+            "https://example.com/a?query=1#fragment",
+        )
 
     def test_does_not_resolve_dns(self):
         with patch("socket.getaddrinfo") as mock_dns:
