@@ -45,6 +45,28 @@ def _validate_limit(limit: int) -> None:
         raise ValueError("limit must be between 1 and 10000")
 
 
+def _validate_page(page: int) -> None:
+    if (
+        not isinstance(page, int)
+        or isinstance(page, bool)
+        or not 0 <= page <= 32_767
+    ):
+        raise ValueError("page must be between 0 and 32767")
+
+
+def _integer(value: object) -> int:
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _nested_rows(raw: object, key: str) -> list[dict]:
+    if not isinstance(raw, dict) or not isinstance(raw.get(key), list):
+        return []
+    return [row for row in raw[key] if isinstance(row, dict)]
+
+
 def _requested_window(days: int) -> dict[str, object]:
     end = date.today()
     start = end - timedelta(days=days - 1)
@@ -233,3 +255,58 @@ def bing_rank_traffic_stats(site: str, days: int = 30) -> str:
         position_semantics="unavailable",
         metrics=_TRAFFIC_METRICS,
     )
+
+
+def bing_link_counts(site: str, page: int = 0) -> str:
+    """Return one Bing page of backlink counts from a synthetic shape."""
+    _validate_page(page)
+    raw = get_bing_client().read(
+        "GetLinkCounts", {"siteUrl": site, "page": page}
+    )
+    raw_dict = raw if isinstance(raw, dict) else {}
+    links = [
+        {"url": row.get("Url"), "count": _integer(row.get("Count"))}
+        for row in _nested_rows(raw_dict, "Links")
+    ]
+    payload = with_meta(
+        {
+            "site": site,
+            "page": page,
+            "links": links,
+            "total_pages": _integer(raw_dict.get("TotalPages")),
+        },
+        tool="bing_link_counts",
+        params={"site": site, "page": page},
+    )
+    payload["_meta"].update(
+        {"engine": "bing", "contract_status": "UNVERIFIED_RUNTIME"}
+    )
+    return json.dumps(payload)
+
+
+def bing_url_links(site: str, url: str, page: int = 0) -> str:
+    """Return one Bing page of backlinks for the requested target URL."""
+    _validate_page(page)
+    raw = get_bing_client().read(
+        "GetUrlLinks", {"siteUrl": site, "link": url, "page": page}
+    )
+    raw_dict = raw if isinstance(raw, dict) else {}
+    details = [
+        {"url": row.get("Url"), "anchor_text": row.get("AnchorText")}
+        for row in _nested_rows(raw_dict, "Details")
+    ]
+    payload = with_meta(
+        {
+            "site": site,
+            "url": url,
+            "page": page,
+            "details": details,
+            "total_pages": _integer(raw_dict.get("TotalPages")),
+        },
+        tool="bing_url_links",
+        params={"site": site, "url": url, "page": page},
+    )
+    payload["_meta"].update(
+        {"engine": "bing", "contract_status": "UNVERIFIED_RUNTIME"}
+    )
+    return json.dumps(payload)

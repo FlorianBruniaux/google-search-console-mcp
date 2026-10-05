@@ -225,3 +225,137 @@ def test_bing_query_stats_rejects_limit_outside_supported_range(limit):
 def test_bing_query_stats_rejects_non_positive_days(days):
     with pytest.raises(ValueError, match="days must be at least 1"):
         bing_analytics.bing_query_stats("https://example.com/", days=days)
+
+
+def test_bing_link_counts_normalizes_nested_links_without_private_fields(
+    monkeypatch, mock_bing_client
+):
+    _use_client(
+        monkeypatch,
+        mock_bing_client,
+        {
+            "Links": [
+                {
+                    "Url": "https://source.example/one",
+                    "Count": 7,
+                    "AuthenticationCode": "never-return-this",
+                },
+                {"Url": "https://source.example/two", "Count": "3"},
+                "ignore malformed element",
+            ],
+            "TotalPages": "4",
+            "DnsVerificationCode": "never-return-this-either",
+        },
+    )
+
+    result = json.loads(
+        bing_analytics.bing_link_counts("https://example.com/", page=2)
+    )
+
+    assert result == {
+        "site": "https://example.com/",
+        "page": 2,
+        "links": [
+            {"url": "https://source.example/one", "count": 7},
+            {"url": "https://source.example/two", "count": 3},
+        ],
+        "total_pages": 4,
+        "_meta": {
+            "tool": "bing_link_counts",
+            "params": {"site": "https://example.com/", "page": 2},
+            "engine": "bing",
+            "contract_status": "UNVERIFIED_RUNTIME",
+        },
+    }
+    assert "never-return-this" not in json.dumps(result)
+    mock_bing_client.read.assert_called_once_with(
+        "GetLinkCounts", {"siteUrl": "https://example.com/", "page": 2}
+    )
+
+
+def test_bing_url_links_normalizes_details_and_translates_url_to_link(
+    monkeypatch, mock_bing_client
+):
+    target_url = "https://example.com/target"
+    _use_client(
+        monkeypatch,
+        mock_bing_client,
+        {
+            "Details": [
+                {
+                    "Url": "https://source.example/article",
+                    "AnchorText": "useful anchor",
+                },
+                {"Url": "https://source.example/plain", "AnchorText": None},
+                None,
+            ],
+            "TotalPages": 1,
+        },
+    )
+
+    result = json.loads(
+        bing_analytics.bing_url_links(
+            "https://example.com/", target_url, page=0
+        )
+    )
+
+    assert result["details"] == [
+        {
+            "url": "https://source.example/article",
+            "anchor_text": "useful anchor",
+        },
+        {"url": "https://source.example/plain", "anchor_text": None},
+    ]
+    assert result["total_pages"] == 1
+    assert result["_meta"]["contract_status"] == "UNVERIFIED_RUNTIME"
+    mock_bing_client.read.assert_called_once_with(
+        "GetUrlLinks",
+        {
+            "siteUrl": "https://example.com/",
+            "link": target_url,
+            "page": 0,
+        },
+    )
+    assert "url" not in mock_bing_client.read.call_args.args[1]
+
+
+@pytest.mark.parametrize("page", [-1, 32_768, True, 1.5])
+@pytest.mark.parametrize("tool_name", ["bing_link_counts", "bing_url_links"])
+def test_bing_backlink_tools_reject_pages_outside_int16_range(page, tool_name):
+    tool = getattr(bing_analytics, tool_name)
+    args = ("https://example.com/",)
+    if tool_name == "bing_url_links":
+        args += ("https://example.com/target",)
+
+    with pytest.raises(ValueError, match="page must be between 0 and 32767"):
+        tool(*args, page=page)
+
+
+@pytest.mark.parametrize(
+    ("tool_name", "response_key", "result_key"),
+    [
+        ("bing_link_counts", "Links", "links"),
+        ("bing_url_links", "Details", "details"),
+    ],
+)
+def test_bing_backlink_tools_accept_empty_page(
+    monkeypatch,
+    mock_bing_client,
+    tool_name,
+    response_key,
+    result_key,
+):
+    _use_client(
+        monkeypatch,
+        mock_bing_client,
+        {response_key: [], "TotalPages": 0},
+    )
+    tool = getattr(bing_analytics, tool_name)
+    args = ("https://example.com/",)
+    if tool_name == "bing_url_links":
+        args += ("https://example.com/target",)
+
+    result = json.loads(tool(*args, page=0))
+
+    assert result[result_key] == []
+    assert result["total_pages"] == 0
