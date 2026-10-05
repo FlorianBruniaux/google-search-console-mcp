@@ -66,6 +66,17 @@ def test_list_command(capsys):
     assert "bing-related-keywords" not in captured.out
 
 
+def test_root_help_displays_literal_percent(capsys):
+    """A percent in a registered tool docstring must not break argparse help."""
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--help"])
+
+    assert exc_info.value.code == 0
+    captured = capsys.readouterr()
+    assert "80%+ fewer clicks" in captured.out
+    assert "80%%+ fewer clicks" not in captured.out
+
+
 def test_new_tool_annotations_are_supported():
     for tool_name in EXPECTED_BING_TOOLS | EXPECTED_CROSS_ENGINE_TOOLS:
         fn = TOOLS[tool_name]
