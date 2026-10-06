@@ -1,0 +1,140 @@
+docs/superpowers/plans/README.md
+  s_b091cb578646a0::t_a58c56f3281eeb 4
+site/content/fr/docs/examples/page-deep-dive.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-22
+site/src/content.config.ts
+  s_b091cb578646a0::t_1d758cc546c8b1 1-15
+site/astro.config.mjs
+  s_b091cb578646a0::t_814eaa2fd1b51e 20-26
+  s_b091cb578646a0::t_f41821ab560931 30
+  s_b091cb578646a0::t_1d758cc546c8b1 2,10-19,27-29,31-74
+site/src/styles/starlight-overrides.css
+  s_b091cb578646a0::t_1d758cc546c8b1 1-71,75-83,140-142,150-158
+  s_b091cb578646a0::t_9b356f91554dcd 84-119,121-126,128-139,143-144,146-149
+  s_b091cb578646a0::t_13b2cb9f768d82 72-74
+  s_b091cb578646a0::t_f160396ce8f3e4 120,127,145
+site/content/fr/docs/examples/indexing-issues.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-22
+site/content/fr/docs/evidence-and-safety.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-10,16-30,39-44
+  s_b091cb578646a0::t_9b356f91554dcd 11-15,31-38
+docs/superpowers/specs/2026-10-06-bilingual-docs-portal-design.md
+  s_b091cb578646a0::t_33597665f6e2fb 110
+site/src/data/content.ts
+  s_b091cb578646a0::t_bacfdadb26ca5a 4-14
+site/src/data/navigation.ts
+  s_b091cb578646a0::t_bacfdadb26ca5a 65-67,83-84,90-92
+docs/assets/gemini/prompts/search-evidence-map.md
+  s_b091cb578646a0::t_e4af2648968f04 1-9
+site/content/fr/docs/examples/traffic-drop.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-22
+site/tests/site.spec.ts
+  s_b091cb578646a0::t_f160396ce8f3e4 276
+  s_b091cb578646a0::t_96701776159176 291-292
+  s_b091cb578646a0::t_1f13d40a9c6004 272-275,277-290,293-297
+  s_b091cb578646a0::t_b4bf4562ca6d85 346-359
+site/tests/doc-content-source.test.mjs
+  s_b091cb578646a0::t_3294a0bde607f8 1-31
+  s_b091cb578646a0::t_f3d6492574867a 32-57
+.gitignore
+  s_b091cb578646a0::t_3294a0bde607f8 26
+site/content/fr/docs/examples/keyword-opportunities.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-22
+docs/assets/gemini/prompts/guarded-action-loop.md
+  s_b091cb578646a0::t_e4af2648968f04 1-9
+docs/superpowers/plans/2026-10-06-bilingual-docs-portal.md
+  s_b091cb578646a0::t_a58c56f3281eeb 15-19,32-36,51-55,65-69,82-85,92-93,97-101,112-115,117,121-125
+  s_b091cb578646a0::t_7265e72d91795a 1-8,10-14,20-31,37-50,56-64,70-81,86-91,94-96,102-111,118-120,126
+  s_b091cb578646a0::t_33597665f6e2fb 9
+  s_b091cb578646a0::t_ae99b8edcdf938 116
+site/src/components/docs/DocsFooter.astro
+  s_b091cb578646a0::t_f41821ab560931 1-16
+site/src/pages/index.astro
+  s_b091cb578646a0::t_bacfdadb26ca5a 28
+site/tests/dist-seo.test.mjs
+  s_b091cb578646a0::t_3616bc7308eb7c 59-61
+site/content/fr/docs/changelog.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-27
+site/content/fr/docs/examples/quick-audit.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-24
+site/src/components/SiteFooter.astro
+  s_b091cb578646a0::t_bacfdadb26ca5a 19-20
+site/content/en/index.md
+  s_b091cb578646a0::t_3294a0bde607f8 1-4,10-20,27-30
+  s_b091cb578646a0::t_9b356f91554dcd 5-9,21-22,26
+  s_b091cb578646a0::t_f160396ce8f3e4 23-25
+README.md
+  s_b091cb578646a0::t_358f39bf4e2d09 26-28,33,55,57-59
+site/tests/dist-content.test.mjs
+  s_b091cb578646a0::t_3616bc7308eb7c 6-7,42-55,57-66
+  s_b091cb578646a0::t_e99b50d3ae4328 56
+  s_b091cb578646a0::t_430ff48d048516 67
+site/content/fr/docs/installation.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-71
+site/content/fr/docs/index.md
+  s_b091cb578646a0::t_f160396ce8f3e4 29-31
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-10,16-26,33-38
+  s_b091cb578646a0::t_9b356f91554dcd 11-15,27-28,32
+CHANGELOG.md
+  s_b091cb578646a0::t_358f39bf4e2d09 14-17
+site/src/components/docs/SiteTitle.astro
+  s_b091cb578646a0::t_ab7c743a232303 3-4
+  s_b091cb578646a0::t_1d758cc546c8b1 1-2,5-35
+site/content/fr/docs/license.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-13
+site/package.json
+  s_b091cb578646a0::t_3294a0bde607f8 7-10,12-13,16
+  s_b091cb578646a0::t_56b4223ea27ce2 6
+  s_b091cb578646a0::t_29f5b9cbe906ca 20
+site/src/components/SiteHeader.astro
+  s_b091cb578646a0::t_bacfdadb26ca5a 62-63
+site/content/fr/docs/google-setup.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-52
+site/content/fr/docs/examples/google-bing-comparison.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-24
+site/content/fr/docs/examples/index.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-22
+site/content/fr/docs/examples/full-audit.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-25
+site/content/fr/docs/examples/content-brief.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-22
+site/src/styles/global.css
+  s_b091cb578646a0::t_f160396ce8f3e4 108
+site/scripts/prepare-doc-content.mjs
+  s_b091cb578646a0::t_3294a0bde607f8 1-44,46-69,71-127,138-139,141-152
+  s_b091cb578646a0::t_2b81acde9df530 45
+  s_b091cb578646a0::t_7e94819ee94dd2 70,128-137,140
+site/content/fr/docs/architecture.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-33
+site/content/en/evidence-and-safety.md
+  s_b091cb578646a0::t_3294a0bde607f8 1-4,10-26,35-40
+  s_b091cb578646a0::t_9b356f91554dcd 5-9,27-34
+site/content/fr/docs/bing-setup.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-40
+site/content/fr/docs/prompts.md
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-43
+site/content/fr/manifest.json
+  s_b091cb578646a0::t_af6b5733803347 70
+  s_b091cb578646a0::t_e3ee9f5fde35d2 1-3,76-77
+  s_b091cb578646a0::t_f1c1a66bf82775 66
+  s_b091cb578646a0::t_7e7479ebf7b7ce 6
+  s_b091cb578646a0::t_e68f9566b897ec 4-5,7-65,67-69,71-75
+site/pnpm-lock.yaml
+  s_b091cb578646a0::t_125a4894db4c27 14-16,67-72,80-84,110-113,122-125,468-479,636-638,656-693,873-875,882-884,888-890,903-905,953-957,1011-1019,1039-1044,1072-1074,1099-1101,1125-1127,1189-1192,1233-1238,1257-1274,1284-1286,1335-1340,1347-1352,1356-1358,1362-1364,1368-1373,1377-1379,1383-1385,1401-1403,1407-1409,1413-1415,1419-1427,1437-1439,1474-1477,1491-1494,1501-1503,1528-1539,1561-1563,1585-1599,1606-1608,1642-1644,1731-1737,1771-1780,1812-1825,1835-1840,1847-1849,1856-1858,1862-1864,1937-1940,1967-1972,2055-2057,2138-2140,2462-2480,2490-2523,2553-2554,2564-2565,2758-2782,2882-2911,2923-2945,3074-3077,3084-3085,3090-3091,3106-3107,3168-3171,3212-3218,3329-3336,3362-3363,3384-3385,3408-3409,3457-3458,3496-3509,3572-3600,3609-3615,3657-3671,3692-3699,3704-3711,3716-3723,3740-3778,3793-3812,3823-3826,3850-3851,3854-3857,3860-3861,3864-3872,3877-3878,3903-3904,3919-3920,3929-3943,4025-4073,4133-4142,4201-4251,4265-4276,4333-4342,4446-4465,4495-4504,4528-4556,4567-4575,4588-4595,4609-4617,4629-4635,4789-4790,4823-4830,4910-4913,4953-4954
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e329b17263347220121a4b54727ddfc5f760c051",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
