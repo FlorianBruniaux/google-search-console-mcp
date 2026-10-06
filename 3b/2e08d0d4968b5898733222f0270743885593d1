@@ -1,0 +1,46 @@
+site/src/components/EvidenceSafety.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-22
+site/tests/dist-content.test.mjs
+  s_b091cb578646a0::t_322042e1a98bfb 14-71
+site/src/components/SiteHeader.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-66
+site/src/components/ProviderCoverage.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-23
+site/src/components/ProofStrip.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-14
+site/src/components/SiteFooter.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-19
+site/src/data/navigation.ts
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-98
+site/src/styles/global.css
+  s_b091cb578646a0::t_e44a6dde8e127a 2-19,22-35,38-39,42-193,196-254
+  s_b091cb578646a0::t_398f5370e19b3a 194-195
+site/src/pages/index.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 4-12,19-27,29
+site/src/components/Hero.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-28
+site/src/components/InstallPath.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-26
+site/src/components/Faq.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-20
+site/src/data/content.ts
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-77
+site/src/components/Workflow.astro
+  s_b091cb578646a0::t_1b7d33e9124f3a 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3b2e08d0d4968b5898733222f0270743885593d1",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
