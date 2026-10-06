@@ -1,0 +1,34 @@
+docs/superpowers/specs/README.md
+  s_b091cb578646a0::t_61694e5e87334a 3
+README.md
+  s_b091cb578646a0::t_2f55b679227102 528
+docs/superpowers/specs/2026-10-06-search-console-site-design.md
+  s_b091cb578646a0::t_61694e5e87334a 326-329
+docs/superpowers/README.md
+  s_b091cb578646a0::t_61694e5e87334a 3-4
+  s_b091cb578646a0::t_2f55b679227102 1-2
+docs/superpowers/plans/README.md
+  s_b091cb578646a0::t_2f55b679227102 1-3
+docs/superpowers/plans/2026-10-06-search-console-site.md
+  s_b091cb578646a0::t_c08525352678e6 1-109,111-114,116,118-172,176,182-217,231-403,405-407,411-778,780-1176,1178-1223,1225-1264,1266-1273,1275-1566,1568-1570,1573-1579,1581-1623
+  s_b091cb578646a0::t_cead45780c2620 779,1177,1567,1571-1572,1580
+  s_b091cb578646a0::t_bb7561c4b9025d 218-230
+  s_b091cb578646a0::t_61694e5e87334a 110,115,117,173-175,177-181,404,408-410,1224
+  s_b091cb578646a0::t_cba76ad89baa57 1265,1274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5eb0cbf5cc22c2e5a702956b4ffcfa53d3f8dca8",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
