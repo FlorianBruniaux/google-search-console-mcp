@@ -37,6 +37,8 @@ The design is accepted when the implemented site meets these observable conditio
 
 - A first-time visitor can identify Google Search Console, Bing Webmaster Tools, GA4, CrUX and IndexNow above the fold or in the first viewport transition.
 - The install command can be copied with keyboard and pointer input.
+- The desktop header exposes one intent panel at a time, supports Arrow Down and Escape, and restores focus to the trigger when dismissed.
+- The mobile header exposes the same destinations in a modal navigation drawer with a close control, backdrop dismissal and focus containment.
 - The current package version and tool count come from repository sources during the build.
 - A failed product-data export fails the site build instead of publishing stale numbers.
 - The page states that an accepted submission does not prove crawl or indexation.
@@ -129,7 +131,21 @@ The implementation begins with a failing exporter-contract test. Astro work star
 
 ### Fixed header
 
-The 56 px header contains the wordmark, links to Capabilities, Install, Safety and FAQ, a GitHub action and a theme toggle. Mobile navigation uses a compact disclosure. The page includes a skip link to the main content.
+The 56 px header adapts the intent-menu pattern observed on the Claude Code Ultimate Guide without copying its logo, labels, search control, announcement bar or product content. It contains the `>_ Search Console MCP` wordmark, three intent menus, a direct GitHub action and a theme toggle. The page includes a skip link to the main content.
+
+The desktop menus are:
+
+- **Analyze:** Google data, Bing data and public-page analysis in one group; workflow and evidence boundaries in a second group.
+- **Start:** evaluation, persistent installation and access verification in one group; Google setup, Bing setup and starter prompts in a second group.
+- **Resources:** GitHub, PyPI, changelog and architecture in one group; installation documentation, Bing API contract, license and FAQ in a second group.
+
+Each trigger uses a chevron and a 44 px minimum target. An open trigger receives an orange bottom border. Its panel appears directly below the header, stays within a 72 rem centered shell, and uses a heading row plus two bordered editorial groups. Only one desktop panel can remain open.
+
+Desktop keyboard behavior is explicit: Enter or Space toggles a panel, Arrow Down opens it and moves focus to its first link, Escape closes it and restores focus to its trigger. A click outside closes the active panel. External destinations expose an external-link label to assistive technology.
+
+Below 64 rem, a menu button opens a modal drawer from the right over a backdrop. The same three intent groups become vertical disclosures. The drawer has a visible close control, traps focus between its controls, closes from the backdrop or a selected link, restores focus to the menu button and clears its state when the viewport crosses back to desktop.
+
+The first release has no search action or announcement bar because the site has one page and no searchable content corpus or dated update feed.
 
 ### Hero
 
@@ -241,6 +257,8 @@ Required behavior:
 - Semantic landmarks and one H1.
 - Logical heading order.
 - Keyboard-operable navigation, menu, copy action and theme toggle.
+- At most one desktop intent panel open, with Arrow Down entry, Escape dismissal and focus restoration.
+- A mobile navigation drawer with `role="dialog"`, `aria-modal="true"`, backdrop dismissal, body scroll lock and focus containment.
 - Orange 2 px focus outline with 2 to 3 px offset.
 - Minimum 44 px interactive targets.
 - Native disclosure elements where they fit.
@@ -251,9 +269,9 @@ Required behavior:
 
 ## Responsive behavior
 
-At 390 px, actions stack full width, provider groups use one column and proof items use a 2 by 2 grid. At 1440 px, the hero uses two columns and content stays within its maximum width. Intermediate layouts must not depend on a specific device model.
+At 390 px, the mega-menu becomes a modal drawer, actions stack full width, provider groups use one column and proof items use a 2 by 2 grid. At 1440 px, the intent panels use two editorial columns, the hero uses two columns and content stays within its maximum width. The navigation breakpoint is 64 rem. Intermediate layouts must not depend on a specific device model.
 
-The implementation verifies at least 390 by 844 and 1440 by 1000 in light and dark themes. These four screenshots are review evidence, not a complete accessibility audit.
+The implementation verifies 390 by 844 and 1440 by 1000 in light and dark themes, plus an open desktop panel and an open mobile drawer. These six screenshots are review evidence, not a complete accessibility audit.
 
 ## SEO contract
 

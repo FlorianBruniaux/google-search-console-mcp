@@ -23,6 +23,9 @@
 - State that an accepted submission proves neither crawl nor indexation.
 - Never expose Google, Bing, GA4, CrUX or IndexNow credentials to Astro, browser JavaScript or GitHub Pages.
 - Follow the BoldGuy palette and layout from the approved spec. Provider colors may label provider sections but must not replace orange as the product accent.
+- Adapt the Claude Code Guide intent-menu pattern as `Analyze`, `Start` and `Resources`; do not copy its logo, labels, search control, announcement bar or content.
+- Keep one desktop intent panel open at most. Support Arrow Down entry, Escape dismissal, outside-click dismissal and focus restoration.
+- Below 64 rem, render the same destinations in a modal drawer with a backdrop, close control, focus containment and body scroll lock.
 - Verify 390 by 844 and 1440 by 1000 in light and dark modes.
 - Do not update README or package homepage links to the custom domain until the public URL returns the intended commit.
 - Preserve `.agents/handoffs/2026-10-05-164757-bing-provider-execution.md` and `docs/superpowers/plans/2026-09-05-bing-webmaster-provider.md`; they are unrelated untracked work.
@@ -33,7 +36,7 @@
 2. An empty or non-dictionary `TOOLS` registry must fail the exporter instead of publishing a zero-tool claim. Task 1 tests both shapes.
 3. Clipboard permission rejection must leave the command visible and announce a manual-copy fallback. Task 4 tests the rejected browser API.
 4. Missing or inaccessible `localStorage` must not block first paint or theme switching. Task 4 tests the operating-system fallback and a storage exception.
-5. At 390 px, navigation, buttons and disclosures must remain keyboard-operable, at least 44 px high and free of document-level horizontal overflow. Task 4 tests all three conditions.
+5. The menu must keep one desktop panel open, restore focus after Escape, and become a contained modal drawer at 390 px without horizontal overflow or targets below 44 px. Task 4 tests every state.
 
 ---
 
@@ -53,9 +56,10 @@
 - `site/tsconfig.json`: Astro strict TypeScript configuration.
 - `site/astro.config.mjs`: static site URL, trailing slash and sitemap integration.
 - `site/src/data/content.ts`: stable copy, links, provider groups, workflow, evidence states and FAQ.
+- `site/src/data/navigation.ts`: typed `Analyze`, `Start` and `Resources` intent-menu data.
 - `site/src/layouts/BaseLayout.astro`: document shell, metadata, pre-paint theme boot and structured-data slots.
 - `site/src/pages/index.astro`: one-page composition only.
-- `site/src/components/SiteHeader.astro`: skip link, fixed navigation and theme toggle.
+- `site/src/components/SiteHeader.astro`: skip link, fixed intent mega-menu, mobile drawer, GitHub action and theme toggle.
 - `site/src/components/Hero.astro`: product proposition, command action and terminal proof surface.
 - `site/src/components/ProofStrip.astro`: generated facts.
 - `site/src/components/ProviderCoverage.astro`: Google, Bing and public-page boundaries.
@@ -64,7 +68,7 @@
 - `site/src/components/EvidenceSafety.astro`: observed, derived and requested states.
 - `site/src/components/Faq.astro`: visible questions and answers used by JSON-LD.
 - `site/src/components/SiteFooter.astro`: repository, PyPI, documentation, license and author links.
-- `site/src/scripts/interactions.ts`: copy command and theme switch behavior.
+- `site/src/scripts/interactions.ts`: mega-menu, mobile drawer, copy command and theme switch behavior.
 - `site/src/styles/global.css`: BoldGuy tokens, layout, responsive states, focus and reduced motion.
 
 ### Public and verification assets
@@ -77,7 +81,7 @@
 - `site/tests/dist-seo.test.mjs`: metadata, structured data, sitemap and public-file assertions.
 - `site/tests/site.spec.ts`: Playwright behavior, accessibility, responsive and visual tests.
 - `site/playwright.config.ts`: Chromium and preview-server configuration.
-- `site/tests/site.spec.ts-snapshots/`: four reviewed visual baselines.
+- `site/tests/site.spec.ts-snapshots/`: six reviewed visual baselines, including the open desktop panel and mobile drawer.
 
 ### Delivery
 
@@ -586,6 +590,7 @@ git commit -m "feat(site): add Astro static foundation"
 
 **Files:**
 - Create: `site/src/data/content.ts`
+- Create: `site/src/data/navigation.ts`
 - Create: `site/src/components/SiteHeader.astro`
 - Create: `site/src/components/Hero.astro`
 - Create: `site/src/components/ProofStrip.astro`
@@ -600,8 +605,8 @@ git commit -m "feat(site): add Astro static foundation"
 - Modify: `site/tests/dist-content.test.mjs`
 
 **Interfaces:**
-- Consumes: product JSON and the content arrays exported by `site/src/data/content.ts`.
-- Produces: semantic section IDs `capabilities`, `workflow`, `install`, `safety`, `faq`; visible FAQ data later reused by JSON-LD.
+- Consumes: product JSON, the content arrays exported by `site/src/data/content.ts`, and the intent-menu contract exported by `site/src/data/navigation.ts`.
+- Produces: semantic section IDs `capabilities`, `provider-google`, `provider-bing`, `provider-public`, `workflow`, `install`, `install-evaluate`, `install-persistent`, `install-verify`, `safety`, `faq`; visible FAQ data later reused by JSON-LD; stable menu hooks for Task 4.
 
 - [ ] **Step 1: Extend the content test before adding sections**
 
@@ -615,6 +620,23 @@ test('renders every product section and provider boundary', () => {
   for (const provider of ['Google data', 'Bing data', 'Public-page analysis']) {
     assert.match(html, new RegExp(provider))
   }
+})
+
+test('renders the intent menu without unsupported controls', () => {
+  for (const label of [
+    'Analyze',
+    'Start',
+    'Resources',
+    'Search providers',
+    'Workflow',
+    'Install',
+    'Configure providers',
+    'Project',
+    'Trust &amp; documentation',
+  ]) {
+    assert.match(html, new RegExp(label))
+  }
+  assert.doesNotMatch(html, /Search \(Cmd\+K\)|Latest:/)
 })
 
 test('keeps crawl and indexation claims bounded', () => {
@@ -651,6 +673,10 @@ export const siteLinks = {
   install: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/installation.md',
   googleSetup: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/google-setup.md',
   bingSetup: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/bing-setup.md',
+  starterPrompts: 'https://github.com/FlorianBruniaux/google-search-console-mcp/tree/main/examples',
+  changelog: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/CHANGELOG.md',
+  architecture: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/architecture.md',
+  bingContract: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/bing-api-contract.md',
   license: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/LICENSE',
   author: 'https://www.florian.bruniaux.com/about/?utm_source=search-console-mcp&utm_medium=website',
 } as const
@@ -720,28 +746,181 @@ export const faqs = [
 ] as const
 ```
 
-- [ ] **Step 4: Create semantic components**
+- [ ] **Step 4: Create the typed intent-menu contract**
+
+Create `site/src/data/navigation.ts`:
+
+```typescript
+import { siteLinks } from './content'
+
+export interface NavigationLink {
+  href: string
+  label: string
+  description: string
+  external?: boolean
+}
+
+export interface NavigationGroup {
+  label: string
+  links: NavigationLink[]
+}
+
+export interface NavigationSection {
+  id: 'analyze' | 'start' | 'resources'
+  label: string
+  description: string
+  overview: { href: string; label: string; external?: boolean }
+  groups: NavigationGroup[]
+}
+
+export const navigationSections: NavigationSection[] = [
+  {
+    id: 'analyze',
+    label: 'Analyze',
+    description: 'Choose the evidence source before interpreting search performance.',
+    overview: { href: '#capabilities', label: 'Compare all capabilities' },
+    groups: [
+      {
+        label: 'Search providers',
+        links: [
+          { href: '#provider-google', label: 'Google data', description: 'Search Console, GA4 and CrUX evidence.' },
+          { href: '#provider-bing', label: 'Bing data', description: 'Webmaster performance, crawl and submission signals.' },
+          { href: '#provider-public', label: 'Public-page analysis', description: 'Metadata, schema, sitemaps and internal links.' },
+        ],
+      },
+      {
+        label: 'Workflow',
+        links: [
+          { href: '#workflow', label: 'How it works', description: 'Connect, measure, compare, explain and submit.' },
+          { href: '#safety', label: 'Evidence boundaries', description: 'Separate observed, derived and requested states.' },
+          { href: '#faq', label: 'FAQ', description: 'Resolve common provider and credential questions.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'start',
+    label: 'Start',
+    description: 'Install the smallest useful setup, then verify each provider separately.',
+    overview: { href: '#install', label: 'See the installation path' },
+    groups: [
+      {
+        label: 'Install',
+        links: [
+          { href: '#install-evaluate', label: 'Evaluate once', description: 'Run the package with uvx without changing a project.' },
+          { href: '#install-persistent', label: 'Persistent install', description: 'Install the executable for repeat MCP use.' },
+          { href: '#install-verify', label: 'Verify access', description: 'List properties and validate providers independently.' },
+        ],
+      },
+      {
+        label: 'Configure providers',
+        links: [
+          { href: siteLinks.googleSetup, label: 'Google setup', description: 'Configure Search Console and optional Google services.', external: true },
+          { href: siteLinks.bingSetup, label: 'Bing setup', description: 'Configure Webmaster Tools and host-scoped IndexNow.', external: true },
+          { href: siteLinks.starterPrompts, label: 'Starter prompts', description: 'Use bounded prompts for common audit workflows.', external: true },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'resources',
+    label: 'Resources',
+    description: 'Inspect the source, release history and explicit operating contracts.',
+    overview: { href: siteLinks.repository, label: 'Open the repository', external: true },
+    groups: [
+      {
+        label: 'Project',
+        links: [
+          { href: siteLinks.repository, label: 'GitHub', description: 'Source, issues and contribution history.', external: true },
+          { href: siteLinks.pypi, label: 'PyPI', description: 'Published package and version metadata.', external: true },
+          { href: siteLinks.changelog, label: 'Changelog', description: 'Release-by-release product changes.', external: true },
+          { href: siteLinks.architecture, label: 'Architecture', description: 'Server boundaries and provider structure.', external: true },
+        ],
+      },
+      {
+        label: 'Trust & documentation',
+        links: [
+          { href: siteLinks.install, label: 'Installation', description: 'Client-specific setup and verification.', external: true },
+          { href: siteLinks.bingContract, label: 'Bing API contract', description: 'Scopes, quotas and write boundaries.', external: true },
+          { href: siteLinks.license, label: 'License', description: 'MIT usage terms.', external: true },
+          { href: '#faq', label: 'FAQ', description: 'Credentials, providers and evidence semantics.' },
+        ],
+      },
+    ],
+  },
+]
+```
+
+- [ ] **Step 5: Create semantic components**
 
 Use these component boundaries and markup contracts:
 
 `SiteHeader.astro`:
 
 ```astro
+---
+import { navigationSections } from '../data/navigation'
+import { siteLinks } from '../data/content'
+---
 <a class="skip-link" href="#main-content">Skip to main content</a>
-<header class="site-header">
+<header class="site-header" data-site-header>
   <div class="container header-inner">
     <a class="wordmark" href="/" aria-label="Search Console MCP home">
       <span aria-hidden="true">&gt;_</span> Search Console MCP
     </a>
-    <nav aria-label="Primary navigation">
-      <a href="#capabilities">Capabilities</a>
-      <a href="#install">Install</a>
-      <a href="#safety">Safety</a>
-      <a href="#faq">FAQ</a>
-    </nav>
-    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
-      <span aria-hidden="true" data-theme-icon>◐</span>
+    <button id="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-navigation">
+      <span>Menu</span><span aria-hidden="true">☰</span>
     </button>
+    <div class="nav-backdrop" data-nav-backdrop hidden></div>
+    <nav id="primary-navigation" aria-label="Primary navigation">
+      <div class="mobile-nav-heading">
+        <strong>Explore Search Console MCP</strong>
+        <button type="button" data-mobile-menu-close aria-label="Close navigation">×</button>
+      </div>
+      <div class="nav-sections">
+        {navigationSections.map((section) => (
+          <details data-nav-section={section.id}>
+            <summary data-nav-trigger={section.id} aria-expanded="false" aria-controls={`nav-panel-${section.id}`}>
+              {section.label}<span aria-hidden="true">⌄</span>
+            </summary>
+            <section id={`nav-panel-${section.id}`} class="nav-panel" data-nav-panel={section.id}>
+              <div class="nav-panel-heading">
+                <h2>{section.label}</h2>
+                <p>{section.description}</p>
+                <a href={section.overview.href} target={section.overview.external ? '_blank' : undefined} rel={section.overview.external ? 'noopener noreferrer' : undefined}>
+                  {section.overview.label} <span aria-hidden="true">→</span>
+                  {section.overview.external && <span class="sr-only"> (opens in a new tab)</span>}
+                </a>
+              </div>
+              <div class="nav-panel-groups">
+                {section.groups.map((group) => (
+                  <div class="nav-panel-group">
+                    <h3>{group.label}</h3>
+                    <ul>
+                      {group.links.map((link) => (
+                        <li>
+                          <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
+                            <strong>{link.label}</strong>
+                            <span>{link.description}</span>
+                            {link.external && <span class="sr-only"> (opens in a new tab)</span>}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </details>
+        ))}
+      </div>
+      <div class="header-actions">
+        <a href={siteLinks.repository} target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+          <span aria-hidden="true" data-theme-icon>◐</span>
+        </button>
+      </div>
+    </nav>
   </div>
 </header>
 ```
@@ -776,11 +955,11 @@ const command = 'uvx gsc-mcp-tools'
 </section>
 ```
 
-`ProofStrip.astro` accepts the generated product object and renders four `<li>` facts. `ProviderCoverage.astro`, `Workflow.astro`, `InstallPath.astro`, `EvidenceSafety.astro` and `Faq.astro` map their matching arrays from `content.ts` inside semantic `<section>` elements. `ProviderCoverage.astro` ends with the visible sentence `Google and Bing position semantics remain separate.`. `Faq.astro` uses one native `<details data-faq-item>` per item. `SiteFooter.astro` renders the five destinations from `siteLinks` with descriptive labels.
+`ProofStrip.astro` accepts the generated product object and renders four `<li>` facts. `ProviderCoverage.astro`, `Workflow.astro`, `InstallPath.astro`, `EvidenceSafety.astro` and `Faq.astro` map their matching arrays from `content.ts` inside semantic `<section>` elements. Each provider card receives an ID built from `provider-${provider.id}`. Each install card receives the stable IDs `install-evaluate`, `install-persistent` and `install-verify` in array order. `ProviderCoverage.astro` ends with the visible sentence `Google and Bing position semantics remain separate.`. `Faq.astro` uses one native `<details data-faq-item>` per item. `SiteFooter.astro` renders the five destinations from `siteLinks` with descriptive labels.
 
 Each mapped collection uses a stable key from `id`, title or question and preserves the exact copy in `content.ts`. Do not duplicate these strings inside components.
 
-- [ ] **Step 5: Compose the page and expose FAQ data**
+- [ ] **Step 6: Compose the page and expose FAQ data**
 
 Replace `site/src/pages/index.astro` with imports for every component, `product.json`, `faqs` and `siteLinks`. Render this order:
 
@@ -800,7 +979,7 @@ Replace `site/src/pages/index.astro` with imports for every component, `product.
 </BaseLayout>
 ```
 
-- [ ] **Step 6: Apply the BoldGuy tokens and responsive composition**
+- [ ] **Step 7: Apply the BoldGuy tokens and responsive composition**
 
 Replace the baseline CSS with the approved tokens and these invariant rules:
 
@@ -886,22 +1065,24 @@ h1 {
 
 Add focused rules for header, hero grid, proof list, provider cards, workflow connectors, install steps, evidence states, FAQ disclosures and footer. Use the approved 8 px control radius, 12 px card radius, 1 px borders and restrained shadows. Only provider cards may use `--provider-google` and `--provider-bing` as top-border labels.
 
-- [ ] **Step 7: Verify content and rendering**
+The header remains 56 px high. At `min-width: 64rem`, its triggers stay in the header row, the open trigger receives a 2 px orange bottom border and its panel is positioned below the header in a centered shell capped at 72 rem. The panel heading stays on one line where space permits, and its two editorial groups form equal bordered columns. At smaller widths, hide the desktop panel positioning and render `#primary-navigation` as a right-side modal drawer over `[data-nav-backdrop]`. Stack the same groups as disclosures, show the close control and lock body scroll only while the drawer is open. Do not create search or announcement-bar styles.
+
+- [ ] **Step 8: Verify content and rendering**
 
 Run from `site/`: `pnpm check && pnpm build && pnpm test:dist`
 
 Expected: type checks, build and all content assertions pass.
 
-- [ ] **Step 8: Commit the complete static page**
+- [ ] **Step 9: Commit the complete static page**
 
 ```bash
-git add -- site/src/data/content.ts site/src/components site/src/pages/index.astro site/src/styles/global.css site/tests/dist-content.test.mjs
+git add -- site/src/data/content.ts site/src/data/navigation.ts site/src/components site/src/pages/index.astro site/src/styles/global.css site/tests/dist-content.test.mjs
 git commit -m "feat(site): build BoldGuy product landing page"
 ```
 
 ---
 
-### Task 4: Theme, Copy Action and Browser Accessibility
+### Task 4: Navigation, Theme, Copy Action and Browser Accessibility
 
 **Files:**
 - Create: `site/src/scripts/interactions.ts`
@@ -913,8 +1094,8 @@ git commit -m "feat(site): build BoldGuy product landing page"
 - Modify: `site/src/styles/global.css`
 
 **Interfaces:**
-- Consumes: `[data-theme-toggle]`, `[data-theme-icon]`, `[data-copy-command]`, `[data-copy-status]` hooks from Task 3.
-- Produces: saved `theme` value `light` or `dark`; status strings `Command copied.` and `Copy failed. Select the command manually.`.
+- Consumes: `[data-site-header]`, `[data-nav-section]`, `[data-nav-trigger]`, `[data-nav-panel]`, `#mobile-menu-toggle`, `#primary-navigation`, `[data-mobile-menu-close]`, `[data-nav-backdrop]`, `[data-theme-toggle]`, `[data-theme-icon]`, `[data-copy-command]` and `[data-copy-status]` hooks from Task 3.
+- Produces: one open desktop intent panel; a modal mobile drawer below 64 rem; saved `theme` value `light` or `dark`; status strings `Command copied.` and `Copy failed. Select the command manually.`.
 
 - [ ] **Step 1: Write Playwright behavior and accessibility tests**
 
@@ -987,6 +1168,62 @@ test('still switches theme when localStorage throws', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', /light|dark/)
 })
 
+test('keeps one desktop intent panel open and restores trigger focus', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/')
+  const analyze = page.getByRole('button', { name: 'Analyze' })
+  const start = page.getByRole('button', { name: 'Start' })
+  await analyze.click()
+  await expect(analyze).toHaveAttribute('aria-expanded', 'true')
+  await start.click()
+  await expect(analyze).toHaveAttribute('aria-expanded', 'false')
+  await expect(start).toHaveAttribute('aria-expanded', 'true')
+  await page.keyboard.press('Escape')
+  await expect(start).toHaveAttribute('aria-expanded', 'false')
+  await expect(start).toBeFocused()
+})
+
+test('enters a desktop panel with ArrowDown and closes on outside click', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/')
+  const resources = page.getByRole('button', { name: 'Resources' })
+  await resources.focus()
+  await page.keyboard.press('ArrowDown')
+  await expect(page.getByRole('link', { name: /Open the repository/ })).toBeFocused()
+  await page.mouse.click(10, 900)
+  await expect(resources).toHaveAttribute('aria-expanded', 'false')
+})
+
+test('opens a contained mobile dialog and restores menu focus', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const menu = page.getByRole('button', { name: 'Open navigation' })
+  await menu.click()
+  const navigation = page.getByRole('dialog', { name: 'Primary navigation' })
+  await expect(navigation).toBeVisible()
+  await expect(navigation).toHaveAttribute('aria-modal', 'true')
+  await expect(page.locator('body')).toHaveAttribute('data-nav-open', '')
+  await expect(page.getByRole('button', { name: 'Close navigation' }).last()).toBeFocused()
+  await page.keyboard.press('Shift+Tab')
+  await expect(page.getByRole('button', { name: /Switch to/ })).toBeFocused()
+  await page.locator('[data-nav-backdrop]').click({ position: { x: 10, y: 10 } })
+  await expect(navigation).not.toBeVisible()
+  await expect(menu).toBeFocused()
+  await menu.click()
+  await page.getByRole('button', { name: 'Analyze' }).click()
+  await page.getByRole('link', { name: /Google data/ }).click()
+  await expect(navigation).not.toBeVisible()
+})
+
+test('clears mobile navigation state when crossing to desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Open navigation' }).click()
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await expect(page.locator('body')).not.toHaveAttribute('data-nav-open', '')
+  await expect(page.getByRole('button', { name: 'Analyze' })).toHaveAttribute('aria-expanded', 'false')
+})
+
 test('has no serious or critical axe violations', async ({ page }) => {
   await page.goto('/')
   const results = await new AxeBuilder({ page }).analyze()
@@ -1000,7 +1237,9 @@ test('keeps the mobile document contained and controls large enough', async ({ p
   const dimensions = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
     clientWidth: document.documentElement.clientWidth,
-    heights: [...document.querySelectorAll('a, button, summary')].map((node) => node.getBoundingClientRect().height),
+    heights: [...document.querySelectorAll('a, button, summary')]
+      .filter((node) => node.getClientRects().length > 0)
+      .map((node) => node.getBoundingClientRect().height),
   }))
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth)
   expect(dimensions.heights.every((height) => height >= 44)).toBe(true)
@@ -1027,6 +1266,20 @@ for (const theme of ['light', 'dark'] as const) {
     })
   }
 }
+
+test('matches the open desktop menu baseline', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Analyze' }).click()
+  await expect(page).toHaveScreenshot('menu-analyze-1440.png', { animations: 'disabled' })
+})
+
+test('matches the open mobile drawer baseline', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Open navigation' }).click()
+  await expect(page).toHaveScreenshot('menu-mobile-390.png', { animations: 'disabled' })
+})
 ```
 
 - [ ] **Step 2: Install Chromium and confirm behavior tests fail**
@@ -1062,12 +1315,124 @@ Import the browser module at the end of `<body>`:
 </script>
 ```
 
-- [ ] **Step 4: Implement copy and theme behavior**
+- [ ] **Step 4: Implement navigation, copy and theme behavior**
 
 Create `site/src/scripts/interactions.ts`:
 
 ```typescript
 type Theme = 'light' | 'dark'
+
+const desktopQuery = matchMedia('(min-width: 64rem)')
+const siteHeader = document.querySelector<HTMLElement>('[data-site-header]')
+const navigation = document.querySelector<HTMLElement>('#primary-navigation')
+const menuButton = document.querySelector<HTMLButtonElement>('#mobile-menu-toggle')
+const closeButton = document.querySelector<HTMLButtonElement>('[data-mobile-menu-close]')
+const backdrop = document.querySelector<HTMLElement>('[data-nav-backdrop]')
+const sections = [...document.querySelectorAll<HTMLDetailsElement>('[data-nav-section]')]
+const focusableSelector = 'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+
+function setSectionOpen(section: HTMLDetailsElement, open: boolean): void {
+  section.open = open
+  section.querySelector<HTMLElement>('[data-nav-trigger]')?.setAttribute('aria-expanded', String(open))
+}
+
+function closeSections(except?: HTMLDetailsElement): void {
+  sections.forEach((section) => {
+    if (section !== except) setSectionOpen(section, false)
+  })
+}
+
+function closeMobileNavigation(restoreFocus = true): void {
+  if (!navigation || !menuButton || !backdrop) return
+  document.body.removeAttribute('data-nav-open')
+  menuButton.setAttribute('aria-expanded', 'false')
+  menuButton.setAttribute('aria-label', 'Open navigation')
+  navigation.removeAttribute('role')
+  navigation.removeAttribute('aria-modal')
+  backdrop.hidden = true
+  closeSections()
+  if (restoreFocus) menuButton.focus()
+}
+
+function openMobileNavigation(): void {
+  if (!navigation || !menuButton || !backdrop) return
+  document.body.setAttribute('data-nav-open', '')
+  menuButton.setAttribute('aria-expanded', 'true')
+  menuButton.setAttribute('aria-label', 'Close navigation')
+  navigation.setAttribute('role', 'dialog')
+  navigation.setAttribute('aria-modal', 'true')
+  navigation.setAttribute('aria-label', 'Primary navigation')
+  backdrop.hidden = false
+  closeButton?.focus()
+}
+
+function resetNavigation(): void {
+  closeMobileNavigation(false)
+  closeSections()
+}
+
+sections.forEach((section) => {
+  const trigger = section.querySelector<HTMLElement>('[data-nav-trigger]')
+  section.addEventListener('toggle', () => {
+    if (section.open) closeSections(section)
+    trigger?.setAttribute('aria-expanded', String(section.open))
+  })
+  trigger?.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' && desktopQuery.matches) {
+      event.preventDefault()
+      setSectionOpen(section, true)
+      closeSections(section)
+      section.querySelector<HTMLElement>('[data-nav-panel] a')?.focus()
+    }
+  })
+})
+
+menuButton?.addEventListener('click', () => {
+  if (document.body.hasAttribute('data-nav-open')) closeMobileNavigation()
+  else openMobileNavigation()
+})
+closeButton?.addEventListener('click', () => closeMobileNavigation())
+backdrop?.addEventListener('click', () => closeMobileNavigation())
+navigation?.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    if (desktopQuery.matches) closeSections()
+    else closeMobileNavigation(false)
+  })
+})
+
+document.addEventListener('click', (event) => {
+  if (desktopQuery.matches && siteHeader && !siteHeader.contains(event.target as Node)) closeSections()
+})
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    if (!desktopQuery.matches && document.body.hasAttribute('data-nav-open')) {
+      closeMobileNavigation()
+      return
+    }
+    const openSection = sections.find((section) => section.open)
+    if (openSection) {
+      const trigger = openSection.querySelector<HTMLElement>('[data-nav-trigger]')
+      setSectionOpen(openSection, false)
+      trigger?.focus()
+    }
+  }
+
+  if (event.key === 'Tab' && !desktopQuery.matches && document.body.hasAttribute('data-nav-open') && navigation) {
+    const focusable = [...navigation.querySelectorAll<HTMLElement>(focusableSelector)].filter((node) => node.offsetParent !== null)
+    const first = focusable.at(0)
+    const last = focusable.at(-1)
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last?.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first?.focus()
+    }
+  }
+})
+
+desktopQuery.addEventListener('change', resetNavigation)
 
 const root = document.documentElement
 const themeButton = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')
@@ -1105,15 +1470,15 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy-command]').forEach((but
 })
 ```
 
-- [ ] **Step 5: Complete keyboard and mobile CSS**
+- [ ] **Step 5: Complete desktop panel and mobile drawer CSS**
 
-Make the skip link visible on focus, keep desktop navigation available above 768 px, use a native `<details>` navigation below 768 px, and ensure every link's padded hit area reaches 44 px. Do not hide focus outlines. Add `scroll-margin-top: 4.5rem` to every anchored section.
+Make the skip link visible on focus and add `scroll-margin-top: 4.5rem` to every anchored section. Keep the full intent-menu row at `min-width: 64rem`. Position only the open `.nav-panel` below the header, cap it at 72 rem and preserve the two-column editorial layout. At smaller widths, hide the desktop row until `body[data-nav-open]` is present, place `#primary-navigation` in a fixed right-side drawer, show `[data-nav-backdrop]`, stack the panel heading and groups, and keep native disclosure behavior. Ensure every link and control reaches 44 px, the drawer cannot exceed the viewport, and the body cannot scroll while open. Do not hide focus outlines.
 
 - [ ] **Step 6: Create and inspect visual baselines**
 
 Run from `site/`: `pnpm build && pnpm test:e2e --update-snapshots`
 
-Inspect all four files under `site/tests/site.spec.ts-snapshots/` at original resolution. Reject any overflow, clipped focus, illegible contrast, duplicated H1, broken connector or off-brand provider color.
+Inspect all six files under `site/tests/site.spec.ts-snapshots/` at original resolution. The set includes both themes at 390 px and 1440 px, the open `Analyze` desktop panel, and the open mobile drawer. Reject any overflow, clipped focus, illegible contrast, duplicated H1, broken connector, off-brand provider color, panel misalignment or drawer content outside the viewport.
 
 Run from `site/`: `pnpm test:e2e`
 
