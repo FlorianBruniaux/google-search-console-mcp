@@ -107,7 +107,7 @@ Every French page carries:
 
 ## Starlight integration
 
-Use `@astrojs/starlight` `0.42.5`, verified from the npm registry on 2026-10-06, with the existing Astro `5.17.1` project.
+Use `@astrojs/starlight` `0.37.7`, verified from the npm registry on 2026-10-06 as the latest release compatible with Astro 5. Starlight `0.38.x` requires Astro 6 and `0.42.5` requires Astro 7, so those releases are outside this bounded documentation change.
 
 Configuration requirements:
 

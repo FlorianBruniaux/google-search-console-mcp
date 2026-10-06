@@ -1,0 +1,35 @@
+---
+const isFrench = Astro.url.pathname.startsWith('/fr/')
+const home = isFrench ? '/fr/docs/' : '/docs/'
+const homeLabel = isFrench ? 'Accueil de la documentation Search Console MCP' : 'Search Console MCP documentation home'
+---
+
+<a class="docs-site-title" href={home} aria-label={homeLabel}>
+  <span class="docs-monogram" aria-hidden="true">FB<span>.</span></span>
+  <span>Search Console MCP</span>
+</a>
+
+<style>
+  .docs-site-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 44px;
+    color: var(--sl-color-white);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+  }
+
+  .docs-monogram {
+    color: var(--sl-color-accent-high);
+    font-size: 1.35rem;
+    font-weight: 850;
+    letter-spacing: -0.06em;
+  }
+
+  .docs-monogram span { color: currentColor; }
+
+  :global([data-theme='light']) .docs-site-title { color: #1a1207; }
+  :global([data-theme='light']) .docs-monogram { color: #c2410c; }
+</style>

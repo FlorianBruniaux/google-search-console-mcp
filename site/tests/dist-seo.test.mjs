@@ -56,6 +56,9 @@ test('publishes crawl files for the canonical host', async () => {
   const sitemapFiles = (await readdir(dist)).filter((name) => /^sitemap.*\.xml$/.test(name))
   const sitemapText = (await Promise.all(sitemapFiles.map((name) => readFile(new URL(name, dist), 'utf8')))).join('\n')
   assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\//)
+  assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\/docs\/installation\//)
+  assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\/fr\/docs\/installation\//)
+  assert.doesNotMatch(sitemapText, /superpowers|machine-readable|docs\/validation/)
 })
 
 test('publishes an accessible favicon and a 1200 by 630 PNG social image', async () => {

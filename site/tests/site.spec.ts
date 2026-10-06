@@ -269,6 +269,32 @@ test('shows a visible keyboard focus', async ({ page }) => {
   expect(await skipLink.evaluate((node) => getComputedStyle(node).outlineWidth)).toBe('2px')
 })
 
+test('navigates the bilingual documentation without leaving the site', async ({ page }) => {
+  await page.goto('/docs/')
+  await expect(page.getByRole('heading', { level: 1, name: 'Search Console MCP documentation' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Search' })).toBeEnabled()
+  await page.getByRole('banner').getByLabel('Select language').selectOption('/fr/docs/')
+  await expect(page).toHaveURL('/fr/docs/')
+  await expect(page.getByRole('heading', { level: 1, name: 'Documentation Search Console MCP' })).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
+})
+
+for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/']) {
+  test(`keeps ${route} accessible and contained on mobile`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto(route)
+    const metrics = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }))
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth)
+    await page.waitForFunction(() => [...document.querySelectorAll<HTMLElement>('.expressive-code pre')]
+      .every((block) => block.scrollWidth <= block.clientWidth || block.tabIndex === 0))
+    const results = await new AxeBuilder({ page }).analyze()
+    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
+  })
+}
+
 test.describe('local visual baselines', () => {
   test.skip(!!process.env.CI, 'Reviewed Chromium/macOS baselines are only compared locally.')
 
@@ -317,4 +343,18 @@ test.describe('local visual baselines', () => {
     await verification.getByRole('button', { name: 'Copy verification command' }).click()
     await expect(verification).toHaveScreenshot('install-feedback-dark-390.png', { animations: 'disabled' })
   })
+
+  for (const locale of [{ route: '/docs/', name: 'docs-en' }, { route: '/fr/docs/', name: 'docs-fr' }]) {
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
+      test(`matches ${locale.name} ${viewport.width}px baseline`, async ({ page }) => {
+        await page.setViewportSize(viewport)
+        await page.addInitScript(() => localStorage.setItem('starlight-theme', 'light'))
+        await page.goto(locale.route)
+        await expect(page).toHaveScreenshot(`${locale.name}-${viewport.width}.png`, {
+          fullPage: true,
+          animations: 'disabled',
+        })
+      })
+    }
+  }
 })

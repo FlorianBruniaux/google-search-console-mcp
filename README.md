@@ -23,12 +23,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <p align="center">
+  <a href="https://search-console.bruniaux.com/">Website</a> &middot;
+  <a href="https://search-console.bruniaux.com/docs/">Documentation</a> &middot;
+  <a href="https://search-console.bruniaux.com/fr/docs/">Documentation FR</a> &middot;
   <a href="#start-here">Start here</a> &middot;
   <a href="#how-it-works">How it works</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
   <a href="#tools-81">Tools</a> &middot;
-  <a href="#evidence-and-safety">Safety</a> &middot;
-  <a href="#documentation">Documentation</a>
+  <a href="#evidence-and-safety">Safety</a>
 </p>
 
 Search Console MCP gives Claude, Codex and other MCP clients access to private search and analytics data plus public-page SEO audits. Version 1.2.0 exposes 81 FastMCP tools for measuring performance, diagnosing pages, comparing Google and Bing, and submitting bounded changes.
@@ -50,11 +52,11 @@ Ask questions such as "why did traffic drop?", "which queries are close to page 
 | Goal | Command or guide | Result |
 | --- | --- | --- |
 | Run the published package | `uvx gsc-mcp-tools` | Starts all 81 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
-| Install for Codex or Claude Desktop | [Installation guide](docs/installation.md) | Persistent executable, upgrades, client configuration and verification |
+| Install for Codex or Claude Desktop | [Installation guide](https://search-console.bruniaux.com/docs/installation/) | Persistent executable, upgrades, client configuration and verification |
 | Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
-| Configure Google access | [Google setup guide](docs/google-setup.md) | Service Account or OAuth access to the selected properties |
-| Configure Bing access | [Bing setup guide](docs/bing-setup.md) | One account-level key for the verified sites visible to that account |
-| Run a first audit | [Starter prompts](docs/starter-prompt.md) | Full audit, health check, page inspection or GA4 analysis prompt |
+| Configure Google access | [Google setup guide](https://search-console.bruniaux.com/docs/google-setup/) | Service Account or OAuth access to the selected properties |
+| Configure Bing access | [Bing setup guide](https://search-console.bruniaux.com/docs/bing-setup/) | One account-level key for the verified sites visible to that account |
+| Run a first audit | [Starter prompts](https://search-console.bruniaux.com/docs/prompts/) | Full audit, health check, page inspection or GA4 analysis prompt |
 | Use the shell instead of MCP | [CLI usage](#cli-usage) | Commands generated from the same 81-tool registry |
 
 ## What it covers

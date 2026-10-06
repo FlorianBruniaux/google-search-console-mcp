@@ -62,9 +62,9 @@ export const navigationSections: NavigationSection[] = [
       {
         label: 'Configure providers',
         links: [
-          { href: siteLinks.googleSetup, label: 'Google setup', description: 'Configure Search Console and optional Google services.', external: true },
-          { href: siteLinks.bingSetup, label: 'Bing setup', description: 'Configure Webmaster Tools and host-scoped IndexNow.', external: true },
-          { href: siteLinks.starterPrompts, label: 'Starter prompts', description: 'Use bounded prompts for common audit workflows.', external: true },
+          { href: siteLinks.googleSetup, label: 'Google setup', description: 'Configure Search Console and optional Google services.' },
+          { href: siteLinks.bingSetup, label: 'Bing setup', description: 'Configure Webmaster Tools and host-scoped IndexNow.' },
+          { href: siteLinks.starterPrompts, label: 'Starter prompts', description: 'Use bounded prompts for common audit workflows.' },
         ],
       },
     ],
@@ -80,16 +80,16 @@ export const navigationSections: NavigationSection[] = [
         links: [
           { href: siteLinks.repository, label: 'GitHub', description: 'Source, issues and contribution history.', external: true },
           { href: siteLinks.pypi, label: 'PyPI', description: 'Published package and version metadata.', external: true },
-          { href: siteLinks.changelog, label: 'Changelog', description: 'Release-by-release product changes.', external: true },
-          { href: siteLinks.architecture, label: 'Architecture', description: 'Server boundaries and provider structure.', external: true },
+          { href: siteLinks.changelog, label: 'Changelog', description: 'Release-by-release product changes.' },
+          { href: siteLinks.architecture, label: 'Architecture', description: 'Server boundaries and provider structure.' },
         ],
       },
       {
         label: 'Trust & documentation',
         links: [
-          { href: siteLinks.install, label: 'Installation', description: 'Client-specific setup and verification.', external: true },
-          { href: siteLinks.bingContract, label: 'Bing API contract', description: 'Scopes, quotas and write boundaries.', external: true },
-          { href: siteLinks.license, label: 'License', description: 'MIT usage terms.', external: true },
+          { href: siteLinks.install, label: 'Installation', description: 'Client-specific setup and verification.' },
+          { href: siteLinks.bingContract, label: 'Evidence and safety', description: 'States, scopes and write boundaries.' },
+          { href: siteLinks.license, label: 'License', description: 'MIT usage terms.' },
           { href: '#faq', label: 'FAQ', description: 'Credentials, providers and evidence semantics.' },
         ],
       },

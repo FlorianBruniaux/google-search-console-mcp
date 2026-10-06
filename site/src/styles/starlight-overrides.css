@@ -1,0 +1,158 @@
+:root {
+  --sl-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+  --sl-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sl-color-accent-low: #4a1f0f;
+  --sl-color-accent: #f97316;
+  --sl-color-accent-high: #fed7aa;
+  --sl-color-white: #f5f0eb;
+  --sl-color-gray-1: #e7dfd7;
+  --sl-color-gray-2: #b7ada3;
+  --sl-color-gray-3: #8d8175;
+  --sl-color-gray-4: #5d534a;
+  --sl-color-gray-5: #302a25;
+  --sl-color-gray-6: #1b1815;
+  --sl-color-black: #0a0a0a;
+  --sl-color-bg-nav: color-mix(in srgb, var(--sl-color-black) 94%, transparent);
+  --sl-color-bg-sidebar: #10100f;
+  --sl-content-width: 48rem;
+  --sl-sidebar-width: 18.5rem;
+  --sl-text-5xl: clamp(2.4rem, 5vw, 4rem);
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-high: #7c2d12;
+  --sl-color-accent: #c2410c;
+  --sl-color-accent-low: #ffedd5;
+  --sl-color-white: #1a1207;
+  --sl-color-gray-1: #2f271e;
+  --sl-color-gray-2: #554a3e;
+  --sl-color-gray-3: #766b60;
+  --sl-color-gray-4: #a99f95;
+  --sl-color-gray-5: #d8d0c8;
+  --sl-color-gray-6: #eee7e0;
+  --sl-color-gray-7: #f7f2ed;
+  --sl-color-black: #fefaf6;
+  --sl-color-bg-nav: color-mix(in srgb, #f5f0eb 94%, transparent);
+  --sl-color-bg-sidebar: #f7f2ed;
+}
+
+html { scroll-padding-top: 5rem; }
+body { overflow-wrap: anywhere; }
+
+:focus-visible {
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 3px;
+}
+
+header.header {
+  border-bottom: 1px solid var(--sl-color-gray-5);
+  backdrop-filter: blur(14px);
+}
+
+.sidebar-pane { border-inline-end: 1px solid var(--sl-color-gray-5); }
+
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3 {
+  text-wrap: balance;
+  letter-spacing: -0.025em;
+}
+
+.sl-markdown-content h1 { letter-spacing: -0.045em; }
+
+.sl-markdown-content a { text-underline-offset: 0.2em; }
+
+.sl-markdown-content pre,
+.expressive-code .frame {
+  border: 1px solid #2a2f38;
+  border-radius: 10px;
+  background: #101318;
+}
+
+/* Code surfaces stay dark in both themes, so light-theme tokens reuse their dark-surface color. */
+.expressive-code span[style*='--0:'] { --1: var(--0) !important; }
+
+.sl-markdown-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.sl-markdown-content :is(button, summary, a) { min-height: 44px; }
+.sl-markdown-content p > a { min-height: initial; }
+
+.docs-visual {
+  margin: 2rem 0;
+  overflow: hidden;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 12px;
+  background: #f7f1ea;
+}
+
+.docs-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.docs-visual figcaption {
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--sl-color-gray-5);
+  color: var(--sl-color-gray-2);
+  font-size: 0.85rem;
+}
+
+.provider-boundaries,
+.guarded-flow {
+  display: grid;
+  gap: 0;
+  margin: 1.5rem 0;
+  padding: 0;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.provider-boundaries { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.guarded-flow { grid-template-columns: repeat(5, minmax(0, 1fr)); list-style: none; }
+
+.provider-boundaries > div,
+.guarded-flow li {
+  min-width: 0;
+  padding: 1rem;
+  background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+}
+
+.provider-boundaries > div + div,
+.guarded-flow li + li { border-inline-start: 1px solid var(--sl-color-gray-5); }
+
+.provider-boundaries strong,
+.provider-boundaries span,
+.guarded-flow strong,
+.guarded-flow span { display: block; }
+
+.provider-boundaries strong,
+.guarded-flow strong { margin-bottom: 0.35rem; color: var(--sl-color-white); }
+.provider-boundaries span,
+.guarded-flow span { color: var(--sl-color-gray-2); font-size: 0.82rem; }
+
+@media (max-width: 50rem) {
+  :root { --sl-content-pad-x: 1.25rem; }
+  .sl-markdown-content h1 { font-size: clamp(2.1rem, 11vw, 3rem); }
+  .provider-boundaries,
+  .guarded-flow { grid-template-columns: 1fr; }
+  .provider-boundaries > div + div,
+  .guarded-flow li + li {
+    border-inline-start: 0;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

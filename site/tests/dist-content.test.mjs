@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 
 const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8')
+const docsHtml = await readFile(new URL('../dist/docs/index.html', import.meta.url), 'utf8')
+const docsFrHtml = await readFile(new URL('../dist/fr/docs/index.html', import.meta.url), 'utf8')
 const product = JSON.parse(await readFile(new URL('../src/generated/product.json', import.meta.url), 'utf8'))
 
 test('renders the product name and generated tool count', () => {
@@ -35,6 +37,32 @@ test('offers the approved install actions and intent shortcuts', () => {
   ]) {
     assert.match(html, new RegExp(`<a\\b[^>]*href="${href}"[^>]*>${label}`))
   }
+})
+
+test('keeps documentation reading paths on the public site', () => {
+  for (const href of [
+    '/docs/',
+    '/fr/docs/',
+    '/docs/installation/',
+    '/docs/google-setup/',
+    '/docs/bing-setup/',
+    '/docs/prompts/',
+    '/docs/changelog/',
+    '/docs/architecture/',
+    '/docs/evidence-and-safety/',
+    '/docs/license/',
+  ]) assert.ok(html.includes(`href="${href}"`), `Missing public documentation link: ${href}`)
+
+  assert.doesNotMatch(html, /<a\b[^>]*href="https:\/\/github\.com\/FlorianBruniaux\/google-search-console-mcp\/(?:blob|tree)\/main\/(?:docs|examples|CHANGELOG|LICENSE)/)
+})
+
+test('publishes paired English and French documentation homes', () => {
+  assert.match(docsHtml, /<html lang="en"/)
+  assert.match(docsFrHtml, /<html lang="fr"/)
+  assert.match(docsHtml, /rel="alternate" hreflang="fr" href="https:\/\/search-console\.bruniaux\.com\/fr\/docs\/"/)
+  assert.match(docsFrHtml, /rel="alternate" hreflang="en" href="https:\/\/search-console\.bruniaux\.com\/docs\/"/)
+  assert.match(docsHtml, /search-evidence-map\.webp/)
+  assert.match(docsFrHtml, /Trois flux de preuves séparés/)
 })
 
 test('renders local copy feedback for every command and a final install call to action', () => {

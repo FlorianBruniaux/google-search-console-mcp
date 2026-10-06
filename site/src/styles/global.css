@@ -105,6 +105,7 @@ summary::-webkit-details-marker { display: none; }
 .nav-sections > details > summary:hover { color: var(--accent); }
 .header-actions { gap: 0.75rem; }
 .header-actions > a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 0.5rem; font-size: 0.9rem; text-decoration: none; }
+.header-actions > a[hreflang] { justify-content: center; min-width: 44px; }
 .header-actions > .header-install { min-height: 44px; padding-inline: 0.875rem; border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 650; }
 .header-actions > .header-install:hover { background: var(--accent); color: var(--surface-elevated); }
 .theme-toggle { width: 44px; padding: 0; font-size: 1.35rem; }

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "pages": {
+    "docs/index.md": {
+      "source": "site/content/en/index.md",
+      "sourceHash": "d72e1f93f40a9f82853750c337793f6edce9f797c57b21c726aedbbe91df35f7"
+    },
+    "docs/installation.md": {
+      "source": "docs/installation.md",
+      "sourceHash": "139152ff0d0671914471c55ba459943cd7c95628383eaccc0b0da25713a895c3"
+    },
+    "docs/google-setup.md": {
+      "source": "docs/google-setup.md",
+      "sourceHash": "be4f03e7eeed25fa871553c41ab087d8626b65606a988a1081b598aac34c6cb5"
+    },
+    "docs/bing-setup.md": {
+      "source": "docs/bing-setup.md",
+      "sourceHash": "e08658427abec85efb47c3030b606957171c981817100f3e133ff61d6e843e01"
+    },
+    "docs/prompts.md": {
+      "source": "docs/starter-prompt.md",
+      "sourceHash": "8d989995651bddd1edc6fa3457aa0e1ce634a3f0bf08c24781be326437bafe5e"
+    },
+    "docs/examples/index.md": {
+      "source": "examples/README.md",
+      "sourceHash": "f7cdfe14f12d954736f5d9b025433748188b0be36b73bdfb3a8c246343177d1f"
+    },
+    "docs/examples/quick-audit.md": {
+      "source": "examples/quick-audit.md",
+      "sourceHash": "ea3146b10066dff03ecba6083aec631b1b2bc7a53f76ed31e4e491d0d9455711"
+    },
+    "docs/examples/google-bing-comparison.md": {
+      "source": "examples/google-bing-comparison.md",
+      "sourceHash": "8a7aec7aa412553fc829fbb9d3ee5a126bd5f4b8d33a98c91e6dd16ac268fd65"
+    },
+    "docs/examples/full-audit.md": {
+      "source": "examples/full-audit.md",
+      "sourceHash": "9de435f300d943bb95bba629b5e502f3645ba023e4d0c436dd1b42260efd3fb4"
+    },
+    "docs/examples/keyword-opportunities.md": {
+      "source": "examples/keyword-opportunities.md",
+      "sourceHash": "43421c71667f3d8456abf084a6143fd7041ca511a326d6184b70e2adce8fa55b"
+    },
+    "docs/examples/page-deep-dive.md": {
+      "source": "examples/page-deep-dive.md",
+      "sourceHash": "6b823efcf8ef2a3be07052fa122a4fd32ef92e7209701fe57054273bb3f146bb"
+    },
+    "docs/examples/traffic-drop.md": {
+      "source": "examples/traffic-drop.md",
+      "sourceHash": "65470f60576196bb2982bb4c55d0f08db20ed60cc74eae5421a3da01e18ffdf9"
+    },
+    "docs/examples/indexing-issues.md": {
+      "source": "examples/indexing-issues.md",
+      "sourceHash": "89d4adb3824895591252ae1a174bd4df2d599b1a592a0dec04d386e24e89790d"
+    },
+    "docs/examples/content-brief.md": {
+      "source": "examples/content-brief.md",
+      "sourceHash": "4cc059e0b7b6b613b24d7ee525a9d75c933e83a665545b4e0c4af34a48fc7227"
+    },
+    "docs/architecture.md": {
+      "source": "docs/architecture.md",
+      "sourceHash": "ca01bfaaa5c08bd755266f45ee5114b05d26c933f70cc490e8feab8fc712ca02"
+    },
+    "docs/evidence-and-safety.md": {
+      "source": "site/content/en/evidence-and-safety.md",
+      "sourceHash": "999f9ee1044c0f5e40856bc03b1f29ea98349b4e3a0b5ad6399e0930cfb376d5"
+    },
+    "docs/changelog.md": {
+      "source": "CHANGELOG.md",
+      "sourceHash": "9c6324e8f6893496d295bf300df331e3b1cacfac5f266e2bb19751e65c08664a"
+    },
+    "docs/license.md": {
+      "source": "LICENSE",
+      "sourceHash": "9633e68986173d8285010edca848f5226d0e889d857f3d469dd707ecf3dfdeec"
+    }
+  }
+}

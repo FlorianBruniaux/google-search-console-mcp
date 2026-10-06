@@ -11,6 +11,10 @@
 ### Documentation
 
 - Ajout d'un guide d'installation central, d'un guide Bing et de prompts par fournisseur avec des limites explicites sur l'indexation, les preuves et les mutations.
+- Publication d'un portail Starlight bilingue sur `search-console.bruniaux.com/docs/` et `/fr/docs/`, avec recherche, navigation latérale, sommaire par page et liens de langue associés.
+- Les sources anglaises restent canoniques et sont publiées depuis une liste fermée. Les plans internes, exports machine-readable et rapports de validation bruts restent exclus du site.
+- La landing dirige désormais l'installation, la configuration Google et Bing, les exemples, l'architecture, les limites de preuve, le changelog et la licence vers les pages publiques du site.
+- Deux illustrations conceptuelles générées avec Gemini complètent des schémas HTML déterministes pour les flux de preuves et les actions protégées.
 
 ## [1.2.0] - 2026-10-06
 
