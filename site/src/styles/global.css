@@ -54,6 +54,7 @@ button { border: 1px solid var(--border); border-radius: 8px; background: transp
 [hidden] { display: none !important; }
 .container { width: min(100% - 3rem, var(--max-width)); margin-inline: auto; }
 section { padding-block: 5rem; }
+section[id], [id^="provider-"], [id^="install-"] { scroll-margin-top: 4.5rem; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { text-wrap: balance; }
 h1 {

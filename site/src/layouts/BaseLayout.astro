@@ -16,6 +16,16 @@ const socialImage = new URL(image, Astro.site)
 <!doctype html>
 <html lang="en">
   <head>
+    <script is:inline>
+      (() => {
+        let saved = null
+        try { saved = localStorage.getItem('theme') } catch {}
+        const systemDark = matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : systemDark ? 'dark' : 'light'
+      })()
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
@@ -32,5 +42,8 @@ const socialImage = new URL(image, Astro.site)
   </head>
   <body>
     <slot />
+    <script>
+      import '../scripts/interactions'
+    </script>
   </body>
 </html>

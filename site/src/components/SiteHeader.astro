@@ -21,7 +21,7 @@ import { siteLinks } from '../data/content'
       <div class="nav-sections">
         {navigationSections.map((section) => (
           <details data-nav-section={section.id}>
-            <summary data-nav-trigger={section.id} aria-expanded="false" aria-controls={`nav-panel-${section.id}`}>
+            <summary role="button" data-nav-trigger={section.id} aria-expanded="false" aria-controls={`nav-panel-${section.id}`}>
               {section.label}<span aria-hidden="true">⌄</span>
             </summary>
             <section id={`nav-panel-${section.id}`} class="nav-panel" data-nav-panel={section.id} aria-labelledby={`nav-title-${section.id}`}>
