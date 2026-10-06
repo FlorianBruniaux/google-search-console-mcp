@@ -31,6 +31,8 @@ No SEO expertise required. You can ask "run a full site audit", "why did my traf
 
 The published `1.1.2` package does not include the Bing provider. The 81-tool catalogue documented below describes this source checkout; run it from source until a release containing these changes is published. Existing global MCP configurations pinned to `gsc-mcp-tools==1.1.2` remain unchanged.
 
+![gsc-mcp workflow: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions.](docs/assets/gsc-mcp-workflow.png)
+
 ## What you can do with it
 
 The registry contains the existing catalogue, 19 Bing tools and `compare_search_engines`. The Bing family contains 15 reads and 4 guarded writes. Google and Bing share a minimal metrics contract for clicks, impressions, derived CTR and provider-specific position semantics. Bing-specific values remain in `provider_metrics` instead of being forced into Google fields.
