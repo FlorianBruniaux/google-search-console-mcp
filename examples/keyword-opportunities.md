@@ -1,20 +1,22 @@
 # Keyword Opportunities
 
-Three angles for finding ranking wins: pages near page one, queries that lost ground, and multiple pages competing for the same keyword. None of these require manual keyword research — Claude reads the data directly from your GSC account.
+Three angles for finding ranking opportunities: pages near page one, queries that lost ground, and multiple pages competing for the same keyword. The assistant reads the data directly from the configured providers.
 
 Replace `yourdomain.com` with your GSC property URL.
+
+Google supports every workflow below. Bing supports `quick_wins`, `seo_striking_distance` and `prune_candidates`, but not exact-period loss or bulk cannibalization analysis.
 
 ---
 
 ## Striking distance: pages close to page one
 
-> Find queries where yourdomain.com ranks between positions 8 and 20. Which ones have the most impressions and the best chance of breaking into the top 5?
+> For Google, find queries where yourdomain.com ranks between positions 8 and 15. Which ones have the most impressions? If Bing is configured, run the same analysis separately with engine="bing" and keep positions provider-specific.
 
-Claude calls `seo_striking_distance` and returns a ranked list with current position, impressions, and estimated CTR gain from moving up.
+The assistant calls `seo_striking_distance` and returns observed position, clicks, impressions and CTR, sorted by impressions. The tool does not forecast ranking gains or return an opportunity score.
 
 ### Follow-up
 
-> For the top 5 striking-distance queries, which pages rank for them and what would likely push them to page one — more content, better internal links, or stronger title tags?
+> For the top 5 striking-distance queries, which pages rank for them? Check content coverage, internal links and title tags, and label each proposed explanation as a hypothesis.
 
 ---
 
@@ -22,7 +24,7 @@ Claude calls `seo_striking_distance` and returns a ranked list with current posi
 
 > Which queries drove traffic to yourdomain.com in the last 90 days but have since dropped significantly?
 
-Claude calls `seo_lost_queries` and identifies queries that fell in clicks, position, or disappeared from the top 20.
+The assistant calls the Google-only `seo_lost_queries` analysis. Bing is refused here because its current contract does not provide the exact adjacent windows this comparison requires.
 
 ### Follow-up
 
@@ -34,16 +36,18 @@ Claude calls `seo_lost_queries` and identifies queries that fell in clicks, posi
 
 > Check yourdomain.com for keyword cannibalization. Which queries are split across more than one page?
 
-Claude calls `seo_cannibalization` and returns a Herfindahl-Hirschman Index (HHI) score per query. A low score means clicks are fragmented across multiple URLs instead of consolidating on one.
+The assistant calls `seo_cannibalization` and returns a Herfindahl-Hirschman Index (HHI) score per query. A low score means clicks are fragmented across multiple URLs instead of consolidating on one.
 
 ### Follow-up
 
-> For the worst cannibalization cases, which page should be the primary one and what should happen to the others — merge, redirect, or rewrite?
+> For the worst cannibalization cases, which page has the strongest measured claim to be primary? Compare merge, redirect, rewrite and no-change options without executing them.
+
+Before choosing a destructive action, compare traffic, intent, indexation and internal links for every affected URL. Do not recommend merge, redirect, deletion or `noindex` from cannibalization data alone.
 
 ---
 
-## AI Overviews: CTR drop despite stable rankings
+## AI Overviews: inspect available Search Console rows
 
-> Are Google AI Overviews hurting my click-through rate on yourdomain.com? Compare queries that show an AI Overview vs. those that don't.
+> Which query and searchAppearance rows are available for AI Overviews on yourdomain.com? Show their clicks, impressions, CTR and position without constructing a control cohort.
 
-Claude calls `ai_overviews_impact` and isolates the CTR delta between queries with and without AI Overview appearances at the same position range.
+The assistant calls `ai_overviews_impact`, which returns the available GSC rows grouped by `query` and `searchAppearance`. It does not calculate a controlled CTR delta or prove an AI Overview effect.

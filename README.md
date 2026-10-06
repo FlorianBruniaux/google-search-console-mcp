@@ -50,9 +50,10 @@ Ask questions such as "why did traffic drop?", "which queries are close to page 
 | Goal | Command or guide | Result |
 | --- | --- | --- |
 | Run the published package | `uvx gsc-mcp-tools` | Starts all 81 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
+| Install for Codex or Claude Desktop | [Installation guide](docs/installation.md) | Persistent executable, upgrades, client configuration and verification |
 | Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
 | Configure Google access | [Google setup guide](docs/google-setup.md) | Service Account or OAuth access to the selected properties |
-| Configure Bing access | [Bing API key setup](#bing-webmaster-api-key) | One account-level key for the verified sites visible to that account |
+| Configure Bing access | [Bing setup guide](docs/bing-setup.md) | One account-level key for the verified sites visible to that account |
 | Run a first audit | [Starter prompts](docs/starter-prompt.md) | Full audit, health check, page inspection or GA4 analysis prompt |
 | Use the shell instead of MCP | [CLI usage](#cli-usage) | Commands generated from the same 81-tool registry |
 
@@ -237,9 +238,11 @@ The final command reads the shared registry and lists the 81 commands available 
 
 ### Configure the providers you use
 
-**Full setup guide:** [docs/google-setup.md](docs/google-setup.md) covers creating a Google Cloud project, enabling APIs, creating a service account, adding it to GSC with the right permission level, and configuring GA4.
+**Installation guide:** [docs/installation.md](docs/installation.md) covers persistent and one-time installs, upgrades, Codex project scoping, Claude Desktop, provider variants and verification.
 
-**First audit prompts:** [docs/starter-prompt.md](docs/starter-prompt.md) contains ready-to-use prompts for a full site audit, a 5-minute health check, single-page inspection, reindexing workflow, and GA4-only analysis.
+**Provider setup:** [docs/google-setup.md](docs/google-setup.md) covers Google credentials and GA4. [docs/bing-setup.md](docs/bing-setup.md) covers the Bing Webmaster API key, verified sites and the separate IndexNow key.
+
+**First audit prompts:** [docs/starter-prompt.md](docs/starter-prompt.md) contains ready-to-use prompts for Google, Bing, cross-engine comparison, single-page inspection, eligible Indexing API submissions and GA4 analysis.
 
 Use only the variables required by the provider families you enable:
 
@@ -478,7 +481,7 @@ The `.claude/` directory ships 12 Claude Code agents, 14 skills and 2 developmen
 | `gsc-sitemap-auditor` | `sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
 | `gsc-schema-auditor` | `schema-audit` | JSON-LD errors blocking rich results |
 | `gsc-page-analyst` | `page-deep-dive` | Full diagnostic for a single URL |
-| `gsc-ai-overviews-analyst` | `ai-overviews-impact` | AI Overview cannibalization on CTR |
+| `gsc-ai-overviews-analyst` | `ai-overviews-impact` | Available query and searchAppearance rows for AI Overview analysis |
 
 </details>
 
@@ -501,7 +504,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | `sitemap-audit` | `/sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
 | `schema-audit` | `/schema-audit` | JSON-LD errors blocking rich results |
 | `page-deep-dive` | `/page-deep-dive` | Full diagnostic for a single URL |
-| `ai-overviews-impact` | `/ai-overviews-impact` | AI Overview cannibalization on CTR |
+| `ai-overviews-impact` | `/ai-overviews-impact` | Inspect available query and searchAppearance rows |
 | `heading-audit` | `/heading-audit` | Heading hierarchy, H1 uniqueness, title overlap and section density |
 | `internal-linking-audit` | `/internal-linking-audit` | Link placement by page zone, anchors and footer-only targets |
 | `link-equity-map` | `/link-equity-map` | Site-wide link flow crossed with Search Console positions |
@@ -516,7 +519,9 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 
 | Need | Document |
 | --- | --- |
+| Install, upgrade and configure an MCP client | [Installation guide](docs/installation.md) |
 | Configure Google APIs and authentication | [Google setup guide](docs/google-setup.md) |
+| Configure Bing Webmaster Tools | [Bing setup guide](docs/bing-setup.md) |
 | Run the first audit | [Starter prompts](docs/starter-prompt.md) and [`examples/`](examples/) |
 | Understand the modules and data flow | [Architecture](docs/architecture.md) |
 | Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |

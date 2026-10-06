@@ -1,6 +1,6 @@
 # Content Brief from Real Search Data
 
-Build a content brief based on what Google already knows about your page: which queries drive traffic, which queries you're leaving clicks on the table for, and how users behave once they arrive.
+Build a content brief from observed Search Console data: which queries drive traffic, which question queries appear, and how users behave once they arrive when GA4 is configured.
 
 Replace `yourdomain.com/your-page-path` with the URL you want to build a brief for.
 
@@ -10,20 +10,22 @@ Replace `yourdomain.com/your-page-path` with the URL you want to build a brief f
 
 > Build a content brief for yourdomain.com/your-page-path based on its current GSC performance and user behavior.
 
-Claude calls `content_brief`, which cross-references search queries, impressions without clicks, GA4 behavior data (if configured), and Core Web Vitals to suggest:
+The assistant calls `content_brief`, which returns the page's top GSC queries, detected question queries, current focus and optional GA4 engagement data. Use those observations to draft:
 
 - Topics to cover or expand based on impressions you're not converting to clicks
 - Queries to target in headings and subheadings
 - Whether the page intent matches what searchers expect
-- Content gaps compared to what's generating impressions but no engagement
+- Content hypotheses to validate against the page itself
+
+Core Web Vitals are not part of `content_brief`; call `crux_page_vitals` separately when field performance matters.
 
 ---
 
 ## Expand the research
 
-### Find missing topics
+### Find underperforming query topics
 
-> What topics bring impressions to this page but no clicks? Those are search intents the page isn't covering yet.
+> Use `get_search_by_page_query` for this page. Which queries have impressions but few or no clicks? Treat them as topics to inspect, not proof that the page fails to cover the intent.
 
 ### Understand what's already working
 
@@ -33,15 +35,15 @@ Claude calls `content_brief`, which cross-references search queries, impressions
 
 > Do users who land on this page from organic search actually engage with it? What's the bounce rate and time on page?
 
-Claude calls `ga4_organic_landing_pages` and `ga4_page_performance` to layer behavioral data on top of the search performance data.
+The assistant calls `ga4_organic_landing_pages` and `ga4_page_performance` to layer behavioral data on top of search performance. Engagement metrics do not explain ranking changes on their own.
 
 ---
 
 ## Brief a new page before writing it
 
-> I want to create a new page targeting [topic]. What existing queries on my site are related? Are there pages I already rank for that I could link from to pass authority?
+> I want to create a new page targeting [topic]. What observed queries on my site are related? Which existing pages are relevant internal-link candidates based on measured search visibility and the current link graph?
 
-Claude analyzes your GSC data for adjacent queries, finds internal linking opportunities, and estimates the difficulty based on your current position distribution in that topic area.
+The assistant combines GSC query evidence with `link_equity_map` or `internal_links_audit`. It should report coverage limits rather than estimate keyword difficulty from position data alone.
 
 ---
 
@@ -49,4 +51,4 @@ Claude analyzes your GSC data for adjacent queries, finds internal linking oppor
 
 > I published yourdomain.com/new-page two weeks ago. Is it getting impressions yet? Which queries is Google starting to associate it with?
 
-Claude calls `get_search_by_page_query` to read early ranking signals and `inspect_url` to confirm the page is indexed and crawlable.
+The assistant calls `get_search_by_page_query` to read early visibility signals and `inspect_url` for Google's current indexation evidence. No impressions yet is not proof that the page is absent from the index.

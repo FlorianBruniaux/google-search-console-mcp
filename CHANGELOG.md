@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Documentation
+
+- Ajout d'un guide d'installation central, d'un guide Bing et de prompts par fournisseur avec des limites explicites sur l'indexation, les preuves et les mutations.
+
 ## [1.2.0] - 2026-10-06
 
 ### Added

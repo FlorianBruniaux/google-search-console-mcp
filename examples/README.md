@@ -1,23 +1,26 @@
 # Example Prompts
 
-Scenario-based conversation starters for common SEO workflows. Each file covers one use case with a progression of prompts, from a first question to a deeper investigation.
+Scenario-based conversation starters for the published 81-tool registry. Each file covers one use case with a progression from a first question to a deeper investigation.
 
-No SEO expertise needed. Start with the first prompt in any file and follow where Claude takes you. Replace `yourdomain.com` with your actual GSC property URL.
+Start with the first prompt in any file and replace `yourdomain.com` with your property or verified-site URL. Configure the required providers with the [installation guide](../docs/installation.md), [Google setup](../docs/google-setup.md) or [Bing setup](../docs/bing-setup.md).
 
 ## Scenarios
 
-| File | Use case | Estimated time |
-|------|----------|----------------|
-| [quick-audit.md](quick-audit.md) | Site health check at a glance | ~5 min |
-| [full-audit.md](full-audit.md) | Complete audit with P0/P1/P2 action plan | ~20 min |
-| [keyword-opportunities.md](keyword-opportunities.md) | Find quick ranking wins | ~10 min |
-| [page-deep-dive.md](page-deep-dive.md) | Diagnose a single URL | ~10 min |
-| [traffic-drop.md](traffic-drop.md) | Investigate a traffic drop | ~10 min |
-| [indexing-issues.md](indexing-issues.md) | Find and fix indexing problems | ~10 min |
-| [content-brief.md](content-brief.md) | Build a content brief from real search data | ~15 min |
+| File | Providers | Use case | Depth |
+|---|---|---|---|
+| [quick-audit.md](quick-audit.md) | Google, optional Bing | Site health check at a glance | Quick |
+| [google-bing-comparison.md](google-bing-comparison.md) | Google + Bing | Compare engines without mixing incompatible metrics | Intermediate |
+| [full-audit.md](full-audit.md) | Google, optional Bing and GA4 | Complete audit with P0/P1/P2 action plan | Complete |
+| [keyword-opportunities.md](keyword-opportunities.md) | Google + supported Bing analyses | Find measured ranking opportunities | Intermediate |
+| [page-deep-dive.md](page-deep-dive.md) | Google, optional Bing, CrUX | Diagnose a single URL | Intermediate |
+| [traffic-drop.md](traffic-drop.md) | Google | Investigate a traffic drop across exact adjacent periods | Intermediate |
+| [indexing-issues.md](indexing-issues.md) | Google | Inspect indexing evidence and eligible submissions | Intermediate |
+| [content-brief.md](content-brief.md) | Google, optional GA4 and CrUX | Build a brief from observed search data | Intermediate |
 
 ## How to use these
 
-Copy a prompt, paste it into Claude (or your MCP-compatible client), and follow the conversation. Each file shows a natural progression: a starting question, follow-ups that go deeper, and suggestions for what to do with the output.
+Copy a prompt into Claude, Codex or another MCP-compatible client. Each file contains a starting question, evidence-preserving follow-ups and explicit boundaries for writes.
 
 The prompts work as-is. You don't need to know which API tool runs behind each question.
+
+Read-only analysis does not authorize a write. Before a sitemap, URL, feed or IndexNow mutation, the assistant must name the exact tool and target, report the number of affected items, and wait for explicit confirmation. An accepted submission proves neither crawl nor indexation.
