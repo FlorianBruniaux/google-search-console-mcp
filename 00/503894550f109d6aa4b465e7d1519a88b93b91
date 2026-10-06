@@ -1,0 +1,21 @@
+tests/test_site_workflow.py
+  s_b091cb578646a0::t_3bf26e30293c23 1-36
+.github/workflows/site.yml
+  s_b091cb578646a0::t_b9acdfad5fb0a7 1-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "00503894550f109d6aa4b465e7d1519a88b93b91",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
