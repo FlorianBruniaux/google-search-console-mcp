@@ -1,0 +1,27 @@
+docs/machine-readable/llms.txt
+  s_b091cb578646a0::t_2df03c60384b7f 277
+README.md
+  s_b091cb578646a0::t_2df03c60384b7f 17-18,22,28-30
+docs/machine-readable/tech-decisions.yaml
+  s_b091cb578646a0::t_2df03c60384b7f 161
+pyproject.toml
+  s_b091cb578646a0::t_2df03c60384b7f 8,11-20
+CHANGELOG.md
+  s_b091cb578646a0::t_2df03c60384b7f 16-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8ac0b697daf64620de05100fdec7cf4f6c373148",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
