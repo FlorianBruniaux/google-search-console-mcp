@@ -1,0 +1,14 @@
+---
+import type productData from '../generated/product.json'
+interface Props { product: typeof productData }
+const { product } = Astro.props
+---
+
+<div class="proof-strip">
+  <ul class="container proof-list" aria-label="Package facts">
+    <li><strong>{product.toolCount} MCP tools</strong><span>Registered in the server</span></li>
+    <li><strong>Version {product.version}</strong><span>Package release</span></li>
+    <li><strong>Python {product.pythonRequires}</strong><span>Runtime requirement</span></li>
+    <li><strong>stdio</strong><span>MCP client transport</span></li>
+  </ul>
+</div>

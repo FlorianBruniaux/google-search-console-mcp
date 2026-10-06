@@ -11,3 +11,61 @@ test('renders the product name and generated facts', () => {
   assert.match(html, new RegExp(`Version ${product.version.replaceAll('.', '\\.')}`))
   assert.match(html, new RegExp(`Python ${product.pythonRequires.replace('>', '&gt;')}`))
 })
+
+test('renders every product section and provider boundary', () => {
+  for (const id of ['capabilities', 'workflow', 'install', 'safety', 'faq']) {
+    assert.match(html, new RegExp(`id="${id}"`))
+  }
+  for (const provider of ['Google data', 'Bing data', 'Public-page analysis']) {
+    assert.match(html, new RegExp(provider))
+  }
+})
+
+test('renders the intent menu without unsupported controls', () => {
+  for (const label of ['Analyze', 'Start', 'Resources', 'Search providers', 'Workflow', 'Install', 'Configure providers', 'Project', 'Trust &amp; documentation']) {
+    assert.match(html, new RegExp(label))
+  }
+  assert.doesNotMatch(html, /Search \(Cmd\+K\)|Latest:/)
+})
+
+test('keeps crawl and indexation claims bounded', () => {
+  assert.match(html, /accepted submission proves neither crawl nor indexation/i)
+  assert.match(html, /Google and Bing position semantics remain separate/i)
+})
+
+test('renders all visible FAQ questions', () => {
+  for (const question of [
+    'Does one Bing API key work for every site?',
+    'Do I need every Google API enabled?',
+    'Does a successful submission mean the page is indexed?',
+    'Can I use the server from Claude and Codex?',
+    'Where do credentials live?',
+  ]) assert.ok(html.includes(question), `Missing FAQ: ${question}`)
+  assert.equal((html.match(/data-faq-item/g) ?? []).length, 5)
+})
+
+test('resolves every local navigation destination to a unique rendered target', () => {
+  const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1])
+  assert.equal(new Set(ids).size, ids.length, 'Duplicate document IDs')
+  for (const id of ['provider-google', 'provider-bing', 'provider-public', 'install-evaluate', 'install-persistent', 'install-verify']) {
+    assert.ok(ids.includes(id), `Missing target: ${id}`)
+  }
+  for (const [, target] of html.matchAll(/href="#([^"]+)"/g)) {
+    assert.ok(ids.includes(target), `Broken anchor: #${target}`)
+  }
+})
+
+test('exposes semantic navigation controls and copy feedback for client behavior', () => {
+  assert.match(html, /<a[^>]+href="#main-content"/)
+  assert.match(html, /<nav[^>]+id="primary-navigation"[^>]+aria-label="Primary navigation"/)
+  for (const section of ['analyze', 'start', 'resources']) {
+    assert.match(html, new RegExp(`<details[^>]+data-nav-section="${section}"`))
+    assert.match(html, new RegExp(`aria-controls="nav-panel-${section}"`))
+    assert.match(html, new RegExp(`id="nav-panel-${section}"`))
+  }
+  assert.match(html, /id="mobile-menu-toggle"[^>]+aria-controls="primary-navigation"/)
+  assert.match(html, /data-mobile-menu-close/)
+  assert.match(html, /data-nav-backdrop[^>]*hidden/)
+  assert.match(html, /data-copy-command="uvx gsc-mcp-tools"/)
+  assert.match(html, /data-copy-status[^>]+role="status"[^>]+aria-live="polite"/)
+})

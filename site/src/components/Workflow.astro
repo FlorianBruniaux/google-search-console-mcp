@@ -1,0 +1,21 @@
+---
+import { workflowSteps } from '../data/content'
+---
+
+<section id="workflow" class="section-tinted" aria-labelledby="workflow-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="kicker">02 / Workflow</p>
+      <h2 id="workflow-title">From a question to a checked action.</h2>
+    </div>
+    <ol class="workflow-list">
+      {workflowSteps.map(([title, copy], index) => (
+        <li>
+          <span class="step-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <h3>{title}</h3>
+          <p>{copy}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

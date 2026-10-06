@@ -1,0 +1,28 @@
+---
+interface Props { toolCount: number }
+const { toolCount } = Astro.props
+const command = 'uvx gsc-mcp-tools'
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-grid">
+    <div>
+      <p class="kicker">Google + Bing + SEO analytics</p>
+      <h1 id="hero-title">Search data your AI assistant can inspect, compare and act on safely.</h1>
+      <p class="hero-copy">Search Console MCP connects Claude, Codex and other MCP clients to Google Search Console, Bing Webmaster Tools, GA4, CrUX, IndexNow and public-page audits.</p>
+      <div class="hero-actions">
+        <button class="button button-primary" type="button" data-copy-command={command}>Copy install command</button>
+        <a class="button button-secondary" href="#install">View installation path</a>
+      </div>
+      <p class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+    </div>
+    <div class="terminal" aria-label="Example command and request">
+      <div class="terminal-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="terminal-content">
+        <code><span class="terminal-prompt">$</span> {command}</code>
+        <p>&gt; Compare this site's Google and Bing visibility. Keep each provider's position semantics separate.</p>
+        <small>{toolCount} registered tools, structured JSON output</small>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+---
+import { siteLinks } from '../data/content'
+const links = [
+  ['GitHub repository', siteLinks.repository],
+  ['PyPI package', siteLinks.pypi],
+  ['Installation guide', siteLinks.install],
+  ['MIT license', siteLinks.license],
+  ['About Florian Bruniaux', siteLinks.author],
+] as const
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p><strong>Search Console MCP</strong><br />Search evidence, with its limits attached.</p>
+    <nav aria-label="Footer navigation">
+      <ul>{links.map(([label, href]) => <li><a href={href}>{label}</a></li>)}</ul>
+    </nav>
+  </div>
+</footer>

@@ -1,16 +1,30 @@
 ---
 import product from '../generated/product.json'
 import BaseLayout from '../layouts/BaseLayout.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import Hero from '../components/Hero.astro'
+import ProofStrip from '../components/ProofStrip.astro'
+import ProviderCoverage from '../components/ProviderCoverage.astro'
+import Workflow from '../components/Workflow.astro'
+import InstallPath from '../components/InstallPath.astro'
+import EvidenceSafety from '../components/EvidenceSafety.astro'
+import Faq from '../components/Faq.astro'
+import SiteFooter from '../components/SiteFooter.astro'
 
 const title = 'Search Console MCP for Google, Bing and SEO Analytics'
 const description = 'Connect AI assistants to Google Search Console, Bing Webmaster Tools, GA4, CrUX and guarded SEO workflows.'
 ---
 
 <BaseLayout {title} {description}>
-  <main id="main-content">
-    <h1>Search Console MCP</h1>
-    <p>{product.toolCount} MCP tools</p>
-    <p>Version {product.version}</p>
-    <p>Python {product.pythonRequires}</p>
+  <SiteHeader />
+  <main id="main-content" tabindex="-1">
+    <Hero toolCount={product.toolCount} />
+    <ProofStrip {product} />
+    <ProviderCoverage />
+    <Workflow />
+    <InstallPath />
+    <EvidenceSafety />
+    <Faq />
   </main>
+  <SiteFooter />
 </BaseLayout>
