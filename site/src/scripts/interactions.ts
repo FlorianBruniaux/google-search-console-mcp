@@ -74,7 +74,7 @@ backdrop?.addEventListener('click', () => closeMobileNavigation())
 navigation?.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
   link.addEventListener('click', () => {
     if (desktopQuery.matches) closeSections()
-    else closeMobileNavigation(false)
+    else closeMobileNavigation(link.target === '_blank' || link.origin !== location.origin)
   })
 })
 

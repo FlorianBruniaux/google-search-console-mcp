@@ -93,6 +93,27 @@ test('opens a contained mobile dialog and restores menu focus', async ({ page })
   await page.getByRole('button', { name: 'Analyze' }).click()
   await page.getByRole('link', { name: /Google data/ }).click()
   await expect(navigation).not.toBeVisible()
+  await expect(menu).not.toBeFocused()
+})
+
+test('restores mobile menu focus after keyboard activation of an external link', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const menu = page.getByRole('button', { name: 'Open navigation' })
+  await menu.focus()
+  await page.keyboard.press('Enter')
+  const navigation = page.getByRole('dialog', { name: 'Primary navigation' })
+  const repository = navigation.getByRole('link', { name: 'GitHub (opens in a new tab)', exact: true })
+  await expect(repository).toHaveAttribute('target', '_blank')
+  // Cancel only the browser destination; the site's click handler still runs.
+  await repository.evaluate((link) => link.addEventListener('click', (event) => event.preventDefault(), { once: true }))
+  await repository.focus()
+  await expect(repository).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(navigation).not.toBeVisible()
+  await expect(menu).toBeVisible()
+  await expect(menu).toBeFocused()
+  await expect(page).toHaveURL('/')
 })
 
 test('clears mobile navigation state when crossing to desktop', async ({ page }) => {
