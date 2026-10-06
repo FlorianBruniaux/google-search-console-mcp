@@ -12,6 +12,14 @@ test('renders the product name and generated facts', () => {
   assert.match(html, new RegExp(`Python ${product.pythonRequires.replace('>', '&gt;')}`))
 })
 
+test('shows the MIT license as the fourth package fact', () => {
+  const proofList = html.match(/<ul\b[^>]*aria-label="Package facts"[^>]*>([\s\S]*?)<\/ul>/)?.[1]
+  assert.ok(proofList, 'Missing package facts list')
+  const facts = [...proofList.matchAll(/<strong>([^<]+)<\/strong>/g)].map((match) => match[1])
+  assert.equal(facts.length, 4, 'Expected four package facts')
+  assert.equal(facts[3], 'MIT license', 'The fourth fact must disclose the approved license')
+})
+
 test('renders every product section and provider boundary', () => {
   for (const id of ['capabilities', 'workflow', 'install', 'safety', 'faq']) {
     assert.match(html, new RegExp(`id="${id}"`))
