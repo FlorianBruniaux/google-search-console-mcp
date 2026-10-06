@@ -77,3 +77,30 @@ test('exposes semantic navigation controls and copy feedback for client behavior
   assert.match(html, /data-copy-command="uvx gsc-mcp-tools"/)
   assert.match(html, /data-copy-status[^>]+role="status"[^>]+aria-live="polite"/)
 })
+
+test('connects the footer to the product and Florian Bruniaux ecosystem', () => {
+  for (const label of ['Navigate', 'Product', 'Ecosystem']) {
+    assert.match(html, new RegExp(`<nav[^>]+aria-label="${label} links"`))
+  }
+
+  for (const href of ['#main-content', '#capabilities', '#workflow', '#install', '#safety', '#faq']) {
+    assert.match(html, new RegExp(`href="${href}"`), `Missing internal footer link: ${href}`)
+  }
+
+  for (const href of [
+    'https://github.com/FlorianBruniaux/google-search-console-mcp',
+    'https://pypi.org/project/gsc-mcp-tools/',
+    'https://www.florian.bruniaux.com/projects/',
+    'https://cc.bruniaux.com/',
+    'https://starmapper.bruniaux.com/',
+    'https://ccboard.bruniaux.com/',
+    'https://ccbridge.bruniaux.com/',
+    'https://github.com/FlorianBruniaux/youtube-video-insights',
+    'https://www.florian.bruniaux.com/',
+    'https://www.florian.bruniaux.com/blog/',
+    'https://github.com/FlorianBruniaux',
+    'https://www.linkedin.com/in/florian-bruniaux-43408b83/',
+  ]) {
+    assert.ok(html.includes(`href="${href}`), `Missing external footer link: ${href}`)
+  }
+})

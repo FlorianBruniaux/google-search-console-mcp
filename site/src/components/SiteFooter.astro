@@ -1,19 +1,87 @@
 ---
 import { siteLinks } from '../data/content'
-const links = [
-  ['GitHub repository', siteLinks.repository],
-  ['PyPI package', siteLinks.pypi],
-  ['Installation guide', siteLinks.install],
-  ['MIT license', siteLinks.license],
-  ['About Florian Bruniaux', siteLinks.author],
+
+const footerGroups = [
+  {
+    label: 'Navigate',
+    links: [
+      ['Overview', '#main-content'],
+      ['Providers', '#capabilities'],
+      ['Workflow', '#workflow'],
+      ['Install', '#install'],
+      ['Safety', '#safety'],
+      ['FAQ', '#faq'],
+    ],
+  },
+  {
+    label: 'Product',
+    links: [
+      ['GitHub', siteLinks.repository],
+      ['PyPI', siteLinks.pypi],
+      ['Installation docs', siteLinks.install],
+      ['Changelog', siteLinks.changelog],
+      ['MIT license', siteLinks.license],
+    ],
+  },
+  {
+    label: 'Ecosystem',
+    links: [
+      ['All projects', siteLinks.projects],
+      ['Claude Code Guide', siteLinks.claudeGuide],
+      ['StarMapper', siteLinks.starmapper],
+      ['CCBoard', siteLinks.ccboard],
+      ['CC-Copilot Bridge', siteLinks.ccbridge],
+      ['YT Insights', siteLinks.youtubeInsights],
+    ],
+  },
+] as const
+
+const creatorLinks = [
+  ['Portfolio', siteLinks.portfolio],
+  ['Blog', siteLinks.blog],
+  ['GitHub profile', siteLinks.githubProfile],
+  ['LinkedIn', siteLinks.linkedin],
 ] as const
 ---
 
 <footer class="site-footer">
-  <div class="container footer-inner">
-    <p><strong>Search Console MCP</strong><br />Search evidence, with its limits attached.</p>
-    <nav aria-label="Footer navigation">
-      <ul>{links.map(([label, href]) => <li><a href={href}>{label}</a></li>)}</ul>
-    </nav>
+  <div class="container">
+    <div class="footer-brand-row">
+      <a class="footer-brand" href="#main-content"><span aria-hidden="true">&gt;_</span> Search Console MCP</a>
+      <p>Search evidence, with its limits attached.</p>
+    </div>
+
+    <div class="footer-sections">
+      {footerGroups.map(({ label, links }) => (
+        <section class="footer-section" aria-labelledby={`footer-${label.toLowerCase()}`}>
+          <h2 id={`footer-${label.toLowerCase()}`}>{label}</h2>
+          <nav aria-label={`${label} links`}>
+            <ul>
+              {links.map(([linkLabel, href]) => {
+                const external = href.startsWith('http')
+                return (
+                  <li>
+                    <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+                      {linkLabel}{external && <><span aria-hidden="true"> ↗</span><span class="sr-only"> (opens in a new tab)</span></>}
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </nav>
+        </section>
+      ))}
+    </div>
+
+    <div class="footer-meta">
+      <p>Open-source AI engineering by <a href={siteLinks.author} target="_blank" rel="noopener noreferrer">Florian Bruniaux<span class="sr-only"> (opens in a new tab)</span></a>.</p>
+      <nav aria-label="Creator links">
+        <ul>
+          {creatorLinks.map(([label, href]) => (
+            <li><a href={href} target="_blank" rel="noopener noreferrer">{label}<span aria-hidden="true"> ↗</span><span class="sr-only"> (opens in a new tab)</span></a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
   </div>
 </footer>

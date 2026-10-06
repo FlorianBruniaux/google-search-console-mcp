@@ -10,6 +10,16 @@ export const siteLinks = {
   bingContract: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/bing-api-contract.md',
   license: 'https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/LICENSE',
   author: 'https://www.florian.bruniaux.com/about/?utm_source=search-console-mcp&utm_medium=website',
+  portfolio: 'https://www.florian.bruniaux.com/',
+  projects: 'https://www.florian.bruniaux.com/projects/',
+  blog: 'https://www.florian.bruniaux.com/blog/',
+  githubProfile: 'https://github.com/FlorianBruniaux',
+  linkedin: 'https://www.linkedin.com/in/florian-bruniaux-43408b83/',
+  claudeGuide: 'https://cc.bruniaux.com/',
+  starmapper: 'https://starmapper.bruniaux.com/',
+  ccboard: 'https://ccboard.bruniaux.com/',
+  ccbridge: 'https://ccbridge.bruniaux.com/',
+  youtubeInsights: 'https://github.com/FlorianBruniaux/youtube-video-insights',
 } as const
 
 export const providers = [

@@ -182,12 +182,20 @@ summary::-webkit-details-marker { display: none; }
 .faq-list summary > span { flex-shrink: 0; font: 400 1.25rem/1 var(--font-mono); }
 .faq-list details[open] summary > span { transform: rotate(45deg); }
 .faq-list details > p { padding-right: 2rem; margin: 0 0 1.5rem; }
-.site-footer { padding-block: 2rem; border-top: 1px solid var(--border); }
-.footer-inner { display: flex; justify-content: space-between; gap: 2rem; align-items: flex-start; }
-.footer-inner p { margin: 0; font-size: 0.875rem; }
-.footer-inner strong { color: var(--text-primary); }
-.footer-inner ul { display: flex; justify-content: flex-end; gap: 0.25rem 1.25rem; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
-.footer-inner a { display: inline-flex; align-items: center; min-height: 44px; font-size: 0.8rem; }
+.site-footer { padding-block: 3rem 2rem; border-top: 1px solid var(--border); }
+.footer-brand-row, .footer-meta { display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
+.footer-brand-row { padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.footer-brand-row p, .footer-meta p { margin: 0; font-size: 0.875rem; }
+.footer-brand { display: inline-flex; align-items: center; gap: 0.625rem; min-height: 44px; color: var(--text-primary); font-weight: 750; }
+.footer-brand span { color: var(--accent); font-family: var(--font-mono); }
+.footer-sections { padding-block: 0.5rem; }
+.footer-section { display: grid; grid-template-columns: minmax(7rem, 0.2fr) minmax(0, 1fr); gap: 2rem; align-items: start; padding-block: 1rem; border-bottom: 1px solid var(--border-light); }
+.footer-section h2 { margin: 0; padding-top: 0.75rem; color: var(--text-muted); font: 700 0.75rem/1.6 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.footer-section ul, .footer-meta ul { display: flex; flex-wrap: wrap; gap: 0 1.5rem; margin: 0; padding: 0; list-style: none; }
+.footer-section a, .footer-meta a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; font-size: 0.875rem; }
+.footer-meta { padding-top: 1.5rem; }
+.footer-meta nav { flex-shrink: 0; }
+.footer-meta ul { justify-content: flex-end; }
 
 @media (max-width: 63.999rem) {
   #mobile-menu-toggle { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding-inline: 0.75rem; font-size: 0.875rem; }
@@ -241,9 +249,12 @@ summary::-webkit-details-marker { display: none; }
   .install-grid li, .install-grid li:first-child, .install-grid li:last-child { padding: 1.5rem 0; border-left: 0; border-top: 1px solid var(--border); }
   .install-grid li:last-child { padding-bottom: 0; }
   .evidence-layout, .faq-layout { grid-template-columns: 1fr; gap: 2rem; }
-  .footer-inner { display: block; }
-  .footer-inner nav { margin-top: 1rem; }
-  .footer-inner ul { justify-content: flex-start; }
+  .footer-brand-row, .footer-meta { display: block; }
+  .footer-brand-row p { margin-top: 0.5rem; }
+  .footer-section { display: block; padding-block: 1.25rem; }
+  .footer-section h2 { padding-top: 0; margin-bottom: 0.5rem; }
+  .footer-meta nav { margin-top: 1rem; }
+  .footer-meta ul { justify-content: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
