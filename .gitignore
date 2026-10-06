@@ -17,3 +17,9 @@ token_*.json
 .codex/config.toml
 .idea/
 .DS_Store
+site/.astro/
+site/dist/
+site/node_modules/
+site/playwright-report/
+site/test-results/
+site/src/generated/product.json
