@@ -1,0 +1,78 @@
+examples/content-brief.md
+  s_b091cb578646a0::t_3fbd47cf146d70 13,18-20
+  s_b091cb578646a0::t_86cd03cf19f61a 3,26,28
+  s_b091cb578646a0::t_eeebf37d482b2e 38,44,46,54
+examples/full-audit.md
+  s_b091cb578646a0::t_b059a5df488dcf 13,29
+  s_b091cb578646a0::t_0fe80bdd3d9541 3,11,18,31,33,43,45
+examples/quick-audit.md
+  s_b091cb578646a0::t_afbf04d4c35aae 13,19,31
+  s_b091cb578646a0::t_3fbd47cf146d70 25
+  s_b091cb578646a0::t_dfdb126cfc6042 27,29,33-37,41
+  s_0f4216fdd2c8ac::t_6a3a85a1054f1f 32
+docs/machine-readable/llms.txt
+  s_b091cb578646a0::t_1b972207f147e3 11-12
+docs/google-setup.md
+  s_b091cb578646a0::t_bb8fe88bcce1eb 15
+  s_b091cb578646a0::t_da5517dade0fdb 3,22,25-28,110,115,119,157
+README.md
+  s_b091cb578646a0::t_379007b8b22fb2 484,507
+  s_b091cb578646a0::t_8b5d730519d158 53,56,241,243-245,522,524
+docs/installation.md
+  s_b091cb578646a0::t_bb8fe88bcce1eb 93
+  s_b091cb578646a0::t_2fab54a40183cb 1-92,94-185
+examples/page-deep-dive.md
+  s_b091cb578646a0::t_3fbd47cf146d70 41,43
+  s_b091cb578646a0::t_3a012682dfd620 3,13,44-49
+  s_b091cb578646a0::t_379007b8b22fb2 35
+examples/google-bing-comparison.md
+  s_b091cb578646a0::t_fd972d9b151156 1-42
+examples/keyword-opportunities.md
+  s_b091cb578646a0::t_3fbd47cf146d70 13,15,51,53
+  s_b091cb578646a0::t_a3433a18fe21d1 19,39,43
+  s_b091cb578646a0::t_86cd03cf19f61a 49
+  s_b091cb578646a0::t_7d6588314e9512 3,7-8,27,44-45
+docs/starter-prompt.md
+  s_b091cb578646a0::t_3fbd47cf146d70 199
+  s_b091cb578646a0::t_379007b8b22fb2 103,162
+  s_b091cb578646a0::t_fbaf73bbd378e9 1,3-11,64-83,154,184-186,188,191-192,195-198,200,216-217
+  s_b091cb578646a0::t_6692d75835d7ea 118-119,144-148,164
+docs/bing-setup.md
+  s_b091cb578646a0::t_7616d78cf46626 1-91
+examples/README.md
+  s_b091cb578646a0::t_d57c40c19e6cf9 3,5,9-18,22,25-26
+CHANGELOG.md
+  s_b091cb578646a0::t_1b972207f147e3 5-6,8
+  s_b091cb578646a0::t_23382071ee6661 7
+examples/traffic-drop.md
+  s_b091cb578646a0::t_ca85d3f66678db 3,13,19,25,31,43,50-53
+  s_b091cb578646a0::t_3fbd47cf146d70 35,37
+  s_b091cb578646a0::t_86cd03cf19f61a 33,45-49
+examples/indexing-issues.md
+  s_b091cb578646a0::t_61933c21d7a5d7 13,21,29,37
+  s_b091cb578646a0::t_1bfc826939fbe6 25,27,35,41,45,47,49,51,53-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fc595366d469b32bfbc0035c8a1ee6943dce4293",
+  "prompts": {},
+  "sessions": {
+    "s_0f4216fdd2c8ac": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10107-9a2f-7962-b3b2-1e3bab1cdf97",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
