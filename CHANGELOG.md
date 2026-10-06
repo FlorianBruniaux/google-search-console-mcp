@@ -13,6 +13,12 @@
 - Les lectures Bing gardent leurs fenêtres observées, dérivent le CTR à partir des clics et impressions, et laissent les métriques propres au fournisseur dans `provider_metrics`.
 - Les quatre écritures Bing sont couvertes par des tests avec réponses simulées. Aucun appel de mutation Bing ou IndexNow n'a été exécuté pendant ce gate local, leur comportement runtime reste `UNVERIFIED_RUNTIME`.
 
+### Documentation and metadata
+
+- Le README distingue maintenant la version PyPI `1.1.2` de la surface Bing non publiée et relie le contrat API Bing.
+- Les références machine-readable, la description du paquet et les mots-clés de découverte sont alignés sur 81 tools, 851 tests et les fournisseurs Google/Bing.
+- La description et les topics GitHub mentionnent Bing Webmaster Tools, IndexNow et le SEO technique. Les labels de workflow des issues restent inchangés.
+
 ### Limits
 
 - Les fenêtres Bing ne sont pas supposées exactes et égales aux fenêtres Google. `compare_search_engines` omet les deltas lorsque cette condition n'est pas prouvée.

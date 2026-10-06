@@ -274,7 +274,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 846 tests, fully mocked at this branch baseline.
+SETUP: pytest tests/ : 851 tests, fully mocked at this branch baseline.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 

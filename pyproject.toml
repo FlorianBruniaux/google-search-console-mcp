@@ -5,9 +5,19 @@ build-backend = "hatchling.build"
 [project]
 name = "gsc-mcp-tools"
 version = "1.1.2"
-description = "Search visibility MCP server with 81 tools for Google Search Console, Bing Webmaster Tools, GA4, IndexNow, CrUX, technical SEO, content audits, internal linking, guarded submissions, and cross-engine comparison"
+description = "MCP server for Google Search Console, Bing Webmaster Tools, GA4, CrUX, IndexNow, technical SEO, and guarded cross-engine workflows"
 readme = "README.md"
 requires-python = ">=3.11"
+keywords = [
+    "bing-webmaster-tools",
+    "fastmcp",
+    "google-analytics",
+    "google-search-console",
+    "indexnow",
+    "mcp",
+    "seo",
+    "technical-seo",
+]
 authors = [
     { name = "Florian Bruniaux", email = "florian@bruniaux.com" }
 ]

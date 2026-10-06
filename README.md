@@ -14,16 +14,20 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
+[![Tools](https://img.shields.io/badge/MCP%20tools-81-5c4ee5.svg)](#tools-81)
+[![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#analysis-support-by-search-engine)
 [![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Search visibility MCP server with 81 tools covering Google Search Console, Bing Webmaster Tools, Google Analytics 4, IndexNow, Core Web Vitals (CrUX), technical SEO, content audits, internal linking and guarded search-engine submissions. Built on Python 3.11+ and FastMCP.
+MCP server for Google Search Console, Bing Webmaster Tools, Google Analytics 4, CrUX, IndexNow, technical SEO and guarded cross-engine workflows. The source checkout exposes 81 tools on Python 3.11+ and FastMCP.
 
 **TL;DR:** Configure Google, Bing or both, then ask Claude to analyse measured search data before recommending changes. The server handles API calls, validation, retries and bounded submissions. Every output is structured JSON. A successful submission is reported as accepted, never as proof of crawl or indexation.
 
 No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
 
-**Latest: v1.1.2** (`internal_links_audit` and `link_equity_map` now follow redirects through the same SSRF-safe DNS-pinning check instead of treating a 301/302 as a crawl failure). v1.1.1 fixed a crash-on-launch for `uvx gsc-mcp-tools` caused by an unbounded `mcp` dependency resolving to an incompatible v2. v1.1.0 added heading structure audit, zone-weighted internal linking audit, site-wide link equity mapping crossed with GSC positions, and a traffic-backed pruning classifier that never flags a page with clicks. See the [full changelog](CHANGELOG.md).
+**Unreleased source checkout:** adds 19 Bing Webmaster tools, cross-engine comparison and Bing support in three SEO analyses. The full scope and runtime limits are recorded in the [changelog](CHANGELOG.md), [architecture](docs/architecture.md) and [Bing API contract](docs/validation/bing-api-contract.md).
+
+**Published: v1.1.2** (`internal_links_audit` and `link_equity_map` now follow redirects through the same SSRF-safe DNS-pinning check instead of treating a 301/302 as a crawl failure). v1.1.1 fixed a crash-on-launch for `uvx gsc-mcp-tools` caused by an unbounded `mcp` dependency resolving to an incompatible v2. v1.1.0 added heading structure audit, zone-weighted internal linking audit, site-wide link equity mapping crossed with GSC positions, and a traffic-backed pruning classifier that never flags a page with clicks. See the [full changelog](CHANGELOG.md).
 
 The published `1.1.2` package does not include the Bing provider. The 81-tool catalogue documented below describes this source checkout; run it from source until a release containing these changes is published. Existing global MCP configurations pinned to `gsc-mcp-tools==1.1.2` remain unchanged.
 
