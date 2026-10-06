@@ -19,6 +19,7 @@
 [![Tools](https://img.shields.io/badge/MCP%20tools-81-5c4ee5.svg)](#tools-81)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
 [![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <p align="center">
@@ -195,12 +196,23 @@ Use the published package for the complete 81-tool registry, including Bing:
 uvx gsc-mcp-tools
 ```
 
-For a persistent MCP client, install the package once and configure the absolute executable path. This avoids keeping an extra `uvx` launcher process beside every running server:
+For a persistent MCP client, install the latest stable package once and configure the absolute executable path. This avoids keeping an extra `uvx` launcher process beside every running server:
 
 ```bash
-uv tool install gsc-mcp-tools==1.2.0
+uv tool install gsc-mcp-tools
 command -v gsc-mcp-tools
+gsc-cli list
 ```
+
+Upgrade that installation when a new release is available:
+
+```bash
+uv tool upgrade gsc-mcp-tools
+```
+
+To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.2.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
+
+Release `1.2.0` was built and published by [GitHub Actions](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml) through [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/). The workflow checks that the tag matches `pyproject.toml`, runs the full test suite, validates and smoke-tests the built wheel, then publishes that same artifact with a short-lived OIDC credential. See the [GitHub release](https://github.com/FlorianBruniaux/google-search-console-mcp/releases/tag/v1.2.0) and [PyPI files](https://pypi.org/project/gsc-mcp-tools/1.2.0/#files).
 
 <details>
 <summary>Install with pip instead of uvx</summary>
@@ -247,7 +259,7 @@ gsc-mcp
 
 ### Claude Desktop
 
-Install the package once with `uv tool install gsc-mcp-tools==1.2.0`, then copy the absolute path returned by `command -v gsc-mcp-tools` into the configuration:
+Install the latest stable package once with `uv tool install gsc-mcp-tools`, then copy the absolute path returned by `command -v gsc-mcp-tools` into the configuration:
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
@@ -284,7 +296,7 @@ Codex starts a dedicated stdio MCP server for each task that loads it. A declara
 Install the package once:
 
 ```bash
-uv tool install gsc-mcp-tools==1.2.0
+uv tool install gsc-mcp-tools
 command -v gsc-mcp-tools
 ```
 
