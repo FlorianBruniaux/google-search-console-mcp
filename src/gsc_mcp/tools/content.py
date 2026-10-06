@@ -759,7 +759,7 @@ _EMPTY_HEADINGS: frozenset[str] = frozenset({
     # English
     "introduction", "conclusion", "overview", "summary", "background",
     "getting started", "learn more", "read more", "misc", "miscellaneous",
-    "final thoughts", "wrapping up", "in conclusion", "tl;dr",
+    "final thoughts", "wrapping up", "in conclusion",
 })
 
 # One H2 per ~300 words keeps a page scannable; past this a page reads as a wall.

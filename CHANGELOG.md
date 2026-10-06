@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `schema_validate` parcourt les nœuds JSON-LD `@graph`, y compris dans un tableau racine, sans compter le conteneur non typé comme un schéma valide.
+- `applicationCategory` et `operatingSystem` sont signalés comme propriétés recommandées de `SoftwareApplication`, sans invalider leur absence. La réponse distingue explicitement la présence de champs vérifiée localement de l'éligibilité Google aux résultats enrichis, non évaluée.
+- `heading_audit` ne signale plus `TL;DR` comme un titre vide.
+
 ### Documentation
 
 - Ajout d'un guide d'installation central, d'un guide Bing et de prompts par fournisseur avec des limites explicites sur l'indexation, les preuves et les mutations.

@@ -20,7 +20,14 @@ _REQUIRED_FIELDS = {
     "WebSite":             ["name", "url"],
     "BreadcrumbList":      ["itemListElement"],
     "Product":             ["name", "offers"],
-    "SoftwareApplication": ["name", "applicationCategory", "operatingSystem"],
+    "SoftwareApplication": ["name"],
+}
+
+# Google recommends these properties; absence does not invalidate a schema.
+# This local field-presence check is not a Google rich-result eligibility test.
+# https://developers.google.com/search/docs/appearance/structured-data/software-app
+_RECOMMENDED_FIELDS = {
+    "SoftwareApplication": ["applicationCategory", "operatingSystem"],
 }
 
 
@@ -62,12 +69,20 @@ class _JsonLdExtractor(HTMLParser):
             if raw:
                 try:
                     data = json.loads(raw)
-                    if isinstance(data, list):
-                        self.schemas.extend(data)
-                    else:
-                        self.schemas.append(data)
+                    self._collect_schemas(data)
                 except json.JSONDecodeError:
                     pass
+
+    def _collect_schemas(self, data) -> None:
+        if isinstance(data, list):
+            for item in data:
+                self._collect_schemas(item)
+        elif isinstance(data, dict):
+            # A graph wrapper is not itself an entity unless it has a type.
+            if "@type" in data or "@graph" not in data:
+                self.schemas.append(data)
+            if "@graph" in data:
+                self._collect_schemas(data["@graph"])
 
     def handle_data(self, data):
         if self._in_ld:
@@ -82,6 +97,9 @@ def schema_validate(url: str) -> str:
     Does not require authentication -- works on any public URL.
 
     Returns detected schemas, validation results per schema, and recommendations.
+    The valid flag and verdict check only this tool's local required-field
+    presence rules, not full Schema.org validity or Google rich-result eligibility.
+    Recommended properties are reported separately and do not affect validity.
     Verdicts: healthy (all schemas valid) | missing_schemas (none found) |
               invalid_schemas (found but at least one has missing required fields) |
               fetch_error (URL not reachable).
@@ -114,11 +132,15 @@ def schema_validate(url: str) -> str:
         schema_type = schema.get("@type", "Unknown")
         required = _REQUIRED_FIELDS.get(schema_type, [])
         missing = [f for f in required if f not in schema]
+        missing_recommended = [
+            f for f in _RECOMMENDED_FIELDS.get(schema_type, []) if f not in schema
+        ]
         deprecated_note = _DEPRECATED_RICH_RESULTS.get(schema_type)
         detected.append({
             "type": schema_type,
             "valid": not missing,
             "missing_required_fields": missing,
+            "missing_recommended_fields": missing_recommended,
             "fields_present": [k for k in schema if not k.startswith("@")],
             "deprecated_rich_result": deprecated_note,
         })
@@ -141,6 +163,8 @@ def schema_validate(url: str) -> str:
         {
             "url": url,
             "schemas_detected": len(detected),
+            "validation_scope": "local_required_field_presence",
+            "google_rich_result_eligibility": "not_assessed",
             "schemas": detected,
             "recommendations": recommendations,
             "verdict": verdict,
