@@ -15,7 +15,8 @@ test('renders the product name and generated facts', () => {
 test('shows Florian Bruniaux’s monogram in the home wordmark', () => {
   const wordmark = html.match(/<a\b[^>]*class="wordmark"[^>]*>[\s\S]*?<\/a>/)?.[0]
   assert.ok(wordmark, 'Missing home wordmark')
-  assert.match(wordmark, /<img\b[^>]*src="\/florian-bruniaux-mark\.svg"[^>]*alt=""[^>]*width="40"[^>]*height="40"/)
+  assert.match(wordmark, /<span class="creator-mark" aria-hidden="true">FB<span>\.<\/span><\/span>/)
+  assert.doesNotMatch(wordmark, /<img\b/)
   assert.match(wordmark, /Search Console MCP/)
 })
 
