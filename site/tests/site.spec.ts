@@ -179,30 +179,34 @@ test('shows a visible keyboard focus', async ({ page }) => {
   expect(await skipLink.evaluate((node) => getComputedStyle(node).outlineWidth)).toBe('2px')
 })
 
-for (const theme of ['light', 'dark'] as const) {
-  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
-    test(`matches ${theme} ${viewport.width}px baseline`, async ({ page }) => {
-      await page.setViewportSize(viewport)
-      await page.addInitScript((selectedTheme) => localStorage.setItem('theme', selectedTheme), theme)
-      await page.goto('/')
-      await expect(page).toHaveScreenshot(`${theme}-${viewport.width}.png`, {
-        fullPage: true,
-        animations: 'disabled',
+test.describe('local visual baselines', () => {
+  test.skip(!!process.env.CI, 'Reviewed Chromium/macOS baselines are only compared locally.')
+
+  for (const theme of ['light', 'dark'] as const) {
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
+      test(`matches ${theme} ${viewport.width}px baseline`, async ({ page }) => {
+        await page.setViewportSize(viewport)
+        await page.addInitScript((selectedTheme) => localStorage.setItem('theme', selectedTheme), theme)
+        await page.goto('/')
+        await expect(page).toHaveScreenshot(`${theme}-${viewport.width}.png`, {
+          fullPage: true,
+          animations: 'disabled',
+        })
       })
-    })
+    }
   }
-}
 
-test('matches the open desktop menu baseline', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 })
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Analyze' }).click()
-  await expect(page).toHaveScreenshot('menu-analyze-1440.png', { animations: 'disabled' })
-})
+  test('matches the open desktop menu baseline', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Analyze' }).click()
+    await expect(page).toHaveScreenshot('menu-analyze-1440.png', { animations: 'disabled' })
+  })
 
-test('matches the open mobile drawer baseline', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Open navigation' }).click()
-  await expect(page).toHaveScreenshot('menu-mobile-390.png', { animations: 'disabled' })
+  test('matches the open mobile drawer baseline', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Open navigation' }).click()
+    await expect(page).toHaveScreenshot('menu-mobile-390.png', { animations: 'disabled' })
+  })
 })
