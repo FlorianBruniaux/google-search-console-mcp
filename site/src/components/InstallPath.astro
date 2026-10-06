@@ -2,6 +2,7 @@
 import { installSteps, siteLinks } from '../data/content'
 const targets = ['install-evaluate', 'install-persistent', 'install-verify'] as const
 const commands = ['uvx gsc-mcp-tools', 'uv tool install gsc-mcp-tools', 'gsc-cli list'] as const
+const copyLabels = ['Copy evaluate command', 'Copy persistent install command', 'Copy verification command'] as const
 ---
 
 <section id="install" aria-labelledby="install-title">
@@ -17,7 +18,12 @@ const commands = ['uvx gsc-mcp-tools', 'uv tool install gsc-mcp-tools', 'gsc-cli
           <span class="step-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
           <h3>{title}</h3>
           <p>{copy}</p>
-          <code>{commands[index]}</code>
+          <div class="command-row">
+            <code tabindex="0">{commands[index]}</code>
+            <button type="button" data-copy-command={commands[index]} aria-controls={`${targets[index]}-copy-status`}>{copyLabels[index]}</button>
+          </div>
+          {index === 2 && <p class="expected-result">Expected: the registered commands and their one-line descriptions.</p>}
+          <p id={`${targets[index]}-copy-status`} class="copy-status" data-copy-status role="status" aria-live="polite"></p>
         </li>
       ))}
     </ol>

@@ -1,0 +1,23 @@
+---
+import { siteLinks } from '../data/content'
+
+const command = 'uvx gsc-mcp-tools'
+---
+
+<section id="final-install" class="final-install section-tinted" aria-labelledby="final-install-title">
+  <div class="container final-install-layout">
+    <div>
+      <p class="kicker">Ready to connect?</p>
+      <h2 id="final-install-title">Install Search Console MCP.</h2>
+      <p>Start with the package, then connect only the providers your workflow needs.</p>
+    </div>
+    <div class="final-install-actions">
+      <div class="command-row command-row-prominent">
+        <code tabindex="0">{command}</code>
+        <button class="button button-primary" type="button" data-copy-command={command} aria-controls="final-install-copy-status">Copy final uvx command</button>
+      </div>
+      <p id="final-install-copy-status" class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+      <a class="text-link" href={siteLinks.install}>Read the installation guide <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>

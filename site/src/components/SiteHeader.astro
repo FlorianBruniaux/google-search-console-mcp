@@ -14,54 +14,57 @@ import { siteLinks } from '../data/content'
       <span>Menu</span><span aria-hidden="true">☰</span>
     </button>
     <div class="nav-backdrop" data-nav-backdrop hidden></div>
-    <nav id="primary-navigation" aria-label="Primary navigation">
-      <div class="mobile-nav-heading">
-        <strong>Explore Search Console MCP</strong>
-        <button type="button" data-mobile-menu-close aria-label="Close navigation">×</button>
-      </div>
-      <div class="nav-sections">
-        {navigationSections.map((section) => (
-          <details data-nav-section={section.id}>
-            <summary role="button" data-nav-trigger={section.id} aria-expanded="false" aria-controls={`nav-panel-${section.id}`}>
-              {section.label}<span aria-hidden="true">⌄</span>
-            </summary>
-            <section id={`nav-panel-${section.id}`} class="nav-panel" data-nav-panel={section.id} aria-labelledby={`nav-title-${section.id}`}>
-              <div class="nav-panel-heading">
-                <h2 id={`nav-title-${section.id}`}>{section.label}</h2>
-                <p>{section.description}</p>
-                <a href={section.overview.href} target={section.overview.external ? '_blank' : undefined} rel={section.overview.external ? 'noopener noreferrer' : undefined}>
-                  {section.overview.label} <span aria-hidden="true">→</span>
-                  {section.overview.external && <span class="sr-only"> (opens in a new tab)</span>}
-                </a>
-              </div>
-              <div class="nav-panel-groups">
-                {section.groups.map((group) => (
-                  <div class="nav-panel-group">
-                    <h3>{group.label}</h3>
-                    <ul>
-                      {group.links.map((link) => (
-                        <li>
-                          <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
-                            <strong>{link.label}</strong>
-                            <span>{link.description}</span>
-                            {link.external && <span class="sr-only"> (opens in a new tab)</span>}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </details>
-        ))}
-      </div>
-      <div class="header-actions">
-        <a href={siteLinks.repository} target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
-          <span aria-hidden="true" data-theme-icon>◐</span>
-        </button>
-      </div>
-    </nav>
+    <div id="primary-navigation">
+      <nav aria-label="Primary navigation">
+        <div class="mobile-nav-heading">
+          <strong>Explore Search Console MCP</strong>
+          <button type="button" data-mobile-menu-close aria-label="Close navigation">×</button>
+        </div>
+        <div class="nav-sections">
+          {navigationSections.map((section) => (
+            <details data-nav-section={section.id}>
+              <summary role="button" data-nav-trigger={section.id} aria-expanded="false" aria-controls={`nav-panel-${section.id}`}>
+                {section.label}<span aria-hidden="true">⌄</span>
+              </summary>
+              <section id={`nav-panel-${section.id}`} class="nav-panel" data-nav-panel={section.id} aria-labelledby={`nav-title-${section.id}`}>
+                <div class="nav-panel-heading">
+                  <h2 id={`nav-title-${section.id}`}>{section.label}</h2>
+                  <p>{section.description}</p>
+                  <a href={section.overview.href} target={section.overview.external ? '_blank' : undefined} rel={section.overview.external ? 'noopener noreferrer' : undefined}>
+                    {section.overview.label} <span aria-hidden="true">→</span>
+                    {section.overview.external && <span class="sr-only"> (opens in a new tab)</span>}
+                  </a>
+                </div>
+                <div class="nav-panel-groups">
+                  {section.groups.map((group) => (
+                    <div class="nav-panel-group">
+                      <h3>{group.label}</h3>
+                      <ul>
+                        {group.links.map((link) => (
+                          <li>
+                            <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
+                              <strong>{link.label}</strong>
+                              <span>{link.description}</span>
+                              {link.external && <span class="sr-only"> (opens in a new tab)</span>}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </details>
+          ))}
+        </div>
+        <div class="header-actions">
+          <a class="header-install" href="#install">Install</a>
+          <a href={siteLinks.repository} target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+            <span aria-hidden="true" data-theme-icon>◐</span>
+          </button>
+        </div>
+      </nav>
+    </div>
   </div>
 </header>

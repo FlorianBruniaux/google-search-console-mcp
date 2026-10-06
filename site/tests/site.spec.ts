@@ -4,12 +4,33 @@ import { expect, test } from '@playwright/test'
 test('copies the install command and announces success', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/')
-  await page.getByRole('button', { name: 'Copy install command' }).click()
-  await expect(page.getByRole('status')).toHaveText('Command copied.')
+  const hero = page.locator('.hero')
+  await hero.getByRole('button', { name: 'Copy uvx command' }).click()
+  await expect(hero.getByRole('status')).toHaveText('Command copied.')
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('uvx gsc-mcp-tools')
 })
 
-test('keeps the command visible when clipboard access fails', async ({ page }) => {
+test('copies every visible command and updates only its local status', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('/')
+  const copyControls = page.locator('[data-copy-command]')
+  await expect(copyControls).toHaveCount(5)
+
+  for (let index = 0; index < 5; index += 1) {
+    await page.goto('/')
+    const button = copyControls.nth(index)
+    const command = await button.getAttribute('data-copy-command')
+    const statusId = await button.getAttribute('aria-controls')
+    expect(command).toBeTruthy()
+    expect(statusId).toBeTruthy()
+    await button.click()
+    await expect(page.locator(`#${statusId}`)).toHaveText('Command copied.')
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(command)
+    await expect(page.locator('[data-copy-status]').filter({ hasNotText: 'Command copied.' })).toHaveCount(4)
+  }
+})
+
+test('keeps the failed command visible and isolates its error feedback', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText: () => Promise.reject(new Error('denied')) },
@@ -17,9 +38,11 @@ test('keeps the command visible when clipboard access fails', async ({ page }) =
     })
   })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Copy install command' }).click()
-  await expect(page.getByRole('status')).toHaveText('Copy failed. Select the command manually.')
-  await expect(page.getByText('uvx gsc-mcp-tools', { exact: true })).toBeVisible()
+  const verification = page.locator('#install-verify')
+  await verification.getByRole('button', { name: 'Copy verification command' }).click()
+  await expect(verification.getByRole('status')).toHaveText('Copy failed. Select the command manually.')
+  await expect(verification.getByText('gsc-cli list', { exact: true })).toBeVisible()
+  await expect(page.locator('[data-copy-status]').filter({ hasNotText: 'Copy failed. Select the command manually.' })).toHaveCount(4)
 })
 
 test('uses the operating-system theme and persists a manual choice', async ({ page }) => {
@@ -71,6 +94,16 @@ test('enters a desktop panel with ArrowDown and closes on outside click', async 
   await expect(resources).toHaveAttribute('aria-expanded', 'false')
 })
 
+test('keeps the compact desktop install action at least 44px high', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/')
+  const install = page.locator('.header-install')
+  await expect(install).toBeVisible()
+  const box = await install.boundingBox()
+  expect(box).not.toBeNull()
+  expect(box!.height).toBeGreaterThanOrEqual(44)
+})
+
 test('opens a contained mobile dialog and restores menu focus', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
@@ -91,9 +124,15 @@ test('opens a contained mobile dialog and restores menu focus', async ({ page })
   await expect(menu).toBeFocused()
   await menu.click()
   await page.getByRole('button', { name: 'Analyze' }).click()
-  await page.getByRole('link', { name: /Google data/ }).click()
+  const googleLink = page.getByRole('link', { name: /Google data/ })
+  await googleLink.focus()
+  await page.keyboard.press('Enter')
   await expect(navigation).not.toBeVisible()
-  await expect(menu).not.toBeFocused()
+  const destination = page.locator('#provider-google')
+  await expect(destination).toBeFocused()
+  await expect(destination).toHaveAttribute('tabindex', '-1')
+  await menu.focus()
+  await expect(destination).not.toHaveAttribute('tabindex', '-1')
 })
 
 test('restores mobile menu focus after keyboard activation of an external link', async ({ page }) => {
@@ -158,7 +197,7 @@ test('neutralizes motion when reduced motion is requested', async ({ page }) => 
 
 for (const theme of ['light', 'dark'] as const) {
   for (const width of [390, 1440]) {
-    test(`has no serious or critical axe violations in ${theme} at ${width}px`, async ({ page }) => {
+    test(`has no undocumented axe violations in ${theme} at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 1000 })
       await page.addInitScript((value) => localStorage.setItem('theme', value), theme)
       await page.goto('/')
@@ -168,12 +207,42 @@ for (const theme of ['light', 'dark'] as const) {
           await page.getByRole('button', { name: 'Analyze' }).click()
         }
         const results = await new AxeBuilder({ page }).analyze()
-        const blockers = results.violations.filter(({ impact }) => impact === 'serious' || impact === 'critical')
-        expect(blockers, JSON.stringify(blockers, null, 2)).toEqual([])
+        expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
       }
     })
   }
 }
+
+for (const width of [390, 768, 800, 1024, 1280, 1440]) {
+  test(`contains the document without horizontal overflow at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    const metrics = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      heroColumns: getComputedStyle(document.querySelector<HTMLElement>('.hero-grid')!).gridTemplateColumns.split(' ').length,
+    }))
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth)
+    expect(metrics.heroColumns).toBe(width <= 800 ? 1 : 2)
+    if (width < 1024) {
+      await expect(page.getByRole('button', { name: 'Open navigation' })).toBeVisible()
+      await expect(page.locator('#primary-navigation')).not.toBeVisible()
+    } else {
+      await expect(page.getByRole('button', { name: 'Analyze' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Open navigation' })).not.toBeVisible()
+    }
+  })
+}
+
+test('distinguishes an open FAQ item beyond its icon', async ({ page }) => {
+  await page.goto('/')
+  const item = page.locator('[data-faq-item]').first()
+  const closedBorder = await item.evaluate((node) => getComputedStyle(node).borderLeftWidth)
+  await item.locator('summary').click()
+  await expect(item).toHaveAttribute('open', '')
+  const openBorder = await item.evaluate((node) => getComputedStyle(node).borderLeftWidth)
+  expect(openBorder).not.toBe(closedBorder)
+})
 
 test('keeps the mobile document contained and controls large enough', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
@@ -229,5 +298,23 @@ test.describe('local visual baselines', () => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Open navigation' }).click()
     await expect(page).toHaveScreenshot('menu-mobile-390.png', { animations: 'disabled' })
+  })
+
+  test('matches the open FAQ baseline', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.goto('/')
+    const faq = page.locator('#faq')
+    await faq.locator('[data-faq-item]').first().locator('summary').click()
+    await expect(faq).toHaveScreenshot('faq-open-1440.png', { animations: 'disabled' })
+  })
+
+  test('matches the mobile install feedback baseline', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.addInitScript(() => localStorage.setItem('theme', 'dark'))
+    await page.goto('/')
+    const verification = page.locator('#install-verify')
+    await verification.getByRole('button', { name: 'Copy verification command' }).click()
+    await expect(verification).toHaveScreenshot('install-feedback-dark-390.png', { animations: 'disabled' })
   })
 })

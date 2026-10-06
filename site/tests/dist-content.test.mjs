@@ -5,11 +5,9 @@ import test from 'node:test'
 const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8')
 const product = JSON.parse(await readFile(new URL('../src/generated/product.json', import.meta.url), 'utf8'))
 
-test('renders the product name and generated facts', () => {
+test('renders the product name and generated tool count', () => {
   assert.match(html, /Search Console MCP/)
   assert.match(html, new RegExp(`${product.toolCount} MCP tools`))
-  assert.match(html, new RegExp(`Version ${product.version.replaceAll('.', '\\.')}`))
-  assert.match(html, new RegExp(`Python ${product.pythonRequires.replace('>', '&gt;')}`))
 })
 
 test('shows Florian Bruniaux’s monogram in the home wordmark', () => {
@@ -20,12 +18,34 @@ test('shows Florian Bruniaux’s monogram in the home wordmark', () => {
   assert.match(wordmark, /Search Console MCP/)
 })
 
-test('shows the MIT license as the fourth package fact', () => {
+test('shows the four approved product facts', () => {
   const proofList = html.match(/<ul\b[^>]*aria-label="Package facts"[^>]*>([\s\S]*?)<\/ul>/)?.[1]
   assert.ok(proofList, 'Missing package facts list')
   const facts = [...proofList.matchAll(/<strong>([^<]+)<\/strong>/g)].map((match) => match[1])
-  assert.equal(facts.length, 4, 'Expected four package facts')
-  assert.equal(facts[3], 'MIT license', 'The fourth fact must disclose the approved license')
+  assert.deepEqual(facts, [`${product.toolCount} MCP tools`, 'Google + Bing', 'Structured JSON', 'Guarded writes'])
+})
+
+test('offers the approved install actions and intent shortcuts', () => {
+  assert.match(html, /<a\b[^>]*class="header-install"[^>]*href="#install"/)
+  assert.match(html, />Copy uvx command<\/button>/)
+  for (const [label, href] of [
+    ['Compare Google and Bing', '#capabilities'],
+    ['Diagnose indexing', '#safety'],
+    ['Audit a public page', '#provider-public'],
+  ]) {
+    assert.match(html, new RegExp(`<a\\b[^>]*href="${href}"[^>]*>${label}`))
+  }
+})
+
+test('renders local copy feedback for every command and a final install call to action', () => {
+  assert.equal((html.match(/data-copy-command=/g) ?? []).length, 5)
+  assert.equal((html.match(/data-copy-status/g) ?? []).length, 5)
+  assert.match(html, /Expected: the registered commands and their one-line descriptions\./)
+  const finalInstall = html.match(/<section\b[^>]*id="final-install"[\s\S]*?<\/section>/)?.[0]
+  assert.ok(finalInstall, 'Missing final installation call to action')
+  assert.match(finalInstall, /uvx gsc-mcp-tools/)
+  assert.match(finalInstall, /installation guide/i)
+  assert.ok(html.indexOf('id="final-install"') < html.indexOf('<footer'), 'Final CTA must precede the footer')
 })
 
 test('renders every product section and provider boundary', () => {
@@ -73,7 +93,8 @@ test('resolves every local navigation destination to a unique rendered target', 
 
 test('exposes semantic navigation controls and copy feedback for client behavior', () => {
   assert.match(html, /<a[^>]+href="#main-content"/)
-  assert.match(html, /<nav[^>]+id="primary-navigation"[^>]+aria-label="Primary navigation"/)
+  assert.match(html, /<div[^>]+id="primary-navigation"/)
+  assert.match(html, /<nav[^>]+aria-label="Primary navigation"/)
   for (const section of ['analyze', 'start', 'resources']) {
     assert.match(html, new RegExp(`<details[^>]+data-nav-section="${section}"`))
     assert.match(html, new RegExp(`aria-controls="nav-panel-${section}"`))

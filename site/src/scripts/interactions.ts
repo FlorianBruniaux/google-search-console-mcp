@@ -74,7 +74,22 @@ backdrop?.addEventListener('click', () => closeMobileNavigation())
 navigation?.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
   link.addEventListener('click', () => {
     if (desktopQuery.matches) closeSections()
-    else closeMobileNavigation(link.target === '_blank' || link.origin !== location.origin)
+    else {
+      const samePageTarget = link.origin === location.origin && link.pathname === location.pathname && link.hash
+        ? document.getElementById(decodeURIComponent(link.hash.slice(1)))
+        : null
+      if (samePageTarget) {
+        closeMobileNavigation(false)
+        const needsTemporaryTabIndex = !samePageTarget.matches('a[href], button, input, select, textarea, [tabindex]')
+        if (needsTemporaryTabIndex) {
+          samePageTarget.setAttribute('tabindex', '-1')
+          samePageTarget.addEventListener('blur', () => samePageTarget.removeAttribute('tabindex'), { once: true })
+        }
+        requestAnimationFrame(() => samePageTarget.focus())
+      } else {
+        closeMobileNavigation()
+      }
+    }
   })
 })
 
@@ -137,7 +152,8 @@ syncThemeControl()
 
 document.querySelectorAll<HTMLButtonElement>('[data-copy-command]').forEach((button) => {
   button.addEventListener('click', async () => {
-    const status = document.querySelector<HTMLElement>('[data-copy-status]')
+    const statusId = button.getAttribute('aria-controls')
+    const status = statusId ? document.getElementById(statusId) : null
     try {
       await navigator.clipboard.writeText(button.dataset.copyCommand ?? '')
       if (status) status.textContent = 'Command copied.'
