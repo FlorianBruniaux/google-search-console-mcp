@@ -56,6 +56,13 @@ test('keeps documentation reading paths on the public site', () => {
   assert.doesNotMatch(html, /<a\b[^>]*href="https:\/\/github\.com\/FlorianBruniaux\/google-search-console-mcp\/(?:blob|tree)\/main\/(?:docs|examples|CHANGELOG|LICENSE)/)
 })
 
+test('labels the French landing action as documentation-only', () => {
+  const headerActions = html.match(/<div class="header-actions">([\s\S]*?)<\/div>/)?.[1]
+  assert.ok(headerActions, 'Missing header actions')
+  assert.match(headerActions, /<a href="\/fr\/docs\/" lang="fr" hreflang="fr">Docs FR<\/a>/)
+  assert.doesNotMatch(headerActions, />FR<\/a>/)
+})
+
 test('publishes paired English and French documentation homes', () => {
   assert.match(docsHtml, /<html lang="en"/)
   assert.match(docsFrHtml, /<html lang="fr"/)
