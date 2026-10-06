@@ -1,0 +1,54 @@
+---
+import product from '../generated/product.json'
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import SiteHeader from './SiteHeader.astro'
+import Hero from './Hero.astro'
+import ProofStrip from './ProofStrip.astro'
+import ProviderCoverage from './ProviderCoverage.astro'
+import Workflow from './Workflow.astro'
+import InstallPath from './InstallPath.astro'
+import EvidenceSafety from './EvidenceSafety.astro'
+import Faq from './Faq.astro'
+import FinalInstall from './FinalInstall.astro'
+import SiteFooter from './SiteFooter.astro'
+
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale]
+const links = getSiteLinks(locale)
+const softwareJsonLd = {
+  '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Search Console MCP',
+  applicationCategory: 'DeveloperApplication', operatingSystem: 'Cross-platform', softwareVersion: product.version,
+  url: new URL(links.home, Astro.site).href, downloadUrl: links.pypi, sameAs: product.repository,
+  license: links.licenseSource, inLanguage: locale,
+}
+const faqJsonLd = {
+  '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: locale,
+  mainEntity: content.faq.items.map(({ question, answer }) => ({
+    '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+}
+---
+
+<BaseLayout
+  title={content.seo.title}
+  description={content.seo.description}
+  imageAlt={content.seo.imageAlt}
+  lang={locale}
+  alternatePaths={{ en: '/', fr: '/fr/' }}
+  jsonLd={[softwareJsonLd, faqJsonLd]}
+>
+  <SiteHeader {locale} />
+  <main id="main-content" tabindex="-1">
+    <Hero {locale} toolCount={product.toolCount} />
+    <ProofStrip {locale} {product} />
+    <ProviderCoverage {locale} />
+    <Workflow {locale} />
+    <InstallPath {locale} />
+    <EvidenceSafety {locale} />
+    <Faq {locale} />
+    <FinalInstall {locale} />
+  </main>
+  <SiteFooter {locale} />
+</BaseLayout>

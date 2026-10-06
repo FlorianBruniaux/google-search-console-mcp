@@ -24,7 +24,7 @@ function closeMobileNavigation(restoreFocus = true): void {
   if (!navigation || !menuButton || !backdrop) return
   document.body.removeAttribute('data-nav-open')
   menuButton.setAttribute('aria-expanded', 'false')
-  menuButton.setAttribute('aria-label', 'Open navigation')
+  menuButton.setAttribute('aria-label', menuButton.dataset.openLabel ?? 'Open navigation')
   navigation.removeAttribute('role')
   navigation.removeAttribute('aria-modal')
   backdrop.hidden = true
@@ -36,10 +36,10 @@ function openMobileNavigation(): void {
   if (!navigation || !menuButton || !backdrop) return
   document.body.setAttribute('data-nav-open', '')
   menuButton.setAttribute('aria-expanded', 'true')
-  menuButton.setAttribute('aria-label', 'Close navigation')
+  menuButton.setAttribute('aria-label', menuButton.dataset.closeLabel ?? 'Close navigation')
   navigation.setAttribute('role', 'dialog')
   navigation.setAttribute('aria-modal', 'true')
-  navigation.setAttribute('aria-label', 'Primary navigation')
+  navigation.setAttribute('aria-label', navigation.querySelector('nav')?.getAttribute('aria-label') ?? 'Primary navigation')
   backdrop.hidden = false
   closeButton?.focus()
 }
@@ -137,7 +137,9 @@ function currentTheme(): Theme {
 
 function syncThemeControl(): void {
   const next = currentTheme() === 'dark' ? 'light' : 'dark'
-  if (themeButton) themeButton.setAttribute('aria-label', `Switch to ${next} theme`)
+  if (themeButton) themeButton.setAttribute('aria-label', next === 'dark'
+    ? themeButton.dataset.themeDarkLabel ?? 'Switch to dark theme'
+    : themeButton.dataset.themeLightLabel ?? 'Switch to light theme')
   if (themeIcon) themeIcon.textContent = currentTheme() === 'dark' ? '☀' : '◐'
 }
 
@@ -156,9 +158,11 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy-command]').forEach((but
     const status = statusId ? document.getElementById(statusId) : null
     try {
       await navigator.clipboard.writeText(button.dataset.copyCommand ?? '')
-      if (status) status.textContent = 'Command copied.'
+      if (status) status.textContent = root.lang === 'fr' ? 'Commande copiée.' : 'Command copied.'
     } catch {
-      if (status) status.textContent = 'Copy failed. Select the command manually.'
+      if (status) status.textContent = root.lang === 'fr'
+        ? 'Échec de la copie. Sélectionnez la commande manuellement.'
+        : 'Copy failed. Select the command manually.'
     }
   })
 })

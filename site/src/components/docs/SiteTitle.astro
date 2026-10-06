@@ -2,9 +2,10 @@
 const isFrench = Astro.url.pathname.startsWith('/fr/')
 const homeLabel = isFrench ? 'Accueil du site Search Console MCP' : 'Search Console MCP site home'
 const homeCue = isFrench ? '← Accueil' : '← Home'
+const homeHref = isFrench ? '/fr/' : '/'
 ---
 
-<a class="docs-site-title" href="/" aria-label={homeLabel}>
+<a class="docs-site-title" href={homeHref} aria-label={homeLabel}>
   <span class="docs-monogram" aria-hidden="true">FB<span>.</span></span>
   <span class="docs-product-name">Search Console MCP</span>
   <span class="docs-home-cue">{homeCue}</span>

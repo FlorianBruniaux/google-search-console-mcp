@@ -1,16 +1,19 @@
 ---
-import { providers } from '../data/content'
+import { landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].capabilities
 ---
 
 <section id="capabilities" aria-labelledby="capabilities-title">
   <div class="container">
     <div class="section-heading">
-      <p class="kicker">01 / Capabilities</p>
-      <h2 id="capabilities-title">Three sources. Explicit boundaries.</h2>
-      <p>Start with the evidence your question needs.</p>
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="capabilities-title">{content.title}</h2>
+      <p>{content.intro}</p>
     </div>
     <div class="provider-grid">
-      {providers.map((provider) => (
+      {content.providers.map((provider) => (
         <article id={`provider-${provider.id}`} class={`provider-card provider-${provider.id}`} aria-labelledby={`provider-title-${provider.id}`}>
           <h3 id={`provider-title-${provider.id}`}>{provider.title}</h3>
           <p>{provider.copy}</p>
@@ -18,6 +21,6 @@ import { providers } from '../data/content'
         </article>
       ))}
     </div>
-    <p class="boundary-note">Google and Bing position semantics remain separate.</p>
+    <p class="boundary-note">{content.boundary}</p>
   </div>
 </section>

@@ -42,7 +42,6 @@ test('offers the approved install actions and intent shortcuts', () => {
 test('keeps documentation reading paths on the public site', () => {
   for (const href of [
     '/docs/',
-    '/fr/docs/',
     '/docs/installation/',
     '/docs/google-setup/',
     '/docs/bing-setup/',
@@ -56,11 +55,22 @@ test('keeps documentation reading paths on the public site', () => {
   assert.doesNotMatch(html, /<a\b[^>]*href="https:\/\/github\.com\/FlorianBruniaux\/google-search-console-mcp\/(?:blob|tree)\/main\/(?:docs|examples|CHANGELOG|LICENSE)/)
 })
 
-test('labels the French landing action as documentation-only', () => {
+test('switches from the English landing to the French landing', () => {
   const headerActions = html.match(/<div class="header-actions">([\s\S]*?)<\/div>/)?.[1]
   assert.ok(headerActions, 'Missing header actions')
-  assert.match(headerActions, /<a href="\/fr\/docs\/" lang="fr" hreflang="fr">Docs FR<\/a>/)
-  assert.doesNotMatch(headerActions, />FR<\/a>/)
+  assert.match(headerActions, /<a href="\/fr\/" lang="fr" hreflang="fr">FR<\/a>/)
+  assert.match(headerActions, /<a href="\/docs\/">Docs<\/a>/)
+})
+
+test('publishes a fully localized French landing', async () => {
+  const frenchHtml = await readFile(new URL('../dist/fr/index.html', import.meta.url), 'utf8')
+  assert.match(frenchHtml, /<html lang="fr"/)
+  assert.match(frenchHtml, /Les données de recherche que votre assistant IA peut inspecter, comparer et exploiter en toute sécurité\./)
+  assert.match(frenchHtml, /<a href="\/" lang="en" hreflang="en">EN<\/a>/)
+  assert.match(frenchHtml, /<a href="\/fr\/docs\/">Documentation<\/a>/)
+  assert.match(frenchHtml, />Analyser</)
+  assert.match(frenchHtml, />Démarrer</)
+  assert.match(frenchHtml, />Avant de vous connecter\.</)
 })
 
 test('publishes paired English and French documentation homes', () => {
@@ -73,8 +83,8 @@ test('publishes paired English and French documentation homes', () => {
 })
 
 test('offers an explicit route from the documentation back to the product home', () => {
-  for (const [documentHtml, cue] of [[docsHtml, '← Home'], [docsFrHtml, '← Accueil']]) {
-    const siteTitle = documentHtml.match(/<a class="docs-site-title[^"]*" href="\/"[\s\S]*?<\/a>/)?.[0]
+  for (const [documentHtml, href, cue] of [[docsHtml, '/', '← Home'], [docsFrHtml, '/fr/', '← Accueil']]) {
+    const siteTitle = documentHtml.match(new RegExp(`<a class="docs-site-title[^"]*" href="${href}"[\\s\\S]*?<\\/a>`))?.[0]
     assert.ok(siteTitle, 'Missing documentation home link')
     assert.match(siteTitle, new RegExp(`<span class="docs-home-cue[^"]*">${cue}<\\/span>`))
   }

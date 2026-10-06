@@ -1,32 +1,32 @@
 ---
-interface Props { toolCount: number }
-const { toolCount } = Astro.props
+import { landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale; toolCount: number }
+const { locale, toolCount } = Astro.props
+const content = landingContent[locale].hero
 const command = 'uvx gsc-mcp-tools'
 ---
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero-grid">
     <div>
-      <p class="kicker">Google + Bing + SEO analytics</p>
-      <h1 id="hero-title">Search data your AI assistant can inspect, compare and act on safely.</h1>
-      <p class="hero-copy">Search Console MCP connects Claude, Codex and other MCP clients to Google Search Console, Bing Webmaster Tools, GA4, CrUX, IndexNow and public-page audits.</p>
+      <p class="kicker">{content.kicker}</p>
+      <h1 id="hero-title">{content.title}</h1>
+      <p class="hero-copy">{content.copy}</p>
       <div class="hero-actions">
-        <button class="button button-primary" type="button" data-copy-command={command} aria-controls="hero-copy-status">Copy uvx command</button>
-        <a class="button button-secondary" href="#install">View installation path</a>
+        <button class="button button-primary" type="button" data-copy-command={command} aria-controls="hero-copy-status">{content.copyCommand}</button>
+        <a class="button button-secondary" href="#install">{content.installPath}</a>
       </div>
       <p id="hero-copy-status" class="copy-status" data-copy-status role="status" aria-live="polite"></p>
-      <nav class="hero-intents" aria-label="Common SEO workflows">
-        <a href="#capabilities">Compare Google and Bing <span aria-hidden="true">→</span></a>
-        <a href="#safety">Diagnose indexing <span aria-hidden="true">→</span></a>
-        <a href="#provider-public">Audit a public page <span aria-hidden="true">→</span></a>
+      <nav class="hero-intents" aria-label={content.intentsLabel}>
+        {content.intents.map(([label, href]) => <a href={href}>{label} <span aria-hidden="true">→</span></a>)}
       </nav>
     </div>
-    <div class="terminal" aria-label="Example command and request">
+    <div class="terminal" aria-label={content.terminalLabel}>
       <div class="terminal-bar" aria-hidden="true"><span></span><span></span><span></span></div>
       <div class="terminal-content">
         <code><span class="terminal-prompt">$</span> {command}</code>
-        <p>&gt; Compare this site's Google and Bing visibility. Keep each provider's position semantics separate.</p>
-        <small>{toolCount} registered tools, structured JSON output</small>
+        <p>&gt; {content.terminalPrompt}</p>
+        <small>{toolCount} {content.terminalResult}</small>
       </div>
     </div>
   </div>

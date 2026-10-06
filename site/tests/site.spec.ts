@@ -10,6 +10,33 @@ test('copies the install command and announces success', async ({ page, context 
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('uvx gsc-mcp-tools')
 })
 
+test('switches the complete landing between English and French', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('link', { name: 'FR', exact: true }).click()
+  await expect(page).toHaveURL('/fr/')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Les données de recherche')
+  await expect(page.getByRole('link', { name: 'Documentation', exact: true }).first()).toHaveAttribute('href', '/fr/docs/')
+  await page.getByRole('link', { name: 'EN', exact: true }).click()
+  await expect(page).toHaveURL('/')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+})
+
+test('localizes interactive feedback and controls on the French landing', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('/fr/')
+  const hero = page.locator('.hero')
+  await hero.getByRole('button', { name: 'Copier la commande uvx' }).click()
+  await expect(hero.getByRole('status')).toHaveText('Commande copiée.')
+  await expect(page.getByRole('button', { name: 'Passer au thème sombre' })).toBeVisible()
+  await page.setViewportSize({ width: 390, height: 844 })
+  const menu = page.locator('#mobile-menu-toggle')
+  await expect(menu).toHaveAttribute('aria-label', 'Ouvrir la navigation')
+  await menu.click()
+  await expect(page.getByRole('dialog', { name: 'Navigation principale' })).toBeVisible()
+  await expect(menu).toHaveAttribute('aria-label', 'Fermer la navigation')
+})
+
 test('copies every visible command and updates only its local status', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/')
@@ -213,6 +240,18 @@ for (const theme of ['light', 'dark'] as const) {
   }
 }
 
+for (const theme of ['light', 'dark'] as const) {
+  for (const width of [390, 1440]) {
+    test(`has no undocumented axe violations in French ${theme} at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 1000 })
+      await page.addInitScript((value) => localStorage.setItem('theme', value), theme)
+      await page.goto('/fr/')
+      const results = await new AxeBuilder({ page }).analyze()
+      expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
+    })
+  }
+}
+
 for (const width of [390, 768, 800, 1024, 1280, 1440]) {
   test(`contains the document without horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
@@ -231,6 +270,18 @@ for (const width of [390, 768, 800, 1024, 1280, 1440]) {
       await expect(page.getByRole('button', { name: 'Analyze' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Open navigation' })).not.toBeVisible()
     }
+  })
+}
+
+for (const width of [390, 768, 800, 1024, 1280, 1440]) {
+  test(`contains the French landing without horizontal overflow at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/fr/')
+    const metrics = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }))
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth)
   })
 }
 
@@ -282,11 +333,11 @@ test('navigates the bilingual documentation without leaving the site', async ({ 
 test('returns from the documentation to the product home', async ({ page }) => {
   await page.goto('/fr/docs/')
   const brand = page.getByRole('banner').getByRole('link', { name: 'Accueil du site Search Console MCP' })
-  await expect(brand).toHaveAttribute('href', '/')
+  await expect(brand).toHaveAttribute('href', '/fr/')
   await expect(brand.getByText('← Accueil')).toBeVisible()
   await brand.click()
-  await expect(page).toHaveURL('/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Search data your AI assistant can inspect')
+  await expect(page).toHaveURL('/fr/')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Les données de recherche')
 })
 
 for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/']) {
@@ -315,6 +366,20 @@ test.describe('local visual baselines', () => {
         await page.addInitScript((selectedTheme) => localStorage.setItem('theme', selectedTheme), theme)
         await page.goto('/')
         await expect(page).toHaveScreenshot(`${theme}-${viewport.width}.png`, {
+          fullPage: true,
+          animations: 'disabled',
+        })
+      })
+    }
+  }
+
+  for (const theme of ['light', 'dark'] as const) {
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
+      test(`matches French ${theme} ${viewport.width}px baseline`, async ({ page }) => {
+        await page.setViewportSize(viewport)
+        await page.addInitScript((selectedTheme) => localStorage.setItem('theme', selectedTheme), theme)
+        await page.goto('/fr/')
+        await expect(page).toHaveScreenshot(`fr-${theme}-${viewport.width}.png`, {
           fullPage: true,
           animations: 'disabled',
         })

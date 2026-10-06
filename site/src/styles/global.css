@@ -250,6 +250,9 @@ summary::-webkit-details-marker { display: none; }
 @media (max-width: 56rem) {
   .hero-grid { width: min(100% - 3rem, var(--max-width)); grid-template-columns: 1fr; }
   .terminal { width: 100%; }
+  .install-grid { grid-template-columns: 1fr; }
+  .install-grid li, .install-grid li:first-child, .install-grid li:last-child { padding: 1.5rem 0; border-left: 0; border-top: 1px solid var(--border); }
+  .install-grid li:last-child { padding-bottom: 0; }
 }
 
 @media (max-width: 48rem) {
@@ -264,7 +267,7 @@ summary::-webkit-details-marker { display: none; }
   .hero-copy { font-size: 1rem; margin-block: 1.5rem; }
   .hero-actions { display: grid; }
   .hero-actions > * { width: 100%; }
-  .provider-grid, .workflow-list, .install-grid { grid-template-columns: 1fr; }
+  .provider-grid, .workflow-list { grid-template-columns: 1fr; }
   .proof-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .proof-list li { padding: 1.25rem 1rem; }
   .proof-list li:nth-child(odd) { padding-left: 0; }
@@ -281,8 +284,6 @@ summary::-webkit-details-marker { display: none; }
   .workflow-list .step-number { grid-row: span 2; padding-top: 0.125rem; }
   .workflow-list li:not(:last-child)::after { display: none; }
   .workflow-list p { grid-column: 2; }
-  .install-grid li, .install-grid li:first-child, .install-grid li:last-child { padding: 1.5rem 0; border-left: 0; border-top: 1px solid var(--border); }
-  .install-grid li:last-child { padding-bottom: 0; }
   .evidence-layout, .faq-layout { grid-template-columns: 1fr; gap: 2rem; }
   .final-install-layout { grid-template-columns: 1fr; gap: 1.5rem; }
   .command-row-prominent { display: block; border: 0; background: transparent; }

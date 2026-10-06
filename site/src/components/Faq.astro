@@ -1,15 +1,18 @@
 ---
-import { faqs } from '../data/content'
+import { landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].faq
 ---
 
 <section id="faq" aria-labelledby="faq-title">
   <div class="container faq-layout">
     <div class="section-heading">
-      <p class="kicker">05 / FAQ</p>
-      <h2 id="faq-title">Before you connect.</h2>
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="faq-title">{content.title}</h2>
     </div>
     <div class="faq-list">
-      {faqs.map(({ question, answer }) => (
+      {content.items.map(({ question, answer }) => (
         <details data-faq-item>
           <summary>{question}<span aria-hidden="true">+</span></summary>
           <p>{answer}</p>

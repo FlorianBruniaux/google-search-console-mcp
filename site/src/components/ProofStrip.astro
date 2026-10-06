@@ -1,14 +1,15 @@
 ---
 import type productData from '../generated/product.json'
-interface Props { product: typeof productData }
-const { product } = Astro.props
+import { landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale; product: typeof productData }
+const { locale, product } = Astro.props
+const content = landingContent[locale].proof
 ---
 
 <div class="proof-strip">
-  <ul class="container proof-list" aria-label="Package facts">
-    <li><strong>{product.toolCount} MCP tools</strong><span>Registered in the server</span></li>
-    <li><strong>Google + Bing</strong><span>Provider semantics stay separate</span></li>
-    <li><strong>Structured JSON</strong><span>Machine-readable responses</span></li>
-    <li><strong>Guarded writes</strong><span>Explicit target and action</span></li>
+  <ul class="container proof-list" aria-label={content.label}>
+    {content.items.map(([label, copy], index) => (
+      <li><strong>{index === 0 ? `${product.toolCount} ${label}` : label}</strong><span>{copy}</span></li>
+    ))}
   </ul>
 </div>

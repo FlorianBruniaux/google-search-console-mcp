@@ -1,56 +1,34 @@
 ---
-import { siteLinks } from '../data/content'
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].footer
+const links = getSiteLinks(locale)
 
 const footerGroups = [
   {
-    label: 'Navigate',
-    links: [
-      ['Overview', '#main-content'],
-      ['Providers', '#capabilities'],
-      ['Workflow', '#workflow'],
-      ['Install', '#install'],
-      ['Safety', '#safety'],
-      ['FAQ', '#faq'],
-    ],
+    label: content.groups.navigate,
+    links: content.nav,
   },
   {
-    label: 'Product',
-    links: [
-      ['Documentation', siteLinks.docs],
-      ['Documentation FR', siteLinks.docsFr],
-      ['GitHub', siteLinks.repository],
-      ['PyPI', siteLinks.pypi],
-      ['Installation docs', siteLinks.install],
-      ['Changelog', siteLinks.changelog],
-      ['MIT license', siteLinks.license],
-    ],
+    label: content.groups.product,
+    links: content.product.map((label, index) => [label, [links.docs, links.repository, links.pypi, links.install, links.changelog, links.license][index]]),
   },
   {
-    label: 'Ecosystem',
-    links: [
-      ['All projects', siteLinks.projects],
-      ['Claude Code Guide', siteLinks.claudeGuide],
-      ['StarMapper', siteLinks.starmapper],
-      ['CCBoard', siteLinks.ccboard],
-      ['CC-Copilot Bridge', siteLinks.ccbridge],
-      ['YT Insights', siteLinks.youtubeInsights],
-    ],
+    label: content.groups.ecosystem,
+    links: content.ecosystem.map((label, index) => [label, [links.projects, links.claudeGuide, links.starmapper, links.ccboard, links.ccbridge, links.youtubeInsights][index]]),
   },
-] as const
+] as { label: string; links: readonly (readonly [string, string])[] }[]
 
-const creatorLinks = [
-  ['Portfolio', siteLinks.portfolio],
-  ['Blog', siteLinks.blog],
-  ['GitHub profile', siteLinks.githubProfile],
-  ['LinkedIn', siteLinks.linkedin],
-] as const
+const creatorLinks = content.creatorLinks.map((label, index) => [label, [links.portfolio, links.blog, links.githubProfile, links.linkedin][index]] as const)
 ---
 
 <footer class="site-footer">
   <div class="container">
     <div class="footer-brand-row">
       <a class="footer-brand" href="#main-content"><span aria-hidden="true">&gt;_</span> Search Console MCP</a>
-      <p>Search evidence, with its limits attached.</p>
+      <p>{content.tagline}</p>
     </div>
 
     <div class="footer-sections">
@@ -64,7 +42,7 @@ const creatorLinks = [
                 return (
                   <li>
                     <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
-                      {linkLabel}{external && <><span aria-hidden="true"> ↗</span><span class="sr-only"> (opens in a new tab)</span></>}
+                      {linkLabel}{external && <><span aria-hidden="true"> ↗</span><span class="sr-only"> ({content.external})</span></>}
                     </a>
                   </li>
                 )
@@ -76,11 +54,11 @@ const creatorLinks = [
     </div>
 
     <div class="footer-meta">
-      <p>Open-source AI engineering by <a href={siteLinks.author} target="_blank" rel="noopener noreferrer">Florian Bruniaux<span class="sr-only"> (opens in a new tab)</span></a>.</p>
-      <nav aria-label="Creator links">
+      <p>{content.creator} <a href={links.author} target="_blank" rel="noopener noreferrer">Florian Bruniaux<span class="sr-only"> ({content.external})</span></a>.</p>
+      <nav aria-label={`${content.creatorLinks[0]} links`}>
         <ul>
           {creatorLinks.map(([label, href]) => (
-            <li><a href={href} target="_blank" rel="noopener noreferrer">{label}<span aria-hidden="true"> ↗</span><span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><a href={href} target="_blank" rel="noopener noreferrer">{label}<span aria-hidden="true"> ↗</span><span class="sr-only"> ({content.external})</span></a></li>
           ))}
         </ul>
       </nav>

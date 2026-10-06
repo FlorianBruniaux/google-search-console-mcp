@@ -24,6 +24,18 @@ test('publishes canonical and social metadata', () => {
   assert.equal((html.match(/<h1[ >]/g) ?? []).length, 1)
 })
 
+test('publishes reciprocal landing alternates and localized metadata', async () => {
+  const frenchHtml = await readFile(new URL('fr/index.html', dist), 'utf8')
+  assert.match(html, /<link rel="alternate" hreflang="en" href="https:\/\/search-console\.bruniaux\.com\/"/)
+  assert.match(html, /<link rel="alternate" hreflang="fr" href="https:\/\/search-console\.bruniaux\.com\/fr\/"/)
+  assert.match(html, /<link rel="alternate" hreflang="x-default" href="https:\/\/search-console\.bruniaux\.com\/"/)
+  assert.match(frenchHtml, /<link rel="canonical" href="https:\/\/search-console\.bruniaux\.com\/fr\/"/)
+  assert.match(frenchHtml, /<link rel="alternate" hreflang="en" href="https:\/\/search-console\.bruniaux\.com\/"/)
+  assert.match(frenchHtml, /<link rel="alternate" hreflang="fr" href="https:\/\/search-console\.bruniaux\.com\/fr\/"/)
+  assert.match(frenchHtml, /<meta property="og:locale" content="fr_FR"/)
+  assert.match(frenchHtml, /<meta name="twitter:title" content="Search Console MCP pour Google, Bing et l’analyse SEO"/)
+})
+
 test('keeps structured data aligned with generated and visible content', () => {
   const entries = jsonLdEntries()
   const software = entries.find((entry) => entry['@type'] === 'SoftwareApplication')
@@ -56,6 +68,7 @@ test('publishes crawl files for the canonical host', async () => {
   const sitemapFiles = (await readdir(dist)).filter((name) => /^sitemap.*\.xml$/.test(name))
   const sitemapText = (await Promise.all(sitemapFiles.map((name) => readFile(new URL(name, dist), 'utf8')))).join('\n')
   assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\//)
+  assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\/fr\//)
   assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\/docs\/installation\//)
   assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\/fr\/docs\/installation\//)
   assert.doesNotMatch(sitemapText, /superpowers|machine-readable|docs\/validation/)

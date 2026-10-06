@@ -1,20 +1,33 @@
 ---
 import '../styles/global.css'
+import type { Locale } from '../data/content'
 
 interface Props {
   title: string
   description: string
   image?: string
+  imageAlt?: string
+  lang?: Locale
+  alternatePaths?: Record<Locale, string>
   jsonLd?: Record<string, unknown>[]
 }
 
-const { title, description, image = '/og-image.png', jsonLd = [] } = Astro.props
+const {
+  title,
+  description,
+  image = '/og-image.png',
+  imageAlt = 'Search Console MCP: Google, Bing and SEO analytics for AI assistants.',
+  lang = 'en',
+  alternatePaths,
+  jsonLd = [],
+} = Astro.props
 const canonical = new URL(Astro.url.pathname, Astro.site)
 const socialImage = new URL(image, Astro.site)
+const ogLocale = lang === 'fr' ? 'fr_FR' : 'en_US'
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <script is:inline>
       (() => {
@@ -31,6 +44,11 @@ const socialImage = new URL(image, Astro.site)
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {alternatePaths && <>
+      <link rel="alternate" hreflang="en" href={new URL(alternatePaths.en, Astro.site)} />
+      <link rel="alternate" hreflang="fr" href={new URL(alternatePaths.fr, Astro.site)} />
+      <link rel="alternate" hreflang="x-default" href={new URL(alternatePaths.en, Astro.site)} />
+    </>}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -38,7 +56,8 @@ const socialImage = new URL(image, Astro.site)
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:site_name" content="Search Console MCP" />
-    <meta property="og:image:alt" content="Search Console MCP: Google, Bing and SEO analytics for AI assistants. Connect, Measure, Compare, Explain, Submit." />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:image:alt" content={imageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
