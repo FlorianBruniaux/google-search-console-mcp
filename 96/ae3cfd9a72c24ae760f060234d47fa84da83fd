@@ -1,0 +1,26 @@
+site/src/components/SiteFooter.astro
+  s_b091cb578646a0::t_48a3473c96484b 3-43,48-85
+site/src/styles/global.css
+  s_b091cb578646a0::t_6a231f401dac3d 195
+  s_b091cb578646a0::t_418b476557ccbb 185-194,196-198,252-257
+site/tests/dist-content.test.mjs
+  s_b091cb578646a0::t_e3be00acbbe4c2 80-106
+site/src/data/content.ts
+  s_b091cb578646a0::t_cec8ca94eb9dc0 13-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "96ae3cfd9a72c24ae760f060234d47fa84da83fd",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
