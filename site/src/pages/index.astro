@@ -1,5 +1,6 @@
 ---
 import product from '../generated/product.json'
+import { faqs, siteLinks } from '../data/content'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 import Hero from '../components/Hero.astro'
@@ -13,9 +14,30 @@ import SiteFooter from '../components/SiteFooter.astro'
 
 const title = 'Search Console MCP for Google, Bing and SEO Analytics'
 const description = 'Connect AI assistants to Google Search Console, Bing Webmaster Tools, GA4, CrUX and guarded SEO workflows.'
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Search Console MCP',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Cross-platform',
+  softwareVersion: product.version,
+  url: 'https://search-console.bruniaux.com/',
+  downloadUrl: siteLinks.pypi,
+  codeRepository: product.repository,
+  license: siteLinks.license,
+}
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ question, answer }) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+}
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} jsonLd={[softwareJsonLd, faqJsonLd]}>
   <SiteHeader />
   <main id="main-content" tabindex="-1">
     <Hero toolCount={product.toolCount} />
