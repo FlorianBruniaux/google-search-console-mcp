@@ -65,6 +65,14 @@ test('publishes paired English and French documentation homes', () => {
   assert.match(docsFrHtml, /Trois flux de preuves séparés/)
 })
 
+test('offers an explicit route from the documentation back to the product home', () => {
+  for (const [documentHtml, cue] of [[docsHtml, '← Home'], [docsFrHtml, '← Accueil']]) {
+    const siteTitle = documentHtml.match(/<a class="docs-site-title[^"]*" href="\/"[\s\S]*?<\/a>/)?.[0]
+    assert.ok(siteTitle, 'Missing documentation home link')
+    assert.match(siteTitle, new RegExp(`<span class="docs-home-cue[^"]*">${cue}<\\/span>`))
+  }
+})
+
 test('renders local copy feedback for every command and a final install call to action', () => {
   assert.equal((html.match(/data-copy-command=/g) ?? []).length, 5)
   assert.equal((html.match(/data-copy-status/g) ?? []).length, 5)

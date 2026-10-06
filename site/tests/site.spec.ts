@@ -279,6 +279,16 @@ test('navigates the bilingual documentation without leaving the site', async ({ 
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
 })
 
+test('returns from the documentation to the product home', async ({ page }) => {
+  await page.goto('/fr/docs/')
+  const brand = page.getByRole('banner').getByRole('link', { name: 'Accueil du site Search Console MCP' })
+  await expect(brand).toHaveAttribute('href', '/')
+  await expect(brand.getByText('← Accueil')).toBeVisible()
+  await brand.click()
+  await expect(page).toHaveURL('/')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Search data your AI assistant can inspect')
+})
+
 for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/']) {
   test(`keeps ${route} accessible and contained on mobile`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
