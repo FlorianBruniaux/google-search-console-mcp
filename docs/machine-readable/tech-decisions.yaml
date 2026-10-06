@@ -179,7 +179,7 @@ stack_standards:
 
   packaging:
     pypi_name: gsc-mcp-tools
-    version: "1.1.2"
+    version: "1.2.0"
     entrypoints:
       - name: gsc-mcp
         points_to: gsc_mcp.server:main
@@ -189,7 +189,7 @@ stack_standards:
     build_backend: hatchling
     python_min: "3.11"
     source_adrs: [ADR-0011]
-    runtime_limit: "la version publiée 1.1.2 ne contient pas encore le fournisseur Bing de cette branche"
+    runtime_limit: "le support Bing commence avec la version publiée 1.2.0; les versions antérieures n'exposent pas ces tools"
 
   ci_cd:
     tool: GitHub Actions

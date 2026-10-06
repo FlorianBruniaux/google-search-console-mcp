@@ -14,5 +14,6 @@ token_*.json
 .claude/settings*.json
 .claude/commands/
 .claude/todos/
+.codex/config.toml
 .idea/
 .DS_Store

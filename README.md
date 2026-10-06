@@ -30,26 +30,26 @@
   <a href="#documentation">Documentation</a>
 </p>
 
-Search Console MCP gives Claude, Codex and other MCP clients access to private search and analytics data plus public-page SEO audits. The source checkout exposes 81 FastMCP tools for measuring performance, diagnosing pages, comparing Google and Bing, and submitting bounded changes.
+Search Console MCP gives Claude, Codex and other MCP clients access to private search and analytics data plus public-page SEO audits. Version 1.2.0 exposes 81 FastMCP tools for measuring performance, diagnosing pages, comparing Google and Bing, and submitting bounded changes.
 
 Ask questions such as "why did traffic drop?", "which queries are close to page one?" or "compare this site's Google and Bing visibility". The server handles authentication, API calls, validation, retries and structured JSON output.
 
 > [!IMPORTANT]
-> Bing support is currently available from the source checkout, not from the published `gsc-mcp-tools==1.1.2` package. The source checkout adds 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
+> `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
 
 > [!NOTE]
 > An API submission reported as accepted proves neither crawl nor indexation. Search Console MCP keeps observed facts, derived metrics and recommendations separate.
 
 <p align="center">
-  <img src="docs/assets/gsc-mcp-workflow.png" width="1100" alt="Search Console MCP workflow: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions." />
+  <img src="https://raw.githubusercontent.com/FlorianBruniaux/google-search-console-mcp/main/docs/assets/gsc-mcp-workflow.png" width="1100" alt="Search Console MCP workflow: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions." />
 </p>
 
 ## Start here
 
 | Goal | Command or guide | Result |
 | --- | --- | --- |
-| Run the published package | `uvx gsc-mcp-tools` | Starts the published server over stdio; Bing is source-only today |
-| Run the full 81-tool source checkout | [Install from source](#full-source-checkout-including-bing) | Google, Bing, GA4, CrUX, IndexNow and technical SEO tools |
+| Run the published package | `uvx gsc-mcp-tools` | Starts all 81 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
+| Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
 | Configure Google access | [Google setup guide](docs/google-setup.md) | Service Account or OAuth access to the selected properties |
 | Configure Bing access | [Bing API key setup](#bing-webmaster-api-key) | One account-level key for the verified sites visible to that account |
 | Run a first audit | [Starter prompts](docs/starter-prompt.md) | Full audit, health check, page inspection or GA4 analysis prompt |
@@ -189,10 +189,17 @@ Google and Bing share clicks, impressions and derived CTR where those fields exi
 
 ### Published package
 
-Use the published package when you do not need the unreleased Bing provider:
+Use the published package for the complete 81-tool registry, including Bing:
 
 ```bash
 uvx gsc-mcp-tools
+```
+
+For a persistent MCP client, install the package once and configure the absolute executable path. This avoids keeping an extra `uvx` launcher process beside every running server:
+
+```bash
+uv tool install gsc-mcp-tools==1.2.0
+command -v gsc-mcp-tools
 ```
 
 <details>
@@ -204,7 +211,7 @@ pip install gsc-mcp-tools
 
 </details>
 
-### Full source checkout, including Bing
+### Source checkout for development
 
 ```bash
 git clone https://github.com/FlorianBruniaux/google-search-console-mcp
@@ -214,7 +221,7 @@ pip install -e .
 gsc-cli list
 ```
 
-The final command reads the shared registry and lists the 81 commands available in this checkout.
+The final command reads the shared registry and lists the 81 commands available in this checkout. Use this installation when developing or testing unreleased changes.
 
 ### Configure the providers you use
 
@@ -240,14 +247,15 @@ gsc-mcp
 
 ### Claude Desktop
 
+Install the package once with `uv tool install gsc-mcp-tools==1.2.0`, then copy the absolute path returned by `command -v gsc-mcp-tools` into the configuration:
+
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "gsc-mcp": {
-      "command": "uvx",
-      "args": ["gsc-mcp-tools"],
+      "command": "/absolute/path/to/gsc-mcp-tools",
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
         "GSC_SKIP_OAUTH": "true",
@@ -262,7 +270,40 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
 
-For source-only Bing support, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`, and remove the `args` entry. The `uvx` configuration above always starts the published package.
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. Both installations expose the same 81-tool registry.
+
+</details>
+
+<details>
+<summary>Codex configuration without process proliferation</summary>
+
+### Codex
+
+Codex starts a dedicated stdio MCP server for each task that loads it. A declaration in the user-level `~/.codex/config.toml` therefore applies to every project and can leave many legitimate server processes alive while tasks remain active. Running through `uvx` adds a launcher process to each server.
+
+Install the package once:
+
+```bash
+uv tool install gsc-mcp-tools==1.2.0
+command -v gsc-mcp-tools
+```
+
+Then add the server only to trusted projects that need search data by creating `.codex/config.toml` in the project root:
+
+```toml
+[mcp_servers.gsc-mcp]
+command = "/absolute/path/to/gsc-mcp-tools"
+startup_timeout_sec = 60
+
+[mcp_servers.gsc-mcp.env]
+GSC_SERVICE_ACCOUNT_PATH = "/absolute/path/to/service-account.json"
+GSC_SKIP_OAUTH = "true"
+BING_WEBMASTER_API_KEY = "<from-your-secret-store>"
+```
+
+Keep this file untracked when it contains credentials. Remove provider variables you do not use. Codex loads project `.codex/config.toml` only for trusted projects; project configuration and precedence are documented in the [official Codex configuration guide](https://developers.openai.com/codex/config-basic).
+
+Do not add a global single-instance lock to a stdio server. Each client owns a separate stdin/stdout channel, so blocking later instances would break concurrent tasks instead of sharing one server safely. A shared deployment would require the streamable HTTP transport and its own authentication boundary.
 
 </details>
 
@@ -357,7 +398,7 @@ traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. The source checkout exposes 81 commands; the published `1.1.2` build has no Bing commands.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Version 1.2.0 and the source checkout both expose 81 commands, including Bing.
 
 ```bash
 # List the commands in the installed build
@@ -467,7 +508,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | Run the first audit | [Starter prompts](docs/starter-prompt.md) and [`examples/`](examples/) |
 | Understand the modules and data flow | [Architecture](docs/architecture.md) |
 | Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |
-| Track published and source-only changes | [Changelog](CHANGELOG.md) |
+| Track releases and current changes | [Changelog](CHANGELOG.md) |
 | Give the repository to an AI assistant | [Machine-readable project index](docs/machine-readable/llms.txt) |
 
 <details>
@@ -508,6 +549,10 @@ pytest tests/ -v
 **`uvx gsc-mcp-tools` launches but no tools appear in Claude Desktop**
 
 Fully quit Claude Desktop (`Cmd+Q`) and reopen it. Saving the config file is not enough; the MCP process is only started on launch.
+
+**Codex keeps many `gsc-mcp-tools` processes alive**
+
+Check whether `gsc-mcp` is declared in user-level `~/.codex/config.toml`. Move it to project-level `.codex/config.toml` when it is not needed in every task, and configure the executable installed by `uv tool install` instead of `uvx`. Restart Codex after changing the configuration; already-running tasks keep the server configuration they loaded at startup.
 
 **`GSC_SERVICE_ACCOUNT_PATH` is set but auth fails**
 

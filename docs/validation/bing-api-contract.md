@@ -2,7 +2,7 @@
 
 ## Verdict
 
-`PARTIAL`. Le canari réel expurgé du `2026-10-05` a réussi 15 lectures sur 17 avec la version `1.1.2` du package. `GetKeywordStats` et `GetRelatedKeywords` ont répondu HTTP 400 et restent `UNKNOWN`.
+`PARTIAL`. Le canari réel expurgé du `2026-10-05` a réussi 15 lectures sur 17 avec le checkout source alors versionné `1.1.2`. `GetKeywordStats` et `GetRelatedKeywords` ont répondu HTTP 400 et restent `UNKNOWN`.
 
 `Gate G2 = SATISFIED` pour `GetQueryStats`, `GetPageStats`, `GetCrawlStats` et `GetUrlSubmissionQuota`. Task 3 est débloquée. Ce gate ne transforme pas le verdict global en `VERIFIED` et ne valide pas les deux méthodes keyword.
 

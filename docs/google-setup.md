@@ -106,14 +106,20 @@ cp .env.example .env
 
 ### Step 8: Claude Desktop config
 
+Install the package once and locate the executable:
+
+```bash
+uv tool install gsc-mcp-tools==1.2.0
+command -v gsc-mcp-tools
+```
+
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
 
 ```json
 {
   "mcpServers": {
     "gsc-mcp": {
-      "command": "uvx",
-      "args": ["gsc-mcp"],
+      "command": "/absolute/path/to/gsc-mcp-tools",
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
         "GSC_SKIP_OAUTH": "true",
@@ -124,7 +130,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 }
 ```
 
-Remove the `GA4_PROPERTY_ID` line if you are not using GA4 tools.
+Replace the command with the absolute path returned above. Remove the `GA4_PROPERTY_ID` line if you are not using GA4 tools. A direct executable avoids keeping an extra `uvx` launcher process beside the MCP server.
 
 After saving, restart Claude Desktop. The `gsc-mcp` server should appear in the tools panel.
 

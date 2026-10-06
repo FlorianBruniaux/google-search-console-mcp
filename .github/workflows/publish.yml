@@ -6,7 +6,8 @@ on:
       - "v*"
 
 jobs:
-  build-and-publish:
+  test-and-build:
+    name: Test and build distributions
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -18,17 +19,61 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install build tools
-        run: pip install build twine
+      - name: Verify tag matches package version
+        run: |
+          python - <<'PY'
+          import os
+          import pathlib
+          import tomllib
 
-      - name: Build package
+          pyproject = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
+          expected = f"v{pyproject['project']['version']}"
+          actual = os.environ["GITHUB_REF_NAME"]
+          if actual != expected:
+              raise SystemExit(f"Tag {actual!r} does not match package version {expected!r}")
+          PY
+
+      - name: Install test and build tools
+        run: python -m pip install --upgrade build twine ".[dev]"
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Build distributions
         run: python -m build
 
-      - name: Check package
-        run: twine check dist/*
+      - name: Check distributions
+        run: python -m twine check dist/*
 
-      - name: Upload to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/*
+      - name: Smoke-test built wheel
+        run: |
+          python -m venv /tmp/gsc-mcp-smoke
+          /tmp/gsc-mcp-smoke/bin/python -m pip install dist/*.whl
+          /tmp/gsc-mcp-smoke/bin/gsc-cli list > /dev/null
+
+      - name: Store distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    name: Publish distributions to PyPI
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/gsc-mcp-tools
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

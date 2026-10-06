@@ -51,7 +51,7 @@ adjacent periods; check_alerts and seo_cannibalization need bulk page-query data
 Report the refusal reason rather than replacing it with guessed or N+1 data.
 ```
 
-The current published `gsc-mcp-tools==1.1.2` package does not expose the Bing tools. This prompt requires the source checkout until a later release containing the 81-tool registry is published.
+This prompt requires `gsc-mcp-tools>=1.2.0` or a current source checkout because earlier published versions do not expose the Bing tools.
 
 ## Google and GA4 audit
 

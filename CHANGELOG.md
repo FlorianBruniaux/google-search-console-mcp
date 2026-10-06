@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-06
+
 ### Added
 
 - Surface portée à 81 tools. Elle ajoute 19 tools Bing Webmaster, dont 15 lectures et 4 écritures protégées, ainsi que `compare_search_engines` pour rapprocher les métriques Google et Bing sans fusionner leurs positions.
@@ -15,9 +17,18 @@
 
 ### Documentation and metadata
 
-- Le README distingue maintenant la version PyPI `1.1.2` de la surface Bing non publiée et relie le contrat API Bing.
+- Le README présente désormais `gsc-mcp-tools==1.2.0` comme la première version publiée avec la surface Bing et relie le contrat API Bing.
 - Les références machine-readable, la description du paquet et les mots-clés de découverte sont alignés sur 81 tools, 851 tests et les fournisseurs Google/Bing.
 - La description et les topics GitHub mentionnent Bing Webmaster Tools, IndexNow et le SEO technique. Les labels de workflow des issues restent inchangés.
+- La configuration recommandée installe désormais l'outil une fois, utilise l'exécutable direct et limite Codex aux projets concernés afin d'éviter un processus `uvx` supplémentaire et un serveur global par tâche active.
+- La publication PyPI vérifie le tag, exécute les tests, contrôle le wheel construit puis utilise Trusted Publishing avec un jeton OIDC temporaire.
+
+### Fixed
+
+- Les écritures OAuth utilisent un remplacement atomique pour éviter de laisser un fichier de jeton partiellement écrit.
+- Les soumissions IndexNow et Bing valident plus strictement le protocole, l'origine, les délimiteurs vides et les réponses du fournisseur.
+- Les comparaisons multi-moteurs conservent les structures sérialisables, les positions absentes et omettent les deltas non comparables.
+- Le point d'entrée module de la CLI et l'affichage des signes `%` dans l'aide fonctionnent à nouveau.
 
 ### Limits
 
@@ -25,7 +36,6 @@
 - `GetKeywordStats` et `GetRelatedKeywords` ne sont pas exposés après des réponses HTTP 400 lors du canari réel expurgé.
 - Les sémantiques total-versus-restant des quotas Bing, les crawl issues non vides, les lignes imbriquées de backlinks et `RemoveFeed` restent non vérifiées en production.
 - Une réponse de soumission acceptée ne prouve ni crawl ni indexation.
-- La version reste `1.1.2`. Le bump et la régénération de `uv.lock` sont différés tant que le diff utilisateur du checkout principal n'est pas résolu explicitement.
 
 ## [1.1.2] - 2026-08-26
 
