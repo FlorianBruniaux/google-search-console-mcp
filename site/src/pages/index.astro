@@ -1,0 +1,16 @@
+---
+import product from '../generated/product.json'
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+const title = 'Search Console MCP for Google, Bing and SEO Analytics'
+const description = 'Connect AI assistants to Google Search Console, Bing Webmaster Tools, GA4, CrUX and guarded SEO workflows.'
+---
+
+<BaseLayout {title} {description}>
+  <main id="main-content">
+    <h1>Search Console MCP</h1>
+    <p>{product.toolCount} MCP tools</p>
+    <p>Version {product.version}</p>
+    <p>Python {product.pythonRequires}</p>
+  </main>
+</BaseLayout>
