@@ -12,6 +12,13 @@ test('renders the product name and generated facts', () => {
   assert.match(html, new RegExp(`Python ${product.pythonRequires.replace('>', '&gt;')}`))
 })
 
+test('shows Florian Bruniaux’s monogram in the home wordmark', () => {
+  const wordmark = html.match(/<a\b[^>]*class="wordmark"[^>]*>[\s\S]*?<\/a>/)?.[0]
+  assert.ok(wordmark, 'Missing home wordmark')
+  assert.match(wordmark, /<img\b[^>]*src="\/florian-bruniaux-mark\.svg"[^>]*alt=""[^>]*width="40"[^>]*height="40"/)
+  assert.match(wordmark, /Search Console MCP/)
+})
+
 test('shows the MIT license as the fourth package fact', () => {
   const proofList = html.match(/<ul\b[^>]*aria-label="Package facts"[^>]*>([\s\S]*?)<\/ul>/)?.[1]
   assert.ok(proofList, 'Missing package facts list')

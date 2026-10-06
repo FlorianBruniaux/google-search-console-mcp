@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+  <rect x="1" y="1" width="42" height="42" fill="#f5f0eb" stroke="#c2410c" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="35" height="35" fill="#bfd7f2" stroke="#c2410c"/>
+  <text x="7" y="30.5" fill="#c2410c" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="800" letter-spacing="-1">FB</text>
+  <circle cx="35.5" cy="29.5" r="2.5" fill="#1a1207"/>
+</svg>
