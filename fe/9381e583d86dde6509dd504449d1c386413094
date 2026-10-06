@@ -1,0 +1,22 @@
+docs/superpowers/specs/README.md
+  s_b091cb578646a0::t_4913734b6c07f0 4
+docs/superpowers/specs/2026-10-06-bilingual-docs-portal-design.md
+  s_b091cb578646a0::t_4913734b6c07f0 1-13,15-84,86-228
+  s_b091cb578646a0::t_65d7dbd153eb4e 14,85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fe9381e583d86dde6509dd504449d1c386413094",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
