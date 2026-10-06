@@ -323,3 +323,7 @@ The implementation plan must keep these dependency boundaries:
 6. Link the public site from the README and package metadata only after the public URL responds correctly.
 
 The written implementation plan will name exact files, tests and verification commands after this design receives human approval.
+
+## Implementation record
+
+The approved design is decomposed in the [Search Console MCP website implementation plan](../plans/2026-10-06-search-console-site.md).

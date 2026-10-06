@@ -1,3 +1,3 @@
 # Design specifications
 
-- [Search Console MCP website design](2026-10-06-search-console-site-design.md), one-page Astro site, BoldGuy UI system and GitHub Pages deployment boundary.
+- [Search Console MCP website design](2026-10-06-search-console-site-design.md), approved on 2026-10-06. Scope: one-page Astro site, BoldGuy UI system and GitHub Pages deployment boundary. [Implementation plan](../plans/2026-10-06-search-console-site.md).

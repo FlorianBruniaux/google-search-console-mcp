@@ -525,7 +525,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | Run the first audit | [Starter prompts](docs/starter-prompt.md) and [`examples/`](examples/) |
 | Understand the modules and data flow | [Architecture](docs/architecture.md) |
 | Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |
-| Review product design specifications | [Design specifications](docs/superpowers/specs/README.md) |
+| Review product designs and implementation plans | [Product design records](docs/superpowers/README.md) |
 | Track releases and current changes | [Changelog](CHANGELOG.md) |
 | Give the repository to an AI assistant | [Machine-readable project index](docs/machine-readable/llms.txt) |
 
