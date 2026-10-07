@@ -413,6 +413,8 @@ gsc-cli compare-search-engines \
 
 Every tool returns structured JSON. The `_meta` block records diagnostics such as the provider and observed window where the tool can establish them. Search Console MCP does not turn an unavailable field into a negative result or merge Google and Bing ranking semantics into one number.
 
+GA4 reports identify the effective property in `_meta.sources.ga4.property`, including when `GA4_PROPERTY_ID` supplies the default. Combined reports also retain the requested GSC property in `_meta.sources.gsc.site`. `_meta.params` preserves the original inputs, so an omitted `property_id` can remain `null` there while the resolved source is known. Missing child provenance remains `null`; the server does not infer a GA4-to-GSC site mapping. See the [source identity contract](https://search-console.bruniaux.com/docs/evidence-and-safety/#source-identities).
+
 Remote writes require the agent to identify the exact target and volume, read current state where available, and obtain explicit confirmation before calling the tool. The returned API status is reported without extrapolating crawl, indexation or ranking effects.
 
 ### Search engine coverage

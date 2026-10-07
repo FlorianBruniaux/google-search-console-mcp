@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Les 7 outils GA4 exposent la propriété réellement interrogée dans `_meta.sources.ga4.property`, y compris avec la configuration par défaut. Les 4 rapports combinés conservent cette provenance et le site GSC sans modifier les arguments demandés ; une source GA4 inconnue reste `null`.
+
 - `schema_validate` parcourt les nœuds JSON-LD `@graph`, y compris dans un tableau racine, sans compter le conteneur non typé comme un schéma valide.
 - `applicationCategory` et `operatingSystem` sont signalés comme propriétés recommandées de `SoftwareApplication`, sans invalider leur absence. La réponse distingue explicitement la présence de champs vérifiée localement de l'éligibilité Google aux résultats enrichis, non évaluée.
 - `heading_audit` ne signale plus `TL;DR` comme un titre vide.

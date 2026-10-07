@@ -29,7 +29,7 @@ def _ga4_json(pages):
         "end_date": "today",
         "count": len(pages),
         "pages": pages,
-        "_meta": {"tool": "ga4_organic_landing_pages", "params": {}},
+        "_meta": {"tool": "ga4_organic_landing_pages", "params": {}, "sources": {"ga4": {"property": "properties/123456789"}}},
     })
 
 
@@ -341,7 +341,7 @@ def _ga4_page_perf_json(active_users=100, engagement_rate=0.75):
                 "total_revenue": 0.0,
             }
         ],
-        "_meta": {"tool": "ga4_page_performance", "params": {}},
+        "_meta": {"tool": "ga4_page_performance", "params": {}, "sources": {"ga4": {"property": "properties/123456789"}}},
     })
 
 
@@ -592,7 +592,7 @@ def _ga4_perf_json(active_users=200, engagement_rate=0.65):
                 "total_revenue": 0.0,
             }
         ],
-        "_meta": {"tool": "ga4_page_performance", "params": {}},
+        "_meta": {"tool": "ga4_page_performance", "params": {}, "sources": {"ga4": {"property": "properties/123456789"}}},
     })
 
 
@@ -804,7 +804,7 @@ def test_content_brief_ga4_empty_pages_returns_none():
         "end_date": "today",
         "count": 0,
         "pages": [],
-        "_meta": {"tool": "ga4_page_performance", "params": {}},
+        "_meta": {"tool": "ga4_page_performance", "params": {}, "sources": {"ga4": {"property": "properties/123456789"}}},
     })
     rows = [_gsc_qp_row("seo guide", PAGE_URL, clicks=50)]
     with patch("gsc_mcp.tools.cross.get_search_analytics", return_value=_gsc_query_page_json(rows)), \

@@ -40,6 +40,15 @@ def _normalize_url(url: str) -> str:
     return path or "/"
 
 
+def _report_sources(site: str, ga4_response: dict) -> dict:
+    """Carry the child's source identity; absent provenance remains unknown."""
+    ga4_source = ga4_response.get("_meta", {}).get("sources", {}).get("ga4")
+    return {
+        "gsc": {"site": site},
+        "ga4": ga4_source if ga4_source is not None else {"property": None},
+    }
+
+
 def traffic_health_check(
     site: str,
     days: int = 28,
@@ -102,6 +111,7 @@ def traffic_health_check(
             },
             tool="traffic_health_check",
             params={"site": site, "days": days, "property_id": property_id, "hostname": hostname, "country": country},
+            sources=_report_sources(site, ga_data),
         )
     )
 
@@ -217,6 +227,7 @@ def page_analysis(
             },
             tool="page_analysis",
             params={"site": site, "days": days, "limit": limit, "property_id": property_id, "hostname": hostname, "country": country},
+            sources=_report_sources(site, ga_data),
         )
     )
 
@@ -276,6 +287,7 @@ def content_brief(
             question_queries.append({"query": row["query"], "clicks": row["clicks"]})
 
     ga4_result = None
+    ga4_raw = {}
     try:
         ga4_raw = json.loads(
             ga4_page_performance(
@@ -307,6 +319,7 @@ def content_brief(
             },
             tool="content_brief",
             params={"site": site, "page_url": page_url, "days": days, "property_id": property_id},
+            sources=_report_sources(site, ga4_raw),
         )
     )
 
@@ -349,6 +362,7 @@ def page_health_score(
     # --- GA4 component ---
     ga4_pts = 0
     ga4_available = True
+    ga4_raw = {}
     try:
         ga4_raw = json.loads(
             ga4_page_performance(
@@ -432,5 +446,6 @@ def page_health_score(
             },
             tool="page_health_score",
             params={"site": site, "url": url, "property_id": property_id, "hostname": hostname, "country": country},
+            sources=_report_sources(site, ga4_raw),
         )
     )

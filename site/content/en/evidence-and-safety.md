@@ -21,6 +21,35 @@ Requested, crawled, and indexed are different states. A successful submission is
 
 Google and Bing expose different metrics, scopes, delays, and position semantics. Compare directional evidence, not superficially similar field names. Keep the provider and observed window attached to every conclusion.
 
+## Source identities
+
+`_meta.params` records the original caller inputs. `_meta.sources` records source identities separately. Successful GA4 responses use the same canonical `properties/<id>` resource as their API request, even for empty results. Combined reports retain the exact requested GSC property and carry the child GA4 response’s provenance without reading the environment again.
+
+Example metadata fragment with a fictitious default GA4 property:
+
+```json
+{
+  "_meta": {
+    "tool": "traffic_health_check",
+    "params": {
+      "site": "sc-domain:example.com",
+      "property_id": null,
+      "hostname": null
+    },
+    "sources": {
+      "gsc": { "site": "sc-domain:example.com" },
+      "ga4": { "property": "properties/123456789" }
+    }
+  }
+}
+```
+
+Keep these source identifiers beside metrics when presenting a multi-site report. Available hostname, country and date filters remain in the parameters. `hostname: null` means no hostname filter; no relationship between the GA4 property and GSC site is inferred.
+
+If a combined report has no child GA4 provenance, including a degraded result caused by missing configuration, `_meta.sources.ga4.property` is `null`. Validation-only early returns such as an invalid funnel do not claim a resolved source. Tools without source metadata keep their existing response shape. In the CLI, use `--meta` to retain these fields.
+
+Source identity is not account-ID validation, proof that a property belongs to a domain, or a guarantee that an agent preserves the identifiers in its final prose.
+
 ## Guarded actions
 
 Read tools can inspect verified properties and public pages. Write tools require an explicit target and bounded action. Before submitting anything, confirm the provider, site, URL set, action, and expected blast radius.

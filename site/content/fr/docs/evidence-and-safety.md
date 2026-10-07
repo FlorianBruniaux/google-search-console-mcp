@@ -2,7 +2,7 @@
 title: "Preuves et sécurité"
 description: "Interpréter les résultats sans confondre observation, calcul, soumission, crawl et indexation."
 lang: fr
-lastUpdated: 2026-10-06
+lastUpdated: 2026-10-07
 canonicalEnglish: /docs/evidence-and-safety/
 ---
 
@@ -24,6 +24,35 @@ Ces états ne sont pas interchangeables. Une soumission acceptée ne prouve jama
 ## Limites entre fournisseurs
 
 Google et Bing ont des métriques, périmètres, délais et positions différents. Comparez des directions et des tendances, pas des noms de champs supposés équivalents. Conservez le fournisseur et la fenêtre avec chaque conclusion.
+
+## Identité des sources
+
+`_meta.params` conserve les arguments demandés. `_meta.sources` identifie séparément les sources. Les réponses GA4 réussies reprennent la ressource canonique `properties/<id>` envoyée à l’API, même sans résultat. Les rapports combinés conservent la propriété GSC demandée et la provenance de la réponse GA4 utilisée, sans relire la configuration.
+
+Extrait de métadonnées avec une propriété GA4 par défaut fictive :
+
+```json
+{
+  "_meta": {
+    "tool": "traffic_health_check",
+    "params": {
+      "site": "sc-domain:example.com",
+      "property_id": null,
+      "hostname": null
+    },
+    "sources": {
+      "gsc": { "site": "sc-domain:example.com" },
+      "ga4": { "property": "properties/123456789" }
+    }
+  }
+}
+```
+
+Affichez ces identifiants à côté des métriques dans un rapport multi-site. Les filtres de domaine, de pays et de dates disponibles restent dans les paramètres. `hostname: null` signifie qu’aucun filtre de domaine n’a été appliqué ; aucune correspondance entre propriété GA4 et site GSC n’est déduite.
+
+Si le rapport combiné ne dispose pas de provenance GA4, notamment quand la configuration manque, `_meta.sources.ga4.property` vaut `null`. Un retour de validation, comme un funnel invalide, ne prétend pas avoir résolu une source. Les autres outils conservent leur format de réponse. Avec le CLI, utilisez `--meta` pour garder ces champs.
+
+La provenance ne valide pas un identifiant de compte, ne prouve pas l’appartenance d’une propriété à un domaine et ne garantit pas que l’agent conserve les identifiants dans sa réponse finale.
 
 ## Actions protégées
 

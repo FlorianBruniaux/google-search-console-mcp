@@ -79,7 +79,16 @@ Skip this step if you are not using the `ga4_*` tools.
 
 Go to your GA4 property, then **Admin > Property Access Management** and click the **+** button to add a user. Enter the `client_email` and select the **Viewer** role.
 
-Set the `GA4_PROPERTY_ID` environment variable to your numeric property ID, visible in GA4 **Admin > Property Settings** (e.g. `123456789`). The `properties/` prefix is added automatically.
+Set the `GA4_PROPERTY_ID` environment variable to your numeric property ID, visible in GA4 **Admin > Property Settings** (e.g. `123456789`). The `properties/` prefix is added automatically. Use the **property ID**, not the account ID.
+
+Each successful GA4 report includes the canonical property actually sent to the API in `_meta.sources.ga4.property`. `_meta.params.property_id` keeps the caller argument, including `null` when the environment supplies the default. For multiple sites, pass `property_id` per call and use `hostname` where supported to scope a shared GA4 property:
+
+```python
+traffic_health_check(site="sc-domain:example.com", property_id="123456789", hostname="example.com")
+traffic_health_check(site="https://other.example/", property_id="987654321", hostname="other.example")
+```
+
+These fictitious examples use explicit mappings chosen by the caller. Source metadata does not prove that the GA4 property belongs to the GSC site, validate an arbitrary numeric ID as a property rather than an account, or introduce an automatic hostname filter.
 
 ---
 
