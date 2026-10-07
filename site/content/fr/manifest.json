@@ -11,7 +11,7 @@
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
-      "sourceHash": "be4f03e7eeed25fa871553c41ab087d8626b65606a988a1081b598aac34c6cb5"
+      "sourceHash": "48f3d8c538dedeb0be25c2646f9631afdd01e9d0cdb28bbc48f5f3400b1d9c86"
     },
     "docs/bing-setup.md": {
       "source": "docs/bing-setup.md",
@@ -63,11 +63,11 @@
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
-      "sourceHash": "999f9ee1044c0f5e40856bc03b1f29ea98349b4e3a0b5ad6399e0930cfb376d5"
+      "sourceHash": "e92758ae75bd835bb345456c07eeb330a981d7f819ba2776ef2a20249efd4692"
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "36fd239c4ffb6fb364801b31600c36b353d2f8cb06a7f56ceef929f0af95983d"
+      "sourceHash": "eb5c3613ba180092de7d84a88eb6e86c4248120c35181d4576de791560725e26"
     },
     "docs/license.md": {
       "source": "LICENSE",

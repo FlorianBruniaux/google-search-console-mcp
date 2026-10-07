@@ -10,6 +10,8 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## Non publié
 
+- Les rapports GA4 identifient la propriété effectivement interrogée, même avec la configuration par défaut. Les rapports combinés conservent cette provenance et le site GSC ; une source GA4 inconnue reste `null`.
+
 - La landing et les scénarios utilisent des titres factuels avec des chiffres explicites.
 - La FAQ pose des questions directes en anglais et en français.
 - Les pages documentaires ajoutent `hreflang="x-default"` et le site publie un `llms.txt` limité aux ressources destinées aux utilisateurs.

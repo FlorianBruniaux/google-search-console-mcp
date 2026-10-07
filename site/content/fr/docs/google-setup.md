@@ -2,7 +2,7 @@
 title: "Configurer les accès Google"
 description: "Configurer Search Console et les fournisseurs Google optionnels avec le minimum de droits."
 lang: fr
-lastUpdated: 2026-10-06
+lastUpdated: 2026-10-07
 canonicalEnglish: /docs/google-setup/
 ---
 
@@ -33,6 +33,21 @@ OAuth convient quand un utilisateur doit autoriser directement l’accès. Conse
 - L’Indexing API n’est pas un mécanisme général d’indexation pour toutes les pages.
 
 N’activez pas toutes les API par défaut. Configurez uniquement les familles de données nécessaires.
+
+## Identifier la propriété GA4 dans les rapports
+
+Configurez `GA4_PROPERTY_ID` avec l’**identifiant de propriété**, pas l’identifiant de compte. Le préfixe `properties/` est ajouté automatiquement. Vous pouvez remplacer cette valeur par défaut avec l’argument `property_id` de chaque appel.
+
+Les réponses GA4 réussies exposent la propriété effectivement envoyée à l’API dans `_meta.sources.ga4.property`. `_meta.params.property_id` conserve l’argument demandé, y compris `null` quand la configuration fournit la valeur par défaut.
+
+Pour plusieurs sites, choisissez explicitement la correspondance entre propriété GA4 et site GSC. Utilisez `hostname`, lorsqu’il est disponible, pour filtrer une propriété GA4 partagée :
+
+```python
+traffic_health_check(site="sc-domain:example.com", property_id="123456789", hostname="example.com")
+traffic_health_check(site="https://other.example/", property_id="987654321", hostname="other.example")
+```
+
+Ces identifiants sont fictifs. La provenance ne prouve pas que la propriété GA4 appartient au site GSC, ne valide pas un identifiant numérique comme propriété plutôt que compte et n’ajoute aucun filtre de domaine automatiquement.
 
 ## Vérifier l’accès
 
