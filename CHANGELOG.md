@@ -15,6 +15,8 @@
 - Les sources anglaises restent canoniques et sont publiées depuis une liste fermée. Les plans internes, exports machine-readable et rapports de validation bruts restent exclus du site.
 - La landing dirige désormais l'installation, la configuration Google et Bing, les exemples, l'architecture, les limites de preuve, le changelog et la licence vers les pages publiques du site.
 - Deux illustrations conceptuelles générées avec Gemini complètent des schémas HTML déterministes pour les flux de preuves et les actions protégées.
+- Les titres de la landing et des scénarios utilisent des formulations factuelles et des chiffres explicites. La FAQ pose des questions directes en anglais et en français.
+- Les pages documentaires publient désormais un `hreflang="x-default"` vers leur version anglaise, et le site expose un `llms.txt` public limité aux ressources destinées aux utilisateurs.
 
 ## [1.2.0] - 2026-10-06
 

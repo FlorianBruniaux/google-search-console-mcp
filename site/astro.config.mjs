@@ -26,6 +26,7 @@ export default defineConfig({
       ],
       customCss: ['./src/styles/starlight-overrides.css'],
       components: {
+        Head: './src/components/docs/Head.astro',
         SiteTitle: './src/components/docs/SiteTitle.astro',
         Footer: './src/components/docs/DocsFooter.astro',
       },

@@ -6,7 +6,7 @@ Replace `yourdomain.com/your-page-path` with the actual URL you want to diagnose
 
 ---
 
-## Start with the full diagnostic
+## Run the 4-source page diagnostic
 
 > Give me a full diagnostic of yourdomain.com/your-page-path. Start with the indexing status, then performance, then Core Web Vitals.
 
@@ -14,7 +14,7 @@ The assistant calls `inspect_url`, `page_health_score`, `get_search_by_page_quer
 
 ---
 
-## Drill into each dimension
+## Inspect 4 evidence groups
 
 ### Indexing
 
@@ -36,13 +36,13 @@ The assistant calls `content_brief` to combine the page's top GSC queries, detec
 
 ---
 
-## Compare against expectations
+## Compare 1 query with observed page data
 
 > I think I should rank higher for [query] on this page. What position and CTR are actually observed, and how do they compare with this page's other measured queries?
 
 The assistant uses `get_search_by_page_query` for the observed query-level values. The exposed tools do not provide a query-level expected-CTR benchmark, so any external benchmark must be named and treated as a heuristic.
 
-## Add Bing evidence
+## Add 3 Bing checks
 
 > Bing is configured for https://yourdomain.com/. Add `bing_page_query_stats`, `bing_url_traffic` and `bing_url_info` for this exact page. Keep Bing position and freshness fields separate from Google, and mark unavailable fields as unknown.
 

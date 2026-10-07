@@ -70,7 +70,7 @@ test('publishes a fully localized French landing', async () => {
   assert.match(frenchHtml, /<a href="\/fr\/docs\/">Documentation<\/a>/)
   assert.match(frenchHtml, />Analyser</)
   assert.match(frenchHtml, />Démarrer</)
-  assert.match(frenchHtml, />Avant de vous connecter\.</)
+  assert.match(frenchHtml, />5 réponses sur les identifiants, les clients et l’indexation\.</)
 })
 
 test('publishes paired English and French documentation homes', () => {
@@ -78,6 +78,8 @@ test('publishes paired English and French documentation homes', () => {
   assert.match(docsFrHtml, /<html lang="fr"/)
   assert.match(docsHtml, /rel="alternate" hreflang="fr" href="https:\/\/search-console\.bruniaux\.com\/fr\/docs\/"/)
   assert.match(docsFrHtml, /rel="alternate" hreflang="en" href="https:\/\/search-console\.bruniaux\.com\/docs\/"/)
+  assert.match(docsHtml, /rel="alternate" hreflang="x-default" href="https:\/\/search-console\.bruniaux\.com\/docs\/"/)
+  assert.match(docsFrHtml, /rel="alternate" hreflang="x-default" href="https:\/\/search-console\.bruniaux\.com\/docs\/"/)
   assert.match(docsHtml, /search-evidence-map\.webp/)
   assert.match(docsFrHtml, /Trois flux de preuves séparés/)
 })
@@ -124,11 +126,11 @@ test('keeps crawl and indexation claims bounded', () => {
 
 test('renders all visible FAQ questions', () => {
   for (const question of [
-    'Does one Bing API key work for every site?',
-    'Do I need every Google API enabled?',
-    'Does a successful submission mean the page is indexed?',
-    'Can I use the server from Claude and Codex?',
-    'Where do credentials live?',
+    'Can 1 Bing API key cover several sites?',
+    'Which Google APIs do I need?',
+    'Does an accepted submission prove indexation?',
+    'Can I use Search Console MCP with Claude and Codex?',
+    'Where should credentials be stored?',
   ]) assert.ok(html.includes(question), `Missing FAQ: ${question}`)
   assert.equal((html.match(/data-faq-item/g) ?? []).length, 5)
 })

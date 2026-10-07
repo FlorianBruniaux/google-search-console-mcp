@@ -1,0 +1,8 @@
+---
+const { head } = Astro.locals.starlightRoute
+const englishPath = Astro.url.pathname.replace(/^\/fr(?=\/|$)/, '') || '/'
+const xDefault = new URL(englishPath, Astro.site)
+---
+
+{head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+<link rel="alternate" hreflang="x-default" href={xDefault} />

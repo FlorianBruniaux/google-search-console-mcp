@@ -65,6 +65,11 @@ test('keeps structured data aligned with generated and visible content', () => {
 test('publishes crawl files for the canonical host', async () => {
   assert.equal((await readFile(new URL('CNAME', dist), 'utf8')).trim(), 'search-console.bruniaux.com')
   assert.equal(await readFile(new URL('robots.txt', dist), 'utf8'), 'User-agent: *\nAllow: /\n\nSitemap: https://search-console.bruniaux.com/sitemap-index.xml\n')
+  const llms = await readFile(new URL('llms.txt', dist), 'utf8')
+  assert.match(llms, /^# Search Console MCP$/m)
+  assert.match(llms, /https:\/\/search-console\.bruniaux\.com\/docs\//)
+  assert.match(llms, /https:\/\/search-console\.bruniaux\.com\/fr\/docs\//)
+  assert.doesNotMatch(llms, /\/Users\/|localhost|service[_ -]?account|client[_ -]?secret/i)
   const sitemapFiles = (await readdir(dist)).filter((name) => /^sitemap.*\.xml$/.test(name))
   const sitemapText = (await Promise.all(sitemapFiles.map((name) => readFile(new URL(name, dist), 'utf8')))).join('\n')
   assert.match(sitemapText, /https:\/\/search-console\.bruniaux\.com\//)

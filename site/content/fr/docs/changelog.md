@@ -2,11 +2,17 @@
 title: "Historique des versions"
 description: "Résumé français des versions de Search Console MCP et lien vers l’historique canonique."
 lang: fr
-lastUpdated: 2026-10-06
+lastUpdated: 2026-10-07
 canonicalEnglish: /docs/changelog/
 ---
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
+
+## Non publié
+
+- La landing et les scénarios utilisent des titres factuels avec des chiffres explicites.
+- La FAQ pose des questions directes en anglais et en français.
+- Les pages documentaires ajoutent `hreflang="x-default"` et le site publie un `llms.txt` limité aux ressources destinées aux utilisateurs.
 
 ## 1.2.0
 

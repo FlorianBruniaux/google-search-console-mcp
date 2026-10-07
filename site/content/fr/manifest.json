@@ -3,7 +3,7 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "d72e1f93f40a9f82853750c337793f6edce9f797c57b21c726aedbbe91df35f7"
+      "sourceHash": "9aa42bdbb8ba86eebd0663adf48428c44763f99f4e26993c5a966ba6b7c402dd"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
@@ -27,7 +27,7 @@
     },
     "docs/examples/quick-audit.md": {
       "source": "examples/quick-audit.md",
-      "sourceHash": "ea3146b10066dff03ecba6083aec631b1b2bc7a53f76ed31e4e491d0d9455711"
+      "sourceHash": "b8f314422fa38de5eaebdebe8204eb7880604d800f9c3a73ea416435182e2b57"
     },
     "docs/examples/google-bing-comparison.md": {
       "source": "examples/google-bing-comparison.md",
@@ -35,7 +35,7 @@
     },
     "docs/examples/full-audit.md": {
       "source": "examples/full-audit.md",
-      "sourceHash": "9de435f300d943bb95bba629b5e502f3645ba023e4d0c436dd1b42260efd3fb4"
+      "sourceHash": "b37d3caec2e36aac39b544c4866d264f7899a8c4166bd8d94058e41f099e4d13"
     },
     "docs/examples/keyword-opportunities.md": {
       "source": "examples/keyword-opportunities.md",
@@ -43,7 +43,7 @@
     },
     "docs/examples/page-deep-dive.md": {
       "source": "examples/page-deep-dive.md",
-      "sourceHash": "6b823efcf8ef2a3be07052fa122a4fd32ef92e7209701fe57054273bb3f146bb"
+      "sourceHash": "b125fd0f4aa4544643308d6091f56e7c8ea6926c7974a043cf40524befaa19d7"
     },
     "docs/examples/traffic-drop.md": {
       "source": "examples/traffic-drop.md",
@@ -55,7 +55,7 @@
     },
     "docs/examples/content-brief.md": {
       "source": "examples/content-brief.md",
-      "sourceHash": "4cc059e0b7b6b613b24d7ee525a9d75c933e83a665545b4e0c4af34a48fc7227"
+      "sourceHash": "af867467e14c378494fed1e74e6839966ad47434d515d0f8c3c4b5d97cfe7e8d"
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "9c6324e8f6893496d295bf300df331e3b1cacfac5f266e2bb19751e65c08664a"
+      "sourceHash": "36fd239c4ffb6fb364801b31600c36b353d2f8cb06a7f56ceef929f0af95983d"
     },
     "docs/license.md": {
       "source": "LICENSE",

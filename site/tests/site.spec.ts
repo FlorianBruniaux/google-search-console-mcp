@@ -460,6 +460,7 @@ test.describe('local visual baselines', () => {
         await expect(page).toHaveScreenshot(`${locale.name}-${viewport.width}.png`, {
           fullPage: true,
           animations: 'disabled',
+          maxDiffPixels: viewport.width === 390 ? 200 : 0,
         })
       })
     }

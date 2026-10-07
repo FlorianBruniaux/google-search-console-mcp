@@ -6,7 +6,7 @@ Replace `yourdomain.com/your-page-path` with the URL you want to build a brief f
 
 ---
 
-## Generate the brief
+## Generate 1 evidence-based brief
 
 > Build a content brief for yourdomain.com/your-page-path based on its current GSC performance and user behavior.
 
@@ -21,17 +21,17 @@ Core Web Vitals are not part of `content_brief`; call `crux_page_vitals` separat
 
 ---
 
-## Expand the research
+## Add 3 evidence layers
 
-### Find underperforming query topics
+### List underperforming query topics
 
 > Use `get_search_by_page_query` for this page. Which queries have impressions but few or no clicks? Treat them as topics to inspect, not proof that the page fails to cover the intent.
 
-### Understand what's already working
+### List queries with the highest CTR
 
 > Which queries on this page have the highest CTR? What do they have in common?
 
-### Add behavioral context
+### Add GA4 behavior when available
 
 > Do users who land on this page from organic search actually engage with it? What's the bounce rate and time on page?
 
@@ -39,7 +39,7 @@ The assistant calls `ga4_organic_landing_pages` and `ga4_page_performance` to la
 
 ---
 
-## Brief a new page before writing it
+## Brief 1 new page before writing
 
 > I want to create a new page targeting [topic]. What observed queries on my site are related? Which existing pages are relevant internal-link candidates based on measured search visibility and the current link graph?
 
@@ -47,7 +47,7 @@ The assistant combines GSC query evidence with `link_equity_map` or `internal_li
 
 ---
 
-## Check early signals after publishing
+## Check search signals after publishing
 
 > I published yourdomain.com/new-page two weeks ago. Is it getting impressions yet? Which queries is Google starting to associate it with?
 

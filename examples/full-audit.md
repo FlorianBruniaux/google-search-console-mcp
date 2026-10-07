@@ -6,7 +6,7 @@ Replace `yourdomain.com` with your GSC property URL.
 
 ---
 
-## Start with one prompt
+## Run the 7-check audit
 
 > Run a full SEO audit for the Google property sc-domain:yourdomain.com and give me a prioritized P0/P1/P2 action plan. Bing is available as https://yourdomain.com/ and GA4 is configured. Confirm provider access first, preserve observed windows, and separate measured facts, derived values, hypotheses and recommendations.
 
@@ -22,21 +22,21 @@ This single prompt triggers a multi-step investigation. The assistant will:
 
 ---
 
-## Going deeper after the initial audit
+## Investigate the first measured issue
 
-### Dig into a specific P0 issue
+### Inspect 1 P0 finding
 
 > Tell me more about [the flagged issue]. What evidence supports it, what remains unknown, and how should I fix it?
 
-### Prioritize by change size
+### Rank P0 and P1 work by change size
 
 > Of the P0 and P1 issues, which changes have the smallest implementation surface? Rank them by measured impact, name the affected URL or query, and keep effort as relative sizing rather than a time estimate.
 
-### Focus on a specific area
+### Inspect 1 evidence area
 
 > Zoom in on the indexing issues only. For each affected page, tell me the exact status Google returned and what that means in practice.
 
-### Turn findings into tasks
+### Convert findings into assigned tasks
 
 > Convert the P0 and P1 issues into a task list with one sentence per task and a suggested owner (developer, content writer, or SEO).
 
