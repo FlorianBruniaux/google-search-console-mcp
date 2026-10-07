@@ -1,0 +1,75 @@
+CHANGELOG.md
+  s_c532ad900c1d7d::t_4e0de4443de6d8 7-8
+README.md
+  s_85f2c3a7ac6ba6::t_3c43abe654d375 416-417
+docs/google-setup.md
+  s_85f2c3a7ac6ba6::t_3462fa6fce0a6f 82-91
+site/content/en/evidence-and-safety.md
+  s_85f2c3a7ac6ba6::t_fda3ec5f20eb41 24-52
+site/content/fr/docs/changelog.md
+  s_c532ad900c1d7d::t_fd51659904dc67 13-14
+site/content/fr/docs/evidence-and-safety.md
+  s_c532ad900c1d7d::t_dff4c6dcfcd6d7 5,28-56
+site/content/fr/docs/google-setup.md
+  s_c532ad900c1d7d::t_26143791d36cd9 5,37-51
+site/content/fr/manifest.json
+  s_c532ad900c1d7d::t_41e6373786bb64 14,66,70
+src/gsc_mcp/meta.py
+  s_9e80b85afcc43a::t_bab66d23383262 1-6
+src/gsc_mcp/tools/cross.py
+  s_9e80b85afcc43a::t_c91063a894391f 43-51,114,230,290,322,365,449
+src/gsc_mcp/tools/ga4.py
+  s_9e80b85afcc43a::t_5b63cec3c8bd84 139,197,269,312,393,476,546
+tests/test_cross.py
+  s_e488605d7362bc::t_5945b80eddefec 32,344,595,807
+tests/test_ga4_provenance.py
+  s_ded836f56a6d83::t_3dcf76230f78c6 1-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2a09d1e301e535354e3a32ebb8337856a270975c",
+  "prompts": {},
+  "sessions": {
+    "s_85f2c3a7ac6ba6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d817-c8b9-7872-bae2-4fff234b535d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_9e80b85afcc43a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f3be-9233-7710-ac57-7b3f9fa5c15c",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_c532ad900c1d7d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11705-e292-7623-b08c-b59dba9af829",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ded836f56a6d83": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2411f16c-88e6-4622-9ccc-03c30968a7a1",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_e488605d7362bc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1114b-25b9-7151-aca6-1a0a544c7bfd",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
