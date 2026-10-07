@@ -1,0 +1,53 @@
+site/src/components/docs/Head.astro
+  s_b091cb578646a0::t_4719471a542553 1-8
+examples/quick-audit.md
+  s_b091cb578646a0::t_4719471a542553 9,15,21,27,33
+examples/full-audit.md
+  s_b091cb578646a0::t_4719471a542553 9,25,27,31,35,39
+site/tests/dist-content.test.mjs
+  s_b091cb578646a0::t_82cf8b1ed18b03 73,129-133
+  s_b091cb578646a0::t_60c33e9984e6bc 81-82
+examples/content-brief.md
+  s_b091cb578646a0::t_4719471a542553 9,24,26,30,34,42,50
+site/src/data/content.ts
+  s_b091cb578646a0::t_4719471a542553 64,72,76,81,85,87-91,94,125,133,137,142,146,148-152,155
+CHANGELOG.md
+  s_b091cb578646a0::t_c03c6db4f06149 18-19
+site/content/fr/docs/changelog.md
+  s_b091cb578646a0::t_0d4d332bd2e5dc 5,11-15
+  s_b091cb578646a0::t_66da50d6aa3951 16
+site/content/fr/docs/index.md
+  s_b091cb578646a0::t_4719471a542553 16,24,34
+  s_b091cb578646a0::t_c03c6db4f06149 5
+site/content/fr/manifest.json
+  s_b091cb578646a0::t_0d4d332bd2e5dc 70
+  s_b091cb578646a0::t_82cf8b1ed18b03 6,30,38,46,58
+site/tests/dist-seo.test.mjs
+  s_b091cb578646a0::t_60c33e9984e6bc 68-72
+site/tests/site.spec.ts
+  s_b091cb578646a0::t_595c882d318247 463
+site/content/en/index.md
+  s_b091cb578646a0::t_4719471a542553 10,18,28
+site/astro.config.mjs
+  s_b091cb578646a0::t_4719471a542553 29
+examples/page-deep-dive.md
+  s_b091cb578646a0::t_4719471a542553 9,17,39,45
+site/public/llms.txt
+  s_b091cb578646a0::t_4719471a542553 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dcbe0b078ec6a755cfc4e8702d8b2ec07278f98c",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
