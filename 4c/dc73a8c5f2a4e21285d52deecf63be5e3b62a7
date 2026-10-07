@@ -1,0 +1,23 @@
+site/src/styles/starlight-overrides.css
+  s_b091cb578646a0::t_1e17efff24ae52 19-21,65-66,146-148
+site/tests/site.spec.ts
+  s_b091cb578646a0::t_58d7ad5c82df2e 343
+  s_b091cb578646a0::t_0d1043b25999d2 344-349,351-356,358-364,366-373
+  s_b091cb578646a0::t_88c2e580d28b99 350,357,365,374
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4cdc73a8c5f2a4e21285d52deecf63be5e3b62a7",
+  "prompts": {},
+  "sessions": {
+    "s_b091cb578646a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0718b-a441-7733-a805-7d6404ed8ff0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
