@@ -12,6 +12,7 @@ const command = 'uvx gsc-mcp-tools'
       <p class="kicker">{content.kicker}</p>
       <h1 id="hero-title">{content.title}</h1>
       <p class="hero-copy">{content.copy}</p>
+      <p class="hero-setup">{content.setup}</p>
       <div class="hero-actions">
         <button class="button button-primary" type="button" data-copy-command={command} aria-controls="hero-copy-status">{content.copyCommand}</button>
         <a class="button button-secondary" href="#install">{content.installPath}</a>
@@ -26,6 +27,10 @@ const command = 'uvx gsc-mcp-tools'
       <div class="terminal-content">
         <code><span class="terminal-prompt">$</span> {command}</code>
         <p>&gt; {content.terminalPrompt}</p>
+        <p class="example-label">{content.exampleLabel}</p>
+        <ul class="example-results">
+          {content.exampleItems.map(([title, copy]) => <li><strong>{title}</strong><span>{copy}</span></li>)}
+        </ul>
         <small>{toolCount} {content.terminalResult}</small>
       </div>
     </div>

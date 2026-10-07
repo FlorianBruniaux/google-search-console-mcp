@@ -18,7 +18,7 @@ test('publishes canonical and social metadata', () => {
   assert.match(html, /<meta property="og:image:alt" content="[^"]+"/)
   assert.match(html, /<meta name="twitter:card" content="summary_large_image"/)
   assert.match(html, /<meta name="twitter:title" content="Search Console MCP for Google, Bing and SEO Analytics"/)
-  assert.match(html, /<meta name="twitter:description" content="Connect AI assistants to Google Search Console, Bing Webmaster Tools, GA4, CrUX and guarded SEO workflows\."/)
+  assert.match(html, /<meta name="twitter:description" content="Let Claude or Codex analyze your SEO changes, find ranking opportunities and suggest prioritized fixes using Google Search Console, Bing and GA4 data\."/)
   assert.match(html, /<meta name="twitter:image" content="https:\/\/search-console\.bruniaux\.com\/og-image\.png"/)
   assert.match(html, /<link rel="icon" type="image\/svg\+xml" href="\/favicon\.svg"/)
   assert.equal((html.match(/<h1[ >]/g) ?? []).length, 1)

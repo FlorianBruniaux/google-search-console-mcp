@@ -152,17 +152,38 @@ themeButton?.addEventListener('click', () => {
 
 syncThemeControl()
 
-document.querySelectorAll<HTMLButtonElement>('[data-copy-command]').forEach((button) => {
+function revealSeoDetail(hash: string): boolean {
+  const detail = document.getElementById(hash.slice(1))
+  if (!(detail instanceof HTMLDetailsElement) || !detail.hasAttribute('data-seo-detail')) return false
+  detail.open = true
+  detail.querySelector('summary')?.focus({ preventScroll: true })
+  detail.scrollIntoView({ block: 'start' })
+  return true
+}
+
+document.addEventListener('click', (event) => {
+  if (event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || !(event.target instanceof Element)) return
+  const link = event.target.closest<HTMLAnchorElement>('a[href^="#seo-"]')
+  if (!link || !revealSeoDetail(link.hash)) return
+  event.preventDefault()
+  if (location.hash !== link.hash) history.pushState(null, '', link.hash)
+})
+window.addEventListener('hashchange', () => revealSeoDetail(location.hash))
+revealSeoDetail(location.hash)
+
+document.querySelectorAll<HTMLButtonElement>('[data-copy-command], [data-copy-prompt]').forEach((button) => {
   button.addEventListener('click', async () => {
     const statusId = button.getAttribute('aria-controls')
     const status = statusId ? document.getElementById(statusId) : null
     try {
-      await navigator.clipboard.writeText(button.dataset.copyCommand ?? '')
-      if (status) status.textContent = root.lang === 'fr' ? 'Commande copiée.' : 'Command copied.'
+      await navigator.clipboard.writeText(button.dataset.copyPrompt ?? button.dataset.copyCommand ?? '')
+      if (status) status.textContent = button.dataset.copyPrompt !== undefined
+        ? root.lang === 'fr' ? 'Prompt copié.' : 'Prompt copied.'
+        : root.lang === 'fr' ? 'Commande copiée.' : 'Command copied.'
     } catch {
-      if (status) status.textContent = root.lang === 'fr'
-        ? 'Échec de la copie. Sélectionnez la commande manuellement.'
-        : 'Copy failed. Select the command manually.'
+      if (status) status.textContent = button.dataset.copyPrompt !== undefined
+        ? root.lang === 'fr' ? 'Échec de la copie. Sélectionnez le prompt manuellement.' : 'Copy failed. Select the prompt manually.'
+        : root.lang === 'fr' ? 'Échec de la copie. Sélectionnez la commande manuellement.' : 'Copy failed. Select the command manually.'
     }
   })
 })

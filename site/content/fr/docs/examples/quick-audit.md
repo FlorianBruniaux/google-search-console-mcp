@@ -2,7 +2,7 @@
 title: "Audit rapide du site"
 description: "Obtenir une première vue bornée de la performance de recherche et de la santé technique."
 lang: fr
-lastUpdated: 2026-10-06
+lastUpdated: 2026-10-07
 canonicalEnglish: /docs/examples/quick-audit/
 ---
 
@@ -20,5 +20,7 @@ N’effectue aucune soumission ni modification.
 ```
 
 Résultat attendu : une synthèse courte, les preuves associées, les limites et les trois prochaines vérifications les plus utiles.
+
+Consultez l’[exécution du 2026-10-07 sur le Claude Code Ultimate Guide](/fr/docs/examples/cc-guide-live-audit/) pour voir les mesures réelles, les audits de pages, les actions proposées et la trace MCP enregistrée.
 
 [Lire la version anglaise canonique](/docs/examples/quick-audit/).

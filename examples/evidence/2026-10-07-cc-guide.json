@@ -1,0 +1,642 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-10-07-cc-guide",
+  "site": "sc-domain:cc.bruniaux.com",
+  "publicSite": "https://cc.bruniaux.com/",
+  "collectedAt": "2026-10-07 13:04:57 UTC",
+  "transport": "live MCP calls from Codex",
+  "mode": "read-only",
+  "callCount": 14,
+  "runtimePackageVersion": "UNKNOWN",
+  "scope": {
+    "searchEngine": "Google web search",
+    "days": 28,
+    "lagDays": 3,
+    "publicPagesInspected": [
+      "https://cc.bruniaux.com/releases/",
+      "https://cc.bruniaux.com/guide/third-party-tools/",
+      "https://cc.bruniaux.com/guide/architecture/"
+    ],
+    "optionalProvidersUsed": [],
+    "changesApplied": false,
+    "rankingImpactMeasured": false
+  },
+  "publication": {
+    "format": "reviewed excerpts of recorded MCP calls; not full responses",
+    "omissions": [
+      "Other Search Console properties and account permissions",
+      "Connection configuration and internal metadata",
+      "All search queries except the four explained in the case study",
+      "Full page/link/heading lists and benchmark click forecasts",
+      "Local paths, repository state and private-log hashes"
+    ],
+    "rawLogs": "Full original responses are stored privately and are not shipped with the website."
+  },
+  "summary": {
+    "previous": {
+      "start": "2026-08-10",
+      "end": "2026-09-06",
+      "clicks": 410,
+      "impressions": 37731
+    },
+    "current": {
+      "start": "2026-09-07",
+      "end": "2026-10-04",
+      "clicks": 459,
+      "impressions": 55921,
+      "ctr": 0.0082,
+      "avgPosition": 7.3
+    },
+    "derived": {
+      "clickChangePct": 11.95,
+      "impressionChangePct": 48.21,
+      "previousCtrPct": 1.09,
+      "currentCtrPct": 0.82,
+      "ctrChangePercentagePoints": -0.27
+    }
+  },
+  "sourceNotes": [
+    "Headline totals use dimensionless search analytics, not the sum of visible queries.",
+    "An explicit data_state=final dimensionless request confirmed current totals.",
+    "query/page rows can omit anonymized queries and cannot reconstruct property totals.",
+    "quick_wins benchmark scores rank candidates; they are not predictions of recovered clicks.",
+    "Missing HTTP security headers are hardening findings, not demonstrated ranking causes.",
+    "HTML/robots checks do not verify Google's indexing status.",
+    "The row_limit parameter did not cap the returned rows in two calls; the trace records requested limits and published projections."
+  ],
+  "calls": [
+    {
+      "seq": 1,
+      "tool": "get_capabilities",
+      "args": {},
+      "startedAt": "2026-10-07T13:04:58.155Z",
+      "elapsedMs": 10822,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "total": 81,
+        "tools": [
+          "get_capabilities",
+          "list_properties",
+          "get_site_details",
+          "get_search_analytics",
+          "get_performance_overview",
+          "compare_search_periods",
+          "get_search_by_page_query",
+          "get_advanced_search_analytics",
+          "analytics_anomalies",
+          "quick_wins",
+          "traffic_drops",
+          "check_alerts",
+          "seo_striking_distance",
+          "seo_cannibalization",
+          "seo_lost_queries",
+          "inspect_url",
+          "batch_url_inspection",
+          "check_indexing_issues",
+          "submit_url",
+          "submit_batch",
+          "list_sitemaps",
+          "submit_sitemap",
+          "sitemaps_delete",
+          "sitemaps_get",
+          "ga4_organic_landing_pages",
+          "ga4_traffic_sources",
+          "ga4_page_performance",
+          "ga4_realtime",
+          "ga4_user_behavior",
+          "ga4_conversion_funnel",
+          "traffic_health_check",
+          "page_analysis",
+          "crux_page_vitals",
+          "crux_history",
+          "sitemap_audit",
+          "schema_validate",
+          "schema_generate",
+          "drift_baseline",
+          "drift_compare",
+          "drift_history",
+          "discover_performance",
+          "news_performance",
+          "search_type_breakdown",
+          "ai_overviews_impact",
+          "page_health_score",
+          "content_brief",
+          "ga4_funnel",
+          "content_quality",
+          "hreflang_audit",
+          "page_technical_audit",
+          "preload_audit",
+          "crux_lcp_subparts",
+          "indexnow_submit",
+          "parasite_risk",
+          "ai_visibility_audit",
+          "gbp_deprecation_lint",
+          "pagespeed_audit",
+          "heading_audit",
+          "internal_links_audit",
+          "link_equity_map",
+          "prune_candidates",
+          "bing_sites_list",
+          "bing_query_stats",
+          "bing_page_stats",
+          "bing_page_query_stats",
+          "bing_rank_traffic_stats",
+          "bing_crawl_stats",
+          "bing_crawl_issues",
+          "bing_crawl_settings_get",
+          "bing_url_info",
+          "bing_url_traffic",
+          "bing_feeds_list",
+          "bing_feed_details",
+          "bing_url_submission_quota",
+          "bing_link_counts",
+          "bing_url_links",
+          "bing_url_submit",
+          "bing_urls_submit_batch",
+          "bing_feed_submit",
+          "bing_feed_remove",
+          "compare_search_engines"
+        ]
+      }
+    },
+    {
+      "seq": 2,
+      "tool": "list_properties",
+      "args": {},
+      "startedAt": "2026-10-07T13:05:08.977Z",
+      "elapsedMs": 8977,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "count": 1,
+        "properties": [
+          {
+            "url": "sc-domain:cc.bruniaux.com"
+          }
+        ]
+      }
+    },
+    {
+      "seq": 3,
+      "tool": "get_performance_overview",
+      "args": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "days": 28
+      },
+      "startedAt": "2026-10-07T13:05:36.924Z",
+      "elapsedMs": 11232,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "date_range": {
+          "start": "2026-09-07",
+          "end": "2026-10-04"
+        },
+        "totals": {
+          "clicks": 459,
+          "impressions": 55921,
+          "ctr": 0.0082,
+          "avg_position": 7.3
+        }
+      }
+    },
+    {
+      "seq": 4,
+      "tool": "compare_search_periods",
+      "args": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "days": 28
+      },
+      "startedAt": "2026-10-07T13:05:36.924Z",
+      "elapsedMs": 22510,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "period_a": {
+          "start": "2026-08-10",
+          "end": "2026-09-06",
+          "clicks": 410,
+          "impressions": 37731
+        },
+        "period_b": {
+          "start": "2026-09-07",
+          "end": "2026-10-04",
+          "clicks": 459,
+          "impressions": 55921
+        },
+        "delta": {
+          "clicks": 49,
+          "impressions": 18190
+        }
+      }
+    },
+    {
+      "seq": 5,
+      "tool": "get_search_analytics",
+      "args": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "days": 28,
+        "dimensions": [
+          "page"
+        ],
+        "row_limit": 20
+      },
+      "startedAt": "2026-10-07T13:05:36.924Z",
+      "elapsedMs": 43670,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "date_range": {
+          "start": "2026-09-07",
+          "end": "2026-10-04"
+        },
+        "rows": [
+          {
+            "page": "https://cc.bruniaux.com/releases/",
+            "clicks": 19,
+            "impressions": 12693,
+            "ctr": 0.0015,
+            "position": 7.2
+          },
+          {
+            "page": "https://cc.bruniaux.com/guide/third-party-tools/",
+            "clicks": 9,
+            "impressions": 7106,
+            "ctr": 0.0013,
+            "position": 6.8
+          },
+          {
+            "page": "https://cc.bruniaux.com/guide/architecture/",
+            "clicks": 8,
+            "impressions": 5231,
+            "ctr": 0.0015,
+            "position": 6.2
+          }
+        ]
+      }
+    },
+    {
+      "seq": 6,
+      "tool": "quick_wins",
+      "args": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "days": 28,
+        "min_impressions": 50,
+        "engine": "google"
+      },
+      "startedAt": "2026-10-07T13:05:36.924Z",
+      "elapsedMs": 32452,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "date_range": {
+          "start": "2026-09-07",
+          "end": "2026-10-04"
+        },
+        "opportunities": [
+          {
+            "page": "https://cc.bruniaux.com/releases/",
+            "position": 7.2,
+            "clicks": 19,
+            "impressions": 12693,
+            "ctr": 0.0015
+          },
+          {
+            "page": "https://cc.bruniaux.com/guide/third-party-tools/",
+            "position": 6.8,
+            "clicks": 9,
+            "impressions": 7106,
+            "ctr": 0.0013
+          },
+          {
+            "page": "https://cc.bruniaux.com/guide/architecture/",
+            "position": 6.2,
+            "clicks": 8,
+            "impressions": 5231,
+            "ctr": 0.0015
+          }
+        ]
+      }
+    },
+    {
+      "seq": 7,
+      "tool": "get_advanced_search_analytics",
+      "args": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "date_range_days": 28,
+        "dimensions": [],
+        "data_state": "final",
+        "row_limit": 1,
+        "search_type": "web"
+      },
+      "startedAt": "2026-10-07T13:06:48.711Z",
+      "elapsedMs": 10593,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "date_range": {
+          "start": "2026-09-07",
+          "end": "2026-10-04"
+        },
+        "search_type": "web",
+        "dimensions": [],
+        "rows": [
+          {
+            "clicks": 459,
+            "impressions": 55921,
+            "ctr": 0.0082,
+            "position": 7.3
+          }
+        ]
+      }
+    },
+    {
+      "seq": 8,
+      "tool": "page_technical_audit",
+      "args": {
+        "url": "https://cc.bruniaux.com/releases/"
+      },
+      "startedAt": "2026-10-07T13:06:48.711Z",
+      "elapsedMs": 23147,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "url": "https://cc.bruniaux.com/releases/",
+        "findings": {
+          "status_code": 200,
+          "redirected": false,
+          "title": "Claude Code Latest Version v2.1.289 | Release History",
+          "title_length": 53,
+          "meta_description": "Claude Code v2.1.289, released Oct 3, 2026. See the latest version, release history, changelog, breaking changes, and configuration updates.",
+          "description_length": 140,
+          "meta_robots": "index, follow, max-image-preview:large, max-snippet:-1",
+          "canonical": "https://cc.bruniaux.com/releases/",
+          "viewport": "width=device-width, initial-scale=1.0",
+          "html_lang": "en",
+          "security_headers": {
+            "x-frame-options": null,
+            "x-content-type-options": null,
+            "referrer-policy": null
+          },
+          "robots_txt_blocks_googlebot": false
+        },
+        "issues": [
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: x-frame-options"
+          },
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: x-content-type-options"
+          },
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: referrer-policy"
+          }
+        ],
+        "issues_count": 3,
+        "critical_count": 0,
+        "verdict": "issues_found"
+      }
+    },
+    {
+      "seq": 9,
+      "tool": "page_technical_audit",
+      "args": {
+        "url": "https://cc.bruniaux.com/guide/third-party-tools/"
+      },
+      "startedAt": "2026-10-07T13:06:48.711Z",
+      "elapsedMs": 34057,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "url": "https://cc.bruniaux.com/guide/third-party-tools/",
+        "findings": {
+          "status_code": 200,
+          "redirected": false,
+          "title": "Claude Code Tools: RTK, ccusage & GUIs | Claude Code Guide",
+          "title_length": 58,
+          "meta_description": "Compare Claude Code GUIs, TUIs, configuration managers, token trackers, RTK, lean-ctx, ccusage, and other community tools.",
+          "description_length": 122,
+          "meta_robots": null,
+          "canonical": "https://cc.bruniaux.com/guide/third-party-tools/",
+          "viewport": "width=device-width, initial-scale=1",
+          "html_lang": "en",
+          "security_headers": {
+            "x-frame-options": null,
+            "x-content-type-options": null,
+            "referrer-policy": null
+          },
+          "robots_txt_blocks_googlebot": false
+        },
+        "issues": [
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: x-frame-options"
+          },
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: x-content-type-options"
+          },
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: referrer-policy"
+          }
+        ],
+        "issues_count": 3,
+        "critical_count": 0,
+        "verdict": "issues_found"
+      }
+    },
+    {
+      "seq": 10,
+      "tool": "page_technical_audit",
+      "args": {
+        "url": "https://cc.bruniaux.com/guide/architecture/"
+      },
+      "startedAt": "2026-10-07T13:06:48.711Z",
+      "elapsedMs": 44939,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "url": "https://cc.bruniaux.com/guide/architecture/",
+        "findings": {
+          "status_code": 200,
+          "redirected": false,
+          "title": "Claude Code Architecture & Agent Loop | Claude Code Guide",
+          "title_length": 57,
+          "meta_description": "How Claude Code runs its model-tool loop, manages context, executes tools, and isolates subagents, with sourced architecture notes.",
+          "description_length": 131,
+          "meta_robots": null,
+          "canonical": "https://cc.bruniaux.com/guide/architecture/",
+          "viewport": "width=device-width, initial-scale=1",
+          "html_lang": "en",
+          "security_headers": {
+            "x-frame-options": null,
+            "x-content-type-options": null,
+            "referrer-policy": null
+          },
+          "robots_txt_blocks_googlebot": false
+        },
+        "issues": [
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: x-frame-options"
+          },
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: x-content-type-options"
+          },
+          {
+            "severity": "low",
+            "check": "security_headers",
+            "message": "Missing security header: referrer-policy"
+          }
+        ],
+        "issues_count": 3,
+        "critical_count": 0,
+        "verdict": "issues_found"
+      }
+    },
+    {
+      "seq": 11,
+      "tool": "get_search_by_page_query",
+      "args": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "days": 28,
+        "row_limit": 1000
+      },
+      "startedAt": "2026-10-07T13:08:34.351Z",
+      "elapsedMs": 11221,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "site": "sc-domain:cc.bruniaux.com",
+        "date_range": {
+          "start": "2026-09-07",
+          "end": "2026-10-04"
+        },
+        "rows": [
+          {
+            "page": "https://cc.bruniaux.com/releases/",
+            "query": "latest claude code version",
+            "clicks": 0,
+            "impressions": 485,
+            "ctr": 0,
+            "position": 8.2
+          },
+          {
+            "page": "https://cc.bruniaux.com/releases/",
+            "query": "claude code latest version",
+            "clicks": 0,
+            "impressions": 451,
+            "ctr": 0,
+            "position": 8.5
+          },
+          {
+            "page": "https://cc.bruniaux.com/guide/third-party-tools/",
+            "query": "lean ctx vs rtk",
+            "clicks": 0,
+            "impressions": 15,
+            "ctr": 0,
+            "position": 5.9
+          },
+          {
+            "page": "https://cc.bruniaux.com/guide/third-party-tools/",
+            "query": "lean-ctx vs rtk",
+            "clicks": 0,
+            "impressions": 12,
+            "ctr": 0,
+            "position": 4.7
+          }
+        ]
+      }
+    },
+    {
+      "seq": 12,
+      "tool": "heading_audit",
+      "args": {
+        "url": "https://cc.bruniaux.com/guide/third-party-tools/"
+      },
+      "startedAt": "2026-10-07T13:08:34.351Z",
+      "elapsedMs": 20526,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "url": "https://cc.bruniaux.com/guide/third-party-tools/",
+        "h1_count": 1,
+        "heading_count": 74,
+        "hierarchy_jumps": [],
+        "word_count": 15091,
+        "words_per_h2": 628.8,
+        "issues": [
+          {
+            "severity": "low",
+            "check": "subheading_density",
+            "message": "628.8 words per H2 (over 400). More subheadings would make the page scannable."
+          }
+        ],
+        "verdict": "issues_found"
+      }
+    },
+    {
+      "seq": 13,
+      "tool": "heading_audit",
+      "args": {
+        "url": "https://cc.bruniaux.com/guide/architecture/"
+      },
+      "startedAt": "2026-10-07T13:08:34.351Z",
+      "elapsedMs": 29038,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "url": "https://cc.bruniaux.com/guide/architecture/",
+        "h1_count": 1,
+        "heading_count": 93,
+        "hierarchy_jumps": [],
+        "word_count": 8276,
+        "words_per_h2": 359.8,
+        "issues": [],
+        "verdict": "healthy"
+      }
+    },
+    {
+      "seq": 14,
+      "tool": "internal_links_audit",
+      "args": {
+        "url": "https://cc.bruniaux.com/guide/third-party-tools/"
+      },
+      "startedAt": "2026-10-07T13:08:34.351Z",
+      "elapsedMs": 38375,
+      "responseProjection": "reviewed excerpt; account details, internal metadata and unrelated data omitted",
+      "response": {
+        "url": "https://cc.bruniaux.com/guide/third-party-tools/",
+        "total_links": 343,
+        "internal_count": 210,
+        "external_count": 133,
+        "by_zone": {
+          "header": 1,
+          "nav": 136,
+          "body": 47,
+          "footer": 26
+        },
+        "footer_only_count": 106,
+        "self_link_count": 2,
+        "issues": [
+          {
+            "severity": "high",
+            "check": "footer_only_links",
+            "message": "106 internal target(s) are linked only from nav/footer/aside. Moving the important ones into the body of a relevant page gives them materially more weight."
+          },
+          {
+            "severity": "medium",
+            "check": "empty_anchor",
+            "message": "1 internal link(s) have no anchor text at all."
+          }
+        ],
+        "verdict": "issues_found"
+      }
+    }
+  ]
+}

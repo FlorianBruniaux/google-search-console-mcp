@@ -39,3 +39,5 @@ Use [google-bing-comparison.md](google-bing-comparison.md) when the cross-engine
 ---
 
 **What to do with the output**: the quick audit surfaces signals. If something looks off, go deeper with [traffic-drop.md](traffic-drop.md) or [page-deep-dive.md](page-deep-dive.md). Keep this workflow read-only unless a later prompt explicitly confirms one named write.
+
+See the [2026-10-07 Claude Code Ultimate Guide run](cc-guide-live-audit.md) for real measurements, page checks, proposed actions and a recorded MCP trace.

@@ -50,6 +50,7 @@ export default defineConfig({
               items: [
                 { slug: 'docs/examples' },
                 { slug: 'docs/examples/quick-audit' },
+                { slug: 'docs/examples/cc-guide-live-audit' },
                 { slug: 'docs/examples/google-bing-comparison' },
                 { slug: 'docs/examples/full-audit' },
                 { slug: 'docs/examples/keyword-opportunities' },

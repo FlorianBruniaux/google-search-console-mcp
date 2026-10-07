@@ -6,7 +6,22 @@ lastUpdated: 2026-10-07
 canonicalEnglish: /docs/
 ---
 
-Search Console MCP réunit les données de Google Search Console, Bing Webmaster Tools, GA4 et CrUX en option, ainsi que les signaux des pages publiques.
+Utilisez Search Console MCP avec Claude, Codex ou un autre assistant IA pour comprendre vos dernières évolutions SEO et obtenir une liste de correctifs priorisés. Posez vos questions en langage courant, sans expertise SEO requise : « Analyse les performances récentes de mon site et dis-moi quoi corriger en priorité. »
+
+Le serveur récupère les métriques de recherche et audite les pages ; votre assistant explique les variations de trafic, repère les opportunités de classement et propose des changements sur les titres, le contenu, les liens internes ou le SEO technique. Connectez vos comptes une fois, validez les propositions, puis relancez l’analyse pour mesurer leur effet. Les contrôles récurrents demandent une automatisation du client ou un planificateur, et les gains de classement ne sont pas garantis.
+
+## Choisissez votre point d’entrée
+
+| Votre problème | Ouvrir le parcours | Ce que vous obtenez |
+| --- | --- | --- |
+| Je débute en SEO : par où commencer ? | [Faire le point et comprendre quoi analyser](/fr/#seo-getting-started) | Un état des lieux, trois priorités et quoi mesurer |
+| Mon trafic baisse | [Analyser les évolutions](/fr/#seo-traffic) | Un diagnostic et les pages concernées, avec les métriques observées |
+| Je veux mieux me positionner | [Repérer les opportunités](/fr/#seo-rankings) | Une liste de correctifs priorisés |
+| Mes pages sont peu visibles | [Vérifier l’indexation et la technique](/fr/#seo-indexing) | Les problèmes détectés et les correctifs proposés |
+
+Chaque parcours contient un prompt à copier dans Claude ou Codex, les données nécessaires et un exemple de résultat. Le texte copié demande à l’assistant d’utiliser Search Console MCP et de vérifier sa connexion avant l’analyse. Il inclut les liens vers l’installation, la connexion Google et le scénario GitHub correspondant pour guider la configuration manquante. Remplacez le site d’exemple avant l’envoi du prompt.
+
+Si vous débutez en SEO, choisissez le premier parcours. Votre assistant explique quoi analyser, comment interpréter les résultats et quelles métriques suivre. Vous pouvez commencer avec les pages publiques ; connectez Google Search Console pour mesurer les performances de recherche. GA4 et Bing sont facultatifs.
 
 <figure class="docs-visual">
   <img src="/images/docs/search-evidence-map.webp" width="1376" height="768" alt="Trois flux de preuves séparés convergent vers un espace d’analyse borné." loading="eager" fetchpriority="high">

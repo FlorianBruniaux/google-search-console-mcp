@@ -6,6 +6,8 @@ Start with the first prompt in any file and replace `yourdomain.com` with your p
 
 ## Scenarios
 
+For a measured example, read the [Claude Code Ultimate Guide run](cc-guide-live-audit.md), recorded on 2026-10-07. It includes Google metrics, page checks, suggested actions and a shareable [MCP trace](evidence/2026-10-07-cc-guide.json). No site changes or ranking improvements are claimed.
+
 | File | Providers | Use case | Depth |
 |---|---|---|---|
 | [quick-audit.md](quick-audit.md) | Google, optional Bing | Site health check at a glance | Quick |

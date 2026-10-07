@@ -14,7 +14,7 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
   const links = getSiteLinks(locale)
   if (locale === 'fr') return [
     {
-      id: 'analyze', label: 'Analyser', description: "Choisissez la source de preuves avant d’interpréter les performances de recherche.", overview: { href: '#capabilities', label: 'Comparer toutes les capacités' },
+      id: 'analyze', label: 'Analyser', description: 'Partez de votre problème pour obtenir un diagnostic et des correctifs proposés par votre assistant IA.', overview: { href: '#outcomes', label: 'Choisir mon point d’entrée' },
       groups: [
         { label: 'Moteurs de recherche', links: [
           { href: '#provider-google', label: 'Données Google', description: 'Preuves Search Console, GA4 et CrUX.' },
@@ -22,7 +22,9 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
           { href: '#provider-public', label: 'Analyse des pages publiques', description: 'Métadonnées, schema, sitemaps et liens internes.' },
         ] },
         { label: 'Workflow', links: [
-          { href: '#workflow', label: 'Fonctionnement', description: 'Connecter, mesurer, comparer, expliquer et soumettre.' },
+          { href: '#outcomes', label: 'Choisir un problème', description: 'Débuter en SEO, comprendre une baisse ou améliorer sa visibilité : un prompt pour commencer.' },
+          { href: '#real-example', label: 'Voir une analyse réelle', description: 'Mesures, constats, suggestions et logs sur cc.bruniaux.com.' },
+          { href: '#workflow', label: 'Fonctionnement', description: 'Connecter, demander, analyser, corriger et mesurer.' },
           { href: '#safety', label: 'Limites des preuves', description: 'Séparer les états observés, calculés et demandés.' },
           { href: '#faq', label: 'FAQ', description: 'Réponses sur les moteurs et les identifiants.' },
         ] },
@@ -64,7 +66,7 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
 
   return [
     {
-      id: 'analyze', label: 'Analyze', description: 'Choose the evidence source before interpreting search performance.', overview: { href: '#capabilities', label: 'Compare all capabilities' },
+      id: 'analyze', label: 'Analyze', description: 'Start with your problem to get a diagnosis and suggested fixes from your AI assistant.', overview: { href: '#outcomes', label: 'Choose my starting point' },
       groups: [
         { label: 'Search providers', links: [
           { href: '#provider-google', label: 'Google data', description: 'Search Console, GA4 and CrUX evidence.' },
@@ -72,7 +74,9 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
           { href: '#provider-public', label: 'Public-page analysis', description: 'Metadata, schema, sitemaps and internal links.' },
         ] },
         { label: 'Workflow', links: [
-          { href: '#workflow', label: 'How it works', description: 'Connect, measure, compare, explain and submit.' },
+          { href: '#outcomes', label: 'Choose a problem', description: 'Start with SEO, understand a traffic drop or improve visibility: a prompt to get started.' },
+          { href: '#real-example', label: 'See a real analysis', description: 'Metrics, findings, suggestions and logs from cc.bruniaux.com.' },
+          { href: '#workflow', label: 'How it works', description: 'Connect, ask, analyze, fix and measure.' },
           { href: '#safety', label: 'Evidence boundaries', description: 'Separate observed, derived and requested states.' },
           { href: '#faq', label: 'FAQ', description: 'Resolve common provider and credential questions.' },
         ] },

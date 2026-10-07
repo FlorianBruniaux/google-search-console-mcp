@@ -1,6 +1,56 @@
 # Search Console MCP
 
-**Google Search Console, Bing Webmaster Tools, GA4, CrUX and guarded SEO workflows for AI assistants.**
+**Know what to fix to improve your search rankings, without becoming an SEO expert.**
+
+Ask Claude or Codex to analyze your site's latest SEO changes and suggest what to fix first. Search Console MCP gives your assistant the search metrics and page audits it needs to explain traffic drops, find ranking opportunities, and turn the findings into a prioritized action plan.
+
+After connecting your accounts, you can ask in plain language. The assistant fetches and compares the data for you, so you spend less time exporting reports and interpreting SEO dashboards.
+
+## Choose your starting point
+
+Choose your problem, then ask Claude or Codex. Search Console MCP supplies the data and page audits; your assistant explains the findings and proposes fixes.
+
+New to SEO? Start with a site assessment: understand what to analyze and why, get three first actions, and learn which metrics to follow. You can begin with public pages, then connect Google Search Console for search performance data. GA4 and Bing are optional.
+
+```mermaid
+flowchart LR
+    S["I’m new to SEO: where do I start?"] --> SA["Assess your site and explain what matters"]
+    SA --> SR["Your first actions and what to measure"]
+    T["My traffic is dropping"] --> TA["Analyze recent changes"]
+    TA --> TR["A diagnosis and affected pages"]
+    R["I want better search rankings"] --> RA["Find ranking opportunities"]
+    RA --> RR["A prioritized list of fixes"]
+    I["My pages are hard to find"] --> IA["Check indexing and technical SEO"]
+    IA --> IR["Issues and suggested corrections"]
+```
+
+Open a route to get a prompt to copy, the data it needs and an illustrative result:
+
+- [Start with SEO](https://search-console.bruniaux.com/#seo-getting-started): assess your site, get three priorities and a measurement plan, with explanations in plain language.
+- [Understand a traffic drop](https://search-console.bruniaux.com/#seo-traffic): compare periods with Google Search Console; optional GA4 adds visitor behavior.
+- [Find ranking opportunities](https://search-console.bruniaux.com/#seo-rankings): use configured Google or Bing search metrics and inspect the relevant pages.
+- [Check page visibility](https://search-console.bruniaux.com/#seo-indexing): audit public pages and use Google Search Console for indexing status; Bing can add crawl signals.
+
+Replace the example site in the prompt with your own. Every copied prompt explicitly asks the assistant to use Search Console MCP, verify its tools and guide installation or Google setup if needed. It includes the [installation guide](docs/installation.md), [Google setup guide](docs/google-setup.md) and the matching GitHub example. The prompts request analysis and recommendations without applying site changes.
+
+## What you get
+
+See a [real analysis of my Claude Code Ultimate Guide site](examples/cc-guide-live-audit.md), run on 2026-10-07 with 14 live MCP calls. It measured 459 clicks and 55,921 impressions over 28 days, investigated three pages and proposed actions tied to the observed data. The [request/response trace](examples/evidence/2026-10-07-cc-guide.json) shows the parameters, timestamps and selected results. These are analysis findings; no site correction or ranking gain has been measured from this run.
+
+> Analyze my site's latest SEO changes. Explain what improved or declined, find opportunities to rank higher, and suggest the fixes I should make first.
+
+Your AI assistant uses the connected tools to produce:
+
+- **A diagnosis of recent changes:** which pages and queries gained or lost clicks, impressions or positions, with evidence and possible explanations.
+- **A prioritized list of opportunities:** pages close to page one, search results getting impressions but few clicks, and competing pages targeting the same query.
+- **Concrete suggested fixes:** title and description changes, content briefs, internal-link improvements, and technical or indexing issues to investigate.
+- **A follow-up comparison:** rerun the analysis after making changes to see how clicks, impressions and positions evolved.
+
+For example, if a page gets impressions but few clicks, the assistant can inspect its title and description and suggest a rewrite. If a page is close to page one, it can check its content and internal links before recommending changes. These are example workflows, not measured results for your site.
+
+Search Console MCP is the open-source connection between your data and your AI assistant. The server retrieves metrics and runs analyses; Claude, Codex or another MCP client explains the findings and proposes corrections. A coding assistant with access to your repository can also help implement the fixes you choose.
+
+The goal is better search visibility with less manual analysis and no need to know SEO terminology to ask a question. Initial account setup and review of suggested changes are still required. Recurring checks need a scheduler or automation in your client; the server does not run them on its own. Ranking improvements must be measured after the changes and are not guaranteed.
 
 <table>
   <tr>
@@ -33,9 +83,11 @@
   <a href="#evidence-and-safety">Safety</a>
 </p>
 
-Search Console MCP gives Claude, Codex and other MCP clients access to private search and analytics data plus public-page SEO audits. Version 1.2.0 exposes 81 FastMCP tools for measuring performance, diagnosing pages, comparing Google and Bing, and submitting bounded changes.
+## The data behind the recommendations
 
-Ask questions such as "why did traffic drop?", "which queries are close to page one?" or "compare this site's Google and Bing visibility". The server handles authentication, API calls, validation, retries and structured JSON output.
+Google Search Console and Bing Webmaster Tools show how people find your pages in search. Optional GA4 data adds what those visitors do on your site; CrUX and public-page audits help identify performance, content and technical issues. Your assistant can use these sources together to decide which pages need attention.
+
+Version 1.2.0 exposes 81 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
 
 > [!IMPORTANT]
 > `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.

@@ -1,0 +1,94 @@
+---
+import evidence from '../../../examples/evidence/2026-10-07-cc-guide.json'
+import { getSiteLinks, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const links = getSiteLinks(locale)
+const number = (value: number, digits = 0) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(value)
+const text = {
+  en: {
+    kicker: 'Real analysis / 7 October 2026', title: 'What the analysis finds on my own site.',
+    intro: 'I ran Search Console MCP on cc.bruniaux.com, the Claude Code Ultimate Guide. It retrieved Google metrics, selected pages to investigate and checked their content before I proposed the next actions.',
+    window: '28 days: 7 September to 4 October, compared with 10 August to 6 September.',
+    labels: ['Clicks', 'Impressions', 'Click-through rate'], change: 'vs the previous period', previous: 'previously',
+    stages: [
+      ['Measure', 'Compare two equal periods and establish the starting point.'],
+      ['Find candidates', 'Spot visible pages that get few clicks.'],
+      ['Inspect', 'Check titles, headings and links on three public pages.'],
+      ['Suggest', 'Propose actions with evidence and a way to measure their effect.'],
+    ],
+    finding: 'Observed', suggestion: 'Suggested action',
+    releaseTitle: 'A visible page that gets few clicks', releaseCopy: 'The releases page gets 19 clicks from 12,693 impressions. Two latest-version queries appear 936 times without a click.',
+    releaseAction: 'Inspect the actual search snippets by query, country and device, then test one change if it fits the intent. The page already has a relevant title and a latest-version summary.',
+    toolsTitle: 'An existing answer to make easier to find', toolsCopy: 'The tools page gets 9 clicks from 7,106 impressions. Two RTK / lean-ctx comparison queries appear 27 times without a click.',
+    toolsAction: 'Give the existing comparison a descriptive heading and a table-of-contents entry. Track those queries while noting their small sample.',
+    review: 'Alerts need review: 106 navigation-only destinations on one page do not establish 106 orphaned pages. Missing security headers were also reported; this run does not establish them as ranking causes.',
+    boundary: '14 live MCP calls. Three pages audited. Recommendations have not been applied or tested. This snapshot demonstrates the analysis; ranking impact remains unmeasured.',
+    privacy: 'The shared trace contains reviewed excerpts: example metrics, four queries and page checks. Account details, connection configuration and unrelated data are omitted.',
+    report: 'Read the measured case', download: 'Download the MCP trace (JSON)', trace: 'See the 14 recorded MCP calls', seconds: 'seconds',
+  },
+  fr: {
+    kicker: 'Analyse réelle / 7 octobre 2026', title: 'Ce que l’analyse trouve sur mon propre site.',
+    intro: 'J’ai lancé Search Console MCP sur cc.bruniaux.com, le Claude Code Ultimate Guide. Il a récupéré les métriques Google, sélectionné les pages à examiner et vérifié leur contenu avant que je propose les prochaines actions.',
+    window: '28 jours : du 7 septembre au 4 octobre, comparés au 10 août–6 septembre.',
+    labels: ['Clics', 'Impressions', 'Taux de clic'], change: 'par rapport à la période précédente', previous: 'auparavant',
+    stages: [
+      ['Mesurer', 'Comparer deux périodes équivalentes et établir le point de départ.'],
+      ['Repérer', 'Trouver les pages visibles qui reçoivent peu de clics.'],
+      ['Vérifier', 'Auditer les titres, les sous-titres et les liens de trois pages publiques.'],
+      ['Proposer', 'Relier chaque action aux données et préciser comment mesurer son effet.'],
+    ],
+    finding: 'Constat mesuré', suggestion: 'Action proposée',
+    releaseTitle: 'Une page visible qui reçoit peu de clics', releaseCopy: 'La page des versions reçoit 19 clics pour 12 693 impressions. Deux requêtes sur la dernière version cumulent 936 impressions sans clic.',
+    releaseAction: 'Examiner les extraits de recherche par requête, pays et appareil, puis tester un changement si l’intention le justifie. La page possède déjà un titre pertinent et un résumé de la dernière version.',
+    toolsTitle: 'Une réponse existante à rendre plus facile à trouver', toolsCopy: 'La page des outils reçoit 9 clics pour 7 106 impressions. Deux requêtes de comparaison RTK / lean-ctx cumulent 27 impressions sans clic.',
+    toolsAction: 'Donner à la comparaison existante un titre descriptif et une entrée dans la table des matières. Suivre ces requêtes en signalant leur faible volume.',
+    review: 'Les alertes sont revues : 106 destinations accessibles uniquement par la navigation sur une page ne démontrent pas 106 pages orphelines. Des en-têtes de sécurité absents sont aussi signalés ; cette analyse n’établit pas qu’ils causent un mauvais classement.',
+    boundary: '14 appels MCP réels. Trois pages auditées. Les recommandations n’ont pas été appliquées ni testées. Cet exemple démontre l’analyse ; l’effet sur le classement reste à mesurer.',
+    privacy: 'La trace partageable contient des extraits relus : métriques de l’exemple, quatre requêtes et contrôles des pages. Les détails du compte, la configuration des connexions et les autres données sont omis.',
+    report: 'Lire le cas mesuré', download: 'Télécharger la trace MCP (JSON)', trace: 'Voir les 14 appels MCP enregistrés', seconds: 'secondes',
+  },
+}[locale]
+const { current, derived } = evidence.summary
+const metrics = [
+  [number(current.clicks), text.labels[0], `+${number(derived.clickChangePct, 2)} % ${text.change}`],
+  [number(current.impressions), text.labels[1], `+${number(derived.impressionChangePct, 2)} % ${text.change}`],
+  [`${number(derived.currentCtrPct, 2)} %`, text.labels[2], `${number(derived.previousCtrPct, 2)} % ${text.previous}`],
+]
+---
+
+<section id="real-example" aria-labelledby="real-example-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="kicker">{text.kicker}</p>
+      <h2 id="real-example-title">{text.title}</h2>
+      <p>{text.intro}</p>
+      <p class="seo-case-window">{text.window}</p>
+    </div>
+    <ul class="seo-case-metrics">
+      {metrics.map(([value, label, detail]) => <li><strong>{value}</strong><span>{label}</span><small>{detail}</small></li>)}
+    </ul>
+    <ol class="seo-case-stages">
+      {text.stages.map(([title, copy], index) => <li><span class="kicker">{String(index + 1).padStart(2, '0')}</span><strong>{title}</strong><p>{copy}</p></li>)}
+    </ol>
+    <div class="seo-case-findings">
+      {[
+        { title: text.releaseTitle, copy: text.releaseCopy, action: text.releaseAction, path: '/releases/' },
+        { title: text.toolsTitle, copy: text.toolsCopy, action: text.toolsAction, path: '/guide/third-party-tools/' },
+      ].map((finding) => <article><h3>{finding.title}</h3><a class="text-link" href={`https://cc.bruniaux.com${finding.path}`}>{finding.path}</a><p><strong>{text.finding} :</strong> {finding.copy}</p><p><strong>{text.suggestion} :</strong> {finding.action}</p></article>)}
+    </div>
+    <p class="boundary-note">{text.review}</p>
+    <div class="seo-case-actions">
+      <a class="button" href={`${links.docs}examples/cc-guide-live-audit/`}>{text.report} →</a>
+      <a class="text-link" href="/evidence/2026-10-07-cc-guide.json" download>{text.download}</a>
+    </div>
+    <details class="seo-case-trace">
+      <summary>{text.trace}</summary>
+      <p class="boundary-note">{text.privacy}</p>
+      <ol>
+        {evidence.calls.map((call) => <li><details><summary><code>{call.tool}</code><span>{number(call.elapsedMs / 1000, 1)} {text.seconds}</span></summary><pre><code>{JSON.stringify({ startedAt: call.startedAt, args: call.args, responseProjection: call.responseProjection, response: call.response }, null, 2)}</code></pre></details></li>)}
+      </ol>
+    </details>
+    <p class="boundary-note">{text.boundary}</p>
+  </div>
+</section>

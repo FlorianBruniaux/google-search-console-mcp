@@ -1,6 +1,110 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
+for (const locale of [{ path: '/', report: '/docs/examples/cc-guide-live-audit/' }, { path: '/fr/', report: '/fr/docs/examples/cc-guide-live-audit/' }]) {
+  test(`opens the real SEO case and downloads its recorded evidence on ${locale.path}`, async ({ page }) => {
+    await page.goto(`${locale.path}#real-example`)
+    const example = page.locator('#real-example')
+    await expect(example).toBeVisible()
+    await expect(example).toContainText('cc.bruniaux.com')
+    const evidence = example.locator('a[download]')
+    const response = await page.request.get(await evidence.getAttribute('href') ?? '')
+    expect(response.ok()).toBe(true)
+    const trace = await response.json()
+    expect(trace.transport).toBe('live MCP calls from Codex')
+    expect(trace.callCount).toBe(trace.calls.length)
+    expect(trace.scope.changesApplied).toBe(false)
+    const total = trace.calls.find((call: { tool: string }) => call.tool === 'get_advanced_search_analytics').response.rows[0]
+    expect(trace.summary.current.clicks).toBe(total.clicks)
+    expect(trace.summary.current.impressions).toBe(total.impressions)
+    await example.locator(`a[href="${locale.report}"]`).click()
+    await expect(page).toHaveURL(locale.report)
+    await expect(page.locator('main')).toContainText('2026-10-07')
+  })
+}
+
+for (const locale of [
+  { name: 'English', path: '/', copy: 'Copy prompt', success: 'Prompt copied.', problems: ['I’m new to SEO: where do I start?', 'My traffic is dropping', 'I want better search rankings', 'My pages are hard to find'] },
+  { name: 'French', path: '/fr/', copy: 'Copier le prompt', success: 'Prompt copié.', problems: ['Je débute en SEO : par où commencer ?', 'Mon trafic baisse', 'Je veux mieux me positionner', 'Mes pages sont peu visibles'] },
+]) {
+  for (const width of [390, 1440]) {
+    test(`SEO routing opens ${locale.name} at ${width}px and copies the selected prompt`, async ({ page, context }) => {
+      await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+      await page.setViewportSize({ width, height: 1000 })
+      await page.goto(locale.path)
+      const routes = page.getByRole('region', { name: locale.name === 'French' ? 'Un problème, une analyse, des correctifs.' : 'One problem, one analysis, actionable fixes.' })
+      const ids = ['getting-started', 'traffic', 'rankings', 'indexing']
+      for (let index = 0; index < ids.length; index += 1) {
+        const detail = page.locator(`#seo-${ids[index]}`)
+        await expect(detail).not.toHaveAttribute('open')
+        await routes.getByRole('link', { name: locale.problems[index], exact: true }).click()
+        await expect(page).toHaveURL(`${locale.path}#seo-${ids[index]}`)
+        await expect(detail).toHaveAttribute('open', '')
+        await expect(detail.locator('summary')).toBeFocused()
+        await expect(detail.getByRole('button', { name: locale.copy, exact: true })).toBeVisible()
+        const prompt = await detail.locator('pre').innerText()
+        expect(prompt).toContain('https://example.com')
+        expect(prompt).toContain('Search Console MCP')
+        expect(prompt).toContain('gsc-mcp-tools')
+        expect(prompt).toContain('get_capabilities')
+        expect(prompt).toContain('list_properties')
+        expect(prompt).toContain('https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/installation.md')
+        expect(prompt).toContain('https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/google-setup.md')
+        const guide = ['quick-audit', 'traffic-drop', 'keyword-opportunities', 'indexing-issues'][index]
+        const source = `https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/examples/${guide}.md`
+        expect(prompt).toContain(source)
+        await expect(detail.getByRole('link', { name: locale.name === 'French' ? 'Voir le scénario sur GitHub' : 'View the workflow on GitHub', exact: true })).toHaveAttribute('href', source)
+        await expect(detail.getByRole('link', { name: locale.name === 'French' ? 'Installer le MCP' : 'Install the MCP', exact: true })).toHaveAttribute('href', `${locale.path}docs/installation/`)
+        await expect(detail.getByRole('link', { name: locale.name === 'French' ? 'Connecter Google' : 'Connect Google', exact: true })).toHaveAttribute('href', `${locale.path}docs/google-setup/`)
+        await detail.getByRole('button', { name: locale.copy, exact: true }).click()
+        await expect(detail.getByRole('status')).toHaveText(locale.success)
+        expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(prompt)
+        await expect(page.locator('#hero-copy-status')).toBeEmpty()
+      }
+    })
+  }
+}
+
+test('SEO routing opens a direct link and reopens the same selected route', async ({ page }) => {
+  await page.goto('/#seo-getting-started')
+  const detail = page.locator('#seo-getting-started')
+  await expect(detail).toHaveAttribute('open', '')
+  await detail.locator('summary').click()
+  await expect(detail).not.toHaveAttribute('open')
+  const route = page.getByRole('region', { name: 'One problem, one analysis, actionable fixes.' })
+    .getByRole('link', { name: 'I’m new to SEO: where do I start?', exact: true })
+  await route.focus()
+  await route.press('Enter')
+  await expect(detail).toHaveAttribute('open', '')
+  await expect(detail.locator('summary')).toBeFocused()
+})
+
+test('SEO routing keeps the French prompt selectable when clipboard access fails', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'clipboard', {
+    value: { writeText: () => Promise.reject(new Error('denied')) }, configurable: true,
+  }))
+  await page.goto('/fr/#seo-traffic')
+  const detail = page.locator('#seo-traffic')
+  await detail.getByRole('button', { name: 'Copier le prompt', exact: true }).click()
+  await expect(detail.getByRole('status')).toHaveText('Échec de la copie. Sélectionnez le prompt manuellement.')
+  await expect(detail.locator('pre')).toBeVisible()
+  await expect(page.locator('#hero-copy-status')).toBeEmpty()
+})
+
+test('SEO routing remains readable without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 1000 } })
+  try {
+    const page = await context.newPage()
+    await page.goto('/fr/')
+    const detail = page.locator('#seo-getting-started')
+    await detail.locator('summary').click()
+    await expect(detail.locator('pre')).toBeVisible()
+    await expect(detail.locator('pre')).toContainText('https://example.com')
+  } finally {
+    await context.close()
+  }
+})
+
 test('copies the install command and announces success', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/')
@@ -15,7 +119,7 @@ test('switches the complete landing between English and French', async ({ page }
   await page.getByRole('link', { name: 'FR', exact: true }).click()
   await expect(page).toHaveURL('/fr/')
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Les données de recherche')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Sachez quoi corriger')
   await expect(page.getByRole('link', { name: 'Documentation', exact: true }).first()).toHaveAttribute('href', '/fr/docs/')
   await page.getByRole('link', { name: 'EN', exact: true }).click()
   await expect(page).toHaveURL('/')
@@ -337,7 +441,7 @@ test('returns from the documentation to the product home', async ({ page }) => {
   await expect(brand.getByText('← Accueil')).toBeVisible()
   await brand.click()
   await expect(page).toHaveURL('/fr/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Les données de recherche')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Sachez quoi corriger')
 })
 
 for (const route of ['/docs/examples/quick-audit/', '/fr/docs/']) {

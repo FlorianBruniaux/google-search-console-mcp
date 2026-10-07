@@ -30,14 +30,20 @@ const navigationSections = getNavigationSections(locale)
           {navigationSections.map((section) => (
             <details data-nav-section={section.id}>
               <summary role="button" data-nav-trigger={section.id} aria-expanded="false" aria-controls={`nav-panel-${section.id}`}>
-                {section.label}<span aria-hidden="true">⌄</span>
+                {section.label}
+                <svg class="nav-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                  <path d="m4 6 4 4 4-4" />
+                </svg>
               </summary>
               <section id={`nav-panel-${section.id}`} class="nav-panel" data-nav-panel={section.id} aria-labelledby={`nav-title-${section.id}`}>
                 <div class="nav-panel-heading">
                   <h2 id={`nav-title-${section.id}`}>{section.label}</h2>
                   <p>{section.description}</p>
                   <a href={section.overview.href} target={section.overview.external ? '_blank' : undefined} rel={section.overview.external ? 'noopener noreferrer' : undefined}>
-                    {section.overview.label} <span aria-hidden="true">→</span>
+                    {section.overview.label}
+                    <svg class="nav-overview-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                      <path d="M3 8h10m-4-4 4 4-4 4" />
+                    </svg>
                     {section.overview.external && <span class="sr-only"> (opens in a new tab)</span>}
                   </a>
                 </div>

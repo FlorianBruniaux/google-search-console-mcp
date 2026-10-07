@@ -1,0 +1,81 @@
+---
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+import { getSeoPrompt, seoRoutes } from '../data/seo-routes'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].outcomes
+const links = getSiteLinks(locale)
+const routes = seoRoutes[locale].map((route) => ({
+  ...route,
+  prompt: getSeoPrompt(locale, route),
+  source: `${links.repository}/blob/main/examples/${route.guide}.md`,
+}))
+---
+
+<section id="outcomes" aria-labelledby="outcomes-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="outcomes-title">{content.title}</h2>
+      <p>{content.intro}</p>
+    </div>
+    <div class="seo-routing">
+      <div class="seo-route-columns" aria-hidden="true">
+        <span>{content.columns[0]}</span><span></span>
+        <span>{content.columns[1]}</span><span></span>
+        <span>{content.columns[2]}</span>
+      </div>
+      <ol class="seo-routes">
+        {routes.map((route, index) => (
+          <li class="seo-route">
+            <a class="seo-problem" href={`#seo-${route.id}`} aria-label={route.problem}>
+              <span class="seo-route-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <strong>{route.problem}</strong>
+              <span class="seo-route-open" aria-hidden="true">{content.open} →</span>
+            </a>
+            <svg class="seo-route-arrow" viewBox="0 0 52 44" aria-hidden="true"><path d="M2 30 C22 30 28 14 48 14 M41 8 L48 14 L41 20" /></svg>
+            <div class="seo-analysis">
+              <span class="seo-mobile-label">{content.columns[1]}</span>
+              <strong>{route.analysis}</strong>
+            </div>
+            <svg class="seo-route-arrow" viewBox="0 0 52 44" aria-hidden="true"><path d="M2 14 C22 14 28 30 48 30 M41 24 L48 30 L41 36" /></svg>
+            <div class="seo-result">
+              <span class="seo-mobile-label">{content.columns[2]}</span>
+              <strong>{route.result}</strong>
+              <p>{route.resultCopy}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <div class="seo-details">
+      <h3>{content.detailTitle}</h3>
+      {routes.map((route) => (
+        <details id={`seo-${route.id}`} data-seo-detail>
+          <summary>{route.problem}<span aria-hidden="true">⌄</span></summary>
+          <div class="seo-detail-body">
+            <h3>{content.setupTitle}</h3>
+            <p>{content.setupHelp}</p>
+            <p class="seo-setup-links">
+              <a class="text-link" href={links.install}>{content.setupInstall}</a>
+              <a class="text-link" href={links.googleSetup}>{content.setupGoogle}</a>
+              <a class="text-link" href={route.source}>{content.sourceLabel}</a>
+            </p>
+            <p><strong>{content.sourcesLabel} :</strong> {route.sources}</p>
+            <h3>{content.promptLabel}</h3>
+            <p class="seo-prompt-help">{content.replaceSite}</p>
+            <button class="button seo-copy-button" type="button" data-copy-prompt={route.prompt} aria-controls={`seo-${route.id}-copy-status`}>{content.copyPrompt}</button>
+            <p id={`seo-${route.id}-copy-status`} class="copy-status" data-prompt-copy-status role="status" aria-live="polite"></p>
+            <pre><code>{route.prompt}</code></pre>
+            <div class="seo-example">
+              <p class="kicker">{content.exampleLabel}</p>
+              <p>{route.example}</p>
+            </div>
+            <a class="text-link" href={`${links.docs}examples/${route.guide}/`}>{content.guideLabel} →</a>
+          </div>
+        </details>
+      ))}
+    </div>
+    <p class="boundary-note">{content.boundary}</p>
+  </div>
+</section>

@@ -31,9 +31,10 @@ test('offers the approved install actions and intent shortcuts', () => {
   assert.match(html, /<a\b[^>]*class="header-install"[^>]*href="#install"/)
   assert.match(html, />Copy uvx command<\/button>/)
   for (const [label, href] of [
-    ['Compare Google and Bing', '#capabilities'],
-    ['Diagnose indexing', '#safety'],
-    ['Audit a public page', '#provider-public'],
+    ['Start with SEO', '#seo-getting-started'],
+    ['Understand a traffic drop', '#seo-traffic'],
+    ['Find ranking opportunities', '#seo-rankings'],
+    ['Check page visibility', '#seo-indexing'],
   ]) {
     assert.match(html, new RegExp(`<a\\b[^>]*href="${href}"[^>]*>${label}`))
   }
@@ -52,7 +53,7 @@ test('keeps documentation reading paths on the public site', () => {
     '/docs/license/',
   ]) assert.ok(html.includes(`href="${href}"`), `Missing public documentation link: ${href}`)
 
-  assert.doesNotMatch(html, /<a\b[^>]*href="https:\/\/github\.com\/FlorianBruniaux\/google-search-console-mcp\/(?:blob|tree)\/main\/(?:docs|examples|CHANGELOG|LICENSE)/)
+  assert.doesNotMatch(html, /<a\b[^>]*href="https:\/\/github\.com\/FlorianBruniaux\/google-search-console-mcp\/(?:blob|tree)\/main\/(?:docs|CHANGELOG|LICENSE)/)
 })
 
 test('switches from the English landing to the French landing', () => {
@@ -65,12 +66,12 @@ test('switches from the English landing to the French landing', () => {
 test('publishes a fully localized French landing', async () => {
   const frenchHtml = await readFile(new URL('../dist/fr/index.html', import.meta.url), 'utf8')
   assert.match(frenchHtml, /<html lang="fr"/)
-  assert.match(frenchHtml, /Les données de recherche que votre assistant IA peut inspecter, comparer et exploiter en toute sécurité\./)
+  assert.match(frenchHtml, /Sachez quoi corriger pour mieux vous positionner\./)
   assert.match(frenchHtml, /<a href="\/" lang="en" hreflang="en">EN<\/a>/)
   assert.match(frenchHtml, /<a href="\/fr\/docs\/">Documentation<\/a>/)
   assert.match(frenchHtml, />Analyser</)
   assert.match(frenchHtml, />Démarrer</)
-  assert.match(frenchHtml, />5 réponses sur les identifiants, les clients et l’indexation\.</)
+  assert.match(frenchHtml, />Utiliser votre assistant IA pour le SEO\.</)
 })
 
 test('publishes paired English and French documentation homes', () => {
@@ -132,7 +133,7 @@ test('renders all visible FAQ questions', () => {
     'Can I use Search Console MCP with Claude and Codex?',
     'Where should credentials be stored?',
   ]) assert.ok(html.includes(question), `Missing FAQ: ${question}`)
-  assert.equal((html.match(/data-faq-item/g) ?? []).length, 5)
+  assert.equal((html.match(/data-faq-item/g) ?? []).length, 8)
 })
 
 test('resolves every local navigation destination to a unique rendered target', () => {

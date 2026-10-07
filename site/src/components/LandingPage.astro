@@ -5,6 +5,8 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 import SiteHeader from './SiteHeader.astro'
 import Hero from './Hero.astro'
 import ProofStrip from './ProofStrip.astro'
+import SeoOutcomes from './SeoOutcomes.astro'
+import SeoCaseStudy from './SeoCaseStudy.astro'
 import ProviderCoverage from './ProviderCoverage.astro'
 import Workflow from './Workflow.astro'
 import InstallPath from './InstallPath.astro'
@@ -42,6 +44,8 @@ const faqJsonLd = {
   <SiteHeader {locale} />
   <main id="main-content" tabindex="-1">
     <Hero {locale} toolCount={product.toolCount} />
+    <SeoOutcomes {locale} />
+    <SeoCaseStudy {locale} />
     <ProofStrip {locale} {product} />
     <ProviderCoverage {locale} />
     <Workflow {locale} />

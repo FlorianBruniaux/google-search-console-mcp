@@ -4,10 +4,53 @@ import { readFile, readdir } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import test from 'node:test'
 
-import { prepareDocumentation, publishedPages } from '../scripts/prepare-doc-content.mjs'
+import { assertReviewedPublicEvidence, prepareDocumentation, publishedEvidence, publishedPages } from '../scripts/prepare-doc-content.mjs'
 
 const siteRoot = resolve(import.meta.dirname, '..')
 const generatedRoot = join(siteRoot, 'src/content/docs')
+
+test('blocks unreviewed data additions to the public MCP snapshot before publication', async () => {
+  const [sourcePath, , approvedDigest] = publishedEvidence[0]
+  const source = await readFile(join(siteRoot, '..', sourcePath), 'utf8')
+  assert.doesNotThrow(() => assertReviewedPublicEvidence(source, approvedDigest))
+  for (const extra of [
+    { access_token: 'synthetic-test-token' },
+    { properties: [{ url: 'sc-domain:private.example.invalid', permission: 'siteOwner' }] },
+    { extraQuery: 'synthetic private customer query' },
+  ]) {
+    const changed = JSON.stringify({ ...JSON.parse(source), ...extra })
+    assert.throws(() => assertReviewedPublicEvidence(changed, approvedDigest), /privacy review/)
+  }
+  const changedValue = JSON.parse(source)
+  changedValue.calls[0].response.tools[0] = 'synthetic-test-token'
+  assert.throws(() => assertReviewedPublicEvidence(JSON.stringify(changedValue), approvedDigest), /privacy review/)
+})
+
+test('the real run keeps derived totals tied to live tool responses and exposes only selected properties', async () => {
+  const file = join(siteRoot, '../examples/evidence/2026-10-07-cc-guide.json')
+  const source = await readFile(file, 'utf8')
+  const trace = JSON.parse(source)
+  assert.equal(trace.callCount, trace.calls.length)
+  assert.equal(new Set(trace.calls.map((call) => call.seq)).size, trace.calls.length)
+  const current = trace.calls.find((call) => call.tool === 'get_advanced_search_analytics').response.rows[0]
+  const periods = trace.calls.find((call) => call.tool === 'compare_search_periods').response
+  assert.equal(trace.summary.current.clicks, current.clicks)
+  assert.equal(trace.summary.current.impressions, current.impressions)
+  assert.deepEqual(trace.summary.previous, periods.period_a)
+  assert.equal(trace.summary.derived.clickChangePct, Math.round((current.clicks - periods.period_a.clicks) / periods.period_a.clicks * 10000) / 100)
+  assert.equal(trace.summary.derived.currentCtrPct, Math.round(current.clicks / current.impressions * 10000) / 100)
+  assert.equal(trace.scope.changesApplied, false)
+  assert.equal(trace.scope.rankingImpactMeasured, false)
+  const properties = trace.calls.find((call) => call.tool === 'list_properties').response.properties
+  assert.deepEqual(properties.map((property) => property.url), [trace.site])
+  assert.deepEqual(properties.map((property) => Object.keys(property)), [['url']])
+  const queries = trace.calls.find((call) => call.tool === 'get_search_by_page_query').response.rows.map((row) => row.query)
+  assert.deepEqual(queries.sort(), ['claude code latest version', 'latest claude code version', 'lean ctx vs rtk', 'lean-ctx vs rtk'].sort())
+  assert.doesNotMatch(source, /credential_env_declared|siteOwner|rawLogSha256|repositoryHead|repositoryState|\.claudedocs|"_meta"|"top_queries"/)
+  assert.doesNotMatch(source, /\/Users\/|Bearer [A-Za-z0-9]|AIza|-----BEGIN PRIVATE KEY-----/)
+  await prepareDocumentation()
+  assert.equal(await readFile(join(siteRoot, 'public/evidence/2026-10-07-cc-guide.json'), 'utf8'), source)
+})
 
 test('publishes only the explicit bilingual route set', async () => {
   await prepareDocumentation()

@@ -17,6 +17,7 @@ export const publishedPages = [
   ['docs/starter-prompt.md', 'docs/prompts.md', 'Starter prompts', 'Begin with bounded prompts for common search performance and technical SEO questions.'],
   ['examples/README.md', 'docs/examples/index.md', 'Example workflows', 'Choose a ready-to-use workflow for audits, traffic changes, indexing, or content planning.'],
   ['examples/quick-audit.md', 'docs/examples/quick-audit.md', 'Quick site health check', 'Run a bounded first-pass search and technical health check.'],
+  ['examples/cc-guide-live-audit.md', 'docs/examples/cc-guide-live-audit.md', 'Real run: Claude Code Ultimate Guide', 'Follow a real MCP analysis from Google metrics to page checks and suggested actions.'],
   ['examples/google-bing-comparison.md', 'docs/examples/google-bing-comparison.md', 'Google and Bing comparison', 'Compare provider evidence without merging incompatible metrics.'],
   ['examples/full-audit.md', 'docs/examples/full-audit.md', 'Full SEO audit', 'Run a structured multi-source audit with explicit evidence boundaries.'],
   ['examples/keyword-opportunities.md', 'docs/examples/keyword-opportunities.md', 'Keyword opportunities', 'Find query opportunities from observed search performance.'],
@@ -30,7 +31,24 @@ export const publishedPages = [
   ['LICENSE', 'docs/license.md', 'MIT license', 'Read the project license and its usage boundary.'],
 ]
 
-const routeBySource = new Map(publishedPages.map(([source, target]) => [source, `/${target.replace(/index\.md$/, '').replace(/\.md$/, '/')}`]))
+// This dated example is an immutable, reviewed public snapshot. Any change,
+// including a new field inside a response, requires a fresh privacy review.
+export const publishedEvidence = [[
+  'examples/evidence/2026-10-07-cc-guide.json',
+  'evidence/2026-10-07-cc-guide.json',
+  '034200d240b50c93cbc066eb8a35fa78f516aa91def771be2136e1aa3ee1f505',
+]]
+
+export function assertReviewedPublicEvidence(content, approvedDigest) {
+  const digest = createHash('sha256').update(content).digest('hex')
+  if (digest !== approvedDigest) {
+    throw new Error('Public MCP evidence changed: a privacy review is required before publication.')
+  }
+}
+const routeBySource = new Map([
+  ...publishedPages.map(([source, target]) => [source, `/${target.replace(/index\.md$/, '').replace(/\.md$/, '/')}`]),
+  ...publishedEvidence.map(([source, target]) => [source, `/${target}`]),
+])
 const blockedSegments = ['docs/superpowers/', 'docs/machine-readable/', 'docs/validation/']
 
 function sourceHash(content) {
@@ -42,7 +60,7 @@ function removeFirstHeading(content) {
 }
 
 function rewriteEnglishLinks(content, sourcePath) {
-  return content.replace(/\]\(([^)#]+\.md)(#[^)]+)?\)/g, (_match, href, anchor = '') => {
+  return content.replace(/\]\(([^)#]+\.(?:md|json))(#[^)]+)?\)/g, (_match, href, anchor = '') => {
     const absoluteSource = resolve(repositoryRoot, dirname(sourcePath), href)
     const repositoryPath = relative(repositoryRoot, absoluteSource).replaceAll('\\', '/')
     const publicRoute = routeBySource.get(repositoryPath)
@@ -141,6 +159,13 @@ export async function prepareDocumentation(options = {}) {
   await prepareEnglish()
   await prepareFrench(options)
   await assertPublicationBoundary()
+  for (const [source, target, approvedDigest] of publishedEvidence) {
+    const content = await readFile(join(repositoryRoot, source), 'utf8')
+    assertReviewedPublicEvidence(content, approvedDigest)
+    const destination = join(siteRoot, 'public', target)
+    await mkdir(dirname(destination), { recursive: true })
+    await writeFile(destination, content)
+  }
   console.log(`Prepared ${publishedPages.length * 2} documentation pages.`)
 }
 
