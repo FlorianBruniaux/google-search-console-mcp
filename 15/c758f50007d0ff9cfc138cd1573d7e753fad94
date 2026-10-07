@@ -1,0 +1,141 @@
+README.md
+  s_0a1d4be7a783f8::t_c56119f2b15cea 9-12,15-16,19-28,30-33,35
+  s_0a1d4be7a783f8::t_4b00365d706625 38-39
+  s_0a1d4be7a783f8::t_0b3f2d4143f11d 13-14,17-18,29
+  s_0a1d4be7a783f8::t_c4afc2b35a74d4 34
+  s_0a1d4be7a783f8::t_c962e50079acd4 3-8,36-37,40-53,86-88,90
+site/src/data/navigation.ts
+  s_0a1d4be7a783f8::t_35e08c486bf769 17,27,69,79
+  s_0a1d4be7a783f8::t_0b3f2d4143f11d 25,77
+  s_0a1d4be7a783f8::t_4b00365d706625 26,78
+site/content/fr/manifest.json
+  s_0a1d4be7a783f8::t_779605295256ae 30
+  s_0a1d4be7a783f8::t_044e7fc91057c0 6
+  s_0a1d4be7a783f8::t_02a1b6d45e1f05 26,75-77
+  s_0a1d4be7a783f8::t_dc526b70f45e4c 78
+site/content/fr/docs/index.md
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 9-11
+  s_0a1d4be7a783f8::t_c56119f2b15cea 13-16,18-21
+  s_0a1d4be7a783f8::t_0b3f2d4143f11d 17,23-24
+  s_0a1d4be7a783f8::t_c4afc2b35a74d4 22
+  s_ec22837e58ecfe::t_33ed2fc44b05ad 12
+examples/cc-guide-live-audit.md
+  s_0a1d4be7a783f8::t_4006ad491bca8d 5,57
+  s_0a1d4be7a783f8::t_77ff824c55d913 1-4,6-56,58-61
+site/content/fr/docs/examples/cc-guide-live-audit.md
+  s_0a1d4be7a783f8::t_77ff824c55d913 1-10,12-62,64-67
+  s_0a1d4be7a783f8::t_4006ad491bca8d 11,63
+.gitignore
+  s_0a1d4be7a783f8::t_4b00365d706625 27
+examples/README.md
+  s_0a1d4be7a783f8::t_4b00365d706625 9-10
+site/content/fr/docs/examples/index.md
+  s_0a1d4be7a783f8::t_4b00365d706625 5,12
+examples/quick-audit.md
+  s_0a1d4be7a783f8::t_1d7311b345732e 42-43
+site/content/fr/docs/examples/quick-audit.md
+  s_0a1d4be7a783f8::t_aaaf7f3ddbc05a 5,24
+  s_ded836f56a6d83::t_7a05d0a8a7da0a 25
+site/src/components/SiteHeader.astro
+  s_0a1d4be7a783f8::t_0fa5cf52c844d4 33-36,43-46
+examples/evidence/2026-10-07-cc-guide.json
+  s_0a1d4be7a783f8::t_80a9a3eb6da888 1-24,26,32,34-73,75-158,161-167,169-172,174,177-186,188-199,201-210,212-229,231-244,246-273,276-287,289-300,302-307,309-314,316,319-332,334-348,351-359,361-399,402-410,412-450,453-461,463-501,504-514,516-554,557-565,567-580,583-591,593-600,603-611,613-637,640,642
+  s_0a1d4be7a783f8::t_75a4f4804c9fc1 25,27-31,33,74,159-160,168,173,175-176,187,200,211,230,245,274-275,288,301,308,315,317-318,333,349-350,360,400-401,411,451-452,462,502-503,515,555-556,566,581-582,592,601-602,612,638-639,641
+site/astro.config.mjs
+  s_0a1d4be7a783f8::t_4b00365d706625 53
+site/src/data/content.ts
+  s_0a1d4be7a783f8::t_0b3f2d4143f11d 56,64,135,142
+  s_0a1d4be7a783f8::t_9e4f6adb00a429 67-68,145-146
+  s_0a1d4be7a783f8::t_c962e50079acd4 43,52-54,57-59,62,71-72,78,80-82,86-87,99,101-103,111,113,122,131-133,136-140,149,156,158-160,164-165,177,179-181,189,191
+  s_0a1d4be7a783f8::t_1ab3491e3b421e 63,65-66,69-70,114,141,143-144,147-148,192
+site/scripts/prepare-doc-content.mjs
+  s_0a1d4be7a783f8::t_4b00365d706625 20
+  s_0a1d4be7a783f8::t_8f27b14ca58ad8 34-47,162-164,167
+  s_0a1d4be7a783f8::t_1d7311b345732e 48-51,63,165-166,168
+site/src/components/SeoCaseStudy.astro
+  s_0a1d4be7a783f8::t_4b00365d706625 1-26,28-47,49-86,88-94
+  s_0a1d4be7a783f8::t_4006ad491bca8d 27,48,87
+site/tests/doc-content-source.test.mjs
+  s_0a1d4be7a783f8::t_6806dcd6fe253d 7,12-28,46-49
+  s_0a1d4be7a783f8::t_1d7311b345732e 29-45,50-54
+site/src/data/seo-routes.ts
+  s_0a1d4be7a783f8::t_5353c91a8b3e1e 98
+  s_0a1d4be7a783f8::t_1ab3491e3b421e 35-37,54-96,113-156
+  s_0a1d4be7a783f8::t_d80d73daf20e19 38-53,97,99-112
+  s_0a1d4be7a783f8::t_9e4f6adb00a429 1-34
+site/src/components/LandingPage.astro
+  s_0a1d4be7a783f8::t_4b00365d706625 9,48
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 8,47
+site/src/components/SeoOutcomes.astro
+  s_0a1d4be7a783f8::t_9e4f6adb00a429 3,8-12,57-59,63
+  s_0a1d4be7a783f8::t_c4afc2b35a74d4 69
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 1,4-6,13-21,77-81
+  s_0a1d4be7a783f8::t_c4af40b21509b7 60-62
+  s_0a1d4be7a783f8::t_1ab3491e3b421e 2,7,22-56,64-68,70-76
+site/tests/site.spec.ts
+  s_0a1d4be7a783f8::t_a4e9a8b9ac92c7 444
+  s_0a1d4be7a783f8::t_a93f9a9656a7bf 4-16,18-25
+  s_0a1d4be7a783f8::t_e34ee3e4067c09 27-28,36
+  s_0a1d4be7a783f8::t_1cdba8f2b2e47e 74,76-77
+  s_0a1d4be7a783f8::t_8458c4c7f93944 47-58
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 122
+  s_0a1d4be7a783f8::t_834b68d989fa30 26,29-35,37-46,59-68,71-73,78-98,100-107
+  s_0a1d4be7a783f8::t_9acc5c13b1672e 17
+  s_0a1d4be7a783f8::t_1094d0f306ab34 69-70,75,99
+site/tests/dist-seo.test.mjs
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 21
+site/tests/dist-content.test.mjs
+  s_0a1d4be7a783f8::t_9e4f6adb00a429 56
+  s_0a1d4be7a783f8::t_0b3f2d4143f11d 34
+  s_0a1d4be7a783f8::t_35e08c486bf769 35-37
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 69,74,136
+site/content/en/index.md
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 3-5
+  s_0a1d4be7a783f8::t_c56119f2b15cea 7-10,12-15
+  s_0a1d4be7a783f8::t_0b3f2d4143f11d 11,17-18
+  s_0a1d4be7a783f8::t_c4afc2b35a74d4 16
+  s_ec22837e58ecfe::t_9ce8bfaedb4747 6
+site/src/scripts/interactions.ts
+  s_0a1d4be7a783f8::t_35e08c486bf769 155-174,179-182,184-186
+site/src/styles/global.css
+  s_0a1d4be7a783f8::t_cdba03cfbee778 103,107
+  s_0a1d4be7a783f8::t_4b00365d706625 200-221
+  s_0a1d4be7a783f8::t_35e08c486bf769 170-192,194-199,222-230
+  s_0a1d4be7a783f8::t_9e4f6adb00a429 193
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 137,154-158
+  s_0a1d4be7a783f8::t_0fa5cf52c844d4 101,104-106,108,121-122,306
+site/src/components/Hero.astro
+  s_0a1d4be7a783f8::t_16c72f7b3d9bda 15,30-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "15c758f50007d0ff9cfc138cd1573d7e753fad94",
+  "prompts": {},
+  "sessions": {
+    "s_0a1d4be7a783f8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11648-eba2-7801-975a-ca73226330e3",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ded836f56a6d83": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2411f16c-88e6-4622-9ccc-03c30968a7a1",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ec22837e58ecfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f6a4-88a1-77b3-9270-14c46f3f921c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
