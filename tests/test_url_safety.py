@@ -329,6 +329,15 @@ class TestFetchHtmlFollowingRedirects:
                 fetch_html_following_redirects("https://example.com/")
         assert client.get.call_count == 1
 
+    def test_malformed_port_in_location_raises_url_safety_error(self):
+        client = self._client({
+            "https://example.com/": (301, {"location": "https://example.com:not-a-port/"}),
+        })
+        with patch("httpx.Client", return_value=client):
+            with pytest.raises(URLSafetyError, match="invalid port"):
+                fetch_html_following_redirects("https://example.com/")
+        assert client.get.call_count == 1
+
     def test_subdomain_is_not_same_site(self):
         client = self._client({
             "https://example.com/": (301, {"location": "https://cdn.example.com/"}),

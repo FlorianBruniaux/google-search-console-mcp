@@ -266,6 +266,31 @@ def test_schema_validate_redirect_to_blocked_host_is_refused():
     assert "Redirect response" not in result["error"]
 
 
+def test_schema_validate_typed_graph_parent_is_validated_too():
+    """A node carrying both @type and @graph is an entity in its own right: its
+    missing required fields must surface, not be hidden behind the children."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@type": "Article", "headline": "Only a headline",
+     "@graph": [{"@type": "Organization", "name": "Example"}]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["schemas_detected"] == 2
+    by_type = {s["type"]: s for s in result["schemas"]}
+    assert set(by_type) == {"Article", "Organization"}
+    assert by_type["Article"]["missing_required_fields"] == ["author", "datePublished"]
+    assert result["verdict"] == "invalid_schemas"
+
+
+def test_schema_validate_redirect_to_malformed_port_is_fetch_error():
+    """A Location with an invalid port must come back as fetch_error, not escape as ValueError."""
+    client = _redirect_client({"https://example.com/": "https://example.com:not-a-port/"}, "<html></html>")
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "fetch_error"
+    assert client.get.call_count == 1
+
+
 def test_schema_validate_list_valued_type_is_normalised():
     """@type may be a list (["Person", "Organization"]); it must not crash and the
     entry with known required fields is the one validated."""

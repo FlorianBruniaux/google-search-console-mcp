@@ -397,12 +397,21 @@ _REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
 
 
 def _site_key(url: str) -> tuple[str, int | None]:
-    """(hostname without a leading 'www.', explicit port) used to compare redirect hops."""
-    parsed = urlparse(url)
+    """(hostname without a leading 'www.', explicit port) used to compare redirect hops.
+
+    The explicit port is kept as-is (not the effective one) so that an
+    http -> https hop on the same host still counts as the same site.
+    Malformed targets raise URLSafetyError so callers return fetch_error.
+    """
+    try:
+        parsed = urlparse(url)
+        port = parsed.port
+    except ValueError as exc:
+        raise URLSafetyError(f"Redirect target has an invalid port or authority: {url}") from exc
     host = (parsed.hostname or "").lower()
     if host.startswith("www."):
         host = host[4:]
-    return host, parsed.port
+    return host, port
 
 
 def fetch_html_following_redirects(
