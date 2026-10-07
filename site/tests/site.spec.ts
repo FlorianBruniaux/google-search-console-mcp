@@ -340,6 +340,38 @@ test('returns from the documentation to the product home', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Les données de recherche')
 })
 
+for (const route of ['/docs/examples/quick-audit/', '/fr/docs/']) {
+  for (const theme of ['light', 'dark'] as const) {
+    for (const width of [390, 1440]) {
+      test(`keeps documentation typography readable on ${route} in ${theme} at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 1000 })
+        await page.addInitScript((selectedTheme) => localStorage.setItem('starlight-theme', selectedTheme), theme)
+        await page.goto(route)
+
+        const sizes = await page.evaluate(() => {
+          const fontSize = (selector: string) => {
+            const element = document.querySelector<HTMLElement>(selector)
+            if (!element) throw new Error(`Missing typography target: ${selector}`)
+            return Number.parseFloat(getComputedStyle(element).fontSize)
+          }
+
+          return {
+            title: fontSize('main h1'),
+            section: fontSize('.sl-markdown-content h2'),
+            pagination: fontSize('.pagination-links .link-title'),
+            body: fontSize('.sl-markdown-content p'),
+          }
+        })
+
+        expect(sizes.title).toBeLessThanOrEqual(44)
+        expect(sizes.section).toBeLessThanOrEqual(28)
+        expect(sizes.pagination).toBeLessThanOrEqual(18)
+        expect(sizes.body).toBe(16)
+      })
+    }
+  }
+}
+
 for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/']) {
   test(`keeps ${route} accessible and contained on mobile`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
