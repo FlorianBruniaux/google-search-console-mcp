@@ -51,6 +51,9 @@ export const landingContent = {
     hero: {
       kicker: 'SEO analysis with Claude or Codex', title: 'Know what to fix to improve your search rankings.',
       copy: 'Ask your AI assistant what changed in your SEO and what to fix first. Search Console MCP connects your search metrics and page audits so it can explain the findings and suggest prioritized corrections, without requiring SEO expertise.',
+      evidenceTitle: 'Unavailable metrics are reported as unavailable.',
+      evidenceCopy: 'Unsupported Bing analyses are identified explicitly. Cross-engine deltas require exact, matching observed windows.',
+      evidenceLink: 'Read the data limits',
       setup: 'Connect your accounts once, then ask in plain language. Review the suggested changes and measure their effect.',
       copyCommand: 'Copy uvx command', installPath: 'View installation path', intentsLabel: 'Common SEO workflows',
       intents: [['Start with SEO', '#seo-getting-started'], ['Understand a traffic drop', '#seo-traffic'], ['Find ranking opportunities', '#seo-rankings'], ['Check page visibility', '#seo-indexing']],
@@ -130,6 +133,9 @@ export const landingContent = {
     hero: {
       kicker: 'Analyse SEO avec Claude ou Codex', title: 'Sachez quoi corriger pour mieux vous positionner.',
       copy: 'Demandez à votre assistant IA ce qui évolue dans votre SEO et quoi corriger en priorité. Search Console MCP lui donne accès à vos métriques et aux audits de vos pages pour expliquer les résultats et proposer des correctifs, sans expertise SEO requise.',
+      evidenceTitle: 'Les métriques indisponibles sont signalées comme indisponibles.',
+      evidenceCopy: 'Les analyses Bing non prises en charge sont signalées explicitement. Les écarts entre moteurs exigent des périodes observées exactes et identiques.',
+      evidenceLink: 'Lire les limites des données',
       setup: 'Connectez vos comptes une fois, puis posez vos questions en langage courant. Validez les corrections proposées et mesurez leur effet.',
       copyCommand: 'Copier la commande uvx', installPath: "Voir le parcours d’installation", intentsLabel: 'Workflows SEO courants',
       intents: [['Débuter en SEO', '#seo-getting-started'], ['Comprendre une baisse de trafic', '#seo-traffic'], ['Trouver des opportunités', '#seo-rankings'], ['Vérifier la visibilité des pages', '#seo-indexing']],

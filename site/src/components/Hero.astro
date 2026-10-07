@@ -1,8 +1,9 @@
 ---
-import { landingContent, type Locale } from '../data/content'
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
 interface Props { locale: Locale; toolCount: number }
 const { locale, toolCount } = Astro.props
 const content = landingContent[locale].hero
+const links = getSiteLinks(locale)
 const command = 'uvx gsc-mcp-tools'
 ---
 
@@ -12,6 +13,10 @@ const command = 'uvx gsc-mcp-tools'
       <p class="kicker">{content.kicker}</p>
       <h1 id="hero-title">{content.title}</h1>
       <p class="hero-copy">{content.copy}</p>
+      <p class="hero-evidence">
+        <strong>{content.evidenceTitle}</strong>
+        <span>{content.evidenceCopy} <a href={links.bingContract}>{content.evidenceLink}</a></span>
+      </p>
       <p class="hero-setup">{content.setup}</p>
       <div class="hero-actions">
         <button class="button button-primary" type="button" data-copy-command={command} aria-controls="hero-copy-status">{content.copyCommand}</button>

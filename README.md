@@ -2,6 +2,9 @@
 
 **Know what to fix to improve your search rankings, without becoming an SEO expert.**
 
+> [!NOTE]
+> **Unavailable metrics are reported as unavailable.** Unsupported Bing analyses return an explicit limitation, and Google and Bing positions stay separate. Cross-engine click and impression deltas are omitted unless both observed windows are exact and equal. [See data limits and engine coverage](#evidence-and-safety).
+
 Ask Claude or Codex to analyze your site's latest SEO changes and suggest what to fix first. Search Console MCP gives your assistant the search metrics and page audits it needs to explain traffic drops, find ranking opportunities, and turn the findings into a prioritized action plan.
 
 After connecting your accounts, you can ask in plain language. The assistant fetches and compares the data for you, so you spend less time exporting reports and interpreting SEO dashboards.
