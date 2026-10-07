@@ -1,0 +1,29 @@
+{
+  "target": "indexing-audit",
+  "type": "command",
+  "positive": [
+    "inspecte dans GSC si cette URL est indexée par Google",
+    "pourquoi Search Console classe cette URL découverte mais non indexée",
+    "vérifie le rapport Inspection de l'URL pour cette page",
+    "quel est le verdict d'indexation de Google pour cette URL précise",
+    "cette URL a-t-elle été crawlée par Google d'après URL Inspection",
+    "montre coverageState et pageFetchState de l'inspection URL",
+    "Google a-t-il choisi un autre canonical dans URL Inspection",
+    "vérifie robots et noindex sur ces dix URL avec l'inspection GSC",
+    "check Google URL Inspection indexing verdict for this page",
+    "why is this exact URL discovered but not indexed in GSC",
+    "page non indexée d'après Search Console URL Inspection",
+    "audit d'indexation GSC sur un échantillon d'URL"
+  ],
+  "negative": [
+    "combien d'URL sont déclarées dans mon sitemap XML",
+    "mon sitemap est-il à jour dans Search Console",
+    "quelles URL du sitemap n'ont pas de données de recherche",
+    "analyse les requêtes qui font baisser mon trafic",
+    "mes H1 et H2 sont-ils corrects sur cette page",
+    "évalue ce plan de développement avant exécution",
+    "Mon sitemap XML a-t-il été téléchargé par Google et quelles URL manquent de données Search Analytics ?",
+    "Le sitemap a-t-il été retéléchargé par Google récemment"
+  ],
+  "skill": "indexing-audit"
+}

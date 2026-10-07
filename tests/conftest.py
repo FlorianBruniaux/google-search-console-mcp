@@ -48,6 +48,14 @@ def mock_indexing_service():
     return service
 
 
+@pytest.fixture
+def mock_bing_client():
+    client = MagicMock()
+    client.read.return_value = []
+    client.write.return_value = None
+    return client
+
+
 def _make_ga4_row(dimension_values: list, metric_values: list):
     row = MagicMock()
     row.dimension_values = [MagicMock(value=v) for v in dimension_values]

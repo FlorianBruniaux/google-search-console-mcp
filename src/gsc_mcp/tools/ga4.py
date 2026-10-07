@@ -136,6 +136,7 @@ def ga4_organic_landing_pages(
         data,
         tool="ga4_organic_landing_pages",
         params={"start_date": start_date, "end_date": end_date, "limit": limit, "property_id": property_id, "hostname": hostname, "country": country},
+        sources={"ga4": {"property": prop}},
     ))
 
 
@@ -193,6 +194,7 @@ def ga4_traffic_sources(
         {"start_date": start_date, "end_date": end_date, "count": len(sources), "sources": sources},
         tool="ga4_traffic_sources",
         params={"start_date": start_date, "end_date": end_date, "property_id": property_id, "hostname": hostname, "country": country},
+        sources={"ga4": {"property": prop}},
     ))
 
 
@@ -264,6 +266,7 @@ def ga4_page_performance(
         {"start_date": start_date, "end_date": end_date, "count": len(pages), "pages": pages},
         tool="ga4_page_performance",
         params={"start_date": start_date, "end_date": end_date, "page_path": page_path, "property_id": property_id, "hostname": hostname, "country": country},
+        sources={"ga4": {"property": prop}},
     ))
 
 
@@ -306,6 +309,7 @@ def ga4_realtime(property_id: str | None = None, hostname: str | None = None) ->
         {"count": len(active), "active": active},
         tool="ga4_realtime",
         params={"property_id": property_id, "hostname": hostname},
+        sources={"ga4": {"property": prop}},
     ))
 
 
@@ -386,6 +390,7 @@ def ga4_user_behavior(
         },
         tool="ga4_user_behavior",
         params={"start_date": start_date, "end_date": end_date, "property_id": property_id, "hostname": hostname, "country": country},
+        sources={"ga4": {"property": prop}},
     ))
 
 
@@ -468,6 +473,7 @@ def ga4_conversion_funnel(
         },
         tool="ga4_conversion_funnel",
         params={"start_date": start_date, "end_date": end_date, "event_name": event_name, "property_id": property_id, "hostname": hostname, "country": country},
+        sources={"ga4": {"property": prop}},
     ))
 
 
@@ -537,4 +543,5 @@ def ga4_funnel(
         {"start_date": start_date, "end_date": end_date, "steps": result_steps},
         tool="ga4_funnel",
         params=params,
+        sources={"ga4": {"property": prop}},
     ))

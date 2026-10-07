@@ -1,6 +1,6 @@
 # Google credentials setup
 
-This guide covers creating a Google Cloud service account and granting it access to your GSC properties and GA4. It takes about 10 minutes.
+This guide covers creating a Google Cloud service account and granting it access to GSC and GA4. Install the package and configure your MCP client first with the [installation guide](installation.md).
 
 **Why a service account?** OAuth credentials work fine for personal use, but Claude Desktop has no browser to run the OAuth flow. A service account JSON gives the server a stable, non-interactive credential that works everywhere. See [OAuth option](#option-b-oauth-for-personal-use) if you prefer to authenticate interactively.
 
@@ -12,17 +12,20 @@ This guide covers creating a Google Cloud service account and granting it access
 
 Go to [console.cloud.google.com](https://console.cloud.google.com) and create a new project (or use an existing one). The project name is arbitrary; `gsc-mcp` works fine.
 
-### Step 2: Enable the required APIs
+### Step 2: Enable the APIs you use
 
 In the left sidebar, go to **APIs & Services > Library** and enable these three APIs one by one:
 
 | API name | Required for |
 |---|---|
 | **Google Search Console API** | All GSC analytics, inspection, and sitemap tools |
-| **Web Search Indexing API** | `submit_url`, `submit_batch` |
+| **Web Search Indexing API** | Optional `submit_url` and `submit_batch` for eligible pages only |
 | **Google Analytics Data API** | All `ga4_*` tools and `traffic_health_check`, `page_analysis` |
 
-If you only plan to use GSC tools (no GA4, no indexing), enabling only the first two is enough.
+If you only plan to read GSC data, enable only the Search Console API. Enable the other APIs only for the tool families you intend to use.
+
+> [!WARNING]
+> Google's Indexing API is limited to pages containing `JobPosting` or `BroadcastEvent` embedded in a `VideoObject`. Do not use `submit_url` or `submit_batch` as a general recrawl button. See the [official Indexing API documentation](https://developers.google.com/search/apis/indexing-api/v3/quickstart).
 
 ### Step 3: Create a service account
 
@@ -76,7 +79,16 @@ Skip this step if you are not using the `ga4_*` tools.
 
 Go to your GA4 property, then **Admin > Property Access Management** and click the **+** button to add a user. Enter the `client_email` and select the **Viewer** role.
 
-Set the `GA4_PROPERTY_ID` environment variable to your numeric property ID, visible in GA4 **Admin > Property Settings** (e.g. `123456789`). The `properties/` prefix is added automatically.
+Set the `GA4_PROPERTY_ID` environment variable to your numeric property ID, visible in GA4 **Admin > Property Settings** (e.g. `123456789`). The `properties/` prefix is added automatically. Use the **property ID**, not the account ID.
+
+Each successful GA4 report includes the canonical property actually sent to the API in `_meta.sources.ga4.property`. `_meta.params.property_id` keeps the caller argument, including `null` when the environment supplies the default. For multiple sites, pass `property_id` per call and use `hostname` where supported to scope a shared GA4 property:
+
+```python
+traffic_health_check(site="sc-domain:example.com", property_id="123456789", hostname="example.com")
+traffic_health_check(site="https://other.example/", property_id="987654321", hostname="other.example")
+```
+
+These fictitious examples use explicit mappings chosen by the caller. Source metadata does not prove that the GA4 property belongs to the GSC site, validate an arbitrary numeric ID as a property rather than an account, or introduce an automatic hostname filter.
 
 ---
 
@@ -104,16 +116,22 @@ cp .env.example .env
 
 ---
 
-### Step 8: Claude Desktop config
+### Step 8: Connect the MCP client
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
+Install the package once and locate the executable:
+
+```bash
+uv tool install gsc-mcp-tools
+command -v gsc-mcp-tools
+```
+
+Use the returned absolute path in the [Codex or Claude Desktop configuration](installation.md#codex-setup-without-global-process-proliferation). For Claude Desktop on macOS, the minimal Google-only block is:
 
 ```json
 {
   "mcpServers": {
     "gsc-mcp": {
-      "command": "uvx",
-      "args": ["gsc-mcp"],
+      "command": "/absolute/path/to/gsc-mcp-tools",
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
         "GSC_SKIP_OAUTH": "true",
@@ -124,7 +142,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 }
 ```
 
-Remove the `GA4_PROPERTY_ID` line if you are not using GA4 tools.
+Replace the command with the absolute path returned above. Remove the `GA4_PROPERTY_ID` line if you are not using GA4 tools. A direct executable avoids keeping an extra `uvx` launcher process beside the MCP server.
 
 After saving, restart Claude Desktop. The `gsc-mcp` server should appear in the tools panel.
 
@@ -145,7 +163,7 @@ The first run opens a browser tab for Google login. After you authorize, the tok
 
 OAuth grants access to all GSC properties your Google account can see, so no manual per-property setup is needed.
 
-**Note on the Indexing API with OAuth:** even with OAuth, the authenticated account must be a property owner in GSC to use `submit_url` and `submit_batch`.
+**Note on the Indexing API with OAuth:** even with OAuth, the authenticated account must be a property owner in GSC to use `submit_url` and `submit_batch`, and the submitted page must meet Google's `JobPosting` or livestream `BroadcastEvent` eligibility policy.
 
 ---
 

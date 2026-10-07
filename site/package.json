@@ -1,0 +1,29 @@
+{
+  "name": "search-console-mcp-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export:data": "python scripts/export-product-data.py",
+    "prepare:docs": "node scripts/prepare-doc-content.mjs",
+    "verify:translations": "node scripts/prepare-doc-content.mjs --verify-translations",
+    "dev": "pnpm export:data && pnpm prepare:docs && astro dev",
+    "build": "pnpm export:data && pnpm prepare:docs && astro build",
+    "preview": "astro preview",
+    "check": "pnpm export:data && pnpm prepare:docs && astro check",
+    "test:docs": "node --test tests/doc-content-source.test.mjs",
+    "test:dist": "node --test tests/dist-*.test.mjs",
+    "test:e2e": "playwright test",
+    "verify": "pnpm test:docs && pnpm verify:translations && pnpm check && pnpm build && pnpm test:dist && pnpm test:e2e"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
+    "@astrojs/starlight": "0.37.7",
+    "astro": "^5.17.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.55.0",
+    "typescript": "^5.9.3"
+  }
+}

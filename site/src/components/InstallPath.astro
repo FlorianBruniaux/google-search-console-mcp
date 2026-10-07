@@ -1,0 +1,35 @@
+---
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].install
+const links = getSiteLinks(locale)
+const targets = ['install-evaluate', 'install-persistent', 'install-verify'] as const
+const commands = ['uvx gsc-mcp-tools', 'uv tool install gsc-mcp-tools', 'gsc-cli list'] as const
+---
+
+<section id="install" aria-labelledby="install-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="install-title">{content.title}</h2>
+      <p>{content.intro}</p>
+    </div>
+    <ol class="install-grid">
+      {content.steps.map(([title, copy], index) => (
+        <li id={targets[index]}>
+          <span class="step-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <h3>{title}</h3>
+          <p>{copy}</p>
+          <div class="command-row">
+            <code tabindex="0">{commands[index]}</code>
+            <button type="button" data-copy-command={commands[index]} aria-controls={`${targets[index]}-copy-status`}>{content.copyLabels[index]}</button>
+          </div>
+          {index === 2 && <p class="expected-result">{content.expected}</p>}
+          <p id={`${targets[index]}-copy-status`} class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+        </li>
+      ))}
+    </ol>
+    <a class="text-link" href={links.install}>{content.guide} <span aria-hidden="true">→</span></a>
+  </div>
+</section>

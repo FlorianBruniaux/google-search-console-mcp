@@ -1,0 +1,52 @@
+---
+const isFrench = Astro.url.pathname.startsWith('/fr/')
+const homeLabel = isFrench ? 'Accueil du site Search Console MCP' : 'Search Console MCP site home'
+const homeCue = isFrench ? '← Accueil' : '← Home'
+const homeHref = isFrench ? '/fr/' : '/'
+---
+
+<a class="docs-site-title" href={homeHref} aria-label={homeLabel}>
+  <span class="docs-monogram" aria-hidden="true">FB<span>.</span></span>
+  <span class="docs-product-name">Search Console MCP</span>
+  <span class="docs-home-cue">{homeCue}</span>
+</a>
+
+<style>
+  .docs-site-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 44px;
+    color: var(--sl-color-white);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+  }
+
+  .docs-monogram {
+    color: var(--sl-color-accent-high);
+    font-size: 1.35rem;
+    font-weight: 850;
+    letter-spacing: -0.06em;
+  }
+
+  .docs-monogram span { color: currentColor; }
+
+  .docs-home-cue {
+    margin-inline-start: 0.15rem;
+    padding-inline-start: 0.8rem;
+    border-inline-start: 1px solid var(--sl-color-gray-5);
+    color: var(--sl-color-accent-high);
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  :global([data-theme='light']) .docs-site-title { color: #1a1207; }
+  :global([data-theme='light']) .docs-monogram { color: #c2410c; }
+  :global([data-theme='light']) .docs-home-cue { color: #9a3412; }
+
+  @media (max-width: 50rem) {
+    .docs-product-name { display: none; }
+  }
+</style>

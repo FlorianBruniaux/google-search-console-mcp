@@ -1,0 +1,28 @@
+---
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].final
+const links = getSiteLinks(locale)
+
+const command = 'uvx gsc-mcp-tools'
+---
+
+<section id="final-install" class="final-install section-tinted" aria-labelledby="final-install-title">
+  <div class="container final-install-layout">
+    <div>
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="final-install-title">{content.title}</h2>
+      <p>{content.copy}</p>
+    </div>
+    <div class="final-install-actions">
+      <div class="command-row command-row-prominent">
+        <code tabindex="0">{command}</code>
+        <button class="button button-primary" type="button" data-copy-command={command} aria-controls="final-install-copy-status">{content.button}</button>
+      </div>
+      <p id="final-install-copy-status" class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+      <a class="text-link" href={links.install}>{content.guide} <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>

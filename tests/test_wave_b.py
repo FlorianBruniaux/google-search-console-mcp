@@ -346,15 +346,17 @@ def test_indexnow_submit_ok():
 
 
 def test_indexnow_submit_202():
-    """HTTP 202 Accepted also maps to verdict=ok."""
+    """HTTP 202 is received while key validation remains pending."""
     mock_client = _make_indexnow_client(202)
     with patch("gsc_mcp.tools.indexing.httpx.Client", return_value=mock_client):
         result = json.loads(indexnow_submit(
             site="https://example.com",
-            key="abc123",
+            key="abc12345",
             urls=["https://example.com/p"],
         ))
     assert result["verdict"] == "ok"
+    assert result["status"] == "received"
+    assert result["key_validation"] == "pending"
     assert result["status_code"] == 202
 
 
@@ -370,7 +372,7 @@ def test_indexnow_submit_partial_skipped():
          patch("gsc_mcp.tools.indexing.httpx.Client", return_value=mock_client):
         result = json.loads(indexnow_submit(
             site="https://example.com",
-            key="key1",
+            key="valid-key",
             urls=["https://example.com/ok", "https://bad.internal/skip"],
         ))
     assert result["verdict"] == "partial"
@@ -386,7 +388,7 @@ def test_indexnow_submit_all_invalid():
     with patch("gsc_mcp.tools.indexing.validate_url_strict", side_effect=_validate):
         result = json.loads(indexnow_submit(
             site="https://example.com",
-            key="key1",
+            key="valid-key",
             urls=["https://192.168.1.1/page"],
         ))
     assert result["verdict"] == "error"
@@ -396,15 +398,13 @@ def test_indexnow_submit_all_invalid():
 
 
 def test_indexnow_submit_empty_urls():
-    """Empty URL list returns error immediately (no HTTP call)."""
-    result = json.loads(indexnow_submit(
-        site="https://example.com",
-        key="key1",
-        urls=[],
-    ))
-    assert result["verdict"] == "error"
-    assert result["submitted"] == 0
-    assert result["skipped_invalid"] == 0
+    """Empty URL list is rejected immediately."""
+    with pytest.raises(ValueError):
+        indexnow_submit(
+            site="https://example.com",
+            key="valid-key",
+            urls=[],
+        )
 
 
 def test_indexnow_submit_422():
@@ -426,10 +426,11 @@ def test_indexnow_submit_429():
     with patch("gsc_mcp.tools.indexing.httpx.Client", return_value=mock_client):
         result = json.loads(indexnow_submit(
             site="https://example.com",
-            key="key1",
+            key="valid-key",
             urls=["https://example.com/p"],
         ))
     assert result["verdict"] == "error"
+    assert result["status"] == "rejected"
 
 
 def test_indexnow_submit_host_extracted():
@@ -438,7 +439,7 @@ def test_indexnow_submit_host_extracted():
     with patch("gsc_mcp.tools.indexing.httpx.Client", return_value=mock_client):
         indexnow_submit(
             site="https://example.com",
-            key="mykey",
+            key="valid-key",
             urls=["https://example.com/p"],
         )
     _, kwargs = mock_client.post.call_args
@@ -451,11 +452,11 @@ def test_indexnow_submit_key_location_format():
     with patch("gsc_mcp.tools.indexing.httpx.Client", return_value=mock_client):
         indexnow_submit(
             site="https://example.com",
-            key="abc123",
+            key="abc12345",
             urls=["https://example.com/p"],
         )
     _, kwargs = mock_client.post.call_args
-    assert kwargs["json"]["keyLocation"] == "https://example.com/abc123.txt"
+    assert kwargs["json"]["keyLocation"] == "https://example.com/abc12345.txt"
 
 
 def test_indexnow_submit_meta():
@@ -464,7 +465,7 @@ def test_indexnow_submit_meta():
     with patch("gsc_mcp.tools.indexing.httpx.Client", return_value=mock_client):
         result = json.loads(indexnow_submit(
             site="https://example.com",
-            key="k",
+            key="valid-key",
             urls=["https://example.com/p1", "https://example.com/p2"],
         ))
     assert result["_meta"]["tool"] == "indexnow_submit"

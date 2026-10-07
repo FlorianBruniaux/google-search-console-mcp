@@ -1,11 +1,11 @@
-"""gsc-cli: shell frontend for the 61 gsc-mcp tools.
+"""gsc-cli: shell frontend for the registered gsc-mcp tools.
 
 Generates all subcommands by introspecting registry.TOOLS at startup. Both the MCP
 server and this CLI share the same tool functions; the CLI adds nothing and hides
 nothing from the core.
 
 Usage:
-    gsc-cli list                            list all 61 commands
+    gsc-cli list                            list all registered commands
     gsc-cli <command> [--flag value ...]    run a tool
     gsc-cli <command> --help                show flags for a command
     gsc-cli auth login --allow-browser      interactive OAuth flow
@@ -26,6 +26,11 @@ import types
 import typing
 
 from gsc_mcp.registry import TOOLS
+
+
+def _argparse_text(text: str) -> str:
+    """Escape literal percent signs consumed by argparse's help formatter."""
+    return text.replace("%", "%%")
 
 
 # ---------------------------------------------------------------------------
@@ -99,7 +104,7 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
     cmd_name = fn.__name__.replace("_", "-")
     doc = fn.__doc__ or ""
     help_text = doc.strip().splitlines()[0] if doc.strip() else ""
-    sub = subparsers.add_parser(cmd_name, help=help_text)
+    sub = subparsers.add_parser(cmd_name, help=_argparse_text(help_text))
 
     sig = inspect.signature(fn)
     try:
@@ -139,7 +144,7 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
                 "type": str,
                 "required": required,
                 "metavar": "JSON",
-                "help": (
+                "help": _argparse_text(
                     'JSON array of dicts, e.g. \'[{"name":"step1","event":"purchase"}]\'. '
                     "Must be a valid JSON string."
                 ),
@@ -160,18 +165,18 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
         "--meta",
         action="store_true",
         default=False,
-        help="include _meta block in JSON output (hidden by default)",
+        help=_argparse_text("include _meta block in JSON output (hidden by default)"),
     )
     return sub
 
 
 def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
-    """Build the root parser with `list`, `auth`, and 61 tool subcommands."""
+    """Build the root parser with utility and registered tool subcommands."""
     parser = argparse.ArgumentParser(
         prog="gsc-cli",
-        description=(
-            "Shell frontend for gsc-mcp: Google Search Console, GA4, and CrUX. "
-            "Run `gsc-cli list` to see all 61 available commands."
+        description=_argparse_text(
+            "Shell frontend for gsc-mcp search and analytics tools. "
+            f"Run `gsc-cli list` to see all {len(TOOLS)} available commands."
         ),
     )
     subparsers = parser.add_subparsers(dest="command", metavar="command")
@@ -180,22 +185,28 @@ def _build_parser() -> tuple[argparse.ArgumentParser, dict]:
     # Utility: list
     subparsers.add_parser(
         "list",
-        help="List all 61 available commands with a one-line description.",
+        help=_argparse_text(
+            f"List all {len(TOOLS)} available commands with a one-line description."
+        ),
     )
 
     # Utility: auth
-    auth_parser = subparsers.add_parser("auth", help="Authentication utilities.")
+    auth_parser = subparsers.add_parser(
+        "auth", help=_argparse_text("Authentication utilities.")
+    )
     auth_sub = auth_parser.add_subparsers(dest="auth_command", metavar="auth_command")
     auth_sub.required = True
     login_parser = auth_sub.add_parser(
         "login",
-        help="Trigger the OAuth browser flow interactively to cache credentials.",
+        help=_argparse_text(
+            "Trigger the OAuth browser flow interactively to cache credentials."
+        ),
     )
     login_parser.add_argument(
         "--allow-browser",
         action="store_true",
         default=False,
-        help="Confirm you want to open a browser window for OAuth.",
+        help=_argparse_text("Confirm you want to open a browser window for OAuth."),
     )
 
     # One subparser per tool function
@@ -329,3 +340,7 @@ def main(argv=None) -> int:
     fn_name = cmd.replace("-", "_")
     keep_meta = getattr(namespace, "meta", False)
     return _call_tool(fn_name, namespace, keep_meta)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

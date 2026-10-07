@@ -1,0 +1,21 @@
+# Search Console MCP
+
+> Open-source MCP server for Google Search Console, Bing Webmaster Tools, GA4, CrUX, IndexNow and public-page SEO audits.
+
+Search Console MCP exposes structured search data to Claude, Codex and other compatible MCP clients. Google and Bing metrics remain separate. An accepted submission proves neither crawl nor indexation.
+
+## Documentation
+
+- English documentation: https://search-console.bruniaux.com/docs/
+- Documentation française: https://search-console.bruniaux.com/fr/docs/
+- Installation: https://search-console.bruniaux.com/docs/installation/
+- Google setup: https://search-console.bruniaux.com/docs/google-setup/
+- Bing setup: https://search-console.bruniaux.com/docs/bing-setup/
+- Audit examples: https://search-console.bruniaux.com/docs/examples/
+- Evidence and safety: https://search-console.bruniaux.com/docs/evidence-and-safety/
+
+## Project
+
+- Source: https://github.com/FlorianBruniaux/google-search-console-mcp
+- Package: https://pypi.org/project/gsc-mcp-tools/
+- License: https://search-console.bruniaux.com/docs/license/

@@ -1,0 +1,15 @@
+---
+import type productData from '../generated/product.json'
+import { landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale; product: typeof productData }
+const { locale, product } = Astro.props
+const content = landingContent[locale].proof
+---
+
+<div class="proof-strip">
+  <ul class="container proof-list" aria-label={content.label}>
+    {content.items.map(([label, copy], index) => (
+      <li><strong>{index === 0 ? `${product.toolCount} ${label}` : label}</strong><span>{copy}</span></li>
+    ))}
+  </ul>
+</div>

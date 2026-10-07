@@ -2,32 +2,44 @@
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 36 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server registers all tools at startup and handles the MCP wire protocol via `mcp[cli]`.
+gsc-mcp is a FastMCP server exposing 81 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
 ```
 src/gsc_mcp/
-├── server.py          # Entry point. Imports all tools, registers them on the FastMCP instance
-├── auth.py            # get_searchconsole_service(), get_indexing_service(), get_ga4_service(), get_ga4_property_id()
+├── server.py          # Entry point. Registers every function from registry.TOOLS
+├── registry.py        # Single source of truth for the 81 MCP and CLI tools
+├── cli.py             # Flag-only CLI generated from registry function signatures
+├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
 ├── meta.py            # with_meta(data, tool, params): wraps every tool output
 ├── retry.py           # with_retry() decorator: exponential backoff on retryable HTTP errors
 ├── quota.py           # QuotaTracker: in-memory counter for Indexing API calls
+├── providers/
+│   ├── base.py        # SearchMetricRow/Batch and the common provider protocol
+│   ├── google.py      # Google Search Console metrics adapter
+│   └── bing.py        # Redacted Bing JSON/HTTP client and metrics adapter
 └── tools/
-    ├── properties.py  # get_capabilities, list_properties, get_site_details
-    ├── analytics.py   # 6 analytics tools + _fetch_rows / _date_range / _parse_row helpers
-    ├── seo.py         # quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries
+    ├── properties.py  # 3 capability and GSC property tools
+    ├── analytics.py   # 10 GSC analytics tools + shared fetch/date helpers
+    ├── seo.py         # 8 SEO analyses; 3 support Bing and 4 refuse unsupported Bing contracts
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
-    ├── indexing.py    # submit_url, submit_batch (via _submit_batch_impl)
+    ├── indexing.py    # submit_url, submit_batch, indexnow_submit
     ├── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete, sitemap_audit
-    ├── ga4.py         # 6 GA4 tools (all filterable by hostname/country) + _build_dimension_filter helper
-    ├── cross.py       # traffic_health_check, page_analysis + _normalize_url helper
-    ├── crux.py        # crux_page_vitals, crux_history (Chrome UX Report API via httpx)
-    └── technical.py   # schema_validate (JSON-LD extraction + validation via html.parser)
+    ├── ga4.py         # 7 GA4 tools + _build_dimension_filter helper
+    ├── cross.py       # 4 GSC+GA4 tools + _normalize_url helper
+    ├── crux.py        # 3 Chrome UX Report tools via httpx
+    ├── technical.py   # 5 schema, AI visibility, GBP and PageSpeed tools
+    ├── drift.py       # 3 persisted SEO drift tools
+    ├── content.py     # 5 on-page content and technical audits
+    ├── links.py       # 2 internal-link tools
+    ├── bing_analytics.py   # 6 Bing performance/backlink reads
+    ├── bing_webmaster.py   # 9 Bing reads + 4 guarded writes
+    └── search_compare.py   # 1 evidence-bounded Google/Bing comparison
 ```
 
-## Three API clients, three scopes
+## Google clients, Bing transport and IndexNow
 
 The server has three independent API clients, each with its own scope and token file:
 
@@ -38,6 +50,20 @@ The server has three independent API clients, each with its own scope and token 
 `auth.py` exposes three independent functions (`get_searchconsole_service()`, `get_indexing_service()`, `get_ga4_service()`) that each resolve credentials for their respective scope, either from a Service Account file or from a cached OAuth token stored per-scope in the OS user data directory.
 
 The same Service Account JSON can serve all three APIs: add the SA email (`client_email` field) as a Viewer in GSC and in GA4 Property Access Management. No separate key file needed.
+
+Bing uses a separate `BING_WEBMASTER_API_KEY` read from the process environment. This is a user-level key: one value can access every verified site visible to that Bing account, while each tool receives its target `site`. The key is added only inside `BingWebmasterClient`; it is never accepted as a tool argument or returned in metadata or errors.
+
+`BingWebmasterClient` calls the Bing JSON/HTTP endpoint with method allowlists, no redirects, a 15-second operation deadline and bounded retry for 429/5xx. Remote errors are reduced to status, method and a sanitized code. The client does not serialize response bodies or request parameters into exceptions.
+
+IndexNow is not Bing Webmaster auth. `indexnow_submit` receives a separate key as an argument, and that key must be verifiable on each target host or subdomain. The repository does not consume an `INDEXNOW_KEY` environment variable.
+
+## Common search metrics contract
+
+`providers/base.py` defines the minimal cross-engine row: date, query, page, clicks, impressions, CTR, position and `provider_metrics`. Google and Bing adapters retain their own position semantics. Bing stores `avg_click_position` and `avg_impression_position` in `provider_metrics`; date rows expose no position.
+
+The Bing adapter supports one dimension at a time: query, page or date. It filters returned rows to the requested local bounds but sets `window_exact=False` because the API does not accept arbitrary date bounds. Country, device and bulk page-query dimensions are explicitly unsupported. Cross-engine click and impression deltas are emitted only when both providers expose equal exact observed windows. Positions remain side by side.
+
+The redacted live canary verified 15 of 17 Bing read methods. `GetKeywordStats` and `GetRelatedKeywords` returned HTTP 400 and have no registered tools. The public Bing API also does not expose the full URL Inspection or AI Performance interface.
 
 ## GA4 pattern: protobuf objects, not dicts
 
@@ -60,7 +86,7 @@ For `ga4_user_behavior`, a single `BatchRunReportsRequest` wraps three sub-reque
 
 The `GA4_PROPERTY_ID` environment variable accepts either a bare numeric ID (`123456789`) or the full resource name (`properties/123456789`). `get_ga4_property_id(override=None)` normalises it and raises `RuntimeError` if absent and no override is passed, validated lazily (first tool call, never at startup).
 
-All 6 GA4 tools and the 2 cross tools accept an optional `property_id: str = None` parameter. When provided, it is forwarded to `get_ga4_property_id(override=property_id)` and takes precedence over the env var. This allows querying multiple GA4 properties from a single MCP instance without config changes.
+All 7 GA4 tools and the 4 GSC+GA4 cross tools accept an optional `property_id: str = None` parameter. When provided, it is forwarded to `get_ga4_property_id(override=property_id)` and takes precedence over the env var. This allows querying multiple GA4 properties from a single MCP instance without config changes.
 
 Token files are JSON, not pickle. `google.oauth2.credentials.Credentials` provides `.to_json()` and `.from_authorized_user_info()` for round-tripping safely.
 
@@ -100,6 +126,16 @@ Every tool returns `json.dumps(with_meta(data, tool=..., params=...))`. The `_me
   }
 }
 ```
+
+## Bing analysis and mutation boundaries
+
+`quick_wins`, `seo_striking_distance` and `prune_candidates` accept `engine="bing"` and consume normalized Bing rows. A missing Bing position excludes a row only from analyses that require position. `prune_candidates` can still classify a page from measured clicks and impressions, but it never treats missing impressions as proof that the page is not indexed.
+
+Four analyses return structured refusals without a provider call: `traffic_drops` and `seo_lost_queries` require exact adjacent periods; `check_alerts` and `seo_cannibalization` require the bulk page-query dimension. No N+1 fallback synthesizes those missing contracts.
+
+The Bing family has 15 reads and 4 writes. Every write validates a public target URL and requires the target to share the site's origin. `bing_url_submit` and `bing_feed_submit` can report an accepted request, with `indexed=false` and `indexed_semantics="not_verified"`. `bing_urls_submit_batch` currently refuses before `SubmitUrlBatch` because `DailyQuota` and `MonthlyQuota` are observed integers whose total-versus-remaining semantics remain `UNKNOWN`. `bing_feed_remove` requires `confirm=true`, a feed-shaped URL and a pre-existing matching feed.
+
+Live-runtime evidence remains bounded. Data freshness is unknown; a non-empty `GetCrawlIssues` item shape has not been observed; nested backlink item schemas and `RemoveFeed` remain `UNVERIFIED_RUNTIME`. No Bing write was executed against a production site during validation. HTTP 200, an accepted submission or a last crawl date does not prove current indexation or an SEO effect.
 
 ## Retry
 

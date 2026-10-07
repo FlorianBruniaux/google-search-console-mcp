@@ -10,7 +10,7 @@ Replace `yourdomain.com` with your GSC property URL.
 
 > Is yourdomain.com/your-page being indexed by Google? When was it last crawled?
 
-Claude calls `inspect_url` and returns the exact indexing verdict, last crawl timestamp, crawl allowed status, and any canonical or redirect issues it found.
+The assistant calls `inspect_url` and returns Google's indexing verdict, last crawl timestamp, crawl-allowed status and canonical evidence.
 
 ---
 
@@ -18,36 +18,38 @@ Claude calls `inspect_url` and returns the exact indexing verdict, last crawl ti
 
 > Check if these pages are indexed: yourdomain.com/page-1, yourdomain.com/page-2, yourdomain.com/page-3, yourdomain.com/page-4, yourdomain.com/page-5
 
-Claude calls `batch_url_inspection` using true multipart HTTP (not a sequential loop) and returns a table with the indexing status of each URL in one request.
+The assistant calls `batch_url_inspection` for the bounded URL set and returns the observed status of each inspected URL.
 
 ---
 
-## Site-wide indexing sweep
+## Bounded indexing sweep
 
-> Run an indexing audit across my top pages on yourdomain.com. Which ones have issues and what kind?
+> Run an indexing audit across my 10 highest-traffic pages on yourdomain.com. Which inspected URLs have issues, and what exact verdict did Google return?
 
-Claude calls `check_indexing_issues` on your highest-traffic pages and groups results by verdict type: indexed, not indexed, crawled but not indexed, excluded by robots.txt or noindex.
+The assistant calls `check_indexing_issues` on the bounded high-traffic sample and groups the returned verdicts without generalizing them to the whole site.
 
 ---
 
 ## Sitemap coverage audit
 
-> Audit all submitted sitemaps for yourdomain.com. Are there pages in the sitemaps that aren't getting indexed?
+> List the submitted sitemaps for yourdomain.com, then audit the main sitemap. Which declared URLs have no Search Analytics page row in the last 90 days and should be sampled with URL Inspection?
 
-Claude calls `sitemap_audit`, cross-references declared URLs against 90 days of GSC coverage data, and flags any URL submitted in a sitemap but absent from the index.
+The assistant calls `sitemap_audit` to compare declared URLs with 90 days of Search Analytics page rows. URLs without search data are candidates for URL Inspection, not evidence that they are absent from the index.
 
 ### Follow-up
 
-> For the pages in my sitemap that aren't indexed, group them by the reason Google gives. Which group is the largest and what's the fix?
+> Inspect the sampled URLs that have no Search Analytics row. Group only the returned URL Inspection verdicts by reason and keep uninspected URLs as unknown.
 
 ---
 
-## Submit pages for indexing
+## Submit eligible pages through Google's Indexing API
 
-> Request indexing for yourdomain.com/new-page.
+Google restricts the Indexing API to pages containing `JobPosting` or `BroadcastEvent` embedded in a `VideoObject`. For other page types, use URL Inspection for diagnosis and normal discovery paths such as sitemaps and internal links. See [Google's official policy](https://developers.google.com/search/apis/indexing-api/v3/quickstart).
 
-Claude calls `submit_url` to push the URL to Google's indexing queue.
+> This page contains eligible JobPosting or livestream BroadcastEvent markup: yourdomain.com/new-page. Inspect it, verify eligibility, state the exact `submit_url` action, and wait for my explicit confirmation before submitting.
 
-> Submit these pages for indexing: yourdomain.com/new-page-1, yourdomain.com/new-page-2, yourdomain.com/new-page-3
+After confirmation, the assistant can call `submit_url` once. The returned status proves notification receipt, not crawl or indexation.
 
-Claude calls `submit_batch` for efficient bulk submission in a single request.
+> These three pages contain eligible markup: yourdomain.com/new-page-1, yourdomain.com/new-page-2, yourdomain.com/new-page-3. Inspect and validate each page, report the exact `submit_batch` target set, and wait for my explicit confirmation.
+
+After confirmation, `submit_batch` can send the bounded eligible set in one HTTP batch. Check the pages again later with URL Inspection instead of treating acceptance as indexation.

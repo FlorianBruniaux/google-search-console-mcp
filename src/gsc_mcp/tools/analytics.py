@@ -33,7 +33,7 @@ def _fetch_rows(svc, site: str, body: dict) -> list[dict]:
     rows: list[dict] = []
     start_row = 0
     pages_fetched = 0
-    dimensions = body.get("dimensions", ["query"])
+    dimensions = body.get("dimensions", [])
 
     while pages_fetched < _MAX_PAGES:
         page_body = {**body, "startRow": start_row, "rowLimit": _MAX_ROWS_PER_PAGE}
@@ -84,14 +84,16 @@ def get_performance_overview(site: str, days: int = 28) -> str:
     """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
-    body = {"startDate": start, "endDate": end, "dimensions": ["query"], "rowLimit": _MAX_ROWS_PER_PAGE}
-    rows = _fetch_rows(svc, site, body)
+    totals_rows = _fetch_rows(svc, site, {"startDate": start, "endDate": end})
+    query_rows = _fetch_rows(svc, site, {
+        "startDate": start, "endDate": end, "dimensions": ["query"],
+    })
 
-    total_clicks = sum(r["clicks"] for r in rows)
-    total_impressions = sum(r["impressions"] for r in rows)
+    total_clicks = sum(r["clicks"] for r in totals_rows)
+    total_impressions = sum(r["impressions"] for r in totals_rows)
     avg_ctr = round(total_clicks / total_impressions, 4) if total_impressions else 0.0
     avg_position = (
-        round(sum(r["position"] * r["impressions"] for r in rows) / total_impressions, 1)
+        round(sum(r["position"] * r["impressions"] for r in totals_rows) / total_impressions, 1)
         if total_impressions > 0 else 0.0
     )
 
@@ -105,7 +107,8 @@ def get_performance_overview(site: str, days: int = 28) -> str:
                 "ctr": avg_ctr,
                 "avg_position": avg_position,
             },
-            "top_queries": rows[:10],
+            "top_queries": query_rows[:10],
+            "top_queries_scope": "Visible query rows can omit anonymized queries; totals use an ungrouped query.",
         },
         tool="get_performance_overview",
         params={"site": site, "days": days},
@@ -129,7 +132,6 @@ def compare_search_periods(site: str, days: int = 28) -> str:
         body = {
             "startDate": start.isoformat(),
             "endDate": end.isoformat(),
-            "dimensions": ["query"],
         }
         return _fetch_rows(svc, site, body)
 

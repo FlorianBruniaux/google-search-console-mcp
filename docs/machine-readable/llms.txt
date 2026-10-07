@@ -1,22 +1,26 @@
 # gsc-mcp Architecture Quick Reference for AI Assistants
-# Source: 15 ADRs + code archaeology (2026-08-24, v1.1.0)
+# Source: 16 ADRs + code archaeology (2026-10-05, Bing provider release)
 # Load in CLAUDE.md: @docs/machine-readable/llms.txt
 
 ## What This Project Is
 
-Python MCP server exposing 61 Google Search Console / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
+Python MCP server exposing 81 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
+Published package 1.2.0 contains the full 81-tool Google and Bing registry described below.
+Setup guides: docs/installation.md, docs/google-setup.md, docs/bing-setup.md.
+Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 61 tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 81 tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
 
-AUTH: src/gsc_mcp/auth.py : Three API service helpers:
-  get_searchconsole_service() → GSC Search Console + Indexing API
+AUTH: src/gsc_mcp/auth.py : Google service helpers plus a Bing env-key reader:
+  get_searchconsole_service() → GSC Search Console API
+  get_indexing_service()      → Google Indexing API
   get_ga4_service()           → GA4 Data API v1 (gRPC)
   get_alpha_ga4_service()     → GA4 Data API v1alpha (for ga4_funnel only)
   Resolution order: GSC_SERVICE_ACCOUNT_PATH env → OAuth JSON token at platformdirs user_data_dir.
@@ -24,6 +28,7 @@ AUTH: src/gsc_mcp/auth.py : Three API service helpers:
   Directory: chmod 0o700.
   Refresh: RefreshError on an expired token's refresh() call deletes the stale cached token and falls
   through to a normal re-auth instead of failing the same way on every subsequent call (v1.0.1).
+  get_bing_api_key() reads BING_WEBMASTER_API_KEY. It never accepts a key from a tool argument.
 
 OUTPUT CONTRACT: src/gsc_mcp/meta.py : with_meta(data, tool, params). Every tool returns:
   json.dumps(with_meta(data, tool="tool_name", params={...}))
@@ -36,10 +41,11 @@ RETRY: src/gsc_mcp/retry.py : @with_retry(max_retries=3, base_delay=1.0). Apply 
 QUOTA: src/gsc_mcp/quota.py : QuotaTracker singleton. Indexing API limit: 200 req/day, warn at 180.
   In-memory only (resets on restart).
 
-WRITE-TOOL PROTOCOL (calling convention, not enforced in code): submit_url, submit_batch,
-  sitemaps_delete, indexnow_submit, submit_sitemap mutate external state. Callers (agents/skills)
-  should read current state first, state the blast radius, get explicit confirmation naming the
-  exact action, then verify the tool's actual return value. See CLAUDE.md (v1.0.1).
+WRITE-TOOL PROTOCOL: submit_url, submit_batch, sitemaps_delete, indexnow_submit,
+  submit_sitemap, bing_url_submit, bing_urls_submit_batch, bing_feed_submit and
+  bing_feed_remove mutate external state. Read current state first, name the exact target and
+  volume, get explicit confirmation, call once, then report only the returned status. Bing writes
+  also enforce same-origin targets; bing_feed_remove requires confirm=true.
 
 TOOLS:
 
@@ -62,6 +68,10 @@ TOOLS:
       "delete these" list by design; a page with clicks can never appear as a
       candidate. Non-regression case: 300 indexed local pages with traffic must
       never be recommended for deletion (tests/test_seo.py::test_prune_solar_panel_local_pages_are_protected).
+    Bing support: quick_wins, seo_striking_distance and prune_candidates accept engine="bing".
+      traffic_drops and seo_lost_queries return bing_exact_period_comparison_unavailable.
+      check_alerts and seo_cannibalization return bing_bulk_page_query_dimension_unavailable.
+      These refusals make no provider call and do not synthesize N+1 page-query data.
 
   inspection.py (3 tools): inspect_url, batch_url_inspection, check_indexing_issues
 
@@ -78,6 +88,38 @@ TOOLS:
 
   properties.py (3 tools): list_properties, get_site_details, get_capabilities
     _ALL_TOOLS list lives here. Update it when adding tools.
+    get_capabilities returns the derived total plus declared Google/Bing credential env state.
+    credential_env_declared is configuration presence, not an authentication check.
+
+  bing_analytics.py (6 read tools):
+    bing_query_stats, bing_page_stats, bing_page_query_stats, bing_rank_traffic_stats,
+    bing_link_counts, bing_url_links.
+    Search performance filters Bing rows to a requested local window but reports the observed
+    window separately. CTR is derived from clicks/impressions. Bing position fields retain their
+    own semantics. Backlink nested item schemas remain UNVERIFIED_RUNTIME.
+
+  bing_webmaster.py (9 read + 4 write tools):
+    Reads: bing_sites_list, bing_crawl_stats, bing_crawl_issues, bing_crawl_settings_get,
+    bing_url_info, bing_url_traffic, bing_feeds_list, bing_feed_details,
+    bing_url_submission_quota.
+    Writes: bing_url_submit, bing_urls_submit_batch, bing_feed_submit, bing_feed_remove.
+    All targets are strict public URLs on the same origin as site. Accepted writes return
+    indexed=false and indexed_semantics=not_verified. Batch submission refuses before mutation
+    while DailyQuota/MonthlyQuota total-versus-remaining semantics stay UNKNOWN. RemoveFeed,
+    non-empty crawl issue rows and nested backlink rows remain UNVERIFIED_RUNTIME. No Bing write
+    was executed against a production site during the validation recorded for this branch.
+
+  search_compare.py (1 tool): compare_search_engines
+    Compares query or page rows. Click/impression deltas require equal exact observed windows and
+    a dimension present in both providers. CTR is derived after aggregation. Positions remain
+    side by side because Google and Bing semantics differ. Recommendations default to an empty list.
+
+  providers/ (modules, no tools):
+    base.py defines SearchMetricRow/Batch, the minimal common metrics and provider_metrics.
+    google.py supports query/page/date/country/device dimensions with window_exact=true.
+    bing.py supports one of query/page/date, always reports window_exact=false and contains the
+    redacted JSON/HTTP transport. GetKeywordStats and GetRelatedKeywords returned HTTP 400 in the
+    live canary, remain UNKNOWN and are not registered as tools.
 
   ga4.py (7 tools):
     ga4_traffic_sources, ga4_organic_landing_pages, ga4_page_performance,
@@ -197,21 +239,31 @@ TOOLS:
 2. TOKEN STORAGE: Write tokens as JSON (not pickle). Atomic write (tempfile + os.replace()).
    chmod 0o600 on file, 0o700 on directory.
 
-3. SSRF (sitemap_audit + schema_validate + drift tools): All arbitrary URL fetches go through
+3. BING SECRET: Read BING_WEBMASTER_API_KEY only from the environment. Never add it to tool
+   signatures, _meta params, errors or logs. BingApiError contains only sanitized fields.
+
+4. BING WRITES: Run validate_url_strict then validate_same_origin before any Bing mutation.
+   Validate an entire batch before reading quota or writing. Never turn acceptance into an
+   indexation claim.
+
+5. CROSS-ENGINE COMPARISON: Emit click/impression deltas only for equal exact observed windows.
+   Keep positions side by side and retain provider-specific metrics in provider_metrics.
+
+6. SSRF (sitemap_audit + schema_validate + drift tools): All arbitrary URL fetches go through
    url_safety.validate_url_strict() or safe_fetch_html() from src/gsc_mcp/url_safety.py.
    Blocks private IPs, cloud metadata endpoints, obfuscated IPv4, localhost, link-local addresses.
    sitemap_audit additionally enforces origin match on child URLs + follow_redirects=False.
 
-5. REAL PROPERTY IDs: Never hardcode real GSC property IDs or domains in tests or docs.
+7. REAL PROPERTY IDs: Never hardcode real Google or Bing property IDs or domains in tests or docs.
    Use sc-domain:example.com or https://example.com/ as fixtures.
 
-6. RETRY COVERAGE: All direct Google API calls (execute(), runReport(), etc.) need @with_retry().
+8. RETRY COVERAGE: All direct Google API calls (execute(), runReport(), etc.) need @with_retry().
    Missing decorator = unhandled transient failures.
 
-7. OUTPUT CONTRACT: All tools must return json.dumps(with_meta(...)).
+9. OUTPUT CONTRACT: All tools must return json.dumps(with_meta(...)).
    No bare json.dumps(data).
 
-8. CI SECRETS: PYPI_API_TOKEN lives in GitHub Actions secrets, never in pyproject.toml or code.
+10. CI SECRETS: PYPI_API_TOKEN lives in GitHub Actions secrets, never in pyproject.toml or code.
 
 ## Adding a New Tool (checklist)
 
@@ -219,12 +271,12 @@ TOOLS:
 2. Return json.dumps(with_meta(data, tool="name", params={...})).
 3. If the tool fetches an arbitrary user-supplied URL, use safe_fetch_html() from url_safety.py.
 4. Import + add to TOOLS tuple in registry.py (server.py and gsc-cli pick it up automatically).
-5. Add name to _ALL_TOOLS in properties.py. Update count in get_capabilities() docstring.
-6. Write tests in tests/test_<module>.py : mock all Google API calls (never make real requests).
+5. Add name to _ALL_TOOLS in properties.py. Counts derive from registry.TOOLS or _ALL_TOOLS.
+6. Write tests in tests/test_<module>.py : mock every external API call.
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 611 tests, fully mocked.
+SETUP: pytest tests/ : 851 tests, fully mocked at this branch baseline.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -254,6 +306,10 @@ PATCH AT CALL SITE (not in module declaration):
   gsc_mcp.tools.content.safe_fetch_html       ← also covers heading_audit
   gsc_mcp.tools.links.safe_fetch_html         ← internal_links_audit fetch + SSRF/HTTP error paths
   gsc_mcp.tools.links.get_search_analytics    ← link_equity_map GSC page list (module-level import)
+  gsc_mcp.providers.bing.httpx.Client         ← Bing transport, context manager pattern
+  gsc_mcp.tools.bing_analytics.get_bing_client ← Bing performance and backlink reads
+  gsc_mcp.tools.bing_webmaster.get_bing_client ← Bing site, crawl, URL, feed and write tools
+  gsc_mcp.tools.search_compare.get_search_provider ← cross-engine provider batches
 
 ## Environment Variables
 
@@ -265,6 +321,10 @@ CRUX_API_KEY              : crux_page_vitals, crux_history, crux_lcp_subparts. P
                             Missing CRUX_API_KEY: crux_page_vitals + crux_history raise RuntimeError; crux_lcp_subparts returns verdict="missing_key".
 GOOGLE_API_KEY            : pagespeed_audit only. Plain Google API key with PageSpeed Insights API enabled in GCP.
                             Missing GOOGLE_API_KEY: returns verdict="missing_key" (no exception).
+BING_WEBMASTER_API_KEY    : all bing_* tools. User-level key shared by verified sites visible to the account.
+                            Site stays a per-call argument. Never expose this value in tool arguments or errors.
+INDEXNOW KEY              : not an env var in the current code. indexnow_submit receives a distinct key argument
+                            that must be verifiable on each target host or subdomain.
 
 ## Quick Decision Tree
 
@@ -273,10 +333,13 @@ GOOGLE_API_KEY            : pagespeed_audit only. Plain Google API key with Page
 - New GA4 tool → ga4.py, add hostname+country filter via _build_dimension_filter, with_meta
 - New GA4 alpha API tool → ga4.py, use get_alpha_ga4_service()
 - New cross-platform tool → cross.py, use _normalize_url for GSC+GA4 join
+- New search-provider metric → providers/<engine>.py, preserve the minimal common schema and provider_metrics
+- New Bing API method → validate the redacted live contract, then add it to the JSON/HTTP client allowlist
+- New cross-engine delta → require equal exact observed windows; never subtract positions
 - New tool fetching external URLs → use safe_fetch_html() from url_safety.py (SSRF, DNS rebinding, metadata blocklist)
 - New tool parsing external XML → defusedxml.ElementTree
 - New tool proposing deletion/noindex/consolidation → read clicks + impressions + indexing status over >=90 days first (prune_candidates or get_search_analytics); never rank on content length or template similarity alone
 - Any Google API call → @with_retry()
 - Any tool return → json.dumps(with_meta(...))
-- New tool registered → update _ALL_TOOLS in properties.py + get_capabilities count
+- New tool registered → update registry.TOOLS and properties._ALL_TOOLS; counts are derived
 - New test → mock get_*_service at call site, never make real API calls

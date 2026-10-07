@@ -1,4 +1,59 @@
-# gsc-mcp
+# Search Console MCP
+
+**Know what to fix to improve your search rankings, without becoming an SEO expert.**
+
+> [!NOTE]
+> **Unavailable metrics are reported as unavailable.** Unsupported Bing analyses return an explicit limitation, and Google and Bing positions stay separate. Cross-engine click and impression deltas are omitted unless both observed windows are exact and equal. [See data limits and engine coverage](#evidence-and-safety).
+
+Ask Claude or Codex to analyze your site's latest SEO changes and suggest what to fix first. Search Console MCP gives your assistant the search metrics and page audits it needs to explain traffic drops, find ranking opportunities, and turn the findings into a prioritized action plan.
+
+After connecting your accounts, you can ask in plain language. The assistant fetches and compares the data for you, so you spend less time exporting reports and interpreting SEO dashboards.
+
+## Choose your starting point
+
+Choose your problem, then ask Claude or Codex. Search Console MCP supplies the data and page audits; your assistant explains the findings and proposes fixes.
+
+New to SEO? Start with a site assessment: understand what to analyze and why, get three first actions, and learn which metrics to follow. You can begin with public pages, then connect Google Search Console for search performance data. GA4 and Bing are optional.
+
+```mermaid
+flowchart LR
+    S["I’m new to SEO: where do I start?"] --> SA["Assess your site and explain what matters"]
+    SA --> SR["Your first actions and what to measure"]
+    T["My traffic is dropping"] --> TA["Analyze recent changes"]
+    TA --> TR["A diagnosis and affected pages"]
+    R["I want better search rankings"] --> RA["Find ranking opportunities"]
+    RA --> RR["A prioritized list of fixes"]
+    I["My pages are hard to find"] --> IA["Check indexing and technical SEO"]
+    IA --> IR["Issues and suggested corrections"]
+```
+
+Open a route to get a prompt to copy, the data it needs and an illustrative result:
+
+- [Start with SEO](https://search-console.bruniaux.com/#seo-getting-started): assess your site, get three priorities and a measurement plan, with explanations in plain language.
+- [Understand a traffic drop](https://search-console.bruniaux.com/#seo-traffic): compare periods with Google Search Console; optional GA4 adds visitor behavior.
+- [Find ranking opportunities](https://search-console.bruniaux.com/#seo-rankings): use configured Google or Bing search metrics and inspect the relevant pages.
+- [Check page visibility](https://search-console.bruniaux.com/#seo-indexing): audit public pages and use Google Search Console for indexing status; Bing can add crawl signals.
+
+Replace the example site in the prompt with your own. Every copied prompt explicitly asks the assistant to use Search Console MCP, verify its tools and guide installation or Google setup if needed. It includes the [installation guide](docs/installation.md), [Google setup guide](docs/google-setup.md) and the matching GitHub example. The prompts request analysis and recommendations without applying site changes.
+
+## What you get
+
+See a [real analysis of my Claude Code Ultimate Guide site](examples/cc-guide-live-audit.md), run on 2026-10-07 with 14 live MCP calls. It measured 459 clicks and 55,921 impressions over 28 days, investigated three pages and proposed actions tied to the observed data. The [request/response trace](examples/evidence/2026-10-07-cc-guide.json) shows the parameters, timestamps and selected results. These are analysis findings; no site correction or ranking gain has been measured from this run.
+
+> Analyze my site's latest SEO changes. Explain what improved or declined, find opportunities to rank higher, and suggest the fixes I should make first.
+
+Your AI assistant uses the connected tools to produce:
+
+- **A diagnosis of recent changes:** which pages and queries gained or lost clicks, impressions or positions, with evidence and possible explanations.
+- **A prioritized list of opportunities:** pages close to page one, search results getting impressions but few clicks, and competing pages targeting the same query.
+- **Concrete suggested fixes:** title and description changes, content briefs, internal-link improvements, and technical or indexing issues to investigate.
+- **A follow-up comparison:** rerun the analysis after making changes to see how clicks, impressions and positions evolved.
+
+For example, if a page gets impressions but few clicks, the assistant can inspect its title and description and suggest a rewrite. If a page is close to page one, it can check its content and internal links before recommending changes. These are example workflows, not measured results for your site.
+
+Search Console MCP is the open-source connection between your data and your AI assistant. The server retrieves metrics and runs analyses; Claude, Codex or another MCP client explains the findings and proposes corrections. A coding assistant with access to your repository can also help implement the fixes you choose.
+
+The goal is better search visibility with less manual analysis and no need to know SEO terminology to ask a question. Initial account setup and review of suggested changes are still required. Recurring checks need a scheduler or automation in your client; the server does not run them on its own. Ranking improvements must be measured after the changes and are not guaranteed.
 
 <table>
   <tr>
@@ -14,25 +69,90 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-611%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tools](https://img.shields.io/badge/MCP%20tools-81-5c4ee5.svg)](#tools-81)
+[![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
+[![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Google Search Console MCP server with 61 tools covering search analytics, URL inspection, the Google Indexing API, IndexNow, Google Analytics 4, Core Web Vitals (CrUX), sitemap auditing, JSON-LD schema validation and generation, SEO drift monitoring, composite health scoring, on-page content/technical audits, heading structure, zone-weighted internal linking, site-wide link equity mapping, AI crawler visibility, GBP deprecation detection, and PageSpeed Insights integration. Built on Python 3.11+ and FastMCP.
+<p align="center">
+  <a href="https://search-console.bruniaux.com/">Website</a> &middot;
+  <a href="https://search-console.bruniaux.com/docs/">Documentation</a> &middot;
+  <a href="https://search-console.bruniaux.com/fr/docs/">Documentation FR</a> &middot;
+  <a href="#start-here">Start here</a> &middot;
+  <a href="#how-it-works">How it works</a> &middot;
+  <a href="#quick-start">Quick start</a> &middot;
+  <a href="#tools-81">Tools</a> &middot;
+  <a href="#evidence-and-safety">Safety</a>
+</p>
 
-**TL;DR:** Install with `uvx gsc-mcp-tools`, point at your GSC service account, and ask Claude things like "which pages on my site are crawled but not indexed? Submit them." The server handles the Google API calls, batching, retries, and quota tracking. All outputs are structured JSON so Claude can reason across results without parsing ambiguity.
+## The data behind the recommendations
 
-No SEO expertise required. You can ask "run a full site audit", "why did my traffic drop last week?", or "which queries are close to page one?" and Claude guides the analysis, explains every metric, and tells you what to fix. See [`examples/`](examples/) for ready-to-use prompts covering quick audits, full audits, traffic drops, keyword opportunities, and more.
+Google Search Console and Bing Webmaster Tools show how people find your pages in search. Optional GA4 data adds what those visitors do on your site; CrUX and public-page audits help identify performance, content and technical issues. Your assistant can use these sources together to decide which pages need attention.
 
-**Latest: v1.1.2** (`internal_links_audit` and `link_equity_map` now follow redirects through the same SSRF-safe DNS-pinning check instead of treating a 301/302 as a crawl failure). v1.1.1 fixed a crash-on-launch for `uvx gsc-mcp-tools` caused by an unbounded `mcp` dependency resolving to an incompatible v2. v1.1.0 added heading structure audit, zone-weighted internal linking audit, site-wide link equity mapping crossed with GSC positions, and a traffic-backed pruning classifier that never flags a page with clicks. See the [full changelog](CHANGELOG.md).
+Version 1.2.0 exposes 81 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
 
-## What you can do with it
+> [!IMPORTANT]
+> `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
 
-The 61 tools span fourteen families: Properties (list and inspect GSC sites), Analytics (impressions, clicks, CTR, position, anomalies, Discover and News performance), SEO (quick wins, traffic drops, cannibalization, striking-distance queries, parasite SEO risk, traffic-backed pruning candidates), Inspection (URL indexing status, batch inspection, issue categorization), Indexing API (single URL submit or true HTTP batch), IndexNow (Bing/Yandex/Seznam/Naver notification), and Sitemaps (list, submit, audit coverage against GSC data). The remaining six families cover GA4 (sessions, engagement, conversions, realtime, multi-step funnels), Cross (GSC+GA4 joined health check and page analysis), CrUX (real-user Core Web Vitals + LCP subpart breakdown), Technical (JSON-LD schema validation with deprecated-rich-results detection, schema generation, AI crawler visibility audit, GBP deprecation lint, PageSpeed Insights), Drift (SEO drift monitoring with baseline snapshots and 17-rule diffs), Content (on-page quality scoring, hreflang validation, technical meta + robots.txt audit, preload/bfcache audit, heading structure), and Links (zone-weighted internal link audit on a page, plus a site-wide link equity map crossed with GSC positions).
+> [!NOTE]
+> An API submission reported as accepted proves neither crawl nor indexation. Search Console MCP keeps observed facts, derived metrics and recommendations separate.
 
-## Tools (61)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/FlorianBruniaux/google-search-console-mcp/main/docs/assets/gsc-mcp-workflow.png" width="1100" alt="Search Console MCP workflow: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions." />
+</p>
+
+## Start here
+
+| Goal | Command or guide | Result |
+| --- | --- | --- |
+| Run the published package | `uvx gsc-mcp-tools` | Starts all 81 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
+| Install for Codex or Claude Desktop | [Installation guide](https://search-console.bruniaux.com/docs/installation/) | Persistent executable, upgrades, client configuration and verification |
+| Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
+| Configure Google access | [Google setup guide](https://search-console.bruniaux.com/docs/google-setup/) | Service Account or OAuth access to the selected properties |
+| Configure Bing access | [Bing setup guide](https://search-console.bruniaux.com/docs/bing-setup/) | One account-level key for the verified sites visible to that account |
+| Run a first audit | [Starter prompts](https://search-console.bruniaux.com/docs/prompts/) | Full audit, health check, page inspection or GA4 analysis prompt |
+| Use the shell instead of MCP | [CLI usage](#cli-usage) | Commands generated from the same 81-tool registry |
+
+## What it covers
+
+| Need | Main capabilities |
+| --- | --- |
+| Search performance | Queries, pages, dates, search types, anomalies, quick wins and traffic drops |
+| Google and Bing comparison | Side-by-side query or page metrics without merging incompatible position semantics |
+| Site health | GSC, GA4, CrUX, schema and public-page signals with graceful degradation |
+| Technical and content SEO | Metadata, headings, hreflang, internal links, structured data, preload and content quality |
+| Indexing and feeds | Google indexing requests, sitemaps, IndexNow and guarded Bing URL or feed submissions |
+| Automation | MCP tools, `gsc-cli`, Claude agents, reusable skills and machine-readable architecture docs |
+
+## How it works
+
+```mermaid
+flowchart TD
+    C[Claude, Codex<br/>or another MCP client] --> S[FastMCP server]
+    S --> R[Shared registry<br/>81 tools]
+    R --> A[Read and analysis tools]
+    R --> W[Guarded write tools]
+    A --> G[Google APIs<br/>GSC, GA4, CrUX]
+    A --> B[Bing Webmaster API]
+    A --> P[Public pages<br/>robots, sitemaps, HTML]
+    A --> L[(Local drift baselines)]
+    W --> V[Validate target, scope<br/>and explicit confirmation]
+    V --> M[Google indexing and sitemaps<br/>Bing submissions and IndexNow]
+    G --> O[Structured JSON<br/>facts, derived values and _meta]
+    B --> O
+    P --> O
+    L --> O
+    M --> O
+    O --> C
+```
+
+Google and Bing share clicks, impressions and derived CTR where those fields exist. Provider-specific values remain separate, and cross-engine deltas appear only when both observed windows are exact and equal.
+
+## Tools (81)
 
 <details>
-<summary>Show all 61 tools</summary>
+<summary>Show all 81 tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -64,7 +184,7 @@ The 61 tools span fourteen families: Properties (list and inspect GSC sites), An
 | Sitemaps | `submit_sitemap` | Submit a sitemap URL |
 | Sitemaps | `sitemaps_get` | Fetch details for a single sitemap |
 | Sitemaps | `sitemaps_delete` | Delete a submitted sitemap (with safety check) |
-| Sitemaps | `sitemap_audit` | Fetch a sitemap, parse its URLs, cross-reference against 90 days of GSC coverage |
+| Sitemaps | `sitemap_audit` | Fetch a sitemap and compare its URLs with 90 days of Search Analytics page rows; does not measure indexation |
 | GA4 | `ga4_organic_landing_pages` | Sessions and engagement for organic landing pages |
 | GA4 | `ga4_traffic_sources` | Sessions and conversions by channel, source and medium |
 | GA4 | `ga4_page_performance` | 7 metrics per page path, optional CONTAINS filter |
@@ -97,55 +217,109 @@ The 61 tools span fourteen families: Properties (list and inspect GSC sites), An
 | Links | `internal_links_audit` | Audit a page's internal links weighted by zone (body, nav, footer, header, aside): targets linked only from footer/nav, generic and empty anchors, internal nofollow, self-links |
 | Links | `link_equity_map` | Crawl the top pages by impressions, build the internal link graph, cross it with GSC: pages at position 11-20 with no body inbound link, orphan candidates, footer-only targets, hubs |
 | SEO | `prune_candidates` | Classify pages by measured traffic (has_traffic, impressions_no_clicks, low_impressions, zero_impressions) before any pruning call; a page with clicks is never a candidate |
+| Bing read | `bing_sites_list` | List sites visible to the Bing account and their observed verified state |
+| Bing read | `bing_query_stats` | Query performance in Bing's observed rolling window |
+| Bing read | `bing_page_stats` | Page performance in Bing's observed rolling window |
+| Bing read | `bing_page_query_stats` | Query performance for one page |
+| Bing read | `bing_rank_traffic_stats` | Daily clicks and impressions; no rank field is inferred |
+| Bing read | `bing_crawl_stats` | Dated crawl counters in the requested local window |
+| Bing read | `bing_crawl_issues` | Crawl issue flags; non-empty live item shape remains unverified |
+| Bing read | `bing_crawl_settings_get` | Observed crawl-rate setting from the partial contract |
+| Bing read | `bing_url_info` | Observed URL fields and last crawl date, without an indexation verdict |
+| Bing read | `bing_url_traffic` | URL clicks, impressions and derived CTR |
+| Bing read | `bing_feeds_list` | List registered Bing feeds |
+| Bing read | `bing_feed_details` | Return every observed feed-detail row |
+| Bing read | `bing_url_submission_quota` | Return quota integers with total-versus-remaining semantics marked unknown |
+| Bing read | `bing_link_counts` | Backlink count page; nested runtime shape remains unverified |
+| Bing read | `bing_url_links` | Backlinks for one URL; nested runtime shape remains unverified |
+| Bing write | `bing_url_submit` | Submit one same-origin URL; acceptance does not prove indexation |
+| Bing write | `bing_urls_submit_batch` | Validate a batch, then refuse it while quota semantics remain unknown |
+| Bing write | `bing_feed_submit` | Submit one same-origin feed without claiming crawl or indexation |
+| Bing write | `bing_feed_remove` | Remove a registered same-origin feed after explicit `confirm=true`; runtime contract unverified |
+| Cross-engine | `compare_search_engines` | Compare query or page metrics; deltas require equal exact observed windows and positions stay side by side |
 
 </details>
 
-## Requirements
+## Quick start
 
 - Python 3.11+
-- A Google Cloud project with the Search Console API, Web Search Indexing API, and Google Analytics Data API enabled
-- A Service Account JSON key (recommended) or OAuth Desktop credentials
+- For Google tools: a Google Cloud project with the Search Console API, Web Search Indexing API and Google Analytics Data API enabled, plus a Service Account JSON key or OAuth Desktop credentials
+- For Bing tools: a Bing Webmaster Tools account, at least one verified site and a Bing Webmaster API key
 
-## Installation
+### Published package
+
+Use the published package for the complete 81-tool registry, including Bing:
 
 ```bash
 uvx gsc-mcp-tools
 ```
 
-Or with pip:
+For a persistent MCP client, install the latest stable package once and configure the absolute executable path. This avoids keeping an extra `uvx` launcher process beside every running server:
+
+```bash
+uv tool install gsc-mcp-tools
+command -v gsc-mcp-tools
+gsc-cli list
+```
+
+Upgrade that installation when a new release is available:
+
+```bash
+uv tool upgrade gsc-mcp-tools
+```
+
+To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.2.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
+
+Release `1.2.0` was built and published by [GitHub Actions](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml) through [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/). The workflow checks that the tag matches `pyproject.toml`, runs the full test suite, validates and smoke-tests the built wheel, then publishes that same artifact with a short-lived OIDC credential. See the [GitHub release](https://github.com/FlorianBruniaux/google-search-console-mcp/releases/tag/v1.2.0) and [PyPI files](https://pypi.org/project/gsc-mcp-tools/1.2.0/#files).
+
+<details>
+<summary>Install with pip instead of uvx</summary>
 
 ```bash
 pip install gsc-mcp-tools
 ```
 
-To run from source:
+</details>
+
+### Source checkout for development
 
 ```bash
 git clone https://github.com/FlorianBruniaux/google-search-console-mcp
 cd google-search-console-mcp
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
+gsc-cli list
 ```
 
-## Configuration
+The final command reads the shared registry and lists the 81 commands available in this checkout. Use this installation when developing or testing unreleased changes.
 
-**Full setup guide:** [docs/google-setup.md](docs/google-setup.md) covers creating a Google Cloud project, enabling APIs, creating a service account, adding it to GSC with the right permission level, and configuring GA4.
+### Configure the providers you use
 
-**First audit prompts:** [docs/starter-prompt.md](docs/starter-prompt.md) contains ready-to-use prompts for a full site audit, a 5-minute health check, single-page inspection, reindexing workflow, and GA4-only analysis.
+**Installation guide:** [docs/installation.md](docs/installation.md) covers persistent and one-time installs, upgrades, Codex project scoping, Claude Desktop, provider variants and verification.
 
-### Quick start (service account)
+**Provider setup:** [docs/google-setup.md](docs/google-setup.md) covers Google credentials and GA4. [docs/bing-setup.md](docs/bing-setup.md) covers the Bing Webmaster API key, verified sites and the separate IndexNow key.
+
+**First audit prompts:** [docs/starter-prompt.md](docs/starter-prompt.md) contains ready-to-use prompts for Google, Bing, cross-engine comparison, single-page inspection, eligible Indexing API submissions and GA4 analysis.
+
+Use only the variables required by the provider families you enable:
 
 ```bash
 export GSC_SERVICE_ACCOUNT_PATH=/absolute/path/to/service-account.json
 export GSC_SKIP_OAUTH=true
 export GA4_PROPERTY_ID=123456789   # only needed for GA4 tools
 export CRUX_API_KEY=AIza...        # only needed for crux_page_vitals, crux_history
+export BING_WEBMASTER_API_KEY='<from-your-secret-store>'  # only needed for bing_* tools
 gsc-mcp
 ```
 
 `CRUX_API_KEY` is a Google API key (not a service account) with the **Chrome UX Report API** enabled in your GCP Console. It is separate from GSC auth and only required for CrUX tools.
 
+<details>
+<summary>Claude Desktop configuration</summary>
+
 ### Claude Desktop
+
+Install the latest stable package once with `uv tool install gsc-mcp-tools`, then copy the absolute path returned by `command -v gsc-mcp-tools` into the configuration:
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
@@ -153,20 +327,137 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "gsc-mcp": {
-      "command": "uvx",
-      "args": ["gsc-mcp-tools"],
+      "command": "/absolute/path/to/gsc-mcp-tools",
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
         "GSC_SKIP_OAUTH": "true",
         "GA4_PROPERTY_ID": "123456789",
-        "CRUX_API_KEY": "AIza..."
+        "CRUX_API_KEY": "AIza...",
+        "BING_WEBMASTER_API_KEY": "<from-your-secret-store>"
       }
     }
   }
 }
 ```
 
-Remove `GA4_PROPERTY_ID` if you are not using GA4 tools. Restart Claude Desktop after saving.
+Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
+
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. Both installations expose the same 81-tool registry.
+
+</details>
+
+<details>
+<summary>Codex configuration without process proliferation</summary>
+
+### Codex
+
+Codex starts a dedicated stdio MCP server for each task that loads it. A declaration in the user-level `~/.codex/config.toml` therefore applies to every project and can leave many legitimate server processes alive while tasks remain active. Running through `uvx` adds a launcher process to each server.
+
+Install the package once:
+
+```bash
+uv tool install gsc-mcp-tools
+command -v gsc-mcp-tools
+```
+
+Then add the server only to trusted projects that need search data by creating `.codex/config.toml` in the project root:
+
+```toml
+[mcp_servers.gsc-mcp]
+command = "/absolute/path/to/gsc-mcp-tools"
+startup_timeout_sec = 60
+
+[mcp_servers.gsc-mcp.env]
+GSC_SERVICE_ACCOUNT_PATH = "/absolute/path/to/service-account.json"
+GSC_SKIP_OAUTH = "true"
+BING_WEBMASTER_API_KEY = "<from-your-secret-store>"
+```
+
+Keep this file untracked when it contains credentials. Remove provider variables you do not use. Codex loads project `.codex/config.toml` only for trusted projects; project configuration and precedence are documented in the [official Codex configuration guide](https://developers.openai.com/codex/config-basic).
+
+Do not add a global single-instance lock to a stdio server. Each client owns a separate stdin/stdout channel, so blocking later instances would break concurrent tasks instead of sharing one server safely. A shared deployment would require the streamable HTTP transport and its own authentication boundary.
+
+</details>
+
+### Bing Webmaster API key
+
+1. Sign in to [Bing Webmaster Tools](https://www.bing.com/webmasters/) and verify every site you want the account to access.
+2. Open the API access settings and generate an API key.
+3. Store the key in your secret manager or local environment as `BING_WEBMASTER_API_KEY`. Never pass it as a tool argument or commit it to a file.
+4. Call each Bing tool with its `site` argument, for example `https://example.com/`. One user-level key can access every verified site visible to that account.
+
+The Bing Webmaster API key and the IndexNow key have different scopes:
+
+- Bing Webmaster API reads private account data and manages verified sites. The server reads its user-level key from `BING_WEBMASTER_API_KEY`.
+- IndexNow notifies participating engines about changed URLs. Its key must be verifiable on each target host or subdomain, and `indexnow_submit` currently receives that key as an explicit argument.
+- The Bing Webmaster Tools web interface exposes features that the public API does not. Full URL Inspection and AI Performance are not available through the public API used here.
+
+Do not reuse the Bing Webmaster API key as an IndexNow key.
+
+### Bing from the CLI
+
+```bash
+# Load BING_WEBMASTER_API_KEY from your local secret store before this command.
+gsc-cli bing-sites-list
+gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 100
+gsc-cli compare-search-engines \
+  --google-site sc-domain:example.com \
+  --bing-site https://example.com/ \
+  --days 28 \
+  --dimension query
+```
+
+`BING_WEBMASTER_API_KEY` is process configuration. It never appears in the CLI flags, tool parameters, result metadata or sanitized Bing errors.
+
+## Evidence and safety
+
+Every tool returns structured JSON. The `_meta` block records diagnostics such as the provider and observed window where the tool can establish them. Search Console MCP does not turn an unavailable field into a negative result or merge Google and Bing ranking semantics into one number.
+
+GA4 reports identify the effective property in `_meta.sources.ga4.property`, including when `GA4_PROPERTY_ID` supplies the default. Combined reports also retain the requested GSC property in `_meta.sources.gsc.site`. `_meta.params` preserves the original inputs, so an omitted `property_id` can remain `null` there while the resolved source is known. Missing child provenance remains `null`; the server does not infer a GA4-to-GSC site mapping. See the [source identity contract](https://search-console.bruniaux.com/docs/evidence-and-safety/#source-identities).
+
+Remote writes require the agent to identify the exact target and volume, read current state where available, and obtain explicit confirmation before calling the tool. The returned API status is reported without extrapolating crawl, indexation or ranking effects.
+
+### Search engine coverage
+
+<details>
+<summary>Compare Google and Bing analysis support</summary>
+
+| Analysis | Google | Bing |
+|---|---|---|
+| Raw query, page and date metrics | Supported | Supported within Bing's observed window |
+| `quick_wins` | Supported | Supported with `engine="bing"` when position is present |
+| `seo_striking_distance` | Supported | Supported with `engine="bing"` when position is present |
+| `prune_candidates` | Supported | Supported with `engine="bing"`; indexation must be checked separately |
+| `traffic_drops`, `seo_lost_queries` | Supported | Explicit refusal: exact period comparison unavailable |
+| `check_alerts`, `seo_cannibalization` | Supported | Explicit refusal: bulk page-query dimension unavailable |
+| Cross-engine query or page comparison | Supported through `compare_search_engines` | Deltas are omitted unless both observed windows are exact and equal |
+
+Bing keyword-research endpoints are not exposed. `GetKeywordStats` and `GetRelatedKeywords` returned HTTP 400 in the redacted live canary, so their contract remains `UNKNOWN`.
+
+</details>
+
+<details>
+<summary>Submission workflow, confirmation rules and current Bing limits</summary>
+
+### Submission workflow and confirmation
+
+There are nine tools that mutate remote state: five existing tools (`submit_url`, `submit_batch`, `submit_sitemap`, `sitemaps_delete`, `indexnow_submit`) and four Bing tools (`bing_url_submit`, `bing_urls_submit_batch`, `bing_feed_submit`, `bing_feed_remove`). Before any call, the agent must read the current state, name the exact target and volume, obtain explicit confirmation, call the tool once, then report its returned status without extrapolation.
+
+Use this sequence for search changes:
+
+1. Analyse measured data and state its observed window.
+2. Recommend a change, separating measured facts, derived metrics and recommendations.
+3. Correct the page or feed outside this MCP server.
+4. Submit only after explicit confirmation and same-origin validation.
+5. Verify the returned API status. An accepted request proves neither crawl nor indexation.
+6. Measure a later comparable window before attributing an effect.
+
+Current Bing runtime limits are explicit: data freshness is unknown; quota integers are not known to represent totals or remaining capacity; non-empty crawl issues, nested backlink rows and `RemoveFeed` remain unverified against live production data. No Bing write was executed against a production site during validation. Batch URL submission is therefore refused before mutation. `bing_url_info` can report a last crawl date, but it cannot provide a complete public URL Inspection verdict.
+
+</details>
+
+<details>
+<summary>Use multiple GA4 properties</summary>
 
 ### Multi-property support
 
@@ -177,16 +468,26 @@ ga4_traffic_sources(property_id="987654321")
 traffic_health_check(site="sc-domain:example.com", property_id="987654321")
 ```
 
-## CLI usage (gsc-cli)
+</details>
 
-After installation, `gsc-cli` is available as a standalone shell command. It wraps all 61 tools from the MCP server and uses the same authentication.
+## CLI usage
+
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Version 1.2.0 and the source checkout both expose 81 commands, including Bing.
 
 ```bash
-# List all 61 commands
+# List the commands in the installed build
 gsc-cli list
 
-# Run any tool (all parameters are flags, no positional args)
+# Run Google or Bing tools with flags
 gsc-cli get-search-analytics --site https://example.com/ --days 28
+gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 100
+```
+
+<details>
+<summary>Advanced CLI arguments, authentication, metadata and exit codes</summary>
+
+```bash
+# Run another registered tool
 gsc-cli get-performance-overview --site https://example.com/
 
 # Multi-value flags for list parameters
@@ -218,9 +519,11 @@ Exit codes: `0` success, `1` Google API error, `2` credential/config error or in
 
 > **Quota note**: `submit-batch` and `submit-url` use the Google Indexing API (200 req/day limit). Each `gsc-cli` call starts a fresh process, so cross-invocation quota tracking is not implemented. The `@with_retry` decorator still catches 429s, but the in-process counter resets every call.
 
+</details>
+
 ## Claude agents and skills
 
-The `.claude/` directory ships 9 pre-built Claude Code agents and 9 skills. Each agent is wired to a single skill that defines exactly what it does: which tools to call, in what order, and how to format the output.
+The `.claude/` directory ships 12 Claude Code agents, 14 skills and 2 development commands. The nine SEO workflow agents below each reference a focused skill. Three additional specialist agents cover Python implementation, pytest and security review.
 
 ### Agents
 
@@ -237,7 +540,7 @@ The `.claude/` directory ships 9 pre-built Claude Code agents and 9 skills. Each
 | `gsc-sitemap-auditor` | `sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
 | `gsc-schema-auditor` | `schema-audit` | JSON-LD errors blocking rich results |
 | `gsc-page-analyst` | `page-deep-dive` | Full diagnostic for a single URL |
-| `gsc-ai-overviews-analyst` | `ai-overviews-impact` | AI Overview cannibalization on CTR |
+| `gsc-ai-overviews-analyst` | `ai-overviews-impact` | Available query and searchAppearance rows for AI Overview analysis |
 
 </details>
 
@@ -248,7 +551,7 @@ To use an agent from Claude Code, ask naturally ("why did traffic drop?") or inv
 Skills live in `.claude/skills/` and are invokable directly via slash command. They define the exact steps, tool call sequence, and output format. Agents reference them; skills run standalone when you want to drive the workflow yourself without delegating to an agent.
 
 <details>
-<summary>Show 10 SEO skills + 2 dev commands</summary>
+<summary>Show 14 skills + 2 development commands</summary>
 
 | Skill | Command | When to use |
 |---|---|---|
@@ -260,26 +563,50 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | `sitemap-audit` | `/sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
 | `schema-audit` | `/schema-audit` | JSON-LD errors blocking rich results |
 | `page-deep-dive` | `/page-deep-dive` | Full diagnostic for a single URL |
-| `ai-overviews-impact` | `/ai-overviews-impact` | AI Overview cannibalization on CTR |
+| `ai-overviews-impact` | `/ai-overviews-impact` | Inspect available query and searchAppearance rows |
+| `heading-audit` | `/heading-audit` | Heading hierarchy, H1 uniqueness, title overlap and section density |
+| `internal-linking-audit` | `/internal-linking-audit` | Link placement by page zone, anchors and footer-only targets |
+| `link-equity-map` | `/link-equity-map` | Site-wide link flow crossed with Search Console positions |
+| `onpage-audit` | `/onpage-audit` | One-page audit combining technical, content, link, schema and search data |
 | `python-clean-code` | `/python-clean-code` | Review a module for clean code violations before PR |
 | `add-tool` | `/add-tool` | Step-by-step workflow to add a new MCP tool |
 | `run-tests` | `/run-tests` | Run the pytest suite with automatic failure diagnosis |
 
 </details>
 
-## For AI assistants
+## Documentation
+
+| Need | Document |
+| --- | --- |
+| Install, upgrade and configure an MCP client | [Installation guide](docs/installation.md) |
+| Configure Google APIs and authentication | [Google setup guide](docs/google-setup.md) |
+| Configure Bing Webmaster Tools | [Bing setup guide](docs/bing-setup.md) |
+| Run the first audit | [Starter prompts](docs/starter-prompt.md) and [`examples/`](examples/) |
+| Understand the modules and data flow | [Architecture](docs/architecture.md) |
+| Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |
+| Review product designs and implementation plans | [Product design records](docs/superpowers/README.md) |
+| Track releases and current changes | [Changelog](CHANGELOG.md) |
+| Give the repository to an AI assistant | [Machine-readable project index](docs/machine-readable/llms.txt) |
+
+<details>
+<summary>Machine-readable architecture for AI assistants</summary>
 
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
-- `llms.txt`: quick reference covering all 61 tools, module map, security rules, test patterns, and a decision tree for common tasks
-- `adr-index.yaml`: 15 Architecture Decision Records reconstructed from git history
+- `llms.txt`: quick reference covering all 81 tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `adr-index.yaml`: 16 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
 - `tech-decisions.yaml`: stack decisions by domain (auth, retry, output contract, packaging...)
 
 Load `llms.txt` via your AI context or reference it in your CLAUDE.md with `@docs/machine-readable/llms.txt`.
 
-## Development
+</details>
+
+<details>
+<summary>Development setup</summary>
+
+### Development
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
@@ -287,13 +614,22 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-611 tests, all mocked (no real Google API calls needed).
+851 tests at this branch baseline, all mocked with no real external API calls.
 
-## Troubleshooting
+</details>
+
+<details>
+<summary>Troubleshooting common setup and API errors</summary>
+
+### Troubleshooting
 
 **`uvx gsc-mcp-tools` launches but no tools appear in Claude Desktop**
 
 Fully quit Claude Desktop (`Cmd+Q`) and reopen it. Saving the config file is not enough; the MCP process is only started on launch.
+
+**Codex keeps many `gsc-mcp-tools` processes alive**
+
+Check whether `gsc-mcp` is declared in user-level `~/.codex/config.toml`. Move it to project-level `.codex/config.toml` when it is not needed in every task, and configure the executable installed by `uv tool install` instead of `uvx`. Restart Codex after changing the configuration; already-running tasks keep the server configuration they loaded at startup.
 
 **`GSC_SERVICE_ACCOUNT_PATH` is set but auth fails**
 
@@ -315,7 +651,14 @@ The service account needs **Owner-level** access on the GSC property, not just F
 
 The Indexing API default quota is 200 requests per day per GCP project. The tool warns at 180. To increase it, request a quota increase in Google Cloud Console under APIs & Services > Quotas.
 
-## Why an MCP server for GSC
+</details>
+
+## Why private search data needs MCP
+
+Public web search cannot answer questions tied to private Search Console, Bing Webmaster Tools or GA4 properties. Search Console MCP lets an assistant analyse those measured values while preserving provider boundaries and uncertainty.
+
+<details>
+<summary>Read the concrete example and API rationale</summary>
 
 GSC data is private. No web search agent can read it.
 
@@ -325,9 +668,14 @@ With this server, Claude pulls the actual numbers: `/projects/` at position 10.1
 
 Some tasks work without private data: checking indexation with `site:`, parsing sitemap structure, reading robots.txt. For those, any web-capable agent gets you there. But for anything that requires private GSC metrics (traffic drops, striking-distance queries, CTR anomalies, Indexing API submissions), there is no substitute for API access.
 
-The server also handles the Google API mechanics: service account or OAuth authentication, exponential backoff on 429s and 5xx errors, true HTTP batch for indexing requests, quota tracking at 200 req/day, and structured JSON output across all 61 tools so Claude can reason across results without parsing ambiguity.
+The server also handles Google and Bing API mechanics: isolated credentials, bounded retries, same-origin checks for Bing writes, true HTTP batch for Google indexing requests, and structured JSON output across all 81 tools. The two providers keep distinct position semantics and expose uncertainty instead of forcing incomparable data into one claim.
 
-## Why this exists
+</details>
+
+<details>
+<summary>Project origins and feature comparison</summary>
+
+### Why this implementation exists
 
 Two projects shaped the approach here. [AminForou/mcp-gsc](https://github.com/AminForou/mcp-gsc) (Python, 1k+ stars) has strong search analytics and handles OAuth and Service Account auth cleanly, but does not include the Google Indexing API at all. [Suganthan-Mohanadasan/Suganthans-GSC-MCP](https://github.com/Suganthan-Mohanadasan/Suganthans-GSC-MCP) (Node.js) adds the Indexing API but implements `submit_batch` as a sequential loop with a 100ms delay between requests, not a real HTTP batch, and mixes plain-text and JSON outputs with no retry logic.
 
@@ -341,6 +689,8 @@ This project takes the auth and SEO patterns from the first, the Indexing API sc
 | Retry on 429/5xx | No | No | Yes, exponential backoff |
 | Quota tracking | No | No | Yes, warns at 180/200 |
 | Output format | Mixed text+JSON | Mixed | 100% JSON + `_meta` block |
+
+</details>
 
 ## Credits
 

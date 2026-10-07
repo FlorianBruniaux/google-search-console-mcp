@@ -9,12 +9,18 @@ or cli.py, so the test is independent of how cli.py wires things up.
 """
 
 import json
+import inspect
 import os
+from pathlib import Path
+import subprocess
+import sys
+import typing
 
 import pytest
 
-from gsc_mcp.cli import main  # ImportError = RED before cli.py exists
+from gsc_mcp.cli import _type_kind, main  # ImportError = RED before cli.py exists
 from gsc_mcp.registry import TOOLS
+from tests.test_registry import EXPECTED_BING_TOOLS, EXPECTED_CROSS_ENGINE_TOOLS
 
 
 # ---------------------------------------------------------------------------
@@ -56,6 +62,149 @@ def test_list_command(capsys):
     for name in TOOLS:
         cmd = _tool_to_cmd(name)
         assert cmd in captured.out, f"Command {cmd!r} (tool {name!r}) missing from `gsc-cli list` output"
+
+    listed_commands = [line for line in captured.out.splitlines() if line.strip()]
+    assert len(listed_commands) == len(TOOLS)
+    assert "bing-keyword-stats" not in captured.out
+    assert "bing-related-keywords" not in captured.out
+
+
+def test_root_help_displays_literal_percent(capsys):
+    """A percent in a registered tool docstring must not break argparse help."""
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--help"])
+
+    assert exc_info.value.code == 0
+    captured = capsys.readouterr()
+    assert "80%+ fewer clicks" in captured.out
+    assert "80%%+ fewer clicks" not in captured.out
+
+
+def test_module_invocation_lists_registered_commands():
+    source_root = Path(__file__).resolve().parents[1] / "src"
+    env = os.environ.copy()
+    existing_pythonpath = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (str(source_root), existing_pythonpath) if part
+    )
+
+    completed = subprocess.run(
+        [sys.executable, "-m", "gsc_mcp.cli", "list"],
+        cwd=source_root.parent,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    listed_commands = [line for line in completed.stdout.splitlines() if line.strip()]
+    assert len(listed_commands) == len(TOOLS)
+    assert "bing-sites-list" in completed.stdout
+    assert "compare-search-engines" in completed.stdout
+
+
+def test_new_tool_annotations_are_supported():
+    for tool_name in EXPECTED_BING_TOOLS | EXPECTED_CROSS_ENGINE_TOOLS:
+        fn = TOOLS[tool_name]
+        hints = typing.get_type_hints(fn)
+        for parameter in inspect.signature(fn).parameters.values():
+            annotation = hints.get(parameter.name, inspect.Parameter.empty)
+            assert _type_kind(annotation) != "unknown", (
+                f"{tool_name}.{parameter.name} has unsupported annotation {annotation!r}"
+            )
+
+
+def test_bing_sites_list_help_exits_zero():
+    with pytest.raises(SystemExit) as exc_info:
+        main(["bing-sites-list", "--help"])
+    assert exc_info.value.code == 0
+
+
+def _fake_tool(name, received):
+    def tool(**kwargs):
+        received.update(kwargs)
+        return json.dumps({"ok": True, "_meta": {}})
+
+    tool.__name__ = name
+    tool.__annotations__ = TOOLS[name].__annotations__
+    tool.__signature__ = inspect.signature(TOOLS[name])
+    return tool
+
+
+def test_bing_query_stats_forwards_integer(monkeypatch, capsys):
+    received = {}
+    monkeypatch.setitem(
+        TOOLS,
+        "bing_query_stats",
+        _fake_tool("bing_query_stats", received),
+    )
+
+    assert main([
+        "bing-query-stats",
+        "--site", "https://example.com/",
+        "--days", "30",
+    ]) == 0
+    capsys.readouterr()
+    assert received["days"] == 30
+    assert isinstance(received["days"], int)
+
+
+def test_bing_urls_submit_batch_forwards_repeated_urls(monkeypatch, capsys):
+    received = {}
+    monkeypatch.setitem(
+        TOOLS,
+        "bing_urls_submit_batch",
+        _fake_tool("bing_urls_submit_batch", received),
+    )
+
+    assert main([
+        "bing-urls-submit-batch",
+        "--site", "https://example.com/",
+        "--urls", "https://example.com/a",
+        "--urls", "https://example.com/b",
+    ]) == 0
+    capsys.readouterr()
+    assert received["urls"] == [
+        "https://example.com/a",
+        "https://example.com/b",
+    ]
+
+
+def test_compare_search_engines_accepts_dimension(monkeypatch, capsys):
+    received = {}
+    monkeypatch.setitem(
+        TOOLS,
+        "compare_search_engines",
+        _fake_tool("compare_search_engines", received),
+    )
+
+    assert main([
+        "compare-search-engines",
+        "--google-site", "https://example.com/",
+        "--bing-site", "https://example.com/",
+        "--dimension", "query",
+    ]) == 0
+    capsys.readouterr()
+    assert received["dimension"] == "query"
+
+
+def test_bing_feed_remove_forwards_confirmation(monkeypatch, capsys):
+    received = {}
+    monkeypatch.setitem(
+        TOOLS,
+        "bing_feed_remove",
+        _fake_tool("bing_feed_remove", received),
+    )
+
+    assert main([
+        "bing-feed-remove",
+        "--site", "https://example.com/",
+        "--feed-url", "https://example.com/sitemap.xml",
+        "--confirm",
+    ]) == 0
+    capsys.readouterr()
+    assert received["confirm"] is True
 
 
 # ---------------------------------------------------------------------------

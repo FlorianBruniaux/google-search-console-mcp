@@ -1,0 +1,24 @@
+---
+import { landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].workflow
+---
+
+<section id="workflow" class="section-tinted" aria-labelledby="workflow-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="workflow-title">{content.title}</h2>
+    </div>
+    <ol class="workflow-list">
+      {content.steps.map(([title, copy], index) => (
+        <li>
+          <span class="step-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <h3>{title}</h3>
+          <p>{copy}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

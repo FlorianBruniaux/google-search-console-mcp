@@ -18,6 +18,8 @@ def _categorize(result: dict) -> str:
         return "indexed"
     if "BLOCKED_BY_ROBOTS_TXT" in robots:
         return "robots_blocked"
+    if fetch == "PAGE_FETCH_STATE_UNSPECIFIED":
+        return "unknown"
     if fetch not in ("", "SUCCESSFUL"):
         return "fetch_error"
     if google_canonical and user_canonical and google_canonical != user_canonical:
@@ -34,6 +36,7 @@ def _parse_inspection(url: str, response: dict) -> dict:
         "indexing_state": index_result.get("indexingState", "UNKNOWN"),
         "last_crawl": index_result.get("lastCrawlTime"),
         "page_fetch_state": index_result.get("pageFetchState"),
+        "coverage_state": index_result.get("coverageState"),
         "google_canonical": index_result.get("googleCanonical"),
         "user_canonical": index_result.get("userCanonical"),
         "category": _categorize(index_result),
@@ -46,7 +49,7 @@ def inspect_url(url: str, site: str) -> str:
 
     Returns verdict (PASS/NEUTRAL/FAIL), robotsTxtState, indexingState, pageFetchState,
     googleCanonical, userCanonical, and a derived category (indexed, robots_blocked,
-    fetch_error, canonical_issue, not_indexed).
+    fetch_error, canonical_issue, not_indexed, unknown).
     """
     svc = get_searchconsole_service()
     body = {"inspectionUrl": url, "siteUrl": site}
@@ -81,7 +84,7 @@ def batch_url_inspection(urls: list[str], site: str) -> str:
 def check_indexing_issues(urls: list[str], site: str) -> str:
     """Inspect up to 10 URLs and return only those with indexing problems, plus a summary count by category.
 
-    Categories: indexed, not_indexed, robots_blocked, fetch_error, canonical_issue.
+    Categories: indexed, not_indexed, robots_blocked, fetch_error, canonical_issue, unknown.
     Use batch_url_inspection if you need results for all URLs regardless of status.
     """
     if len(urls) > _MAX_BATCH:
@@ -95,6 +98,7 @@ def check_indexing_issues(urls: list[str], site: str) -> str:
         "robots_blocked": 0,
         "fetch_error": 0,
         "canonical_issue": 0,
+        "unknown": 0,
     }
 
     for url in urls:

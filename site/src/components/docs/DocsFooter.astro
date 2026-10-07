@@ -1,0 +1,16 @@
+---
+import DefaultFooter from '@astrojs/starlight/components/Footer.astro'
+---
+
+<DefaultFooter />
+
+<script is:inline>
+  const makeCodeBlocksKeyboardReachable = () => {
+    document.querySelectorAll('.expressive-code pre').forEach((block) => {
+      block.setAttribute('tabindex', '0')
+    })
+  }
+
+  makeCodeBlocksKeyboardReachable()
+  document.addEventListener('astro:page-load', makeCodeBlocksKeyboardReachable)
+</script>

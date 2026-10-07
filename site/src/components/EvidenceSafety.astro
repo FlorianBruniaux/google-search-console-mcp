@@ -1,0 +1,26 @@
+---
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].evidence
+const links = getSiteLinks(locale)
+---
+
+<section id="safety" class="section-tinted" aria-labelledby="safety-title">
+  <div class="container evidence-layout">
+    <div class="section-heading">
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="safety-title">{content.title}</h2>
+      <p>{content.intro}</p>
+      <a class="text-link" href={links.bingContract}>{content.guide} <span aria-hidden="true">→</span></a>
+    </div>
+    <dl class="evidence-states">
+      {content.states.map(([title, copy]) => (
+        <div>
+          <dt>{title}</dt>
+          <dd>{copy}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>

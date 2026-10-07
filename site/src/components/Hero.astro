@@ -1,0 +1,43 @@
+---
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale; toolCount: number }
+const { locale, toolCount } = Astro.props
+const content = landingContent[locale].hero
+const links = getSiteLinks(locale)
+const command = 'uvx gsc-mcp-tools'
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-grid">
+    <div>
+      <p class="kicker">{content.kicker}</p>
+      <h1 id="hero-title">{content.title}</h1>
+      <p class="hero-copy">{content.copy}</p>
+      <p class="hero-evidence">
+        <strong>{content.evidenceTitle}</strong>
+        <span>{content.evidenceCopy} <a href={links.bingContract}>{content.evidenceLink}</a></span>
+      </p>
+      <p class="hero-setup">{content.setup}</p>
+      <div class="hero-actions">
+        <button class="button button-primary" type="button" data-copy-command={command} aria-controls="hero-copy-status">{content.copyCommand}</button>
+        <a class="button button-secondary" href="#install">{content.installPath}</a>
+      </div>
+      <p id="hero-copy-status" class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+      <nav class="hero-intents" aria-label={content.intentsLabel}>
+        {content.intents.map(([label, href]) => <a href={href}>{label} <span aria-hidden="true">→</span></a>)}
+      </nav>
+    </div>
+    <div class="terminal" aria-label={content.terminalLabel}>
+      <div class="terminal-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="terminal-content">
+        <code><span class="terminal-prompt">$</span> {command}</code>
+        <p>&gt; {content.terminalPrompt}</p>
+        <p class="example-label">{content.exampleLabel}</p>
+        <ul class="example-results">
+          {content.exampleItems.map(([title, copy]) => <li><strong>{title}</strong><span>{copy}</span></li>)}
+        </ul>
+        <small>{toolCount} {content.terminalResult}</small>
+      </div>
+    </div>
+  </div>
+</section>

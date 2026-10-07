@@ -1,0 +1,67 @@
+---
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].footer
+const links = getSiteLinks(locale)
+
+const footerGroups = [
+  {
+    label: content.groups.navigate,
+    links: content.nav,
+  },
+  {
+    label: content.groups.product,
+    links: content.product.map((label, index) => [label, [links.docs, links.repository, links.pypi, links.install, links.changelog, links.license][index]]),
+  },
+  {
+    label: content.groups.ecosystem,
+    links: content.ecosystem.map((label, index) => [label, [links.projects, links.claudeGuide, links.starmapper, links.ccboard, links.ccbridge, links.youtubeInsights][index]]),
+  },
+] as { label: string; links: readonly (readonly [string, string])[] }[]
+
+const creatorLinks = content.creatorLinks.map((label, index) => [label, [links.portfolio, links.blog, links.githubProfile, links.linkedin][index]] as const)
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-brand-row">
+      <a class="footer-brand" href="#main-content"><span aria-hidden="true">&gt;_</span> Search Console MCP</a>
+      <p>{content.tagline}</p>
+    </div>
+
+    <div class="footer-sections">
+      {footerGroups.map(({ label, links }) => (
+        <section class="footer-section" aria-labelledby={`footer-${label.toLowerCase()}`}>
+          <h2 id={`footer-${label.toLowerCase()}`}>{label}</h2>
+          <nav aria-label={`${label} links`}>
+            <ul>
+              {links.map(([linkLabel, href]) => {
+                const external = href.startsWith('http')
+                return (
+                  <li>
+                    <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+                      {linkLabel}{external && <><span aria-hidden="true"> ↗</span><span class="sr-only"> ({content.external})</span></>}
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </nav>
+        </section>
+      ))}
+    </div>
+
+    <div class="footer-meta">
+      <p>{content.creator} <a href={links.author} target="_blank" rel="noopener noreferrer">Florian Bruniaux<span class="sr-only"> ({content.external})</span></a>.</p>
+      <nav aria-label={`${content.creatorLinks[0]} links`}>
+        <ul>
+          {creatorLinks.map(([label, href]) => (
+            <li><a href={href} target="_blank" rel="noopener noreferrer">{label}<span aria-hidden="true"> ↗</span><span class="sr-only"> ({content.external})</span></a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</footer>

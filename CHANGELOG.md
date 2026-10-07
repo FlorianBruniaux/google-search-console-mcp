@@ -2,24 +2,62 @@
 
 ## [Unreleased]
 
-Dogfooding de `schema_validate` sur une propriété réelle (`dobet.it`, WordPress + Rank Math) : le tool répondait `healthy` sans rien valider, et `fetch_error` sur l'URL sans `www`.
+### Fixed
+
+- Les 7 outils GA4 exposent la propriété réellement interrogée dans `_meta.sources.ga4.property`, y compris avec la configuration par défaut. Les 4 rapports combinés conservent cette provenance et le site GSC sans modifier les arguments demandés ; une source GA4 inconnue reste `null`.
+
+- `schema_validate` parcourt les nœuds JSON-LD `@graph`, y compris dans un tableau racine, sans compter le conteneur non typé comme un schéma valide.
+- `applicationCategory` et `operatingSystem` sont signalés comme propriétés recommandées de `SoftwareApplication`, sans invalider leur absence. La réponse distingue explicitement la présence de champs vérifiée localement de l'éligibilité Google aux résultats enrichis, non évaluée.
+- `heading_audit` ne signale plus `TL;DR` comme un titre vide.
+- `schema_validate` suit les redirects vers le **même site** (même host à un `www.` près, même port explicite ; le scheme peut changer) : `https://dobet.it/` → 301 → `https://www.dobet.it/` est audité au lieu de répondre `fetch_error`. L'ancien helper de `links.py` déménage vers `url_safety.fetch_html_following_redirects`, partagé par `schema_validate`, `internal_links_audit` et `link_equity_map`. Chaque saut repasse par `safe_fetch_html` (DNS-pinning rejoué), 5 sauts maximum, seuls 301/302/303/307/308 sont suivis. Un redirect vers un autre site, y compris un sous-domaine, ou vers une URL malformée (port invalide) lève `URLSafetyError`, remonté en `fetch_error` ; les deux tools de liens, qui suivaient n'importe quel host public depuis 1.1.2, sont resserrés de la même façon.
+- `schema_validate` et `internal_links_audit` renvoient `final_url` (l'URL réellement servie). Les deux tools de liens classent les liens contre cette `final_url` : après un redirect domaine nu → `www`, les liens vers le host `www` sont internes (sur `dobet.it`, 171 liens internes au lieu de 1).
+- `schema_validate` : un `@type` en liste (`["Person", "Organization"]`) faisait planter le tool (`TypeError: unhashable type`). `_primary_type()` retient la première entrée qui a une règle dans `_REQUIRED_FIELDS`, sinon la première.
+- `schema_validate` passe par `safe_fetch_html` au lieu d'un `httpx.Client` nu, donc gagne le DNS-pinning des autres tools. Le User-Agent envoyé change de `gsc-mcp-schema-validator/1.0` à `gsc-mcp/1.0`.
+
+### Documentation
+
+- Ajout d'un guide d'installation central, d'un guide Bing et de prompts par fournisseur avec des limites explicites sur l'indexation, les preuves et les mutations.
+- Publication d'un portail Starlight bilingue sur `search-console.bruniaux.com/docs/` et `/fr/docs/`, avec recherche, navigation latérale, sommaire par page et liens de langue associés.
+- Les sources anglaises restent canoniques et sont publiées depuis une liste fermée. Les plans internes, exports machine-readable et rapports de validation bruts restent exclus du site.
+- La landing dirige désormais l'installation, la configuration Google et Bing, les exemples, l'architecture, les limites de preuve, le changelog et la licence vers les pages publiques du site.
+- Deux illustrations conceptuelles générées avec Gemini complètent des schémas HTML déterministes pour les flux de preuves et les actions protégées.
+- Les titres de la landing et des scénarios utilisent des formulations factuelles et des chiffres explicites. La FAQ pose des questions directes en anglais et en français.
+- Les pages documentaires publient désormais un `hreflang="x-default"` vers leur version anglaise, et le site expose un `llms.txt` public limité aux ressources destinées aux utilisateurs.
+
+## [1.2.0] - 2026-10-06
+
+### Added
+
+- Surface portée à 81 tools. Elle ajoute 19 tools Bing Webmaster, dont 15 lectures et 4 écritures protégées, ainsi que `compare_search_engines` pour rapprocher les métriques Google et Bing sans fusionner leurs positions.
+- Les analyses `quick_wins`, `seo_striking_distance` et `prune_candidates` acceptent les données Bing lorsque les métriques requises sont présentes. Les analyses qui exigent des périodes exactes ou une dimension page-requête en masse refusent explicitement Bing.
+
+### Validation
+
+- 851 tests passent et 851 tests sont collectés sur ce checkout.
+- Les lectures Bing gardent leurs fenêtres observées, dérivent le CTR à partir des clics et impressions, et laissent les métriques propres au fournisseur dans `provider_metrics`.
+- Les quatre écritures Bing sont couvertes par des tests avec réponses simulées. Aucun appel de mutation Bing ou IndexNow n'a été exécuté pendant ce gate local, leur comportement runtime reste `UNVERIFIED_RUNTIME`.
+
+### Documentation and metadata
+
+- Le README présente désormais `gsc-mcp-tools==1.2.0` comme la première version publiée avec la surface Bing et relie le contrat API Bing.
+- Les références machine-readable, la description du paquet et les mots-clés de découverte sont alignés sur 81 tools, 851 tests et les fournisseurs Google/Bing.
+- La description et les topics GitHub mentionnent Bing Webmaster Tools, IndexNow et le SEO technique. Les labels de workflow des issues restent inchangés.
+- La configuration recommandée installe désormais l'outil une fois, utilise l'exécutable direct et limite Codex aux projets concernés afin d'éviter un processus `uvx` supplémentaire et un serveur global par tâche active.
+- La publication PyPI vérifie le tag, exécute les tests, contrôle le wheel construit puis utilise Trusted Publishing avec un jeton OIDC temporaire.
 
 ### Fixed
 
-**`schema_validate` ne validait pas les schémas emballés dans `@graph`**
+- Les écritures OAuth utilisent un remplacement atomique pour éviter de laisser un fichier de jeton partiellement écrit.
+- Les soumissions IndexNow et Bing valident plus strictement le protocole, l'origine, les délimiteurs vides et les réponses du fournisseur.
+- Les comparaisons multi-moteurs conservent les structures sérialisables, les positions absentes et omettent les deltas non comparables.
+- Le point d'entrée module de la CLI et l'affichage des signes `%` dans l'aide fonctionnent à nouveau.
 
-- Rank Math et Yoast émettent un seul bloc JSON-LD de la forme `{"@context": ..., "@graph": [...]}`. `_JsonLdExtractor` traitait l'enveloppe comme un schéma unique : pas de `@type` au premier niveau, donc `type: "Unknown"`, `valid: true`, verdict `healthy`, et aucun nœud interne vérifié. Un `Article` sans `author`/`datePublished` dans un `@graph` passait comme sain.
-- Fix : `_unwrap_graph()` aplatit `@graph` à l'extraction, la boucle de validation ne change pas. Sur `dobet.it`, 4 schémas (Organization, WebSite, ImageObject, FAQPage) au lieu d'un `Unknown`.
-- Un `@type` en liste (`["Person", "Organization"]`) faisait planter le tool (`TypeError: unhashable type`) une fois `@graph` déplié. `_primary_type()` retient la première entrée qui a une règle dans `_REQUIRED_FIELDS`, sinon la première entrée.
+### Limits
 
-**`schema_validate` traitait un redirect vers le même site comme un échec de fetch**
-
-- `https://dobet.it/` redirige en 301 vers `https://www.dobet.it/` ; le tool répondait `fetch_error` au lieu d'auditer la cible. Même famille que le correctif 1.1.2 sur `internal_links_audit` / `link_equity_map`.
-- Fix : `_fetch_following_redirects` déménage de `links.py` vers `url_safety.fetch_html_following_redirects`, partagé par les trois tools. Chaque saut repasse par `safe_fetch_html`, donc le DNS-pinning est rejoué sur chaque cible ; 5 sauts maximum.
-- Seuls les statuts 301/302/303/307/308 sont suivis (un 404 ou un 500 avec un en-tête `Location` ne l'est plus), et seulement vers le **même site** : même host à un `www.` près, même port explicite, le scheme peut changer. Un redirect vers un autre site lève `URLSafetyError("Cross-site redirect refused: ...")`, remonté en `fetch_error` : suivre l'aurait fait auditer le JSON-LD d'un autre site sous l'URL d'origine. Le comportement 1.1.2 des deux tools de liens suivait n'importe quel host public ; il est resserré de la même façon.
-- `schema_validate` et `internal_links_audit` renvoient maintenant `final_url` (l'URL réellement servie). `internal_links_audit` et `link_equity_map` classent les liens contre cette `final_url` : après un redirect domaine nu → `www`, les liens vers le host `www` sont internes (sur `dobet.it`, 171 liens internes au lieu de 1).
-- Effet de bord : `schema_validate` passe par `safe_fetch_html` au lieu d'un `httpx.Client` nu, donc gagne le DNS-pinning des autres tools. Le User-Agent envoyé change de `gsc-mcp-schema-validator/1.0` à `gsc-mcp/1.0`.
-- Tests : `test_technical.py` +6, `test_url_safety.py` +12 (classe `TestFetchHtmlFollowingRedirects`), `test_links.py` +2, et les 9 patchs de `test_links.py` visent `gsc_mcp.url_safety.safe_fetch_html`. 630 tests.
+- Les fenêtres Bing ne sont pas supposées exactes et égales aux fenêtres Google. `compare_search_engines` omet les deltas lorsque cette condition n'est pas prouvée.
+- `GetKeywordStats` et `GetRelatedKeywords` ne sont pas exposés après des réponses HTTP 400 lors du canari réel expurgé.
+- Les sémantiques total-versus-restant des quotas Bing, les crawl issues non vides, les lignes imbriquées de backlinks et `RemoveFeed` restent non vérifiées en production.
+- Une réponse de soumission acceptée ne prouve ni crawl ni indexation.
 
 ## [1.1.2] - 2026-08-26
 

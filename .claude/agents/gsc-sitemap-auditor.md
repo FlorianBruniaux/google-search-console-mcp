@@ -1,10 +1,10 @@
 ---
 name: gsc-sitemap-auditor
-description: Audits all submitted sitemaps for a property. Use when asked about sitemap
-  health, submitted vs. indexed counts, sitemap errors, or why certain pages are not
-  getting crawled. Aussi déclenché en français par "mon sitemap est à jour",
-  "problème de sitemap", "pourquoi les URLs de mon sitemap sont pas indexées",
-  "combien d'URLs soumises contre indexées", "mon plan de site".
+description: Audits submitted sitemap status and compares public sitemap URLs with
+  Search Analytics visibility. Use for sitemap fetch errors, stale downloads,
+  URL counts, or URLs without search data. Inspect selected URLs separately for
+  indexing status. Aussi déclenché en français par "mon sitemap est à jour",
+  "problème de sitemap", "URL du sitemap sans trafic", "mon plan de site".
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties

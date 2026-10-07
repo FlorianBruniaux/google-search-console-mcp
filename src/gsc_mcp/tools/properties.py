@@ -1,4 +1,5 @@
 import json
+import os
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.retry import with_retry
@@ -65,13 +66,53 @@ _ALL_TOOLS = [
     "internal_links_audit",
     "link_equity_map",
     "prune_candidates",
+    "bing_sites_list",
+    "bing_query_stats",
+    "bing_page_stats",
+    "bing_page_query_stats",
+    "bing_rank_traffic_stats",
+    "bing_crawl_stats",
+    "bing_crawl_issues",
+    "bing_crawl_settings_get",
+    "bing_url_info",
+    "bing_url_traffic",
+    "bing_feeds_list",
+    "bing_feed_details",
+    "bing_url_submission_quota",
+    "bing_link_counts",
+    "bing_url_links",
+    "bing_url_submit",
+    "bing_urls_submit_batch",
+    "bing_feed_submit",
+    "bing_feed_remove",
+    "compare_search_engines",
 ]
 
 
 def get_capabilities() -> str:
-    """List all 61 available tool names in this MCP server."""
+    """List all available tools and declared search-engine credentials."""
     return json.dumps(with_meta(
-        {"total": len(_ALL_TOOLS), "tools": _ALL_TOOLS},
+        {
+            "total": len(_ALL_TOOLS),
+            "tools": _ALL_TOOLS,
+            "engines": {
+                "google": {
+                    "credential_env_declared": bool(
+                        os.environ.get("GSC_SERVICE_ACCOUNT_PATH")
+                        or os.environ.get("GSC_CREDENTIALS_PATH")
+                    ),
+                },
+                "bing": {
+                    "credential_env_declared": bool(
+                        os.environ.get("BING_WEBMASTER_API_KEY")
+                    ),
+                    "tools": sorted(
+                        name for name in _ALL_TOOLS if name.startswith("bing_")
+                    ),
+                },
+                "indexnow": {"tools": ["indexnow_submit"]},
+            },
+        },
         tool="get_capabilities",
         params={},
     ))

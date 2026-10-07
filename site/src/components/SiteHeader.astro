@@ -1,0 +1,84 @@
+---
+import { getNavigationSections } from '../data/navigation'
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
+
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].header
+const links = getSiteLinks(locale)
+const navigationSections = getNavigationSections(locale)
+---
+
+<a class="skip-link" href="#main-content">{content.skip}</a>
+<header class="site-header" data-site-header>
+  <div class="container header-inner">
+    <a class="wordmark" href={links.home} aria-label={content.home}>
+      <span class="creator-mark" aria-hidden="true">FB<span>.</span></span>
+      <span>Search Console MCP</span>
+    </a>
+    <button id="mobile-menu-toggle" type="button" aria-label={content.open} data-open-label={content.open} data-close-label={content.close} aria-expanded="false" aria-controls="primary-navigation">
+      <span>Menu</span><span aria-hidden="true">☰</span>
+    </button>
+    <div class="nav-backdrop" data-nav-backdrop hidden></div>
+    <div id="primary-navigation">
+      <nav aria-label={content.navigation}>
+        <div class="mobile-nav-heading">
+          <strong>{content.explore}</strong>
+          <button type="button" data-mobile-menu-close aria-label={content.close}>×</button>
+        </div>
+        <div class="nav-sections">
+          {navigationSections.map((section) => (
+            <details data-nav-section={section.id}>
+              <summary role="button" data-nav-trigger={section.id} aria-expanded="false" aria-controls={`nav-panel-${section.id}`}>
+                {section.label}
+                <svg class="nav-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                  <path d="m4 6 4 4 4-4" />
+                </svg>
+              </summary>
+              <section id={`nav-panel-${section.id}`} class="nav-panel" data-nav-panel={section.id} aria-labelledby={`nav-title-${section.id}`}>
+                <div class="nav-panel-heading">
+                  <h2 id={`nav-title-${section.id}`}>{section.label}</h2>
+                  <p>{section.description}</p>
+                  <a href={section.overview.href} target={section.overview.external ? '_blank' : undefined} rel={section.overview.external ? 'noopener noreferrer' : undefined}>
+                    {section.overview.label}
+                    <svg class="nav-overview-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                      <path d="M3 8h10m-4-4 4 4-4 4" />
+                    </svg>
+                    {section.overview.external && <span class="sr-only"> (opens in a new tab)</span>}
+                  </a>
+                </div>
+                <div class="nav-panel-groups">
+                  {section.groups.map((group) => (
+                    <div class="nav-panel-group">
+                      <h3>{group.label}</h3>
+                      <ul>
+                        {group.links.map((link) => (
+                          <li>
+                            <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
+                              <strong>{link.label}</strong>
+                              <span>{link.description}</span>
+                              {link.external && <span class="sr-only"> ({content.external})</span>}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </details>
+          ))}
+        </div>
+        <div class="header-actions">
+          <a class="header-install" href="#install">{content.install}</a>
+          <a href={links.docs}>{content.docs}</a>
+          <a href={links.otherHome} lang={content.languageCode} hreflang={content.languageCode}>{content.language}</a>
+          <a href={links.repository} target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> ({content.external})</span></a>
+          <button class="theme-toggle" type="button" data-theme-toggle data-theme-dark-label={content.themeDark} data-theme-light-label={content.themeLight} aria-label={content.themeDark}>
+            <span aria-hidden="true" data-theme-icon>◐</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>

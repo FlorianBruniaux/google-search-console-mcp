@@ -1,0 +1,26 @@
+---
+import { landingContent, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const content = landingContent[locale].capabilities
+---
+
+<section id="capabilities" aria-labelledby="capabilities-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="kicker">{content.kicker}</p>
+      <h2 id="capabilities-title">{content.title}</h2>
+      <p>{content.intro}</p>
+    </div>
+    <div class="provider-grid">
+      {content.providers.map((provider) => (
+        <article id={`provider-${provider.id}`} class={`provider-card provider-${provider.id}`} aria-labelledby={`provider-title-${provider.id}`}>
+          <h3 id={`provider-title-${provider.id}`}>{provider.title}</h3>
+          <p>{provider.copy}</p>
+          <ul>{provider.items.map((item) => <li>{item}</li>)}</ul>
+        </article>
+      ))}
+    </div>
+    <p class="boundary-note">{content.boundary}</p>
+  </div>
+</section>

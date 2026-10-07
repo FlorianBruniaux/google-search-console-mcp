@@ -22,7 +22,7 @@ gsc-mcp
 # or
 python -m gsc_mcp.server
 
-# Run all tests (339 tests, fully mocked)
+# Run all tests (fully mocked)
 pytest tests/ -v
 
 # Run a single test file
@@ -34,30 +34,39 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Architecture
 
-**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 61 tools by iterating `registry.TOOLS`. Dynamic: adding a function to `registry.py` is enough to register it in both the MCP server and the CLI.
+**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 81 tools by iterating `registry.TOOLS`. The count is derived from the registry, not maintained in server or CLI help text.
 
-**Registry** (`src/gsc_mcp/registry.py`): imports all 61 tool functions and exposes `TOOLS: dict[str, Callable[..., str]]`. An `assert` at import time verifies `set(TOOLS) == set(_ALL_TOOLS)` from `properties.py`, so any mismatch fails loudly at startup.
+**Registry** (`src/gsc_mcp/registry.py`): imports all 81 tool functions and exposes `TOOLS: dict[str, Callable[..., str]]`. An `assert` at import time verifies `set(TOOLS) == set(_ALL_TOOLS)` from `properties.py`, so any mismatch fails loudly at startup. The current surface adds 19 Bing tools and `compare_search_engines` to the existing catalogue.
 
-**CLI** (`src/gsc_mcp/cli.py`): shell frontend that generates 61 subcommands from `TOOLS` by introspection. All-flags (no positionals). `list[dict]` params take a JSON string. Sets `GSC_NO_BROWSER=1` at startup to prevent accidental OAuth browser popups.
+**CLI** (`src/gsc_mcp/cli.py`): shell frontend that generates all subcommands and count labels from `TOOLS` by introspection. All-flags (no positionals). `list[dict]` params take a JSON string. Sets `GSC_NO_BROWSER=1` at startup to prevent accidental OAuth browser popups.
 
-**Auth layer** (`auth.py`): Three separate credential pairs (GSC API `searchconsole/v1`, Indexing API `indexing/v3`, GA4 `analytics.readonly`). Resolution order: if `GSC_SERVICE_ACCOUNT_PATH` is set, use service account credentials. Otherwise, fall through to OAuth with token cached as JSON (not pickle) at the OS user data dir (`~/Library/Application Support/gsc-mcp/` on macOS). Token files are written `chmod 0o600`; the directory is created with `0o700`. `get_ga4_property_id(override=None)` accepts an optional override string that bypasses `GA4_PROPERTY_ID`, enabling per-call multi-property support.
+**Auth layer** (`auth.py`): Three separate Google credential pairs cover GSC API `searchconsole/v1`, Indexing API `indexing/v3` and GA4 `analytics.readonly`. Resolution order: if `GSC_SERVICE_ACCOUNT_PATH` is set, use service account credentials. Otherwise, fall through to OAuth with token cached as JSON (not pickle) at the OS user data dir (`~/Library/Application Support/gsc-mcp/` on macOS). Token files are written `chmod 0o600`; the directory is created with `0o700`. `get_ga4_property_id(override=None)` accepts an optional override string that bypasses `GA4_PROPERTY_ID`, enabling per-call multi-property support. Bing uses the separate user-level `BING_WEBMASTER_API_KEY` environment variable. Never accept or return that key in tool arguments.
 
 **Tools** (`src/gsc_mcp/tools/`): Modules, each owns a logical domain:
-- `analytics.py`: 6 GSC search analytics tools
-- `seo.py`: 6 SEO intelligence tools (quick wins, drops, cannibalization, anomalies)
+- `analytics.py`: 10 GSC search analytics tools
+- `seo.py`: 8 SEO intelligence tools; quick wins, striking distance and pruning accept Bing
 - `inspection.py`: URL inspection + batch + issue categorization
-- `indexing.py`: Indexing API (submit_url, submit_batch)
+- `indexing.py`: Google Indexing API plus IndexNow (`submit_url`, `submit_batch`, `indexnow_submit`)
 - `sitemaps.py`: sitemap management + `sitemap_audit` (defusedxml, SSRF-safe)
 - `properties.py`: list/get GSC properties, `get_capabilities`
-- `ga4.py`: 6 GA4 tools, all accept `hostname` and `country` filters via `_build_dimension_filter`
-- `cross.py`: 2 cross-platform GSC+GA4 tools (also accept `hostname` and `country`)
-- `crux.py`: 2 CrUX tools (Core Web Vitals via Chrome UX Report API)
-- `technical.py`: `schema_validate` (JSON-LD extraction + validation, no auth needed)
-- `links.py`: `internal_links_audit` (zone-weighted internal linking, no auth needed)
+- `ga4.py`: 7 GA4 tools with per-call property overrides; applicable reports use `hostname` and `country` filters via `_build_dimension_filter`
+- `cross.py`: 4 cross-platform GSC+GA4 tools
+- `crux.py`: 3 CrUX tools (Core Web Vitals via Chrome UX Report API)
+- `technical.py`: 5 schema, AI visibility, GBP and PageSpeed tools
+- `drift.py`: 3 persisted SEO drift tools
+- `content.py`: 5 content and technical page audits
+- `links.py`: 2 internal-link tools
+- `bing_analytics.py`: 6 Bing reads for performance and backlinks
+- `bing_webmaster.py`: 9 Bing reads plus 4 guarded writes for sites, crawl, URLs and feeds
+- `search_compare.py`: cross-engine query/page comparison with equal-window guards
 
-**CrUX tools** (`crux.py`): `crux_page_vitals` and `crux_history` call the Chrome UX Report API via `httpx` (POST to `:queryRecord` / `:queryHistoryRecord`). Require `CRUX_API_KEY` (a plain Google API key, not a service account). The Chrome UX Report API must be enabled in the GCP project. A 404 from the API means not enough field data for that URL, returned as `verdict="not_enough_data"`.
+**Search providers** (`providers/`): `GoogleSearchProvider` and `BingSearchProvider` implement the minimal `SearchMetricsProvider` protocol. Shared rows contain clicks, impressions, CTR and position, while provider-specific metrics stay in `provider_metrics`. Bing supports only query, page or date as a single dimension. Its fetched window is marked non-exact because the API does not accept arbitrary date bounds.
 
-**sitemap_audit** (`sitemaps.py`): fetches a sitemap via `httpx`, parses XML with `defusedxml.ElementTree` (prevents XXE and billion-laughs). Handles sitemap index files with one level of recursion; child sitemap URLs are validated against the parent's origin before fetching (`follow_redirects=False`, SSRF protection). Cross-references declared URLs against 90 days of GSC data. Returns `missing_sample` capped at 20 URLs. Verdicts: `empty` | `fetch_error` | `partial` (>20% URLs absent from GSC) | `healthy`.
+**Bing API contract**: `providers/bing.py` calls the JSON/HTTP endpoint with a fixed allowlist, a 15-second operation deadline, bounded retry for 429/5xx and redacted errors. The API key is added only by the transport. `GetKeywordStats` and `GetRelatedKeywords` remain `UNKNOWN` after HTTP 400 and have no registered tools. See `docs/validation/bing-api-contract.md`.
+
+**CrUX tools** (`crux.py`): `crux_page_vitals`, `crux_history` and `crux_lcp_subparts` call the Chrome UX Report API via `httpx`. They require `CRUX_API_KEY` (a plain Google API key, not a service account). The Chrome UX Report API must be enabled in the GCP project. A 404 from the API means not enough field data for that URL, returned as `verdict="not_enough_data"`.
+
+**sitemap_audit** (`sitemaps.py`): fetches a sitemap via `httpx`, parses XML with `defusedxml.ElementTree` (prevents XXE and billion-laughs). Handles sitemap index files with one level of recursion; child sitemap URLs are validated against the parent's origin before fetching (`follow_redirects=False`, SSRF protection). Compares declared URLs with 90 days of Search Analytics page rows, not indexation. A URL with no row may still be indexed. Use `urls_with_search_data`, `urls_without_search_data`, `without_search_data_sample`, and `visibility_verdict` for interpretation. The old `urls_in_gsc`, `urls_missing_from_gsc`, `missing_sample`, and `verdict` fields remain compatibility aliases with the same Search Analytics meaning.
 
 **schema_validate** (`technical.py`): fetches any public URL, extracts `<script type="application/ld+json">` blocks with `html.parser` (stdlib), validates required fields per schema type (Article, LocalBusiness, FAQPage, Product, WebSite, BreadcrumbList, SoftwareApplication), and suggests missing schemas from URL path patterns (`/faq` → FAQPage, `/blog/` → BlogPosting, etc.). No auth required.
 
@@ -85,12 +94,14 @@ Applied to `_fetch_rows` in `analytics.py` (covers all GSC analytics/SEO tools) 
 
 **Batching** (`indexing.py`): `submit_batch` uses `svc.new_batch_http_request()` chunked at 100 URLs per HTTP request. True multipart batch, not a sequential loop.
 
-**Write-tool confirmation protocol**: Any tool that mutates external state (`submit_url`, `submit_batch`, `sitemaps_delete`, `indexnow_submit`, `submit_sitemap`) is destructive or hard to reverse from the caller's side (Google re-crawls, IndexNow pings third-party search engines, sitemap deletion removes it from GSC tracking). Callers driving these tools (agents, skills) must follow four steps before invoking one:
+**Write-tool confirmation protocol**: Nine tools mutate external state: `submit_url`, `submit_batch`, `sitemaps_delete`, `indexnow_submit`, `submit_sitemap`, `bing_url_submit`, `bing_urls_submit_batch`, `bing_feed_submit`, and `bing_feed_remove`. Callers driving these tools must follow four steps before invoking one:
 1. **State**: read the current state first (e.g. `list_sitemaps` before `sitemaps_delete`, `check_indexing_issues` before `submit_batch`).
 2. **Blast radius**: state plainly what will change and how many URLs/entities are affected.
-3. **Confirm**: get explicit user confirmation naming the exact action, not a generic "ok to proceed?".
-4. **Verify**: after the call, report what the tool actually returned (`QuotaTracker` counts, batch success/failure split), not just "done".
-This is a calling-convention rule for agents/skills built on top of `gsc-mcp`, not code enforced inside the tools themselves, the tools stay pure API wrappers.
+3. **Confirm**: get explicit user confirmation naming the exact action and target, not a generic "ok to proceed?". `bing_feed_remove` also requires `confirm=true`.
+4. **Verify**: call once, then report the returned status without inferring crawl or indexation.
+This calling convention applies even where local guards exist. Bing writes enforce same-origin validation, the batch refuses unknown quota semantics, and feed removal also checks `confirm=true`; the other tools still depend on the caller for confirmation.
+
+Bing writes require strict public-URL validation and same-origin targets. `bing_urls_submit_batch` currently refuses before writing because the observed quota integers have `UNKNOWN` total-versus-remaining semantics. `RemoveFeed`, non-empty crawl issues and nested backlink item shapes remain `UNVERIFIED_RUNTIME`.
 
 ## Adding a new tool
 
@@ -98,17 +109,17 @@ This is a calling-convention rule for agents/skills built on top of `gsc-mcp`, n
 2. Decorate with `@with_retry()` if the tool calls a Google API directly.
 3. Return `json.dumps(with_meta(data, tool="tool_name", params={...}))`.
 4. Add the function to the tuple in `src/gsc_mcp/registry.py`. The MCP server and `gsc-cli` both pick it up automatically from `TOOLS`. No change needed in `server.py`.
-5. Add the tool name to `_ALL_TOOLS` in `properties.py` and update the `get_capabilities` docstring count.
-6. Write tests in `tests/test_<module>.py`, mocking all Google API calls.
+5. Add the tool name to `_ALL_TOOLS` in `properties.py`; capability counts derive from that list.
+6. Write tests in `tests/test_<module>.py`, mocking all external API calls.
 
 For GA4 tools that filter by hostname/country, use `_build_dimension_filter(hostname, country, base_filter)` from `ga4.py`. It returns `None` when both are `None` (backward-compatible), a single `FilterExpression` when only one is set, and an AND group (`FilterExpressionList`) when both are set.
 
 ## CLI (gsc-cli)
 
-`gsc-cli` exposes all 61 tools as shell commands, auto-generated from `registry.TOOLS`. No manual registration is needed; adding a tool to the registry is enough.
+`gsc-cli` exposes all 81 tools as shell commands, auto-generated from `registry.TOOLS`. No manual CLI registration or count update is needed.
 
 ```bash
-# List all 61 commands
+# List all 81 commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)
@@ -144,3 +155,6 @@ CrUX tests mock `httpx.Client` as a context manager (`client.__enter__` returns 
 | `GSC_SKIP_OAUTH` | Set to `true` to skip OAuth fallback entirely (requires SA path) |
 | `GA4_PROPERTY_ID` | Numeric GA4 property ID (e.g. `123456789`). Required for GA4/cross tools, validated lazily |
 | `CRUX_API_KEY` | Google API key with Chrome UX Report API enabled in GCP. Required for `crux_page_vitals` and `crux_history`. Distinct from GSC/GA4 auth |
+| `BING_WEBMASTER_API_KEY` | User-level Bing Webmaster API key. One key covers the verified sites visible to that account; every Bing call still receives `site` |
+
+IndexNow is separate from Bing Webmaster auth. Its key is supplied to `indexnow_submit` and must be verifiable on each target host or subdomain. Do not add an `INDEXNOW_KEY` environment variable unless the implementation starts consuming it.

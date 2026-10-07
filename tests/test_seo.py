@@ -2,9 +2,54 @@ import json
 import pytest
 from datetime import date, timedelta
 from unittest.mock import patch
+from gsc_mcp.providers.base import SearchMetricBatch, SearchMetricRow
 from gsc_mcp.tools.seo import quick_wins, traffic_drops, check_alerts, seo_striking_distance, seo_cannibalization, seo_lost_queries, prune_candidates
 
 SITE = "https://example.com/"
+
+
+class _FixedBingProvider:
+    def __init__(self, dimensions, rows):
+        self.dimensions = dimensions
+        self.rows = tuple(rows)
+
+    def fetch(self, site, start_date, end_date, dimensions):
+        assert site == SITE
+        assert dimensions == self.dimensions
+        return SearchMetricBatch(
+            engine="bing",
+            dimensions=dimensions,
+            rows=self.rows,
+            requested_start=start_date,
+            requested_end=end_date,
+            observed_start="2026-09-01",
+            observed_end="2026-09-20",
+            window_exact=False,
+            position_semantics="bing_average_impression_position",
+        )
+
+
+def _bing_row(**overrides):
+    values = {
+        "engine": "bing",
+        "date": None,
+        "query": None,
+        "page": None,
+        "clicks": 2,
+        "impressions": 100,
+        "ctr": 0.02,
+        "position": 6.5,
+    }
+    values.update(overrides)
+    return SearchMetricRow(**values)
+
+
+@pytest.fixture(autouse=True)
+def _route_google_provider_to_mock_service(monkeypatch, mock_gsc_service):
+    monkeypatch.setattr(
+        "gsc_mcp.providers.google.get_searchconsole_service",
+        lambda: mock_gsc_service,
+    )
 
 _ROWS_QUICK_WINS = [
     # position 4-15, impressions >= 10, CTR below benchmark → opportunity
@@ -110,6 +155,205 @@ def test_check_alerts_returns_list(mock_gsc_service):
     assert "_meta" in result
     for alert in result["alerts"]:
         assert alert["severity"] in ("high", "medium")
+
+
+@pytest.mark.parametrize(
+    "tool",
+    [
+        quick_wins,
+        traffic_drops,
+        check_alerts,
+        seo_striking_distance,
+        seo_cannibalization,
+        seo_lost_queries,
+        prune_candidates,
+    ],
+)
+def test_explicit_google_keeps_implicit_google_contract(tool, mock_gsc_service):
+    """Adding explicit Google routing must not alter historical output or meta."""
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        "rows": []
+    }
+    with patch(
+        "gsc_mcp.tools.seo.get_searchconsole_service",
+        return_value=mock_gsc_service,
+    ):
+        implicit = json.loads(tool(SITE))
+        explicit = json.loads(tool(SITE, engine="google"))
+
+    assert explicit == implicit
+    assert "engine" not in explicit
+    assert "engine" not in explicit["_meta"]["params"]
+
+
+@pytest.mark.parametrize(
+    "tool",
+    [
+        quick_wins,
+        traffic_drops,
+        check_alerts,
+        seo_striking_distance,
+        seo_cannibalization,
+        seo_lost_queries,
+        prune_candidates,
+    ],
+)
+def test_seo_tools_reject_unknown_engine(tool, mock_gsc_service):
+    """A misspelled engine must fail before silently querying Google."""
+    with patch(
+        "gsc_mcp.tools.seo.get_searchconsole_service",
+        return_value=mock_gsc_service,
+    ):
+        with pytest.raises(ValueError, match="google, bing"):
+            tool(SITE, engine="invalid")
+
+
+@pytest.mark.parametrize(
+    ("tool", "reason"),
+    [
+        (traffic_drops, "bing_exact_period_comparison_unavailable"),
+        (seo_lost_queries, "bing_exact_period_comparison_unavailable"),
+        (check_alerts, "bing_bulk_page_query_dimension_unavailable"),
+        (seo_cannibalization, "bing_bulk_page_query_dimension_unavailable"),
+    ],
+)
+def test_bing_unsupported_analyses_return_without_provider_calls(tool, reason):
+    """Unavailable Bing dimensions must not degrade into per-row API calls."""
+    with patch(
+        "gsc_mcp.tools.seo.get_search_provider",
+        side_effect=AssertionError("Unsupported Bing analysis queried provider"),
+    ), patch(
+        "gsc_mcp.tools.seo.get_searchconsole_service",
+        side_effect=AssertionError("Bing unsupported analysis queried Google"),
+    ):
+        result = json.loads(tool(SITE, engine="bing"))
+
+    assert result["engine"] == "bing"
+    assert result["verdict"] == "unsupported"
+    assert result["reason"] == reason
+    assert result["_meta"]["params"]["engine"] == "bing"
+
+
+def test_quick_wins_reuses_bing_page_metrics_without_claiming_indexation():
+    provider = _FixedBingProvider(
+        ("page",),
+        [_bing_row(page="https://example.com/bing-opportunity")],
+    )
+    with patch(
+        "gsc_mcp.tools.seo.get_search_provider",
+        return_value=provider,
+        create=True,
+    ), patch(
+        "gsc_mcp.tools.seo.get_searchconsole_service",
+        side_effect=AssertionError("Bing quick wins queried Google"),
+    ):
+        result = json.loads(quick_wins(SITE, engine="bing"))
+
+    assert result["engine"] == "bing"
+    assert result["_meta"]["params"]["engine"] == "bing"
+    assert result["opportunities"][0]["page"].endswith("bing-opportunity")
+    assert result["opportunities"][0]["impressions"] == 100
+    assert "indexed" not in json.dumps(result).lower()
+
+
+def test_quick_wins_ignores_bing_rows_without_position():
+    provider = _FixedBingProvider(
+        ("page",),
+        [_bing_row(page="https://example.com/no-position", position=None)],
+    )
+    with patch("gsc_mcp.tools.seo.get_search_provider", return_value=provider):
+        result = json.loads(quick_wins(SITE, engine="bing"))
+
+    assert result["opportunities"] == []
+
+
+def test_striking_distance_reuses_bing_query_metrics():
+    provider = _FixedBingProvider(
+        ("query",),
+        [_bing_row(query="bing query", position=9.0, impressions=250)],
+    )
+    with patch(
+        "gsc_mcp.tools.seo.get_search_provider",
+        return_value=provider,
+    ), patch(
+        "gsc_mcp.tools.seo.get_searchconsole_service",
+        side_effect=AssertionError("Bing striking distance queried Google"),
+    ):
+        result = json.loads(seo_striking_distance(SITE, engine="bing"))
+
+    assert result["engine"] == "bing"
+    assert result["_meta"]["params"]["engine"] == "bing"
+    assert result["queries"] == [
+        {
+            "query": "bing query",
+            "position": 9.0,
+            "clicks": 2,
+            "impressions": 250,
+            "ctr": 0.02,
+        }
+    ]
+
+
+def test_striking_distance_ignores_bing_rows_without_position():
+    provider = _FixedBingProvider(
+        ("query",),
+        [_bing_row(query="no position query", position=None)],
+    )
+    with patch("gsc_mcp.tools.seo.get_search_provider", return_value=provider):
+        result = json.loads(seo_striking_distance(SITE, engine="bing"))
+
+    assert result["queries"] == []
+
+
+def test_prune_candidates_reuses_bing_page_metrics_with_measured_wording():
+    provider = _FixedBingProvider(
+        ("page",),
+        [
+            _bing_row(
+                page="https://example.com/review",
+                clicks=0,
+                impressions=250,
+                ctr=0.0,
+                position=18.0,
+            )
+        ],
+    )
+    with patch(
+        "gsc_mcp.tools.seo.get_search_provider",
+        return_value=provider,
+    ), patch(
+        "gsc_mcp.tools.seo.get_searchconsole_service",
+        side_effect=AssertionError("Bing prune candidates queried Google"),
+    ):
+        result = json.loads(prune_candidates(SITE, engine="bing"))
+
+    assert result["engine"] == "bing"
+    assert result["_meta"]["params"]["engine"] == "bing"
+    assert result["counts"]["impressions_no_clicks"] == 1
+    assert result["impressions_no_clicks"][0]["action"] == (
+        "review intent and title, measured Bing impressions: 250; clicks: 0"
+    )
+    assert "is indexed" not in json.dumps(result).lower()
+
+
+def test_prune_candidates_keeps_bing_row_with_null_position():
+    provider = _FixedBingProvider(
+        ("page",),
+        [
+            _bing_row(
+                page="https://example.com/null-position",
+                clicks=3,
+                impressions=30,
+                ctr=0.1,
+                position=None,
+            )
+        ],
+    )
+    with patch("gsc_mcp.tools.seo.get_search_provider", return_value=provider):
+        result = json.loads(prune_candidates(SITE, engine="bing"))
+
+    assert result["counts"]["has_traffic"] == 1
+    assert result["has_traffic"][0]["position"] is None
 
 
 # ===========================

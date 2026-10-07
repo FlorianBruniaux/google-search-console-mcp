@@ -4,10 +4,20 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gsc-mcp-tools"
-version = "1.1.2"
-description = "Google Search Console MCP server with 61 tools: search analytics, URL inspection, Indexing API, IndexNow, GA4, CrUX, sitemap audit, JSON-LD schema validation and generation, drift monitoring, on-page content/technical audits, heading structure, zone-weighted internal linking, site-wide link equity mapping, traffic-backed pruning, AI crawler visibility, GBP deprecation detection, PageSpeed Insights, and composite health scoring"
+version = "1.2.0"
+description = "MCP server for Google Search Console, Bing Webmaster Tools, GA4, CrUX, IndexNow, technical SEO, and guarded cross-engine workflows"
 readme = "README.md"
 requires-python = ">=3.11"
+keywords = [
+    "bing-webmaster-tools",
+    "fastmcp",
+    "google-analytics",
+    "google-search-console",
+    "indexnow",
+    "mcp",
+    "seo",
+    "technical-seo",
+]
 authors = [
     { name = "Florian Bruniaux", email = "florian@bruniaux.com" }
 ]

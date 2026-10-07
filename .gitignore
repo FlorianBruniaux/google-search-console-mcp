@@ -14,5 +14,14 @@ token_*.json
 .claude/settings*.json
 .claude/commands/
 .claude/todos/
+.codex/config.toml
 .idea/
 .DS_Store
+site/.astro/
+site/dist/
+site/node_modules/
+site/playwright-report/
+site/test-results/
+site/src/generated/product.json
+site/src/content/docs/
+site/public/evidence/
