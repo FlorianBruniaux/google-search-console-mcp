@@ -1,0 +1,178 @@
+docs/superpowers/plans/2026-10-08-ready-backlog.md
+  s_05ea773ff72f20::t_1565aaf08fd187 16-17
+  s_05ea773ff72f20::t_3d92155524470f 1-15
+src/gsc_mcp/content_trust.py
+  s_05ea773ff72f20::t_b5d6e243dbd415 30-33,66,81-85
+  s_05ea773ff72f20::t_0b8ac0a2d924a0 1-29,34-65,67-80,86-137
+README.md
+  s_05ea773ff72f20::t_fcc2968ca6fbce 187,319,328,493,629,651
+  s_05ea773ff72f20::t_65885d583520dd 17,36,95,397-399,402,437,443
+tests/test_bing_analytics.py
+  s_05ea773ff72f20::t_3995cef7d325b2 255
+.agents/skills/indexing-audit/evals/scenarios.json
+  s_05ea773ff72f20::t_dcafbe9ad08a78 7-10,12,15-22,25,27,30-34
+tests/test_search_compare.py
+  s_05ea773ff72f20::t_3995cef7d325b2 409-411
+src/gsc_mcp/tools/properties.py
+  s_05ea773ff72f20::t_c6474355177e0b 33
+tests/test_ga4_provenance.py
+  s_05ea773ff72f20::t_3995cef7d325b2 158-160
+docs/validation/2026-10-08-ready-backlog.md
+  s_05ea773ff72f20::t_1565aaf08fd187 1-40
+src/gsc_mcp/tools/ga4.py
+  s_05ea773ff72f20::t_ac6b7f5204bc99 63-70,78-79,203
+  s_05ea773ff72f20::t_b3547977e648c7 53-62,71-77,80-82,277-279
+  s_05ea773ff72f20::t_e170a6c866bfc4 13-14,28,123-202,204-224
+  s_05ea773ff72f20::t_16a3fa5284ae34 45-52,267
+  s_05ea773ff72f20::t_f4087220e67566 225-226
+CLAUDE.md
+  s_05ea773ff72f20::t_11aa0570823578 45,47,60,127
+  s_05ea773ff72f20::t_fcc2968ca6fbce 130
+  s_05ea773ff72f20::t_4d31e44ecf2187 5-12
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_fcc2968ca6fbce 10,16
+  s_05ea773ff72f20::t_65885d583520dd 7,125
+  s_05ea773ff72f20::t_cc609433e0b98a 124
+src/gsc_mcp/tools/analytics.py
+  s_05ea773ff72f20::t_16a3fa5284ae34 24-25
+tests/test_content_trust.py
+  s_05ea773ff72f20::t_9cd6f17c56b1c9 151-175
+  s_05ea773ff72f20::t_b5d6e243dbd415 62-63
+  s_05ea773ff72f20::t_005777ed052aff 1-61,64-150
+docs/machine-readable/code-map.yaml
+  s_05ea773ff72f20::t_65885d583520dd 128
+  s_05ea773ff72f20::t_cc609433e0b98a 9,17,37,127
+src/gsc_mcp/tools/technical.py
+  s_05ea773ff72f20::t_1f0e19bb97c89b 13,126,130,139-146,148-154
+  s_05ea773ff72f20::t_0b8ac0a2d924a0 12,133-138,147,199
+CHANGELOG.md
+  s_05ea773ff72f20::t_224714c2b32d84 5-10,13-14
+  s_ded836f56a6d83::t_834a6b472a667e 15
+src/gsc_mcp/evidence.py
+  s_05ea773ff72f20::t_3995cef7d325b2 236
+  s_05ea773ff72f20::t_f1f2e4cc1837a2 240-241
+  s_05ea773ff72f20::t_061ff16f0de823 243
+  s_05ea773ff72f20::t_51b5cbc660ee64 178-181,188,191
+  s_05ea773ff72f20::t_c6d11a668cc27a 217-227
+  s_05ea773ff72f20::t_b09ff7eba722c7 1-177,182-187,189-190,192-216,228-235,237-239,242,244-247
+src/gsc_mcp/tools/links.py
+  s_05ea773ff72f20::t_0b8ac0a2d924a0 22,168,293
+src/gsc_mcp/tools/content.py
+  s_05ea773ff72f20::t_0b8ac0a2d924a0 21,410,420,427,446,547,843,953
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_1ce83cafb0d120 5,25-31
+  s_05ea773ff72f20::t_4a34c27d8c4bca 32
+.agents/skills/sitemap-audit/evals/scenarios.json
+  s_05ea773ff72f20::t_dcafbe9ad08a78 6-7,9-12,14-29,34,38-44
+  s_05ea773ff72f20::t_b8c99269a2a06d 45-46
+tests/test_cross.py
+  s_05ea773ff72f20::t_02ebe4e6de128b 28-29,32,94,96
+  s_05ea773ff72f20::t_ac6b7f5204bc99 33
+  s_05ea773ff72f20::t_be0e763288380f 542-549
+tests/test_registry.py
+  s_05ea773ff72f20::t_c6474355177e0b 62
+tests/test_traffic_comparison.py
+  s_05ea773ff72f20::t_ac6b7f5204bc99 26
+  s_05ea773ff72f20::t_ab329c34bd6153 111
+  s_05ea773ff72f20::t_1fc8014a5a096f 114-115
+  s_05ea773ff72f20::t_92279141b6a6f1 211-238
+  s_05ea773ff72f20::t_00ed2e49cfc952 1-6,8-25,27-84,86-110,112-113,116-141
+  s_05ea773ff72f20::t_a1a54126878f3b 7,190-210
+  s_05ea773ff72f20::t_1e6361cd449549 85,142-189
+.agents/skills/indexing-audit/SKILL.md
+  s_05ea773ff72f20::t_b1521fbbd2d853 20-21
+tests/test_utilities.py
+  s_05ea773ff72f20::t_3995cef7d325b2 22
+src/gsc_mcp/tools/cross.py
+  s_05ea773ff72f20::t_17b7306cdfd2e9 8-10,18,53-68,72,74-75,99,101-105,107-111,114,116-119,123,125-126,129-136,141-160,162-167,169,171-173,175,194-197
+  s_05ea773ff72f20::t_ac6b7f5204bc99 168,504-508
+  s_05ea773ff72f20::t_ab329c34bd6153 170
+  s_05ea773ff72f20::t_e0e35458bc33c5 15,69-71,73,76-91,112-113,115,120-122,124,127-128,161
+docs/superpowers/plans/README.md
+  s_05ea773ff72f20::t_de2b80f98aa067 4
+  s_05ea773ff72f20::t_1565aaf08fd187 3
+src/gsc_mcp/ai_referrals.py
+  s_05ea773ff72f20::t_9174feb860522d 1-63
+  s_05ea773ff72f20::t_395ac3baa16184 64-75
+tests/test_ga4_coverage.py
+  s_05ea773ff72f20::t_657aab31d0d3b4 1-23,25-38
+  s_05ea773ff72f20::t_8134960883e8d0 24,39-52
+.agents/skills/sitemap-audit/SKILL.md
+  s_05ea773ff72f20::t_b1521fbbd2d853 20-21
+tests/test_schema_challenges.py
+  s_05ea773ff72f20::t_d15d5badeedcd4 1-109
+tests/test_ga4_ai_referrals.py
+  s_05ea773ff72f20::t_55b8e2309535ff 102
+  s_05ea773ff72f20::t_18e8b43790a633 1-101,103-180
+  s_05ea773ff72f20::t_eb15b09a3178d0 181-212
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_75778e840fedee 66,70
+  s_05ea773ff72f20::t_104c0aa3830702 62
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_224714c2b32d84 13-18
+src/gsc_mcp/meta.py
+  s_05ea773ff72f20::t_b09ff7eba722c7 1-3,9
+tests/test_bing_webmaster.py
+  s_05ea773ff72f20::t_3995cef7d325b2 395-398
+src/gsc_mcp/registry.py
+  s_05ea773ff72f20::t_c6474355177e0b 51,133
+site/content/en/evidence-and-safety.md
+  s_05ea773ff72f20::t_3a94a3a5a9d682 82-89
+  s_05ea773ff72f20::t_89369ba17b4181 53-67
+  s_05ea773ff72f20::t_1b59495668743f 68-81
+src/gsc_mcp/page_challenges.py
+  s_05ea773ff72f20::t_1f0e19bb97c89b 1-67
+site/content/fr/docs/evidence-and-safety.md
+  s_05ea773ff72f20::t_0e0b16a40a1c08 57-71
+  s_05ea773ff72f20::t_e800969efedaca 86-93
+  s_05ea773ff72f20::t_0448423990af74 5,72-84
+  s_171eaa146c92b2::t_99b9120fd1de62 85
+tests/test_evidence.py
+  s_05ea773ff72f20::t_39f96e2d751348 62-68
+  s_05ea773ff72f20::t_f591f6f2423d05 7,212-241,244-283,285-289,292-296,308-471
+  s_05ea773ff72f20::t_b994421a2639f5 97-121
+  s_05ea773ff72f20::t_0c69d783d5ce94 284,290-291,297-307
+  s_05ea773ff72f20::t_84d9a526af62ce 52,54-55,242-243
+  s_05ea773ff72f20::t_439f3a4c2db9bb 1-6,8-51,53,56-61,69-96,122-211
+docs/architecture.md
+  s_05ea773ff72f20::t_fcc2968ca6fbce 5,12
+  s_05ea773ff72f20::t_a257b6a72e3977 177
+  s_05ea773ff72f20::t_1ce83cafb0d120 175-176,178-180
+  s_05ea773ff72f20::t_65885d583520dd 30,89
+.claude/skills/indexing-audit/evals
+  s_05ea773ff72f20::t_14d67cc1955c26 1
+.claude/skills/sitemap-audit/evals
+  s_05ea773ff72f20::t_5f5999fa71a9ae 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "944eae58816946a7d6accd9df4742d43caa31eb4",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_171eaa146c92b2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11624-4612-7882-bd9f-6b20054770eb",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ded836f56a6d83": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2411f16c-88e6-4622-9ccc-03c30968a7a1",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
