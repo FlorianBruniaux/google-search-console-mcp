@@ -2,6 +2,7 @@
 import json
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 
 from gsc_mcp.tools.content import heading_audit
@@ -12,9 +13,12 @@ def audit_schema(payload, url="https://example.com/"):
     html = '<script type="application/ld+json">' + json.dumps(payload) + '</script>'
     client = MagicMock()
     client.__enter__.return_value = client
-    client.get.return_value.text = html
-    with patch("gsc_mcp.tools.technical.validate_url_strict"), patch(
-        "gsc_mcp.tools.technical.httpx.Client", return_value=client
+    client.get.return_value = httpx.Response(200, text=html, request=httpx.Request("GET", url))
+    with patch(
+        "gsc_mcp.url_safety.socket.getaddrinfo",
+        return_value=[(None, None, None, None, ("93.184.216.34", 0))],
+    ), patch(
+        "httpx.Client", return_value=client
     ):
         return json.loads(schema_validate(url))
 

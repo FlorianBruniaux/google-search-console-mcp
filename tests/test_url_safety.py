@@ -329,12 +329,13 @@ class TestFetchHtmlFollowingRedirects:
                 fetch_html_following_redirects("https://example.com/")
         assert client.get.call_count == 1
 
-    def test_malformed_port_in_location_raises_url_safety_error(self):
+    @pytest.mark.parametrize("target", ["https://example.com:not-a-port/", "https://[::1/"])
+    def test_malformed_location_raises_url_safety_error(self, target):
         client = self._client({
-            "https://example.com/": (301, {"location": "https://example.com:not-a-port/"}),
+            "https://example.com/": (301, {"location": target}),
         })
         with patch("httpx.Client", return_value=client):
-            with pytest.raises(URLSafetyError, match="invalid port"):
+            with pytest.raises(URLSafetyError, match="invalid port or authority"):
                 fetch_html_following_redirects("https://example.com/")
         assert client.get.call_count == 1
 

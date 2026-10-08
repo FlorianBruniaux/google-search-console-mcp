@@ -282,9 +282,10 @@ def test_schema_validate_typed_graph_parent_is_validated_too():
     assert result["verdict"] == "invalid_schemas"
 
 
-def test_schema_validate_redirect_to_malformed_port_is_fetch_error():
-    """A Location with an invalid port must come back as fetch_error, not escape as ValueError."""
-    client = _redirect_client({"https://example.com/": "https://example.com:not-a-port/"}, "<html></html>")
+@pytest.mark.parametrize("target", ["https://example.com:not-a-port/", "https://[::1/"])
+def test_schema_validate_redirect_to_malformed_url_is_fetch_error(target):
+    """Malformed redirect ports and authorities return fetch_error without fetching the target."""
+    client = _redirect_client({"https://example.com/": target}, "<html></html>")
     with patch("httpx.Client", return_value=client):
         result = json.loads(schema_validate("https://example.com/"))
     assert result["verdict"] == "fetch_error"
