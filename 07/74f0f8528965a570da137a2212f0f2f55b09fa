@@ -1,0 +1,57 @@
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 9
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_e5c1a76833a10e 10
+site/content/fr/docs/installation.md
+  s_05ea773ff72f20::t_e5c1a76833a10e 11-12
+site/content/en/evidence-and-safety.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 55,68,84,92,116
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 11,15,18,20
+site/content/fr/docs/evidence-and-safety.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 59,72,88,96
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 3
+site/content/fr/docs/index.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 55
+.github/workflows/publish.yml
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 4
+site/content/en/index.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 47
+docs/installation.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 26,34,39
+pyproject.toml
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 7
+CHANGELOG.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 5-6,11,16,20,26
+  s_05ea773ff72f20::t_4284e3e6fff885 27
+README.md
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 93,109,129,296,399
+  s_05ea773ff72f20::t_e5c1a76833a10e 19
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 6,10,66,70,86
+  s_05ea773ff72f20::t_e5c1a76833a10e 62
+docs/architecture.md
+  s_05ea773ff72f20::t_e5c1a76833a10e 3,179
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_e5c1a76833a10e 25
+  s_05ea773ff72f20::t_cebe7ad1a57cdf 27
+uv.lock
+  s_05ea773ff72f20::t_354d5ed687d6ea 476
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0774f0f8528965a570da137a2212f0f2f55b09fa",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
