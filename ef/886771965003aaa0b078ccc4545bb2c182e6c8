@@ -1,0 +1,50 @@
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_10c20fe421be72 11
+docs/bing-setup.md
+  s_05ea773ff72f20::t_10c20fe421be72 44,46,49
+site/content/fr/docs/bing-setup.md
+  s_05ea773ff72f20::t_10c20fe421be72 25,27,30
+docs/architecture.md
+  s_05ea773ff72f20::t_10c20fe421be72 3,7,14,47,49,77,79,180,184
+docs/machine-readable/code-map.yaml
+  s_05ea773ff72f20::t_10c20fe421be72 5,34,42
+site/content/fr/docs/installation.md
+  s_05ea773ff72f20::t_10c20fe421be72 11,25-32,51,53,85,88,93,102
+pyproject.toml
+  s_05ea773ff72f20::t_94a5f366715b75 7
+site/content/fr/docs/index.md
+  s_05ea773ff72f20::t_10c20fe421be72 55
+  s_05ea773ff72f20::t_eb954e78fee884 5
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_10c20fe421be72 6,10,18,62,70
+CHANGELOG.md
+  s_05ea773ff72f20::t_10c20fe421be72 5-6
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_10c20fe421be72 13,15,37
+README.md
+  s_05ea773ff72f20::t_10c20fe421be72 129,188,224,226,296,399,424,463,496,555
+docs/installation.md
+  s_05ea773ff72f20::t_10c20fe421be72 3,26,34,39,87,89
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_10c20fe421be72 10,16,19,22-23,77,80
+site/content/en/index.md
+  s_05ea773ff72f20::t_10c20fe421be72 47
+uv.lock
+  s_05ea773ff72f20::t_7aeec3d5012063 2,476
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ef886771965003aaa0b078ccc4545bb2c182e6c8",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
