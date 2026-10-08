@@ -1,6 +1,6 @@
 # Installation and MCP client setup
 
-This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 85-tool registry in release 1.3.0. Python 3.11 or newer is required.
+This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 85-tool registry in release 1.3.1. Python 3.11 or newer is required.
 
 ## Choose an installation mode
 
@@ -23,7 +23,7 @@ command -v gsc-mcp-tools
 gsc-cli list
 ```
 
-`gsc-cli list` should print 85 commands for release `1.3.0`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
+`gsc-cli list` should print 85 commands for release `1.3.1`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
 
 Upgrade later with:
 
@@ -31,12 +31,12 @@ Upgrade later with:
 uv tool upgrade gsc-mcp-tools
 ```
 
-An installation created with `gsc-mcp-tools==1.3.0` stays pinned. Reinstall without the version constraint before using `uv tool upgrade`, or install the next explicit version with `--force`.
+An installation created with `gsc-mcp-tools==1.3.1` stays pinned. Reinstall without the version constraint before using `uv tool upgrade`, or install the next explicit version with `--force`.
 
 To reproduce this release exactly:
 
 ```bash
-uv tool install --force gsc-mcp-tools==1.3.0
+uv tool install --force gsc-mcp-tools==1.3.1
 ```
 
 ## Alternative installations
@@ -84,9 +84,9 @@ Use this mode only when developing or testing changes that are not yet published
 
 </details>
 
-## Select MCP tool families (unreleased)
+## Select MCP tool families (since 1.3.1)
 
-The source checkout supports `GSC_MCP_TOOL_FAMILIES` as a comma-separated family list. Release `1.3.0` exposes the full catalogue; this selection setting is not part of that published release.
+Since version 1.3.1, `GSC_MCP_TOOL_FAMILIES` accepts a comma-separated family list. Release 1.3.0 predates this setting and exposes the full catalogue.
 
 For a focused Google SEO session, set this non-secret variable in the MCP server environment:
 

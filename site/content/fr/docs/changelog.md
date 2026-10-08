@@ -8,7 +8,7 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
-## Non publié
+## 1.3.1 (2026-10-08)
 
 - Sélection facultative des familles MCP via `GSC_MCP_TOOL_FAMILIES`, avec catalogue complet par défaut, `core` conservé et CLI complète. Aucune permission fournisseur n’est accordée par cette sélection.
 - Listes de chaînes CLI transmises par options répétées ou tableaux JSON, sans découper les virgules des URL. Les tableaux invalides sont refusés avant l’appel fournisseur.

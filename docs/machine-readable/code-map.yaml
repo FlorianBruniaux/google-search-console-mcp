@@ -2,7 +2,7 @@
 # Source: src/gsc_mcp/ + tests/
 # Usage: @docs/machine-readable/code-map.yaml
 
-version: "1.1.0"
+version: "1.3.1"
 generated: "2026-10-08"
 package: gsc-mcp-tools
 python_min: "3.11"
@@ -31,7 +31,7 @@ entry_points:
 
 core_modules:
   - path: src/gsc_mcp/server.py
-    role: "FastMCP instance; registers startup-selected registry tools (unreleased family selection)"
+    role: "FastMCP instance; registers startup-selected registry tools (family selection since 1.3.1)"
     type: entry_point
 
   - path: src/gsc_mcp/registry.py
@@ -39,7 +39,7 @@ core_modules:
     exports: [TOOLS]
 
   - path: src/gsc_mcp/tool_selection.py
-    role: "Unreleased MCP startup family selection; core retained; CLI catalogue unchanged"
+    role: "MCP startup family selection since 1.3.1; core retained; CLI catalogue unchanged"
     env_vars: [GSC_MCP_TOOL_FAMILIES]
 
   - path: src/gsc_mcp/cli.py

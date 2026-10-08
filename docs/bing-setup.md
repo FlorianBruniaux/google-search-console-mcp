@@ -41,12 +41,12 @@ gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20
 gsc-cli bing-page-stats --site https://example.com/ --days 28 --limit 20
 ```
 
-## Query aggregation (unreleased)
+## Query aggregation (since 1.3.1)
 
-In the source checkout, `bing_query_stats` returns one row per query by default. It aggregates the locally filtered source dates before sorting and applying `limit`, sums clicks and impressions, derives CTR from those sums, and weights available click and impression positions by their respective counts.
+Since version 1.3.1, `bing_query_stats` returns one row per query by default. It aggregates the locally filtered source dates before sorting and applying `limit`, sums clicks and impressions, derives CTR from those sums, and weights available click and impression positions by their respective counts.
 
 ```bash
-# Query totals (default in the checkout)
+# Query totals (default since 1.3.1)
 gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20
 # Original daily query rows
 gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20 --daily

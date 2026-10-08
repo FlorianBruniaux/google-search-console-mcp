@@ -3,11 +3,11 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "92e89b81c8c2507ba65f5f643cdcb56c5e57b478800134ebe6cded79ed0bdacd"
+      "sourceHash": "ce3fa0012fa1f2b17187336ff71a5d33389cb1a6b32f975f3ea58b2568ba99d0"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "1f72636b3ef666b80436f181afe7330d5bab85f0e078fb0e67f8890084b13a3f"
+      "sourceHash": "428108c7c9850724af03fe96df7c2c60d80fb24ffb9fa78ae05b5d75d64a0898"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -15,7 +15,7 @@
     },
     "docs/bing-setup.md": {
       "source": "docs/bing-setup.md",
-      "sourceHash": "df2d5448c5eb16e366f517984d70ad3f6c2136e29b22414332c6bb5ce631d4fe"
+      "sourceHash": "5fb02995c04471e4c147eaf18579d5c8a56830ede85a83134e5b233958a5b1c4"
     },
     "docs/prompts.md": {
       "source": "docs/starter-prompt.md",
@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "1100b3bcba9d5051e59dfb71c418dd16b2e9e7db83660bf778a5ea857e0e67bd"
+      "sourceHash": "a1816c6bbd53fbf0af54739ab004b76c97835d341f5a9ae7d1ca17eafc8536fd"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "609313decccf54b42e8779a749b8de91178272e70444562adbc3ae75309f419c"
+      "sourceHash": "0280defb96562b7af00317a9e8123021ce528659b3f56afc4e0c9f8cd608b505"
     },
     "docs/license.md": {
       "source": "LICENSE",

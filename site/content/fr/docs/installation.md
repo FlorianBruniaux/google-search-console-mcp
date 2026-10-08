@@ -8,7 +8,7 @@ canonicalEnglish: /docs/installation/
 
 ## Installation recommandée
 
-La version 1.3.0 expose 85 outils.
+La version 1.3.1 expose 85 outils.
 
 Pour un essai ponctuel :
 
@@ -21,6 +21,14 @@ Pour une installation persistante :
 ```bash
 uv tool install gsc-mcp-tools
 ```
+
+Pour reproduire exactement cette version :
+
+```bash
+uv tool install --force gsc-mcp-tools==1.3.1
+```
+
+Une installation épinglée reste épinglée. Réinstallez sans contrainte de version avant d’utiliser `uv tool upgrade`, ou installez explicitement la prochaine version avec `--force`.
 
 Pour mettre à jour une installation existante :
 
@@ -40,9 +48,9 @@ Le client MCP doit lancer le serveur à la demande via `stdio`. Ne démarrez pas
 
 Après une modification de configuration, fermez complètement le client avant de le relancer. Si plusieurs clients sont ouverts, chacun peut avoir son propre processus enfant. C’est normal tant que les processus disparaissent à la fermeture des clients.
 
-## Choisir les familles MCP (non publié)
+## Choisir les familles MCP (depuis 1.3.1)
 
-Le checkout source accepte `GSC_MCP_TOOL_FAMILIES`, une liste de familles séparées par des virgules. Cette option ne fait pas partie de la version publiée 1.3.0. Pour une session SEO Google ciblée, ajoutez cette variable non secrète à l’environnement du serveur :
+Depuis la version 1.3.1, `GSC_MCP_TOOL_FAMILIES` accepte une liste de familles séparées par des virgules. La version 1.3.0 précède cette option. Pour une session SEO Google ciblée, ajoutez cette variable non secrète à l’environnement du serveur :
 
 ```text
 GSC_MCP_TOOL_FAMILIES=analytics,seo,sitemaps,links
@@ -74,15 +82,15 @@ Utilisez la commande installée comme exécutable MCP et passez les secrets dans
 gsc-cli list
 ```
 
-Vérifiez chaque fournisseur séparément. Une propriété Google visible ne prouve pas que Bing est configuré, et inversement. Contrôlez aussi la version réellement exécutée :
+Vérifiez chaque fournisseur séparément. Une propriété Google visible ne prouve pas que Bing est configuré, et inversement. Pour une installation persistante via uv, contrôlez aussi la version installée :
 
 ```bash
-gsc-mcp-tools --version
+uv tool list
 ```
 
 ## Listes d’URL dans la CLI
 
-Répétez `--urls` pour fournir plusieurs URL. Le checkout accepte aussi un tableau JSON de chaînes :
+Répétez `--urls` pour fournir plusieurs URL. Depuis la version 1.3.1, la CLI accepte aussi un tableau JSON de chaînes :
 
 ```bash
 gsc-cli batch-url-inspection --site https://example.com/ \
@@ -91,7 +99,7 @@ gsc-cli batch-url-inspection --site https://example.com/ \
   --urls '["https://example.com/a","https://example.com/b"]'
 ```
 
-Les virgules restent littérales : `--urls 'https://example.com/a,b?q=x,y'` transmet une seule URL. Un tableau malformé ou contenant autre chose que des chaînes est refusé avant tout appel fournisseur. Le format JSON pour ces listes n’est pas publié dans 1.3.0 ; les options répétées fonctionnent aussi dans cette version.
+Les virgules restent littérales : `--urls 'https://example.com/a,b?q=x,y'` transmet une seule URL. Un tableau malformé ou contenant autre chose que des chaînes est refusé avant tout appel fournisseur. Le format JSON pour ces listes est disponible depuis 1.3.1 ; les options répétées fonctionnent aussi dans 1.3.0.
 
 ## Diagnostic de consommation
 

@@ -7,20 +7,20 @@
 Python MCP server exposing 85 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
-Release 1.3.0 contains 85 tools, including ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit.
+Release 1.3.1 contains 85 tools, including ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit.
 Setup guides: docs/installation.md, docs/google-setup.md, docs/bing-setup.md.
 Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + registers registry.TOOLS (85 tools by default), subject to unreleased startup family selection.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + registers registry.TOOLS (85 tools by default), subject to startup family selection since 1.3.1.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
-  CLI (gsc-cli) reads the full TOOLS catalogue; the unreleased MCP server applies startup family selection through tool_selection.py and GSC_MCP_TOOL_FAMILIES, with all tools by default and core always exposed. Unknown or empty selections fail startup. Restart after changes; selection does not grant provider access. Both frontends read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS; declare new module families in tool_selection.py.
+  CLI (gsc-cli) reads the full TOOLS catalogue; the MCP server applies startup family selection since 1.3.1 through tool_selection.py and GSC_MCP_TOOL_FAMILIES, with all tools by default and core always exposed. Unknown or empty selections fail startup. Restart after changes; selection does not grant provider access. Both frontends read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS; declare new module families in tool_selection.py.
 
 CLI string lists: repeat flags or pass JSON arrays of strings; commas stay literal.
-  Invalid arrays fail before provider access. JSON string-list form is unreleased.
-Bing query stats (unreleased): aggregate before limit by default; daily=True opts in.
+  Invalid arrays fail before provider access. JSON string-list form is available since 1.3.1.
+Bing query stats (since 1.3.1): aggregate before limit by default; daily=True opts in.
   CTR uses summed counts, positions use corresponding available weights; invalid
   source CTR is null with preserved diagnostics, not clipped or hidden by aggregation.
 
@@ -74,10 +74,10 @@ TOOLS:
       "delete these" list by design; a page with clicks can never appear as a
       candidate. Non-regression case: 300 indexed local pages with traffic must
       never be recommended for deletion (tests/test_seo.py::test_prune_solar_panel_local_pages_are_protected).
-    Unreleased: traffic_drops current window ends today-3; lost queries retain today.
+    Since 1.3.1: traffic_drops current window ends today-3; lost queries retain today.
       Candidate diagnoses are metric rules, not causes. Missing current rows have
       metrics_current=null in unavailable_queries. Zero-impression CTR/position are null.
-    Unreleased: seo_cannibalization excludes site:/intitle:/inurl:/filetype: operators;
+    Since 1.3.1: seo_cannibalization excludes site:/intitle:/inurl:/filetype: operators;
       excluded_search_operator_queries counts distinct strings; include_search_operators=True opts in.
     Bing support: quick_wins, seo_striking_distance and prune_candidates accept engine="bing".
       traffic_drops and seo_lost_queries return bing_exact_period_comparison_unavailable.
