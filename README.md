@@ -27,6 +27,10 @@ Ask Claude or Codex to analyze your site's latest SEO changes and suggest what t
 Search Console MCP is the open-source connection between your data and your AI assistant. The server retrieves metrics and runs analyses; Claude, Codex or another MCP client explains the findings and proposes corrections. A coding assistant with access to your repository can also help implement the fixes you choose.
 
 <p align="center">
+  <img src="https://raw.githubusercontent.com/FlorianBruniaux/google-search-console-mcp/main/docs/assets/gsc-mcp-workflow.png" width="1100" alt="Search Console MCP workflow: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions." />
+</p>
+
+<p align="center">
   <a href="https://search-console.bruniaux.com/">Website</a> &middot;
   <a href="https://search-console.bruniaux.com/docs/">Documentation</a> &middot;
   <a href="https://search-console.bruniaux.com/fr/docs/">Documentation FR</a> &middot;
@@ -296,10 +300,6 @@ Version 1.2.0 exposes 81 FastMCP tools. The server handles authentication, API c
 
 > [!NOTE]
 > An API submission reported as accepted proves neither crawl nor indexation. Search Console MCP keeps observed facts, derived metrics and recommendations separate.
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/FlorianBruniaux/google-search-console-mcp/main/docs/assets/gsc-mcp-workflow.png" width="1100" alt="Search Console MCP workflow: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions." />
-</p>
 
 ### Why private search data needs MCP
 
