@@ -7,14 +7,14 @@ generated: "2026-10-08"
 package: gsc-mcp-tools
 python_min: "3.11"
 total_tools: 85
-total_tests: 851
+total_tests: 1492
 
 tool_inventory:
   previous_surface: 61
   bing_reads: 15
   bing_writes: 4
   cross_engine: 1
-  unreleased_additions: 4
+  release_1_3_additions: 4
   total: 85
   source_of_truth: src/gsc_mcp/registry.py
   invariant: "set(registry.TOOLS) == set(properties._ALL_TOOLS)"
@@ -31,12 +31,16 @@ entry_points:
 
 core_modules:
   - path: src/gsc_mcp/server.py
-    role: "FastMCP instance; registers every function from registry.TOOLS"
+    role: "FastMCP instance; registers startup-selected registry tools (unreleased family selection)"
     type: entry_point
 
   - path: src/gsc_mcp/registry.py
     role: "Shared MCP and CLI registry for all 85 tools"
     exports: [TOOLS]
+
+  - path: src/gsc_mcp/tool_selection.py
+    role: "Unreleased MCP startup family selection; core retained; CLI catalogue unchanged"
+    env_vars: [GSC_MCP_TOOL_FAMILIES]
 
   - path: src/gsc_mcp/cli.py
     role: "Flag-only CLI generated from registered function signatures"

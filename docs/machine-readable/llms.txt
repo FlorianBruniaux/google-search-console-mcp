@@ -13,10 +13,16 @@ Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 85 source tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + registers registry.TOOLS (85 tools by default), subject to unreleased startup family selection.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
-  CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
+  CLI (gsc-cli) reads the full TOOLS catalogue; the unreleased MCP server applies startup family selection through tool_selection.py and GSC_MCP_TOOL_FAMILIES, with all tools by default and core always exposed. Unknown or empty selections fail startup. Restart after changes; selection does not grant provider access. Both frontends read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS; declare new module families in tool_selection.py.
+
+CLI string lists: repeat flags or pass JSON arrays of strings; commas stay literal.
+  Invalid arrays fail before provider access. JSON string-list form is unreleased.
+Bing query stats (unreleased): aggregate before limit by default; daily=True opts in.
+  CTR uses summed counts, positions use corresponding available weights; invalid
+  source CTR is null with preserved diagnostics, not clipped or hidden by aggregation.
 
 AUTH: src/gsc_mcp/auth.py : Google service helpers plus a Bing env-key reader:
   get_searchconsole_service() → GSC Search Console API
@@ -68,6 +74,11 @@ TOOLS:
       "delete these" list by design; a page with clicks can never appear as a
       candidate. Non-regression case: 300 indexed local pages with traffic must
       never be recommended for deletion (tests/test_seo.py::test_prune_solar_panel_local_pages_are_protected).
+    Unreleased: traffic_drops current window ends today-3; lost queries retain today.
+      Candidate diagnoses are metric rules, not causes. Missing current rows have
+      metrics_current=null in unavailable_queries. Zero-impression CTR/position are null.
+    Unreleased: seo_cannibalization excludes site:/intitle:/inurl:/filetype: operators;
+      excluded_search_operator_queries counts distinct strings; include_search_operators=True opts in.
     Bing support: quick_wins, seo_striking_distance and prune_candidates accept engine="bing".
       traffic_drops and seo_lost_queries return bing_exact_period_comparison_unavailable.
       check_alerts and seo_cannibalization return bing_bulk_page_query_dimension_unavailable.
@@ -150,7 +161,7 @@ TOOLS:
     schema_generate: builds JSON-LD blocks for Reservation, OrderAction, DiscussionForumPosting, ProfilePage.
     No network calls. No auth needed.
     ai_visibility_audit: fetches {origin}/robots.txt via safe_fetch_html, parses with urllib.robotparser.
-      Checks 9 AI crawlers: GPTBot, Anthropic-ai, Claude-User, PerplexityBot, CCBot, Google-Extended,
+      Checks 10 AI crawlers: GPTBot, ClaudeBot, Claude-User, Claude-SearchBot, PerplexityBot, CCBot, Google-Extended,
       cohere-ai, Bytespider, OAI-SearchBot. Also checks {origin}/llms.txt for MCP discoverability.
       Verdicts: open | partial | closed | fetch_error.
       Mock targets: gsc_mcp.tools.technical.safe_fetch_html, gsc_mcp.tools.technical.validate_url_strict.
@@ -280,7 +291,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 851 tests, fully mocked at this branch baseline.
+SETUP: pytest tests/ : 1492 tests on the current checkout, fully mocked.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 

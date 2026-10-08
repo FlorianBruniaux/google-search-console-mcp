@@ -333,10 +333,18 @@ SUCCESS_SHAPES = {
     "batch_url_inspection": {"results": [_INSPECTION_SHAPE]},
     "check_indexing_issues": {"issues": [_INSPECTION_SHAPE], "summary": {"indexed": 1}},
     "analytics_anomalies": {"mean_daily_clicks": 4, "std_daily_clicks": 1, "anomalies": [{"z_score": 3, "type": "spike"}]},
-    "quick_wins": {"opportunities": [{"benchmark_ctr": .03, "expected_clicks_at_benchmark": 3, "opportunity_score": 2}]},
-    "traffic_drops": {"drops": [{"diagnosis": "ranking_loss", "clicks_delta": -1, "impressions_delta": -2}]},
+    "quick_wins": {"opportunities": [{"benchmark_ctr": .03, "expected_clicks_at_benchmark": 3, "opportunity_score": 2}], "skipped_metric_rows": {"ctr_unavailable": 1}},
+    "traffic_drops": {
+        "drops": [{"diagnosis": "ranking_loss", "diagnosis_status": "candidate", "diagnosis_candidates": ["ranking_loss"],
+                   "clicks_delta": -1, "impressions_delta": -2, "position_current": 7, "position_previous": 3,
+                   "metrics_previous": {"clicks": 2, "impressions": 10, "ctr": .2, "position": 3},
+                   "metrics_current": {"clicks": 1, "impressions": 8, "ctr": .125, "position": 7}}],
+        "unavailable_queries": [{"diagnosis": "unknown", "diagnosis_status": "insufficient_evidence", "diagnosis_candidates": [],
+                                 "reason": "current_query_not_returned", "metrics_current": None,
+                                 "metrics_previous": {"clicks": 588, "impressions": 600, "ctr": .98, "position": 3}}],
+    },
     "seo_striking_distance": {"queries": []},
-    "seo_cannibalization": {"conflicts": [{"conflict_score": .5, "total_clicks": 2}]},
+    "seo_cannibalization": {"conflicts": [{"conflict_score": .5, "total_clicks": 2}], "excluded_search_operator_queries": 1},
     "seo_lost_queries": {"lost_queries": [{"drop_pct": .8}]},
     "check_alerts": {"alerts": [{"type": "traffic_concentration", "severity": "high", "message": "recommendation"}]},
     "parasite_risk": {"verdict": "high_risk", "site_risk": "high", "results": [{"risk": "high"}]},
@@ -373,6 +381,31 @@ SUCCESS_SHAPES = {
 }
 for _tool in ("schema_validate", "page_technical_audit", "heading_audit", "internal_links_audit", "editorial_audit"):
     SUCCESS_SHAPES[_tool] = {**SUCCESS_SHAPES[_tool], "untrusted_content": {"flagged": True, "signals": [{"basis": "rule"}]}}
+
+
+_SOURCE_ANOMALY = {"reason": "clicks_exceed_impressions", "clicks": 3, "impressions": 2, "raw_ratio": 1.5}
+_BING_ANOMALOUS_ROW = {"clicks": 3, "impressions": 2, "ctr": None, "position": 5,
+                       "avg_click_position": 6, "avg_impression_position": 5,
+                       "metric_diagnostics": [_SOURCE_ANOMALY]}
+for _tool in ("bing_query_stats", "bing_page_stats", "bing_page_query_stats", "bing_rank_traffic_stats"):
+    SUCCESS_SHAPES[_tool] = {"count": 2, "rows": [
+        _BING_ANOMALOUS_ROW,
+        {"clicks": 0, "impressions": 10, "ctr": None,
+         "unavailable_metrics": ["clicks", "ctr"]},
+    ]}
+SUCCESS_SHAPES["bing_query_stats"].update({
+    "aggregation_scope": "query", "row_count": 2, "source_row_count": 2, "local_truncated": False,
+    "date_filtering": {"invalid_date_row_count": 0, "out_of_window_row_count": 0},
+    "metric_diagnostics": [_SOURCE_ANOMALY],
+})
+SUCCESS_SHAPES["compare_search_engines"]["rows"][0].update({
+    "google": {"present": True, **_BING_ANOMALOUS_ROW, "unavailable_metrics": ["clicks", "ctr"]},
+    "bing": {"present": True, **_BING_ANOMALOUS_ROW, "unavailable_metrics": ["clicks", "ctr"]},
+})
+SUCCESS_SHAPES["compare_search_engines"]["totals"].update({
+    "google": {**_BING_ANOMALOUS_ROW, "unavailable_metrics": ["clicks", "ctr"]},
+    "bing": {**_BING_ANOMALOUS_ROW, "unavailable_metrics": ["clicks", "ctr"]},
+})
 
 
 _BREAKDOWN_METRICS = {"clicks": 10, "impressions": 100, "ctr": .1, "position": 2}
@@ -514,10 +547,10 @@ _REVIEWED_SIGNALS = {
     "links.link_equity_map": "issues severity verdict",
     "link_targets.link_targets_audit": "coverage",
     "seo._unsupported_bing": "verdict",
-    "seo.quick_wins": "opportunities opportunity_score",
-    "seo.traffic_drops": "diagnosis drops",
+    "seo.quick_wins": "opportunities opportunity_score skipped_metric_rows",
+    "seo.traffic_drops": "diagnosis drops diagnosis_status diagnosis_candidates metrics_current metrics_previous unavailable_queries",
     "seo.seo_striking_distance": "queries",
-    "seo.seo_cannibalization": "conflict_score conflicts",
+    "seo.seo_cannibalization": "conflict_score conflicts excluded_search_operator_queries",
     "seo.seo_lost_queries": "lost_queries",
     "seo.check_alerts": "alerts severity",
     "seo._parasite_check_url": "risk",
@@ -534,14 +567,31 @@ _REVIEWED_SIGNALS = {
     "technical._metric": "score",
     "ai_referrals.parse_row": "classification",
     "content_trust.observe_untrusted_content": "assessment flagged",
+    "bing_analytics._position_stats": "aggregation_scope date_filtering local_truncated metric_diagnostics row_count source_row_count",
+    "search_compare._aggregate_rows": "metric_diagnostics unavailable_metrics",
+    "search_compare._totals": "metric_diagnostics unavailable_metrics",
+    "search_compare.compare_search_engines": "row_count",
+    "bing.bing_ctr_metrics": "metric_diagnostics",
+    "bing.bing_row_ctr_metrics": "unavailable_metrics",
+    "bing._aggregate_dates": "metric_diagnostics unavailable_metrics",
+    "bing._aggregate_positions": "metric_diagnostics unavailable_metrics",
+    # Provider row_count in GA4's existing data-only coverage metadata is a
+    # reviewed scan inclusion, not a new field-level quality descriptor.
+    "ga4._report_coverage": "row_count",
+    # Existing search-breakdown null/count availability handling was reviewed
+    # already; its named missing-input list is now included in the tripwire.
+    "search_breakdown._metrics": "unavailable_metrics",
 }
 
 
 def test_output_signal_changes_require_an_explicit_inventory_review():
     import gsc_mcp
     root = Path(inspect.getfile(gsc_mcp)).parent
-    files = [*sorted((root / "tools").glob("*.py")), root / "ai_referrals.py", root / "content_trust.py", root / "page_challenges.py", root / "editorial.py"]
-    signals = {"verdict", "visibility_verdict", "status", "rating", "lcp_rating", "score", "overall_quality", "diagnosis", "risk", "site_risk", "severity", "valid", "allowed", "action", "current_focus", "triggered", "category", "opportunities", "conflicts", "drops", "lost_queries", "alerts", "queries", "issues", "question_queries", "assessment", "flagged", "classification"}
+    files = [*sorted((root / "tools").glob("*.py")), root / "ai_referrals.py", root / "content_trust.py", root / "page_challenges.py", root / "editorial.py", root / "providers" / "bing.py"]
+    signals = {"verdict", "visibility_verdict", "status", "rating", "lcp_rating", "score", "overall_quality", "diagnosis", "risk", "site_risk", "severity", "valid", "allowed", "action", "current_focus", "triggered", "category", "opportunities", "conflicts", "drops", "lost_queries", "alerts", "queries", "issues", "question_queries", "assessment", "flagged", "classification",
+               "diagnosis_status", "diagnosis_candidates", "metrics_current", "metrics_previous", "unavailable_queries",
+               "excluded_search_operator_queries", "skipped_metric_rows", "metric_diagnostics", "unavailable_metrics", "aggregation_scope",
+               "source_row_count", "row_count", "local_truncated", "date_filtering"}
     actual = {}
     for file in files:
         tree = ast.parse(file.read_text())

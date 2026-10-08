@@ -267,6 +267,55 @@ def _weighted_value(total: float, weight: int) -> float | None:
     return round(total / weight, 1) if weight else None
 
 
+def bing_ctr_metrics(clicks: int, impressions: int) -> dict:
+    """Derive CTR without hiding contradictory Bing source counts."""
+    if clicks > impressions:
+        return {
+            "ctr": None,
+            "metric_diagnostics": [
+                {
+                    "metric": "ctr",
+                    "reason": "clicks_exceed_impressions",
+                    "clicks": clicks,
+                    "impressions": impressions,
+                    "raw_ratio": clicks / impressions if impressions else None,
+                }
+            ],
+        }
+    return {"ctr": round(clicks / impressions, 4) if impressions else 0.0}
+
+
+def bing_unavailable_counts(raw: dict) -> list[str]:
+    """Distinguish absent/invalid source counts from explicitly reported zero."""
+    unavailable = []
+    for source, metric in (("Clicks", "clicks"), ("Impressions", "impressions")):
+        value = raw.get(source)
+        try:
+            if value is None:
+                raise ValueError
+            int(value)
+        except (TypeError, ValueError):
+            unavailable.append(metric)
+    return unavailable
+
+
+def bing_row_ctr_metrics(raw: dict, clicks: int, impressions: int) -> dict:
+    unavailable = bing_unavailable_counts(raw)
+    if unavailable:
+        return {"ctr": None, "unavailable_metrics": [*unavailable, "ctr"]}
+    return bing_ctr_metrics(clicks, impressions)
+
+
+def _source_ctr_diagnostics(raw: dict, observed_date: str) -> list[dict]:
+    metrics = bing_row_ctr_metrics(
+        raw, _metric_int(raw.get("Clicks")), _metric_int(raw.get("Impressions"))
+    )
+    return [
+        {**diagnostic, "date": observed_date, "query": raw.get("Query")}
+        for diagnostic in metrics.get("metric_diagnostics", [])
+    ]
+
+
 class BingSearchProvider:
     def fetch(
         self,
@@ -328,13 +377,21 @@ class BingSearchProvider:
     def _aggregate_dates(
         filtered_rows: list[tuple[dict, str]],
     ) -> tuple[SearchMetricRow, ...]:
-        aggregates: dict[str, dict[str, int]] = {}
+        aggregates: dict[str, dict] = {}
         for raw, observed_date in filtered_rows:
             aggregate = aggregates.setdefault(
-                observed_date, {"clicks": 0, "impressions": 0}
+                observed_date,
+                {"clicks": 0, "impressions": 0,
+                 "diagnostics": [], "unavailable_metrics": set()},
             )
             aggregate["clicks"] += _metric_int(raw.get("Clicks"))
             aggregate["impressions"] += _metric_int(raw.get("Impressions"))
+            aggregate["diagnostics"].extend(
+                _source_ctr_diagnostics(raw, observed_date)
+            )
+            unavailable = bing_unavailable_counts(raw)
+            if unavailable:
+                aggregate["unavailable_metrics"].update((*unavailable, "ctr"))
 
         rows = []
         for observed_date in sorted(aggregates):
@@ -349,8 +406,22 @@ class BingSearchProvider:
                     page=None,
                     clicks=clicks,
                     impressions=impressions,
-                    ctr=round(clicks / impressions, 4) if impressions else 0.0,
+                    ctr=(
+                        None
+                        if aggregate["diagnostics"] or aggregate["unavailable_metrics"]
+                        else bing_ctr_metrics(clicks, impressions)["ctr"]
+                    ),
                     position=None,
+                    provider_metrics={
+                        **(
+                            {"metric_diagnostics": aggregate["diagnostics"]}
+                            if aggregate["diagnostics"] else {}
+                        ),
+                        **(
+                            {"unavailable_metrics": sorted(aggregate["unavailable_metrics"])}
+                            if aggregate["unavailable_metrics"] else {}
+                        ),
+                    },
                 )
             )
         return tuple(rows)
@@ -359,8 +430,8 @@ class BingSearchProvider:
     def _aggregate_positions(
         filtered_rows: list[tuple[dict, str]], dimension: str
     ) -> tuple[SearchMetricRow, ...]:
-        aggregates: dict[str | None, dict[str, int | float]] = {}
-        for raw, _ in filtered_rows:
+        aggregates: dict[str | None, dict] = {}
+        for raw, observed_date in filtered_rows:
             raw_key = raw.get("Query")
             key = str(raw_key) if raw_key is not None else None
             aggregate = aggregates.setdefault(
@@ -372,12 +443,26 @@ class BingSearchProvider:
                     "click_position_weight": 0,
                     "impression_position_total": 0.0,
                     "impression_position_weight": 0,
+                    "diagnostics": [],
+                    "unavailable_metrics": set(),
                 },
             )
             clicks = _metric_int(raw.get("Clicks"))
             impressions = _metric_int(raw.get("Impressions"))
             aggregate["clicks"] += clicks
             aggregate["impressions"] += impressions
+            aggregate["diagnostics"].extend(
+                _source_ctr_diagnostics(raw, observed_date)
+            )
+            unavailable = bing_unavailable_counts(raw)
+            if unavailable:
+                aggregate["unavailable_metrics"].update((*unavailable, "ctr"))
+            if "clicks" in unavailable:
+                aggregate["unavailable_metrics"].add("avg_click_position")
+            if "impressions" in unavailable:
+                aggregate["unavailable_metrics"].update(
+                    ("position", "avg_impression_position")
+                )
 
             avg_click_position = _metric_float(raw.get("AvgClickPosition"))
             if avg_click_position is not None and clicks:
@@ -415,11 +500,23 @@ class BingSearchProvider:
                     page=key if dimension == "page" else None,
                     clicks=clicks,
                     impressions=impressions,
-                    ctr=round(clicks / impressions, 4) if impressions else 0.0,
+                    ctr=(
+                        None
+                        if aggregate["diagnostics"] or aggregate["unavailable_metrics"]
+                        else bing_ctr_metrics(clicks, impressions)["ctr"]
+                    ),
                     position=avg_impression_position,
                     provider_metrics={
                         "avg_click_position": avg_click_position,
                         "avg_impression_position": avg_impression_position,
+                        **(
+                            {"metric_diagnostics": aggregate["diagnostics"]}
+                            if aggregate["diagnostics"] else {}
+                        ),
+                        **(
+                            {"unavailable_metrics": sorted(aggregate["unavailable_metrics"])}
+                            if aggregate["unavailable_metrics"] else {}
+                        ),
                     },
                 )
             )

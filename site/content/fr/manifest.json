@@ -7,7 +7,7 @@
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "b71b7fd42d6e6e6a1e17803d8b1c8de533bf590ab26cc1b0e09facfa65af2205"
+      "sourceHash": "1f72636b3ef666b80436f181afe7330d5bab85f0e078fb0e67f8890084b13a3f"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -15,7 +15,7 @@
     },
     "docs/bing-setup.md": {
       "source": "docs/bing-setup.md",
-      "sourceHash": "e08658427abec85efb47c3030b606957171c981817100f3e133ff61d6e843e01"
+      "sourceHash": "df2d5448c5eb16e366f517984d70ad3f6c2136e29b22414332c6bb5ce631d4fe"
     },
     "docs/prompts.md": {
       "source": "docs/starter-prompt.md",
@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "e17f67c6f9ae954d07816cf9daaa4d141c1c484f4296ed38d1b5c8478ba9702b"
+      "sourceHash": "1100b3bcba9d5051e59dfb71c418dd16b2e9e7db83660bf778a5ea857e0e67bd"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "4cc786a2dc2e20423aa64742196dc919c57b0b6c3561dffbc58151fd2f87577d"
+      "sourceHash": "609313decccf54b42e8779a749b8de91178272e70444562adbc3ae75309f419c"
     },
     "docs/license.md": {
       "source": "LICENSE",

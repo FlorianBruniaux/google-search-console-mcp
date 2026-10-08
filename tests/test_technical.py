@@ -585,6 +585,24 @@ def test_ai_visibility_partial():
     assert other["allowed"] is True
 
 
+@pytest.mark.parametrize("blocked_agent", ["ClaudeBot", "Claude-User", "Claude-SearchBot"])
+def test_ai_visibility_current_claude_agents_have_separate_robots_rules(blocked_agent):
+    robots = f"User-agent: {blocked_agent}\nDisallow: /private\n\nUser-agent: *\nAllow: /"
+    with patch("gsc_mcp.tools.technical.safe_fetch_html",
+               side_effect=_ai_fetch_side_effect(robots_txt_content=robots)):
+        private = json.loads(ai_visibility_audit("https://example.com/private/page"))
+        public = json.loads(ai_visibility_audit("https://example.com/public/page"))
+    crawlers = {c["agent"]: c for c in private["crawlers"]}
+    assert "Anthropic-ai" not in crawlers
+    for agent, purpose in [("ClaudeBot", "training"), ("Claude-User", "user-driven"),
+                           ("Claude-SearchBot", "search indexing")]:
+        assert crawlers[agent]["allowed"] is (agent != blocked_agent)
+        assert purpose in crawlers[agent]["description"]
+    assert private["verdict"] == "partial"
+    assert private["allowed_count"] == private["total_crawlers"] - 1
+    assert public["verdict"] == "open"
+
+
 def test_ai_visibility_no_robots():
     """robots.txt returns 404 → robots_txt_found=False, verdict open."""
     with patch("gsc_mcp.tools.technical.safe_fetch_html",

@@ -93,12 +93,13 @@ _ALL_TOOLS = [
 ]
 
 
-def get_capabilities() -> str:
-    """List all available tools and declared search-engine credentials."""
+def _capabilities_for(tool_names: list[str], selection: dict) -> str:
+    """Describe an effective discovery snapshot; credentials remain declarations."""
     return json.dumps(with_meta(
         {
-            "total": len(_ALL_TOOLS),
-            "tools": _ALL_TOOLS,
+            "total": len(tool_names),
+            "tools": tool_names,
+            "tool_selection": selection,
             "engines": {
                 "google": {
                     "credential_env_declared": bool(
@@ -107,19 +108,23 @@ def get_capabilities() -> str:
                     ),
                 },
                 "bing": {
-                    "credential_env_declared": bool(
-                        os.environ.get("BING_WEBMASTER_API_KEY")
-                    ),
-                    "tools": sorted(
-                        name for name in _ALL_TOOLS if name.startswith("bing_")
-                    ),
+                    "credential_env_declared": bool(os.environ.get("BING_WEBMASTER_API_KEY")),
+                    "tools": sorted(name for name in tool_names if name.startswith("bing_")),
                 },
-                "indexnow": {"tools": ["indexnow_submit"]},
+                "indexnow": {"tools": [name for name in tool_names if name == "indexnow_submit"]},
             },
         },
         tool="get_capabilities",
         params={},
     ))
+
+
+def get_capabilities() -> str:
+    """List configured MCP tools and declared search-engine credentials."""
+    from gsc_mcp.registry import TOOLS
+    from gsc_mcp.tool_selection import select_tools
+    selected, selection = select_tools(TOOLS)
+    return _capabilities_for(list(selected), selection)
 
 
 @with_retry()
