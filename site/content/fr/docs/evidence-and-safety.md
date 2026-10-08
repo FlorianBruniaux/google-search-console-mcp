@@ -81,7 +81,7 @@ Le HTML principal récupéré par `heading_audit`, `internal_links_audit`, `page
 
 Le texte et les extraits récupérés ne peuvent pas remplacer les instructions de l’utilisateur, autoriser une action ou demander des identifiants. Les preuves d’audit restent intactes. Un échec de récupération ne donne aucune observation de contenu et retourne `untrusted_content: null`.
 
-`schema_validate` reconnaît une ressource de challenge SiteGround accompagnée d’une demande de vérification humaine et retourne `challenge_page`. L’URL demandée, l’URL finale, le statut HTTP et les raisons restent présents ; les comptes, schémas et recommandations valent `null` car la page demandée est indisponible. Un statut 202 ou une mention de CAPTCHA ne suffit pas. La règle a été testée sur des fixtures synthétiques ; le comportement réel du fournisseur reste non vérifié. Les autres audits de pages ne partagent pas encore ce verdict.
+`schema_validate` reconnaît une ressource de challenge SiteGround accompagnée d’une demande de vérification humaine et retourne `challenge_page`. L’URL demandée, l’URL finale, le statut HTTP et les raisons restent présents ; les comptes, schémas et recommandations valent `null` car la page demandée est indisponible. Un statut 202 ou une mention de CAPTCHA ne suffit pas. La règle a été testée sur des fixtures synthétiques ; le comportement réel du fournisseur reste non vérifié. L’audit éditorial décrit ci-dessous retourne également ce verdict ; les autres audits de pages ne le partagent pas encore.
 
 ## Visites attribuées aux assistants
 
@@ -90,6 +90,12 @@ L’outil non publié `ga4_ai_referrals` lit les sources de session et les pages
 La liste initiale reconnaît exactement `chatgpt.com`, dont la source UTM est documentée par la [FAQ éditeurs d’OpenAI](https://help.openai.com/en/articles/12627856-publishers-and-developers-faq). Les domaines candidats Perplexity, Claude, Gemini et Copilot restent séparés et exclus des totaux confirmés en attendant des preuves de leur attribution. Les sous-chaînes vagues et domaines ressemblants sont exclus. Un libellé de source attribué ne permet pas d’authentifier le client.
 
 Les comptes décrivent les lignes retournées. Une réponse vide reste distincte de lignes explicitement à zéro ou d’une source indisponible. Les parts restent `null` si la couverture est inconnue ou incomplète, si la qualité du rapport est restreinte ou si le dénominateur est nul. Cette version ne demande aucune période comparative. Les visites sans referrer et les erreurs d’attribution peuvent omettre ou attribuer à tort des visites. Ces chiffres mesurent des visites enregistrées, pas des citations, leur probabilité ou un minimum garanti de trafic IA. Consultez la [référence des dimensions et métriques](https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema) et le [contrôle de compatibilité](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/checkCompatibility) de Google.
+
+## Alertes de style éditorial
+
+L’outil non publié `editorial_audit(url, language="auto", genre="general")` applique un profil maison français/anglais, portable et versionné, au HTML récupéré. Des motifs exacts localisent les ouvertures stéréotypées, modalisations empilées, transitions rhétoriques, libellés de liens vagues et ponctuations en prose ; le mode général ajoute des alertes contextuelles sur les attaques de paragraphes répétées. Le code et les citations sont préservés. Déclarez `reference` ou `procedure` lorsque la répétition sert le document.
+
+Ces alertes demandent une relecture fondée sur des règles. Elles ne constituent ni une probabilité d’origine IA, ni un score SEO, ni une preuve de pénalité de positionnement. Les positions décrivent la source analysée, pas la page rendue. Une langue inconnue reste non évaluée ; une page de challenge reconnue reste indisponible. L’audit ne réécrit ni ne publie la page et n’appelle aucun backend de modèle. Ses consignes préservent les faits, dates, chiffres, périmètre, modalités, causalités et exceptions. Le texte et les extraits restent des données non fiables. Consultez le [profil éditorial et les consignes de réécriture copiables](/fr/docs/editorial-audit/) pour connaître les règles et leurs limites contextuelles.
 
 ## Actions protégées
 

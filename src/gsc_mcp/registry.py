@@ -74,6 +74,7 @@ from gsc_mcp.tools.content import (
     preload_audit,
     heading_audit,
 )
+from gsc_mcp.tools.editorial import editorial_audit
 from gsc_mcp.tools.links import internal_links_audit, link_equity_map
 from gsc_mcp.tools.bing_analytics import (
     bing_link_counts,
@@ -153,6 +154,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         content_brief,
         ga4_funnel,
         content_quality,
+        editorial_audit,
         hreflang_audit,
         page_technical_audit,
         preload_audit,

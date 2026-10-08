@@ -434,6 +434,16 @@ test('navigates the bilingual documentation without leaving the site', async ({ 
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
 })
 
+test('keeps the editorial profile and paired language route available', async ({ page }) => {
+  await page.goto('/docs/editorial-audit/')
+  await expect(page.locator('main')).toContainText('anti-ai-editorial')
+  await expect(page.locator('main')).toContainText('repeated_paragraph_start')
+  await page.getByRole('banner').getByLabel('Select language').selectOption('/fr/docs/editorial-audit/')
+  await expect(page).toHaveURL('/fr/docs/editorial-audit/')
+  await expect(page.getByRole('heading', { level: 1, name: 'Audit éditorial et réécriture fidèle' })).toBeVisible()
+  await expect(page.locator('main')).toContainText('not_assessed')
+})
+
 test('returns from the documentation to the product home', async ({ page }) => {
   await page.goto('/fr/docs/')
   const brand = page.getByRole('banner').getByRole('link', { name: 'Accueil du site Search Console MCP' })
@@ -476,7 +486,7 @@ for (const route of ['/docs/examples/quick-audit/', '/fr/docs/']) {
   }
 }
 
-for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/']) {
+for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/docs/editorial-audit/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/', '/fr/docs/editorial-audit/']) {
   test(`keeps ${route} accessible and contained on mobile`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(route)

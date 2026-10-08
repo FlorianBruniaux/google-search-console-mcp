@@ -14,7 +14,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tools](https://img.shields.io/badge/MCP%20tools-82-5c4ee5.svg)](#tools-82)
+[![Tools](https://img.shields.io/badge/MCP%20tools-83-5c4ee5.svg)](#tools-83)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
 [![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
@@ -37,7 +37,7 @@ Search Console MCP is the open-source connection between your data and your AI a
   <a href="#what-you-get">What you get</a> &middot;
   <a href="#choose-your-starting-point">Use cases</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
-  <a href="#tools-82">Tools</a> &middot;
+  <a href="#tools-83">Tools</a> &middot;
   <a href="#evidence-and-safety">Data limits &amp; safety</a>
 </p>
 
@@ -188,7 +188,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
 
-For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 82 tools, including unreleased additions; published version 1.2.0 exposes 81.
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 83 tools, including unreleased additions; published version 1.2.0 exposes 81.
 
 </details>
 
@@ -325,7 +325,7 @@ The server also handles Google and Bing API mechanics: isolated credentials, bou
 ```mermaid
 flowchart TD
     C[Claude, Codex<br/>or another MCP client] --> S[FastMCP server]
-    S --> R[Shared source registry<br/>82 tools]
+    S --> R[Shared source registry<br/>83 tools]
     R --> A[Read and analysis tools]
     R --> W[Guarded write tools]
     A --> G[Google APIs<br/>GSC, GA4, CrUX]
@@ -394,12 +394,12 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 </details>
 
-## Tools (82)
+## Tools (83)
 
-This source checkout includes unreleased `ga4_ai_referrals`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Published `gsc-mcp-tools==1.2.0` exposes 81 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
+This source checkout includes unreleased `ga4_ai_referrals` and `editorial_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Published `gsc-mcp-tools==1.2.0` exposes 81 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
-<summary>Show all 82 source tools</summary>
+<summary>Show all 83 source tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -451,6 +451,7 @@ This source checkout includes unreleased `ga4_ai_referrals`, field-level evidenc
 | Drift | `drift_baseline` | Capture a baseline snapshot of a page (title, H1-H3, schema, canonical, CWV) stored locally in SQLite |
 | Drift | `drift_compare` | Diff a live fetch against the stored baseline and apply 17 rules (8 CRITICAL, 6 WARNING, 3 INFO) |
 | Drift | `drift_history` | List previous comparison runs for a URL with triggered findings per run |
+| Editorial | `editorial_audit` | Unreleased: FR/EN house-style warnings, localized excerpts and faithful rewrite guidance; no AI-authorship score |
 | Content | `content_quality` | Fetch a URL and score visible text against E-E-A-T heuristics: filler phrases, information density, repetition, thin content |
 | Content | `hreflang_audit` | Fetch a URL and validate its hreflang implementation: x-default, ISO 639-1 codes, region codes, self-ref, protocol consistency |
 | Content | `page_technical_audit` | Fetch a URL and audit meta tags (title, description, canonical, robots), viewport, HTML lang, security headers, robots.txt Googlebot access |
@@ -490,7 +491,7 @@ This source checkout includes unreleased `ga4_ai_referrals`, field-level evidenc
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Published version 1.2.0 exposes 81 commands; the source checkout exposes 82, including unreleased ga4_ai_referrals.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Published version 1.2.0 exposes 81 commands; the source checkout exposes 83, including unreleased ga4_ai_referrals and editorial_audit.
 
 ```bash
 # List the commands in the installed build
@@ -626,7 +627,8 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
-- `llms.txt`: quick reference covering all 82 source tools, module map, security rules, test patterns, and a decision tree for common tasks
+- [Editorial audit and rewrite profile](docs/editorial-audit.md): scoped FR/EN warnings and instructions for preserving meaning during rewrites.
+- `llms.txt`: quick reference covering all 83 source tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 16 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
@@ -648,7 +650,7 @@ pip install -e .
 gsc-cli list
 ```
 
-The final command reads the shared registry and lists the 82 commands available in this checkout. Use this installation when developing or testing unreleased changes.
+The final command reads the shared registry and lists the 83 commands available in this checkout. Use this installation when developing or testing unreleased changes.
 
 <details>
 <summary>Run the test suite from the source checkout</summary>

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Editorial audit
+
+- Add `editorial_audit` with a packaged versioned FR/EN house-style profile, localized rule warnings and faithful rewrite guidance (#17). Code, quotations and genre-specific structural exceptions are protected; unsupported or unavailable content is explicit. This is not AI-authorship detection or a ranking score.
+- Preserve the existing `content_quality` API and score. The source registry has 83 tools; published package 1.2.0 still has 81.
+
 ### Added
 
 - `ga4_ai_referrals` mesure les visites GA4 attribuées aux sources d’assistants documentées, avec pages d’entrée, propriété effective, dates concrètes, contrôle de compatibilité et limites de couverture. Le registre source compte désormais 82 outils ; le paquet publié 1.2.0 en conserve 81. Les sources candidates restent exclues des totaux confirmés.

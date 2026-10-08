@@ -64,7 +64,7 @@ export default defineConfig({
         },
         {
           label: 'Understand · Comprendre',
-          items: [{ slug: 'docs/architecture' }, { slug: 'docs/evidence-and-safety' }],
+          items: [{ slug: 'docs/architecture' }, { slug: 'docs/evidence-and-safety' }, { slug: 'docs/editorial-audit' }],
         },
         {
           label: 'Project · Projet',

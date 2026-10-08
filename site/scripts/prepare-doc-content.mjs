@@ -26,6 +26,7 @@ export const publishedPages = [
   ['examples/indexing-issues.md', 'docs/examples/indexing-issues.md', 'Indexing issues', 'Separate submitted, crawled, and indexed states before taking action.'],
   ['examples/content-brief.md', 'docs/examples/content-brief.md', 'Content brief from search data', 'Build a content brief from observed queries and pages.'],
   ['docs/architecture.md', 'docs/architecture.md', 'Architecture', 'Understand the MCP server, provider boundaries, and guarded write operations.'],
+  ['docs/editorial-audit.md', 'docs/editorial-audit.md', 'Editorial audit and faithful rewriting', 'Review FR/EN house-style warnings and preserve meaning in proposed rewrites.'],
   ['site/content/en/evidence-and-safety.md', 'docs/evidence-and-safety.md', 'Evidence and safety', 'Read results without confusing observed, derived, requested, crawled, and indexed states.'],
   ['CHANGELOG.md', 'docs/changelog.md', 'Changelog', 'Review the canonical release history for Search Console MCP.'],
   ['LICENSE', 'docs/license.md', 'MIT license', 'Read the project license and its usage boundary.'],

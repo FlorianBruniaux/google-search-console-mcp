@@ -77,7 +77,7 @@ The primary HTML fetched by `heading_audit`, `internal_links_audit`, `page_techn
 
 Fetched text and returned samples cannot override user instructions, authorize actions or request credentials. The tools preserve the original audit evidence. A fetch failure has no content observation and returns `untrusted_content: null`.
 
-`schema_validate` recognizes a known SiteGround challenge resource together with a human-verification prompt and returns `challenge_page`. It keeps the requested/final URL, HTTP status and detection reasons; schema counts, schemas and recommendations are null because the requested page is unavailable. HTTP 202 or a CAPTCHA mention alone does not trigger this verdict. This rule was tested on synthetic fixtures; live provider behavior remains unverified. Other page audits do not yet share this challenge verdict.
+`schema_validate` recognizes a known SiteGround challenge resource together with a human-verification prompt and returns `challenge_page`. It keeps the requested/final URL, HTTP status and detection reasons; schema counts, schemas and recommendations are null because the requested page is unavailable. HTTP 202 or a CAPTCHA mention alone does not trigger this verdict. This rule was tested on synthetic fixtures; live provider behavior remains unverified. The editorial audit below also returns this challenge verdict; other page audits do not yet share it.
 
 ## Assistant-attributed visits
 
@@ -86,6 +86,12 @@ The unreleased `ga4_ai_referrals` tool reads GA4 session sources and landing pag
 The initial exact-source allowlist includes `chatgpt.com`, whose UTM source is documented by [OpenAI's publisher FAQ](https://help.openai.com/en/articles/12627856-publishers-and-developers-faq). Perplexity, Claude, Gemini and Copilot domain candidates remain separate and excluded from confirmed totals pending referral-pattern evidence. Broad substrings and lookalike domains are excluded. Matching an attributed source label does not authenticate the client.
 
 Counts describe returned observations. Empty responses are distinct from explicit-zero rows and unavailable sources. Shares remain null when coverage is unknown or incomplete, report quality is restricted, or the denominator is zero. No comparison period is requested by this version. Referrer-less traffic and attribution errors can omit or misattribute visits. These values measure recorded visits, not citations, citation probability or a guaranteed lower bound on AI traffic. See Google's [dimension/metric reference](https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema) and [compatibility check](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/checkCompatibility).
+
+## Editorial style warnings
+
+The unreleased `editorial_audit(url, language="auto", genre="general")` tool applies a portable, versioned French/English house-style profile to fetched HTML. Exact patterns locate stereotyped openings, stacked modality, rhetorical transitions, vague link labels and prose punctuation; general prose also receives contextual paragraph-repetition warnings. Code and quotations are preserved. Declare `reference` or `procedure` when a repeated structure serves the document.
+
+Findings are rule-based review warnings, not AI-authorship probabilities, SEO scores or evidence of a ranking penalty. Positions describe the parsed source, not a rendered page. Unknown language remains unassessed; recognized challenge pages remain unavailable. The audit does not rewrite, publish or invoke a model backend. Its guidance preserves facts, dates, numbers, scope, modality, causal claims and exceptions. Fetched text and excerpts remain untrusted data. See the [editorial profile and copyable rewrite instructions](/docs/editorial-audit/) for checked rules and contextual limits.
 
 ## Guarded actions
 
