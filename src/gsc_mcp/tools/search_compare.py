@@ -7,7 +7,8 @@ from urllib.parse import urlsplit, urlunsplit
 
 from gsc_mcp.meta import with_meta
 from gsc_mcp.providers import get_search_provider
-from gsc_mcp.providers.base import SearchMetricBatch, SearchMetricRow
+from gsc_mcp.providers.base import SearchMetricBatch
+from gsc_mcp.providers.bing import bing_ctr_metrics
 from gsc_mcp.tools.analytics import _date_range
 
 
@@ -29,8 +30,8 @@ def _normalize_dimension(value: str, dimension: str) -> str:
 
 def _aggregate_rows(
     batch: SearchMetricBatch, dimension: str
-) -> dict[str, dict[str, int | float | None | bool]]:
-    aggregates: dict[str, dict[str, int | float]] = {}
+) -> dict[str, dict]:
+    aggregates: dict[str, dict] = {}
     for row in batch.rows:
         raw_value = getattr(row, dimension)
         if raw_value is None:
@@ -43,10 +44,17 @@ def _aggregate_rows(
                 "impressions": 0,
                 "position_total": 0.0,
                 "position_weight": 0,
+                "diagnostics": [],
+                "unavailable_metrics": set(),
             },
         )
         aggregate["clicks"] += row.clicks
         aggregate["impressions"] += row.impressions
+        provider_metrics = row.to_dict()["provider_metrics"]
+        aggregate["diagnostics"].extend(provider_metrics.get("metric_diagnostics", []))
+        aggregate["unavailable_metrics"].update(
+            provider_metrics.get("unavailable_metrics", [])
+        )
         if row.position is not None and row.impressions:
             aggregate["position_total"] += row.position * row.impressions
             aggregate["position_weight"] += row.impressions
@@ -60,7 +68,11 @@ def _aggregate_rows(
             "present": True,
             "clicks": clicks,
             "impressions": impressions,
-            "ctr": round(clicks / impressions, 4) if impressions else 0.0,
+            **(
+                {"ctr": None}
+                if aggregate["unavailable_metrics"] & {"clicks", "impressions", "ctr"}
+                else bing_ctr_metrics(clicks, impressions)
+            ),
             "position": (
                 round(
                     float(aggregate["position_total"]) / position_weight,
@@ -70,6 +82,14 @@ def _aggregate_rows(
                 else None
             ),
         }
+        if aggregate["diagnostics"]:
+            results[key]["ctr"] = None
+            results[key]["metric_diagnostics"] = aggregate["diagnostics"]
+        unavailable = aggregate["unavailable_metrics"] & {
+            "clicks", "impressions", "ctr", "position"
+        }
+        if unavailable:
+            results[key]["unavailable_metrics"] = sorted(unavailable)
     return results
 
 
@@ -97,24 +117,27 @@ def _windows_comparable(
 
 
 def _comparison_fields(
-    google: dict[str, int | float | None | bool],
-    bing: dict[str, int | float | None | bool],
+    google: dict,
+    bing: dict,
     comparable: bool,
 ) -> dict[str, bool | int | None | str]:
     both_present = bool(
         google.get("present", True) and bing.get("present", True)
     )
     can_calculate_delta = comparable and both_present
+    unavailable = set(google.get("unavailable_metrics", [])) | set(
+        bing.get("unavailable_metrics", [])
+    )
     fields: dict[str, bool | int | None | str] = {
         "windows_comparable": comparable,
         "click_delta": (
             int(bing["clicks"]) - int(google["clicks"])
-            if can_calculate_delta
+            if can_calculate_delta and "clicks" not in unavailable
             else None
         ),
         "impression_delta": (
             int(bing["impressions"]) - int(google["impressions"])
-            if can_calculate_delta
+            if can_calculate_delta and "impressions" not in unavailable
             else None
         ),
     }
@@ -126,15 +149,32 @@ def _comparison_fields(
 
 
 def _totals(
-    metrics: dict[str, dict[str, int | float | None | bool]],
-) -> dict[str, int | float]:
+    metrics: dict[str, dict],
+) -> dict:
     clicks = sum(int(row["clicks"]) for row in metrics.values())
     impressions = sum(int(row["impressions"]) for row in metrics.values())
-    return {
+    unavailable = {
+        metric for row in metrics.values()
+        for metric in row.get("unavailable_metrics", [])
+    } & {"clicks", "impressions", "ctr"}
+    totals = {
         "clicks": clicks,
         "impressions": impressions,
-        "ctr": round(clicks / impressions, 4) if impressions else 0.0,
+        **(
+            {"ctr": None} if unavailable
+            else bing_ctr_metrics(clicks, impressions)
+        ),
     }
+    diagnostics = [
+        diagnostic for row in metrics.values()
+        for diagnostic in row.get("metric_diagnostics", [])
+    ]
+    if diagnostics:
+        totals["ctr"] = None
+        totals["metric_diagnostics"] = diagnostics
+    if unavailable:
+        totals["unavailable_metrics"] = sorted(unavailable)
+    return totals
 
 
 def compare_search_engines(

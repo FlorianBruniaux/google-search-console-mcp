@@ -19,11 +19,7 @@ Use the exact site form returned by Bing, including its scheme and trailing slas
 
 Open the API access settings in Bing Webmaster Tools and generate an API key for your account. Store it in a secret manager. Do not commit it, paste it into a prompt, or pass it as a Bing tool argument.
 
-Set it in the server environment:
-
-```bash
-export BING_WEBMASTER_API_KEY='<from-your-secret-store>'
-```
+Inject the stored key into the server environment under the name `BING_WEBMASTER_API_KEY`.
 
 For Codex or Claude Desktop, add the same variable to the client configuration described in the [installation guide](installation.md).
 
@@ -44,6 +40,21 @@ Query one verified site:
 gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20
 gsc-cli bing-page-stats --site https://example.com/ --days 28 --limit 20
 ```
+
+## Query aggregation (since 1.3.1)
+
+Since version 1.3.1, `bing_query_stats` returns one row per query by default. It aggregates the locally filtered source dates before sorting and applying `limit`, sums clicks and impressions, derives CTR from those sums, and weights available click and impression positions by their respective counts.
+
+```bash
+# Query totals (default since 1.3.1)
+gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20
+# Original daily query rows
+gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20 --daily
+```
+
+An invalid source CTR, such as clicks greater than impressions, leaves CTR `null` and preserves anomaly diagnostics through aggregation and limiting. It is not clipped to 100%. Inspect the observed window and coverage: aggregation does not make the Bing window exact or establish current data freshness. Release 1.3.0 retains its earlier daily-row behavior.
+
+Absent or null source positions are returned as `null`. Missing source counts retain their legacy numeric placeholders with an `unavailable_metrics` marker and unavailable field-level evidence. Dependent CTR and weighted aggregates also disclose unavailable inputs. Explicit zeros supplied by Bing remain observations; they are not treated as missing values.
 
 ## Bing Webmaster and IndexNow use different keys
 

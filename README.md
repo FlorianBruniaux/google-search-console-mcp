@@ -16,7 +16,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![Tools](https://img.shields.io/badge/MCP%20tools-87-5c4ee5.svg)](#tools-87)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
-[![Tests](https://img.shields.io/badge/tests-1551%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-1649%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -126,7 +126,7 @@ Upgrade that installation when a new release is available:
 uv tool upgrade gsc-mcp-tools
 ```
 
-To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.3.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
+To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.3.1`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
 
 Release `1.2.0` was built and published by [GitHub Actions](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml) through [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/). The workflow checks that the tag matches `pyproject.toml`, runs the full test suite, validates and smoke-tests the built wheel, then publishes that same artifact with a short-lived OIDC credential. See the [GitHub release](https://github.com/FlorianBruniaux/google-search-console-mcp/releases/tag/v1.2.0) and [PyPI files](https://pypi.org/project/gsc-mcp-tools/1.2.0/#files).
 
@@ -153,8 +153,8 @@ Use only the variables required by the provider families you enable:
 export GSC_SERVICE_ACCOUNT_PATH=/absolute/path/to/service-account.json
 export GSC_SKIP_OAUTH=true
 export GA4_PROPERTY_ID=123456789   # only needed for GA4 tools
-export CRUX_API_KEY=AIza...        # only needed for crux_page_vitals, crux_history
-export BING_WEBMASTER_API_KEY='<from-your-secret-store>'  # only needed for bing_* tools
+# Load CRUX_API_KEY from your secret store for CrUX tools.
+# Load BING_WEBMASTER_API_KEY from your secret store for Bing tools.
 gsc-mcp
 ```
 
@@ -176,10 +176,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "command": "/absolute/path/to/gsc-mcp-tools",
       "env": {
         "GSC_SERVICE_ACCOUNT_PATH": "/absolute/path/to/service-account.json",
-        "GSC_SKIP_OAUTH": "true",
-        "GA4_PROPERTY_ID": "123456789",
-        "CRUX_API_KEY": "AIza...",
-        "BING_WEBMASTER_API_KEY": "<from-your-secret-store>"
+        "GSC_SKIP_OAUTH": "true"
       }
     }
   }
@@ -188,7 +185,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
 
-For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 87 tools, including unreleased `seo_change_impact`, `rewrite_fidelity_check` and draft inputs for `editorial_audit`. Release 1.3.0 contains 85 tools and is [published on PyPI](https://pypi.org/project/gsc-mcp-tools/1.3.0/). Version 1.2.0 contains 81.
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 87 tools, including unreleased `seo_change_impact`, `rewrite_fidelity_check` and draft inputs for `editorial_audit`. Releases 1.3.0 and 1.3.1 contain 85 tools; version 1.2.0 contains 81.
 
 </details>
 
@@ -216,7 +213,6 @@ startup_timeout_sec = 60
 [mcp_servers.gsc-mcp.env]
 GSC_SERVICE_ACCOUNT_PATH = "/absolute/path/to/service-account.json"
 GSC_SKIP_OAUTH = "true"
-BING_WEBMASTER_API_KEY = "<from-your-secret-store>"
 ```
 
 Keep this file untracked when it contains credentials. Remove provider variables you do not use. Codex loads project `.codex/config.toml` only for trusted projects; project configuration and precedence are documented in the [official Codex configuration guide](https://developers.openai.com/codex/config-basic).
@@ -224,6 +220,10 @@ Keep this file untracked when it contains credentials. Remove provider variables
 Do not add a global single-instance lock to a stdio server. Each client owns a separate stdin/stdout channel, so blocking later instances would break concurrent tasks instead of sharing one server safely. A shared deployment would require the streamable HTTP transport and its own authentication boundary.
 
 </details>
+
+### Select MCP tool families (since 1.3.1)
+
+Since version 1.3.1, set `GSC_MCP_TOOL_FAMILIES=analytics,seo,sitemaps,links` in the MCP server environment to expose these families plus `core`. The default exposes all 85 tools. Restart the server or client after changing the selection; `gsc-cli list` keeps the full catalogue. Selection does not grant provider access or write permission. See the [tool-family configuration](docs/installation.md#select-mcp-tool-families-since-131) for all family names and startup validation. Version 1.3.0 predates this setting.
 
 ### Bing Webmaster API key
 
@@ -277,7 +277,7 @@ Either set `GA4_PROPERTY_ID` in your config env block, or pass `property_id` dir
 
 **`crux_page_vitals` or `crux_history` returns "CRUX_API_KEY not set"**
 
-CrUX tools require a separate Google API key (not the service account) with the **Chrome UX Report API** enabled. Create one in Google Cloud Console under Credentials, enable the API, then set `CRUX_API_KEY=AIza...` in your config.
+CrUX tools require a separate Google API key (not the service account) with the **Chrome UX Report API** enabled. Create one in Google Cloud Console under Credentials, enable the API, then inject the key from your secret store into the server environment as `CRUX_API_KEY`.
 
 **Indexing API returns 403 on `submit_url`**
 
@@ -293,7 +293,7 @@ The Indexing API default quota is 200 requests per day per GCP project. The tool
 
 Google Search Console and Bing Webmaster Tools show how people find your pages in search. Optional GA4 data adds what those visitors do on your site; CrUX and public-page audits help identify performance, content and technical issues. Your assistant can use these sources together to decide which pages need attention.
 
-Version 1.3.0 exposes 85 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
+Version 1.3.1 exposes 85 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
 
 > [!IMPORTANT]
 > `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
@@ -396,7 +396,7 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 ## Tools (87)
 
-Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. It exposes 85 tools. The source checkout has 87, with unreleased follow-up and rewrite checks described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
+Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Version 1.3.1 retains 85 tools and adds optional MCP discovery selection, CLI JSON string lists, and the SEO/Bing feedback fixes described in the [changelog](CHANGELOG.md#131---2026-10-08). The source checkout has 87 tools, with unreleased follow-up and rewrite checks described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
 <summary>Show all 87 source tools</summary>
@@ -418,10 +418,10 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | Analytics | `search_type_breakdown` | Clicks and impressions split across web, Discover, News, image, video |
 | Analytics | `ai_overviews_impact` | Queries with searchAppearance data, graceful 400/403 fallback |
 | SEO | `quick_wins` | Pages in positions 4-15 with CTR below benchmark |
-| SEO | `traffic_drops` | Queries with declining clicks, with diagnosis |
+| SEO | `traffic_drops` | Declining clicks with metric-based candidate diagnoses, not causal proof |
 | SEO | `check_alerts` | Traffic concentration risks and ranking opportunities |
 | SEO | `seo_striking_distance` | Queries in positions 8-15, one push away from page 1 |
-| SEO | `seo_cannibalization` | Queries split across multiple pages (HHI conflict score) |
+| SEO | `seo_cannibalization` | Queries split across pages (HHI score); search operators excluded by default since 1.3.1 |
 | SEO | `seo_lost_queries` | Queries with a click drop >= 80% vs the previous period |
 | Inspection | `inspect_url` | URL indexing status via URL Inspection API |
 | Inspection | `batch_url_inspection` | Inspect up to 10 URLs at once |
@@ -435,7 +435,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | Sitemaps | `sitemap_audit` | Fetch a sitemap and compare its URLs with 90 days of Search Analytics page rows; does not measure indexation |
 | GA4 | `ga4_organic_landing_pages` | Sessions and engagement for organic landing pages |
 | GA4 | `ga4_traffic_sources` | Sessions and conversions by channel, source and medium |
-| GA4 | `ga4_ai_referrals` | Unreleased: recorded assistant-attributed visits, exact source rules and coverage-gated shares |
+| GA4 | `ga4_ai_referrals` | Recorded assistant-attributed visits, exact source rules and coverage-gated shares |
 | GA4 | `ga4_page_performance` | 7 metrics per page path, optional CONTAINS filter |
 | GA4 | `ga4_realtime` | Active users right now by screen, country and device |
 | GA4 | `ga4_user_behavior` | Device, country and user-type breakdowns in one batch call |
@@ -452,7 +452,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | Drift | `drift_baseline` | Capture a baseline snapshot of a page (title, H1-H3, schema, canonical, CWV) stored locally in SQLite |
 | Drift | `drift_compare` | Diff a live fetch against the stored baseline and apply 17 rules (8 CRITICAL, 6 WARNING, 3 INFO) |
 | Drift | `drift_history` | List previous comparison runs for a URL with triggered findings per run |
-| Editorial | `editorial_audit` | FR/EN house-style warnings; unreleased caller plain/Markdown drafts with native source spans and bounded parsing |
+| Editorial | `editorial_audit` | FR/EN house-style warnings, localized excerpts and faithful rewrite guidance; unreleased caller plain/Markdown drafts with native source spans and bounded parsing; no AI-authorship score |
 | Editorial | `rewrite_fidelity_check` | Unreleased: protected literals and qualifier review candidates; semantic fidelity and factual truth remain unassessed |
 | Follow-up | `seo_change_impact` | Unreleased: declared event and descriptive Google before/after evidence; no persistence or causal effect |
 | Content | `content_quality` | Fetch a URL and score visible text against E-E-A-T heuristics: filler phrases, information density, repetition, thin content |
@@ -462,7 +462,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | CrUX | `crux_lcp_subparts` | Decompose LCP into four subparts (TTFB, resource load delay, duration, render delay) with dominant phase identification for targeted CWV remediation |
 | Indexing | `indexnow_submit` | Submit URLs to IndexNow (Bing, Yandex, Seznam, Naver) via one POST; SSRF-safe URL validation, skipped-invalid count, ok/partial/error verdict |
 | SEO | `parasite_risk` | Scan URL paths for parasite SEO patterns matching Google's 2024-11-19 site-reputation policy: sponsored/affiliate sections, Forbes Advisor, CNN Underscored patterns, affiliate query params |
-| Technical | `ai_visibility_audit` | Check robots.txt AI crawler access (GPTBot, Anthropic-ai, PerplexityBot, Google-Extended, CCBot, 9 agents) and llms.txt presence for an origin |
+| Technical | `ai_visibility_audit` | Check robots.txt and llms.txt; version 1.3.1 checks 10 agents, including ClaudeBot, Claude-User and Claude-SearchBot |
 | Technical | `gbp_deprecation_lint` | Scan a page for deprecated Google Business Profile features: .business.site links, Reserve with Google, GBP appointment widgets |
 | Technical | `pagespeed_audit` | Run a PageSpeed Insights API v5 audit: Lighthouse performance score, Core Web Vitals, top 3 improvement opportunities (requires GOOGLE_API_KEY) |
 | Content | `heading_audit` | Audit heading structure: H1 uniqueness, level jumps (H2 to H4), title vs H1 word-for-word duplication, headings carrying no information, words per H2 |
@@ -495,7 +495,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Release 1.3.0 has 85 commands; the source checkout exposes 87, adding unreleased `seo_change_impact` and `rewrite_fidelity_check`. Draft inputs extend `editorial_audit` without adding a command. [Version 1.3.0 is published on PyPI](https://pypi.org/project/gsc-mcp-tools/1.3.0/); version 1.2.0 has 81 commands.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Releases 1.3.0 and 1.3.1 have 85 commands; the source checkout exposes 87, adding unreleased `seo_change_impact` and `rewrite_fidelity_check`. Draft inputs extend `editorial_audit` without adding a command. Version 1.2.0 has 81 commands. MCP family selection does not restrict CLI commands.
 
 ```bash
 # List the commands in the installed build
@@ -546,6 +546,15 @@ gsc-cli list-properties --meta
 # Pipe to jq
 gsc-cli get-search-analytics --site https://example.com/ | jq '.rows[:5]'
 ```
+
+String-list flags also accept a JSON array of strings:
+
+```bash
+gsc-cli batch-url-inspection --site https://example.com/ \
+  --urls '["https://example.com/page-1/","https://example.com/page-2/"]'
+```
+
+Repeat the flag or use a JSON array; commas are literal URL characters, not separators. For example, `--urls 'https://example.com/a,b?q=x,y'` supplies one URL. Malformed arrays and non-string entries are rejected before a provider call. JSON string-list support is available since 1.3.1; repeated flags also work in release 1.3.0.
 
 Set `GSC_SERVICE_ACCOUNT_PATH` for non-interactive use (same as the MCP server). To cache OAuth credentials interactively, run:
 
@@ -624,6 +633,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | Review a draft or compare a proposed rewrite | [Editorial workflows](docs/editorial-workflows.md) |
 | Understand the modules and data flow | [Architecture](docs/architecture.md) |
 | Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |
+| Verify SEO expert feedback fixes and catalogue measurements | [Feedback validation record](docs/validation/2026-10-08-seo-expert-feedback.md) |
 | Review product designs and implementation plans | [Product design records](docs/superpowers/README.md) |
 | Track releases and current changes | [Changelog](CHANGELOG.md) |
 | Give the repository to an AI assistant | [Machine-readable project index](docs/machine-readable/llms.txt) |
@@ -670,7 +680,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-1551 tests pass in the source checkout, all mocked with no real external API calls.
+1649 tests pass on the combined source checkout with mocked provider calls; no live provider validation is implied.
 
 </details>
 

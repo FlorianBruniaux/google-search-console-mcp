@@ -1,6 +1,6 @@
 # Review drafts and proposed rewrites
 
-Draft inputs for `editorial_audit` and the new `rewrite_fidelity_check` are unreleased source features. The source checkout exposes 87 tools; release 1.3.0 has 85 and supports URL editorial audits. Follow [installation](installation.md) for a source checkout. These examples are caller-supplied explanatory passages, with no live request or publication.
+Draft inputs for `editorial_audit` and the new `rewrite_fidelity_check` are unreleased source features. The source checkout exposes 87 tools; published release 1.3.1 has 85 and supports URL editorial audits. Follow [installation](installation.md) for a source checkout. These examples are caller-supplied explanatory passages, with no live request or publication.
 
 ## Audit a draft before publication
 

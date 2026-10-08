@@ -3,11 +3,11 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "9e225f3aee9958133ecf5753e3fb66d32bc2ba08305b4f2b0a8e1446bd862d07"
+      "sourceHash": "d79a3520f001da4f966156d04c984f296020b9cb4c4a516539941ebb6d1e4e30"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "519440547f2ad46197b4eb5dc931fbe0f59108f8e78c7d1cde7ab1b61db1d15a"
+      "sourceHash": "428108c7c9850724af03fe96df7c2c60d80fb24ffb9fa78ae05b5d75d64a0898"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -15,7 +15,7 @@
     },
     "docs/bing-setup.md": {
       "source": "docs/bing-setup.md",
-      "sourceHash": "e08658427abec85efb47c3030b606957171c981817100f3e133ff61d6e843e01"
+      "sourceHash": "5fb02995c04471e4c147eaf18579d5c8a56830ede85a83134e5b233958a5b1c4"
     },
     "docs/prompts.md": {
       "source": "docs/starter-prompt.md",
@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "85d5a83a9de60c464b8fa4b734ad455fcf3625bd7818642721bef65842926c0e"
+      "sourceHash": "d3bb171e0255120f038960077b5e94f8135c5eaa5d5092b78ee53eef318c75f6"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "64203450897578007d3bb32f9bd13cfbe1eb20e30f56002afef3c538a2f42630"
+      "sourceHash": "0635ecc80e1b0fab2778fe6f790deef8ea76da2d4cd897f5461d86b55fe34a52"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -83,11 +83,11 @@
     },
     "docs/audit-workflows.md": {
       "source": "docs/audit-workflows.md",
-      "sourceHash": "b1cc8c537b40672f1d90a4ac976b5892ac26044106c906aef45a5a3670a5e7f7"
+      "sourceHash": "cc9c82084b8fc358e2168152913c8b9df5fadd6dda08648aa3d09deb9d392acd"
     },
     "docs/editorial-workflows.md": {
       "source": "docs/editorial-workflows.md",
-      "sourceHash": "5a7beda4cd5f96f049b62ced7b0351ae1e252ef7a5384db83947c9e9f8b3d608"
+      "sourceHash": "e2cd79c7e85a9648f6ffb4f3ee4719dca18e8cd53f61cec591f073345472d44d"
     }
   }
 }

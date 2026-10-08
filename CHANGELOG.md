@@ -5,7 +5,20 @@
 - Add `seo_change_impact` for caller-declared page events and descriptive Google before/after comparisons (#23), reusing coverage from `search_change_breakdown`; no event persistence or causal attribution.
 - Extend `editorial_audit` to caller plain-text/Markdown drafts (#24), with explicit FR/EN, bounded subset coverage, protected content and Unicode source spans.
 - Add `rewrite_fidelity_check` for mechanical protected-literal and qualifier review candidates (#20); zero findings leaves semantic fidelity, factual truth, scope and causality unassessed.
-- Source inventory increases from 85 to 87 tools. Release 1.3.0 remains the separate 85-tool surface. Add bilingual [editorial workflows](docs/editorial-workflows.md) and extend [bounded audit workflows](docs/audit-workflows.md).
+- Source inventory increases from 85 to 87 tools. Published release 1.3.1 remains the separate 85-tool surface. Add bilingual [editorial workflows](docs/editorial-workflows.md) and extend [bounded audit workflows](docs/audit-workflows.md).
+
+## [1.3.1] - 2026-10-08
+
+### Feedback fixes
+
+- Add optional MCP startup selection through `GSC_MCP_TOOL_FAMILIES`. All 85 tools remain the default, `core` stays exposed and CLI listing keeps the full catalogue. Selection does not grant provider access or write permission.
+- String-list CLI options accept repeated flags or JSON arrays of strings; literal commas remain part of URLs. Invalid arrays fail before provider access.
+- `traffic_drops` uses a three-day reporting lag and returns candidate diagnoses with supporting metrics. Missing current query rows remain unavailable; CTR/ranking rules require observations and demand decline requires measured impression decline. Candidates do not prove causes. `seo_lost_queries` retains its existing lag behavior.
+- `seo_cannibalization` excludes search-operator queries by default, reports a distinct-query exclusion count and supports `include_search_operators=True`.
+- `ai_visibility_audit` uses `ClaudeBot`, `Claude-User` and `Claude-SearchBot` with separate purposes, replacing the legacy Anthropic agent name.
+- `bing_query_stats` aggregates by query before sorting and limiting by default; `daily=True` retains daily source rows. Invalid source CTR remains `null` with preserved anomaly diagnostics through aggregation and limiting.
+- Direct Bing reports return absent or null source positions as `null`. Missing source counts retain compatibility placeholders with `unavailable_metrics` and unavailable field evidence; genuine provider zeros remain observations. Query aggregates and cross-engine totals preserve these markers. Comparison deltas are unavailable per metric when a required input is missing.
+- `quick_wins` excludes rows with unavailable CTR and reports their skipped count instead of failing on a nullable metric.
 
 ## [1.3.0] - 2026-10-08
 

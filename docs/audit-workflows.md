@@ -90,7 +90,7 @@ An HTTP failure is evidence to inspect and fix the affected link. It does not es
 
 ## Follow a declared page change (unreleased)
 
-`seo_change_impact` is available in the 87-tool source checkout; the 1.3.0 release surface remains 85 tools. Install the checkout for this call. This explanatory example uses a caller-declared event, not an observed deployment or live follow-up:
+`seo_change_impact` is available in the 87-tool source checkout; published release 1.3.1 retains 85 tools. Install the checkout for this call. This explanatory example uses a caller-declared event, not an observed deployment or live follow-up:
 
 ```python
 seo_change_impact(

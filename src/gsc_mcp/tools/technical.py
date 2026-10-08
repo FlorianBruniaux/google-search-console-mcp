@@ -404,8 +404,9 @@ def schema_generate(
 
 _AI_CRAWLERS = {
     "GPTBot":           "OpenAI ChatGPT training",
-    "Anthropic-ai":     "Anthropic Claude training",
+    "ClaudeBot":        "Anthropic Claude training",
     "Claude-User":      "Anthropic Claude user-driven browsing",
+    "Claude-SearchBot": "Anthropic Claude search indexing",
     "PerplexityBot":    "Perplexity AI",
     "CCBot":            "Common Crawl (used by multiple AI labs)",
     "Google-Extended":  "Google Gemini / Vertex AI training",

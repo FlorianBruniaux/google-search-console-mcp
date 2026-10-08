@@ -42,6 +42,7 @@ crux_lcp_subparts pagespeed_audit schema_validate content_quality editorial_audi
 page_technical_audit preload_audit heading_audit ai_visibility_audit gbp_deprecation_lint
 internal_links_audit link_targets_audit link_equity_map sitemap_audit drift_compare drift_history
 bing_feeds_list bing_feed_details bing_crawl_issues bing_url_info ga4_ai_referrals
+bing_query_stats bing_page_stats bing_page_query_stats bing_rank_traffic_stats
 """, "fields", "Explicit observation, calculation or local conclusion paths; scope is per field")
 _inventory("ga4_funnel", "error_only", "Funnel metrics have no quality verdict; INVALID_STEPS is unavailable")
 _inventory("""
@@ -53,8 +54,7 @@ get_capabilities list_properties get_site_details get_search_analytics get_perfo
 compare_search_periods get_search_by_page_query get_advanced_search_analytics discover_performance
 news_performance search_type_breakdown ai_overviews_impact list_sitemaps sitemaps_get
 ga4_organic_landing_pages ga4_traffic_sources ga4_page_performance ga4_realtime ga4_user_behavior
-ga4_conversion_funnel bing_sites_list bing_query_stats bing_page_stats bing_page_query_stats
-bing_rank_traffic_stats bing_crawl_stats bing_crawl_settings_get bing_url_traffic
+ga4_conversion_funnel bing_sites_list bing_crawl_stats bing_crawl_settings_get bing_url_traffic
 bing_url_submission_quota bing_link_counts bing_url_links
 """, "data_only", "Metrics/configuration/provider operational snapshots; no quality verdict or score")
 
@@ -156,12 +156,21 @@ _add("analytics_anomalies", "rule", "Selection abs(z)>caller threshold; type fro
      "/anomalies", "/anomalies/*/type")
 _add("quick_wins", "rule", "Local CTR benchmark by clamped rounded position 4..15 and impression floor; expected=round(benchmark*impressions), score=round((benchmark-CTR)*impressions); assumed opportunity, not measured gain",
      "/opportunities", "/opportunities/*/benchmark_ctr", "/opportunities/*/expected_clicks_at_benchmark", "/opportunities/*/opportunity_score")
-_add("traffic_drops", "rule", "Negative-click selection; position delta>2 then ranking_loss, CTR<previous*0.7 then ctr_collapse, else demand_decline fallback; not proof of causality; windows have no reporting lag",
-     "/drops", "/drops/*/diagnosis")
+_add("traffic_drops", "rule", "Negative-click selection; candidates require observed positive-impression pairs: position worsened>2, CTR fell>30%, or impressions fell. Multiple candidates may match; not causes; windows exclude GSC reporting lag",
+     "/drops", "/drops/*/diagnosis", "/drops/*/diagnosis_status", "/drops/*/diagnosis_candidates")
 _add("traffic_drops", "derived", "Current minus previous metric for queries in both returned periods", "/drops/*/clicks_delta", "/drops/*/impressions_delta")
+for prefix in ("/drops/*/metrics_previous", "/drops/*/metrics_current", "/unavailable_queries/*/metrics_previous"):
+    _add("traffic_drops", "measured", "Retained Google provider query metrics for the reported period; provider CTR/position retained only with positive impressions; missing current query is not observed zero",
+         *(f"{prefix}/{metric}" for metric in ("clicks", "impressions", "ctr", "position")))
+_add("traffic_drops", "measured", "Retained Google provider average position for this query and period; null with no impression evidence", "/drops/*/position_current", "/drops/*/position_previous")
+_add("traffic_drops", "rule", "Prior query absent from returned current rows; availability gate, not proof of zero traffic or a cause", "/unavailable_queries", "/unavailable_queries/*/reason")
+_add("traffic_drops", None, "Current query observation unavailable; no diagnostic candidate or measured current zero inferred",
+     "/unavailable_queries/*/diagnosis", "/unavailable_queries/*/diagnosis_status", "/unavailable_queries/*/diagnosis_candidates", "/unavailable_queries/*/metrics_current")
+_add("quick_wins", "derived", "Count of returned rows with unavailable CTR that pass the position/impression eligibility gates; no whole-source coverage", "/skipped_metric_rows/ctr_unavailable")
 _add("seo_striking_distance", "rule", "Membership only: position 8..15 and impression floor; ordered by impressions", "/queries")
 _add("seo_cannibalization", "rule", "Membership only: multiple returned pages, impression floor and conflict score>0.1; not proof of harmful cannibalization", "/conflicts")
 _add("seo_cannibalization", "derived", "1-sum((page_clicks/total_clicks)^2) over returned query-page rows", "/conflicts/*/conflict_score")
+_add("seo_cannibalization", "derived", "Count of distinct returned query keys excluded by local search-operator syntax policy; not harmful cannibalization", "/excluded_search_operator_queries")
 _add("seo_lost_queries", "rule", "Membership only: prior clicks>=5 and drop>=80%; absent current rows are zero-filled, not observed zeros", "/lost_queries")
 _add("seo_lost_queries", "derived", "(previous-current)/previous; absent current rows zero-filled; windows have no reporting lag", "/lost_queries/*/drop_pct")
 _add("check_alerts", "rule", "Membership/classification/recommendation: clicks share>0.5 or position>10 and impressions>5000 over returned rows",
@@ -177,7 +186,43 @@ _add("page_analysis", "rule", "Priority weighting log10(impressions+1)*10 + enga
 _add("content_brief", "rule", "First query of clicks-descending returned rows; question membership from fixed EN/FR leading tokens/prefixes", "/current_focus", "/question_queries")
 _add("page_health_score", "rule", "Local GSC 20+10, GA4 15+10, CrUX 10+8+7, schema 10+10; round(earned/max_available*100), renormalized over available components only, not complete health", "/score", "/components/*/score")
 _add("compare_search_engines", "rule", "Both provider windows exact and same nonmissing observed start/end; does not equate provider measurement semantics", "/windows_comparable", "/totals/windows_comparable", "/rows/*/windows_comparable")
-_add("compare_search_engines", "derived", "Bing minus Google only for matching exact windows and present pairs", "/totals/click_delta", "/totals/impression_delta", "/rows/*/click_delta", "/rows/*/impression_delta")
+_add("compare_search_engines", "derived", "Bing minus Google only for matching exact windows, present pairs, and available corresponding count inputs", "/totals/click_delta", "/totals/impression_delta", "/rows/*/click_delta", "/rows/*/impression_delta")
+for engine in ("google", "bing"):
+    _add("compare_search_engines", "derived", "Local sum of returned normalized dimension counts; not property totals or equivalent provider measurement semantics",
+         *(f"/rows/*/{engine}/{metric}" for metric in ("clicks", "impressions")),
+         *(f"/totals/{engine}/{metric}" for metric in ("clicks", "impressions")))
+    _add("compare_search_engines", "derived", "Impression-weighted position over available returned normalized rows, side by side only", f"/rows/*/{engine}/position")
+    _add("compare_search_engines", "derived", "Ratio of summed returned counts; unavailable on source anomaly, zero denominator, or absent dimension", f"/rows/*/{engine}/ctr", f"/totals/{engine}/ctr")
+    _add("compare_search_engines", "rule", "Normalized dimension membership in retrieved provider rows; missing values are retained placeholders", f"/rows/*/{engine}/present")
+
+for tool in ("bing_query_stats", "bing_page_stats", "bing_page_query_stats", "bing_rank_traffic_stats"):
+    _add(tool, "measured", "Retained dated Bing provider count; default query mode is resolved separately as a local sum", "/rows/*/clicks", "/rows/*/impressions")
+    if tool != "bing_rank_traffic_stats":
+        _add(tool, "measured", "Retained Bing provider average position; default query mode is resolved separately as a local weighted calculation",
+             *(f"/rows/*/{metric}" for metric in ("position", "avg_click_position", "avg_impression_position")))
+    _add(tool, "derived", "Click/impression ratio of returned counts; source anomaly or zero denominator cannot establish CTR", "/rows/*/ctr")
+    _add(tool, "derived", "Count of locally returned rows after date filtering and any display limit; not provider completeness", "/count")
+    _add(tool, "rule", "Bounded names of unavailable source count inputs or dependent calculations; retained parser-default zeros are not observations", "/rows/*/unavailable_metrics")
+
+_add("compare_search_engines", "rule", "Bounded unavailable input/dependent-calculation names propagated from provider rows before local sums; not whole-source completeness",
+     "/rows/*/google/unavailable_metrics", "/rows/*/bing/unavailable_metrics", "/totals/google/unavailable_metrics", "/totals/bing/unavailable_metrics")
+
+_add("bing_query_stats", "rule", "Explicit daily versus exact-query local aggregation mode; no provider completeness guarantee", "/aggregation_scope")
+_add("bing_query_stats", "rule", "Local output row count exceeds requested limit after chosen aggregation", "/local_truncated")
+_add("bing_query_stats", "derived", "Counts over locally retrieved rows, selected dates, and chosen aggregation only; provider completeness unknown",
+     "/row_count", "/source_row_count", "/date_filtering/invalid_date_row_count", "/date_filtering/out_of_window_row_count")
+
+for tool, prefixes in (
+    ("bing_query_stats", ("/rows/*/metric_diagnostics/*", "/metric_diagnostics/*")),
+    ("bing_page_stats", ("/rows/*/metric_diagnostics/*",)),
+    ("bing_page_query_stats", ("/rows/*/metric_diagnostics/*",)),
+    ("bing_rank_traffic_stats", ("/rows/*/metric_diagnostics/*",)),
+    ("compare_search_engines", ("/rows/*/google/metric_diagnostics/*", "/rows/*/bing/metric_diagnostics/*", "/totals/google/metric_diagnostics/*", "/totals/bing/metric_diagnostics/*")),
+):
+    for prefix in prefixes:
+        _add(tool, "rule", "Local contradictory-count classification; exposes data inconsistency without establishing its cause", f"{prefix}/reason")
+        _add(tool, "derived", "Unclamped source click/impression ratio; null when denominator is zero, not a valid CTR", f"{prefix}/raw_ratio")
+        _add(tool, "measured", "Original contradictory provider source counts retained before local aggregation; not corrected, clamped or discarded", f"{prefix}/clicks", f"{prefix}/impressions")
 _add("crux_page_vitals", "measured", "CrUX provider p75 field observation for this URL/form factor and collection window", "/metrics/*/p75")
 _add("crux_page_vitals", "rule", "Local metric-specific good/poor threshold comparisons, not provider scoring", "/metrics/*/rating")
 _add("crux_history", "measured", "Historical CrUX provider p75 for each returned collection period", "/history/*/p75")
@@ -267,6 +312,21 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
     null_is_rule = tool == "schema_validate" and key == "deprecated_rich_result"
     if value is None and not null_is_rule:
         return None, "Required evidence/value is null; original value retained"
+    if tool == "traffic_drops" and path[0] == "drops" and key in {"diagnosis", "diagnosis_status", "diagnosis_candidates"}:
+        if parent.get("diagnosis") == "unknown" or parent.get("diagnosis_status") == "insufficient_evidence":
+            return None, "Observed metric pair supports no diagnostic candidate; unknown is unavailable, not a successful cause attribution"
+    if tool in {"bing_query_stats", "bing_page_stats", "bing_page_query_stats", "bing_rank_traffic_stats", "compare_search_engines"}:
+        if key in parent.get("unavailable_metrics", []):
+            return None, "Required provider source input unavailable; retained parser-default or partial aggregate value is not an established observation/calculation"
+        if tool == "compare_search_engines" and parent.get("present") is False and key in {"clicks", "impressions", "ctr", "position"}:
+            return None, "Dimension absent from provider rows; retained zero values are placeholders, not observations"
+        if key == "ctr" and parent.get("impressions") == 0:
+            return None, "Zero impressions cannot establish CTR; any retained legacy zero is a placeholder"
+        if tool == "bing_query_stats" and len(path) == 3 and path[0] == "rows" and key in {"clicks", "impressions", "position", "avg_click_position", "avg_impression_position"}:
+            if data.get("aggregation_scope") == "query":
+                return "derived", "Local sum of dated requested-window counts or click/impression-weighted available positions by exact query key; provider completeness unknown"
+            if data.get("aggregation_scope") != "daily":
+                return None, "Query aggregation scope unavailable; provider versus local metric provenance cannot be established"
     if tool == "link_targets_audit" and data.get("coverage") == "unavailable" and path[0] in {
             "total_anchors", "distinct_in_scope_targets", "targets_attempted", "targets_completed", "targets_skipped", "excluded_reasons"}:
         return None, "Incomplete/unavailable source prevents target extraction; retained zeros are placeholders"

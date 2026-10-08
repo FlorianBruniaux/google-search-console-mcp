@@ -107,6 +107,19 @@ def _type_kind(ann) -> str:
 # Parser construction
 # ---------------------------------------------------------------------------
 
+def _parse_list_str(value: str) -> list[str]:
+    """Accept one literal string or a JSON string array, preserving commas."""
+    if not value.lstrip().startswith("["):
+        return [value]
+    try:
+        items = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise argparse.ArgumentTypeError(f"Invalid JSON array of strings: {exc}") from exc
+    if not isinstance(items, list) or not all(isinstance(item, str) for item in items):
+        raise argparse.ArgumentTypeError("Expected a JSON array of strings")
+    return items
+
+
 def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
     """Add a subparser for fn with one --flag per parameter (all-flags, no positionals)."""
     cmd_name = fn.__name__.replace("_", "-")
@@ -144,7 +157,16 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
             kw = {"action": "store_false" if default is True else "store_true",
                   "default": False if default is inspect.Parameter.empty else default}
         elif kind == "list_str":
-            kw = {"action": "append", "required": required}
+            kw = {
+                "action": "extend",
+                "type": _parse_list_str,
+                "required": required,
+                "metavar": "VALUE",
+                "help": _argparse_text(
+                    f"Repeat {flag} for multiple values, or pass a JSON array of strings. "
+                    "Commas are preserved."
+                ),
+            }
             if not required:
                 kw["default"] = default
         elif kind in {"dict", "list_dict"}:

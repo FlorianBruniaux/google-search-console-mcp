@@ -13,7 +13,18 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 - `seo_change_impact` associe un événement déclaré à des fenêtres Google descriptives, avec couverture conservée, sans persistance ni effet causal identifié (#23).
 - `editorial_audit` accepte des brouillons plain/Markdown bornés avec langue FR/EN explicite, contenu protégé et emplacements Unicode (#24).
 - `rewrite_fidelity_check` signale les changements mécaniques de littéraux et qualificatifs à relire ; même sans alerte, la fidélité sémantique reste non évaluée (#20).
-- Le checkout contient 87 outils ; la version 1.3.0 conserve 85 outils. Les [workflows éditoriaux](/fr/docs/editorial-workflows/) et [audits bornés](/fr/docs/audit-workflows/) précisent les limites.
+- Le checkout contient 87 outils ; la version publiée 1.3.1 conserve 85 outils. Les [workflows éditoriaux](/fr/docs/editorial-workflows/) et [audits bornés](/fr/docs/audit-workflows/) précisent les limites.
+
+## 1.3.1 (2026-10-08)
+
+- Sélection facultative des familles MCP via `GSC_MCP_TOOL_FAMILIES`, avec catalogue complet par défaut, `core` conservé et CLI complète. Aucune permission fournisseur n’est accordée par cette sélection.
+- Listes de chaînes CLI transmises par options répétées ou tableaux JSON, sans découper les virgules des URL. Les tableaux invalides sont refusés avant l’appel fournisseur.
+- `traffic_drops` termine la fenêtre courante trois jours avant aujourd’hui. Les diagnostics sont des candidats documentés ; les requêtes courantes absentes restent indisponibles. Le comportement de `seo_lost_queries` est conservé.
+- `seo_cannibalization` exclut les requêtes avec opérateurs de recherche, expose leur nombre distinct et accepte `include_search_operators=True`.
+- Robots Anthropic actuels : `ClaudeBot`, `Claude-User`, `Claude-SearchBot`, avec leurs rôles distincts.
+- `bing_query_stats` agrège par requête avant tri et limite ; `daily=True` conserve les lignes quotidiennes. Un CTR source contradictoire reste `null` avec ses diagnostics, même après agrégation.
+- Les rapports Bing renvoient à `null` les positions absentes ou nulles à la source. Les nombres de clics ou d’impressions manquants gardent leurs valeurs historiques avec `unavailable_metrics` et une preuve d’indisponibilité ; les vrais zéros restent des observations. Les agrégats et totaux conservent ces marqueurs. Chaque écart entre moteurs devient indisponible si une donnée nécessaire manque.
+- `quick_wins` exclut les lignes dont le CTR est indisponible et indique leur nombre au lieu d’échouer sur une métrique nulle.
 
 ## 1.3.0
 

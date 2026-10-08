@@ -44,6 +44,6 @@ The server can return provider responses, fetched public-page data, and calculat
 
 Read the [architecture](/docs/architecture/), review the [changelog](/docs/changelog/), or inspect the [source repository](https://github.com/FlorianBruniaux/google-search-console-mcp).
 
-For explicit Google comparison windows and bounded destination HTTP checks, use [bounded audit workflows](/docs/audit-workflows/). Release 1.3.0 includes these tools in its 85-tool registry.
+For explicit Google comparison windows and bounded destination HTTP checks, use [bounded audit workflows](/docs/audit-workflows/). These tools were added in release 1.3.0. Version 1.3.1 retains the 85-tool registry and adds [startup family selection](/docs/installation/), CLI JSON string lists and SEO/Bing feedback fixes.
 
 The source checkout adds unreleased declared-change follow-up and draft/rewrite checks, bringing its registry to 87 tools. Read [editorial workflows](/docs/editorial-workflows/) for the draft and mechanical comparison boundaries.

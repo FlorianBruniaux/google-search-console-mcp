@@ -96,7 +96,7 @@ Un statut HTTP défaillant permet de vérifier le lien concerné. Il ne prouve n
 
 ## Suivre un changement déclaré (non publié)
 
-`seo_change_impact` appartient au checkout source de 87 outils ; la version 1.3.0 conserve 85 outils. Installez le checkout pour cet appel. L’exemple ci-dessous est explicatif : l’événement est déclaré par l’appelant, sans preuve de déploiement ni suivi réel.
+`seo_change_impact` appartient au checkout source de 87 outils ; la version publiée 1.3.1 conserve 85 outils. Installez le checkout pour cet appel. L’exemple ci-dessous est explicatif : l’événement est déclaré par l’appelant, sans preuve de déploiement ni suivi réel.
 
 ```python
 seo_change_impact(
