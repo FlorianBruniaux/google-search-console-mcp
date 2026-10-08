@@ -38,7 +38,7 @@ inspect_url batch_url_inspection check_indexing_issues analytics_anomalies
 quick_wins traffic_drops seo_striking_distance seo_cannibalization seo_lost_queries
 check_alerts parasite_risk prune_candidates traffic_health_check page_analysis
 content_brief page_health_score compare_search_engines crux_page_vitals crux_history
-crux_lcp_subparts pagespeed_audit schema_validate content_quality hreflang_audit
+crux_lcp_subparts pagespeed_audit schema_validate content_quality editorial_audit hreflang_audit
 page_technical_audit preload_audit heading_audit ai_visibility_audit gbp_deprecation_lint
 internal_links_audit link_equity_map sitemap_audit drift_compare drift_history
 bing_feeds_list bing_feed_details bing_crawl_issues bing_url_info ga4_ai_referrals
@@ -115,6 +115,10 @@ _add("schema_validate", "rule", "Known SiteGround resource path plus human-verif
 _add("schema_validate", "measured", "Received HTTP response code only, not requested-page accessibility", "/http_status")
 _add("content_quality", "rule", "Fixed phrase-list filler, regex entity/number density proxy, local weighting .35/.35/.20/.10 and clipping; thin<300 tokens else good>=60; not measured quality or AI authorship", "/filler_score", "/information_density", "/overall_quality", "/flags", "/verdict")
 _add("content_quality", "derived", "round(100*distinct repeated bigrams/distinct bigrams), short-text fallback zero; quality interpretation remains heuristic", "/repetition_score")
+_add("editorial_audit", "rule", "Versioned FR/EN house-style patterns; warnings need editorial judgment, never establish AI authorship or search impact", "/verdict", "/assessment", "/findings", "/findings/*/rule_id", "/findings/*/requires_context_review")
+_add("editorial_audit", "derived", "Counts and truncation over eligible parsed HTML segments and local pattern matches only", "/metrics/*", "/findings_truncated")
+_add("editorial_audit", "measured", "Received HTTP response code only, not rendered page visibility", "/http_status")
+_add("editorial_audit", "rule", "Conservative known-provider challenge-page patterns; requested editorial content unavailable", "/challenge")
 _AUDITS = {
     "hreflang_audit": "Static lang-code, self-reference/x-default and cluster checks; no_hreflang is a local observation-based conclusion",
     "page_technical_audit": "Local title/description length, canonical/robots/security-header rules, redirect status membership and stdlib robots parser; no browser runtime validation",
@@ -150,7 +154,7 @@ _add("ga4_ai_referrals", "derived", "Share of returned confirmed source-label se
 _add("ga4_ai_referrals", None, "Comparison is explicitly not requested", "/comparison/availability")
 _add("indexnow_submit", "measured", "Received IndexNow HTTP code, not indexing or crawling", "/status_code")
 _add("indexnow_submit", "rule", "HTTP protocol mapping only: 200 received/key verified, 202 received/key pending; no indexing proof or write authorization", "/status", "/verdict", "/key_validation")
-for tool in ("page_technical_audit", "heading_audit", "internal_links_audit", "schema_validate"):
+for tool in ("page_technical_audit", "heading_audit", "internal_links_audit", "schema_validate", "editorial_audit"):
     _add(tool, "rule", "Narrow deterministic FR/EN instruction patterns in untrusted HTML; may miss or falsely flag prose; absence never establishes trust", "/untrusted_content/flagged", "/untrusted_content/signals", "/untrusted_content/signals/*")
 
 # Error paths are explicit; successful operational statuses stay unannotated.
@@ -192,6 +196,8 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
             return None, "Local category fallback has no substantive provider input"
     elif key == "verdict" and value in {"error", "fetch_error", "ssrf_blocked", "missing_key", "unsupported", "not_enough_data", "no_baseline", "no_data"}:
         return None, "Unavailable, unsupported or tool error result; original verdict retained"
+    if tool == "editorial_audit" and data.get("assessment") != "house_style_review" and path[0] in {"verdict", "assessment", "findings", "metrics", "findings_truncated"}:
+        return None, "Editorial content was not assessed; placeholders never mean no warnings"
     if tool == "seo_cannibalization" and key == "conflict_score" and parent.get("total_clicks") == 0:
         return "rule", "Zero-click fallback assumes uniform 1/n page shares; not measured click concentration"
     if tool == "page_health_score":

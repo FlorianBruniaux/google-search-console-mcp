@@ -351,6 +351,7 @@ SUCCESS_SHAPES = {
     "crux_lcp_subparts": {"lcp_p75_ms": 2000, "lcp_rating": "good", "verdict": "good", "subparts": {"ttfb_ms": 1, "resource_load_delay_ms": 2, "resource_load_duration_ms": 3, "render_delay_ms": 4, "dominant_phase": "render_delay"}},
     "pagespeed_audit": {"performance_score": 90, "verdict": "good", "cwv": {"lcp": {"score": .8, "numeric_value": 2000}}, "top_opportunities": [{"score": .3}]},
     "schema_validate": {"verdict": "healthy", "schemas": [{"valid": True, "missing_required_fields": [], "missing_recommended_fields": [], "deprecated_rich_result": None}], "recommendations": [], "validation_scope": "local_required_field_presence", "google_rich_result_eligibility": "not_assessed", "challenge": {"provider": "siteground"}, "http_status": 200},
+    "editorial_audit": {"verdict": "checked", "assessment": "house_style_review", "findings": [{"rule_id": "stacked_modality", "requires_context_review": True}], "metrics": {"findings_detected": 1}, "findings_truncated": False, "http_status": 200, "challenge": {"provider": "siteground"}},
     "content_quality": {"verdict": "good", "filler_score": 0, "information_density": .4, "overall_quality": 60, "repetition_score": 0, "flags": []},
     "hreflang_audit": _AUDIT_SHAPE,
     "page_technical_audit": {**_AUDIT_SHAPE, "findings": {"status_code": 200, "redirected": False, "robots_txt_blocks_googlebot": False}},
@@ -370,7 +371,7 @@ SUCCESS_SHAPES = {
     "ga4_ai_referrals": {"availability": "measured", "rows": [{"classification": "confirmed"}], "ai_session_share": .2, "comparison": {"availability": "unavailable"}},
     "indexnow_submit": {"status_code": 202, "status": "received", "verdict": "ok", "key_validation": "pending"},
 }
-for _tool in ("schema_validate", "page_technical_audit", "heading_audit", "internal_links_audit"):
+for _tool in ("schema_validate", "page_technical_audit", "heading_audit", "internal_links_audit", "editorial_audit"):
     SUCCESS_SHAPES[_tool] = {**SUCCESS_SHAPES[_tool], "untrusted_content": {"flagged": True, "signals": [{"basis": "rule"}]}}
 
 
@@ -404,6 +405,8 @@ _REVIEWED_SIGNALS = {
     "bing_webmaster._mutation_response": "status",
     "bing_webmaster.bing_crawl_issues": "issues",
     "bing_webmaster.bing_feed_remove": "status",
+    "editorial.editorial_audit": "assessment",
+    "editorial.analyze_html": "assessment verdict",
     "content.content_quality": "filler_score overall_quality repetition_score verdict",
     "content.hreflang_audit": "issues severity verdict",
     "content.page_technical_audit": "issues severity verdict",
@@ -454,7 +457,7 @@ _REVIEWED_SIGNALS = {
 def test_output_signal_changes_require_an_explicit_inventory_review():
     import gsc_mcp
     root = Path(inspect.getfile(gsc_mcp)).parent
-    files = [*sorted((root / "tools").glob("*.py")), root / "ai_referrals.py", root / "content_trust.py", root / "page_challenges.py"]
+    files = [*sorted((root / "tools").glob("*.py")), root / "ai_referrals.py", root / "content_trust.py", root / "page_challenges.py", root / "editorial.py"]
     signals = {"verdict", "visibility_verdict", "status", "rating", "lcp_rating", "score", "overall_quality", "diagnosis", "risk", "site_risk", "severity", "valid", "allowed", "action", "current_focus", "triggered", "category", "opportunities", "conflicts", "drops", "lost_queries", "alerts", "queries", "issues", "question_queries", "assessment", "flagged", "classification"}
     actual = {}
     for file in files:
@@ -469,3 +472,21 @@ def test_output_signal_changes_require_an_explicit_inventory_review():
             if keys:
                 actual[f"{file.stem}.{fn.name}"] = keys
     assert actual == {fn: set(keys.split()) for fn, keys in _REVIEWED_SIGNALS.items()}
+
+
+def test_editorial_evidence_keeps_rule_warnings_counts_and_unassessed_states_separate():
+    checked = {"verdict": "checked", "assessment": "house_style_review", "http_status": 200,
+               "findings": [{"rule_id": "stacked_modality", "requires_context_review": True}],
+               "metrics": {"findings_detected": 1}, "findings_truncated": False}
+    records = fields("editorial_audit", checked)
+    assert_basis(records, "/findings/0/rule_id", "rule", "heuristic")
+    assert_basis(records, "/findings", "rule", "heuristic")
+    assert_basis(records, "/metrics/findings_detected", "derived", "calculated")
+    assert_basis(records, "/http_status", "measured", "observed")
+    for verdict in ("invalid_input", "fetch_error", "challenge_page", "language_unavailable", "unsupported_language", "empty_content"):
+        records = fields("editorial_audit", {"verdict": verdict, "assessment": "not_assessed",
+                         "http_status": 200, "findings": None, "metrics": None, "findings_truncated": False})
+        assert_basis(records, "/verdict", None, "unavailable")
+        assert_basis(records, "/findings", None, "unavailable")
+        assert_basis(records, "/findings_truncated", None, "unavailable")
+        assert_basis(records, "/http_status", "measured", "observed")

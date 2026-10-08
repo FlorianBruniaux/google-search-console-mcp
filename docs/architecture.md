@@ -2,14 +2,14 @@
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 82 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
+gsc-mcp is a FastMCP server exposing 83 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
 ```
 src/gsc_mcp/
 ├── server.py          # Entry point. Registers every function from registry.TOOLS
-├── registry.py        # Single source of truth for the 82 source MCP and CLI tools
+├── registry.py        # Single source of truth for the 83 source MCP and CLI tools
 ├── cli.py             # Flag-only CLI generated from registry function signatures
 ├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
@@ -176,7 +176,7 @@ In the unreleased source checkout, `traffic_health_check` resolves concrete GSC 
 
 `ga4_ai_referrals` checks property-specific dimension/metric compatibility and reads at most 10,000 source/medium/landing-page rows with sessions, engaged sessions and `keyEvents`. Confirmed source rules are dated; candidate sources are excluded from confirmed totals. All-source shares require complete unrestricted coverage. The output measures attributed visits, not citations. See the [evidence contract](https://search-console.bruniaux.com/docs/evidence-and-safety/).
 
-`with_meta` adds concrete per-field JSON Pointer evidence descriptors from a tool/path inventory. No whole-output basis is inferred for mixed reports, and no numeric confidence is fabricated. Existing metrics and source identities retain their meanings. The shared HTML trust observer does not execute or rewrite fetched instructions; a narrow challenge detector protects schema assessment only.
+`with_meta` adds concrete per-field JSON Pointer evidence descriptors from a tool/path inventory. No whole-output basis is inferred for mixed reports, and no numeric confidence is fabricated. Existing metrics and source identities retain their meanings. The shared HTML trust observer does not execute or rewrite fetched instructions; a narrow challenge detector protects schema and editorial assessment.
 
 `cross.py` does not call the Google APIs directly. It calls the high-level tool functions from `analytics.py` and `ga4.py`, parses their JSON string output with `json.loads`, and then joins the results.
 
@@ -222,3 +222,7 @@ The tool makes no Google API calls and requires no auth. `httpx` is used for the
 
 - [AminForou/mcp-gsc](https://github.com/AminForou/mcp-gsc): auth architecture, SEO analytics tooling, fail-fast env var pattern
 - [Suganthan-Mohanadasan/Suganthans-GSC-MCP](https://github.com/Suganthan-Mohanadasan/Suganthans-GSC-MCP): Indexing API integration, `with_meta()` anti-hallucination pattern, dual OAuth scope awareness
+
+### Editorial profile
+
+`editorial_audit` uses a packaged versioned FR/EN house-style profile and the existing bounded same-site safe fetcher. It returns rule warnings over eligible parsed passages, source locations, coverage limits and rewriting guidance. The profile is independent of `content_quality`, indexing and ranking scores. It never calls a classifier or writes content. See [editorial audit and rewrite profile](editorial-audit.md).

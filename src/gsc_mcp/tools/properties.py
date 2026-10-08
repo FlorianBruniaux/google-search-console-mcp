@@ -54,6 +54,7 @@ _ALL_TOOLS = [
     "content_brief",
     "ga4_funnel",
     "content_quality",
+    "editorial_audit",
     "hreflang_audit",
     "page_technical_audit",
     "preload_audit",

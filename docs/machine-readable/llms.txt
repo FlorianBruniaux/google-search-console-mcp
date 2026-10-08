@@ -4,16 +4,16 @@
 
 ## What This Project Is
 
-Python MCP server exposing 82 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
+Python MCP server exposing 83 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
-Published package 1.2.0 contains 81 tools; this source registry adds unreleased ga4_ai_referrals for 82 tools.
+Published package 1.2.0 contains 81 tools; this source registry adds unreleased ga4_ai_referrals and editorial_audit for 83 tools.
 Setup guides: docs/installation.md, docs/google-setup.md, docs/bing-setup.md.
 Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 82 source tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 83 source tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
@@ -180,6 +180,10 @@ TOOLS:
     Storage: sqlite3 in platformdirs.user_data_dir("gsc-mcp")/drift/baselines.db (WAL mode).
     CWV comparison optional, requires CRUX_API_KEY. No Google API calls otherwise.
     Adapted from claude-seo (Dan Colta, MIT).
+
+  editorial.py (1 tool): editorial_audit(url, language="auto", genre="general")
+    Versioned FR/EN house-style warnings, eligible parsed text locations and faithful rewrite guidance.
+    No authorship probability, ranking score, classifier call or content mutation. Unknown language/challenge/fetch failures remain unassessed.
 
   content.py (5 tools): content_quality, hreflang_audit, page_technical_audit, preload_audit, heading_audit
     content_quality: safe_fetch_html + stdlib TextExtractor (strips script/style/nav/footer). Scores:

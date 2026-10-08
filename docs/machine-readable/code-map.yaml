@@ -6,7 +6,7 @@ version: "1.1.0"
 generated: "2026-10-05"
 package: gsc-mcp-tools
 python_min: "3.11"
-total_tools: 82
+total_tools: 83
 total_tests: 851
 
 tool_inventory:
@@ -14,7 +14,8 @@ tool_inventory:
   bing_reads: 15
   bing_writes: 4
   cross_engine: 1
-  total: 82
+  unreleased_additions: 2
+  total: 83
   source_of_truth: src/gsc_mcp/registry.py
   invariant: "set(registry.TOOLS) == set(properties._ALL_TOOLS)"
 
@@ -34,7 +35,7 @@ core_modules:
     type: entry_point
 
   - path: src/gsc_mcp/registry.py
-    role: "Shared MCP and CLI registry for all 82 tools"
+    role: "Shared MCP and CLI registry for all 83 tools"
     exports: [TOOLS]
 
   - path: src/gsc_mcp/cli.py
@@ -145,6 +146,11 @@ tool_modules:
   - path: src/gsc_mcp/tools/drift.py
     tools: 3
     tool_names: [drift_baseline, drift_compare, drift_history]
+
+  - path: src/gsc_mcp/tools/editorial.py
+    tools: 1
+    tool_names: [editorial_audit]
+    role: "Bounded FR/EN house-style review, not AI-authorship or ranking measurement"
 
   - path: src/gsc_mcp/tools/content.py
     tools: 5

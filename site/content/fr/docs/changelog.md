@@ -10,6 +10,9 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## Non publié
 
+- Ajout de `editorial_audit`, profil éditorial FR/EN versionné avec extraits localisés et consignes de réécriture fidèle (#17). Les citations, le code et les exceptions de genre sont protégés. Aucun score d’écriture IA ou de classement.
+- Le registre source compte 83 outils ; `content_quality` conserve son API et son score. Le paquet 1.2.0 publié reste à 81 outils.
+
 - Ajout de `ga4_ai_referrals` pour les visites attribuées aux sources d’assistants documentées. Le registre source compte 82 outils ; le paquet publié 1.2.0 en conserve 81. Les candidats restent exclus des totaux confirmés et une couverture insuffisante empêche le calcul de parts.
 - Les verdicts et scores disposent de métadonnées par champ pour distinguer observations, calculs, règles et preuves indisponibles, sans probabilité inventée ni autorisation implicite d’action.
 - Les audits de titres, liens internes, technique et schémas signalent certains motifs d’instructions françaises et anglaises dans le HTML. Le contenu récupéré reste non fiable même sans signalement.
