@@ -66,7 +66,7 @@ test('switches from the English landing to the French landing', () => {
 test('publishes a fully localized French landing', async () => {
   const frenchHtml = await readFile(new URL('../dist/fr/index.html', import.meta.url), 'utf8')
   assert.match(frenchHtml, /<html lang="fr"/)
-  assert.match(frenchHtml, /Sachez quoi corriger pour mieux vous positionner\./)
+  assert.match(frenchHtml, /Améliorez votre référencement avec l’IA\./)
   assert.match(frenchHtml, /<a href="\/" lang="en" hreflang="en">EN<\/a>/)
   assert.match(frenchHtml, /<a href="\/fr\/docs\/">Documentation<\/a>/)
   assert.match(frenchHtml, />Analyser</)
