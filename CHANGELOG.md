@@ -10,7 +10,8 @@
 - `seo_cannibalization` excludes search-operator queries by default, reports a distinct-query exclusion count and supports `include_search_operators=True`.
 - `ai_visibility_audit` uses `ClaudeBot`, `Claude-User` and `Claude-SearchBot` with separate purposes, replacing the legacy Anthropic agent name.
 - `bing_query_stats` aggregates by query before sorting and limiting by default; `daily=True` retains daily source rows. Invalid source CTR remains `null` with preserved anomaly diagnostics through aggregation and limiting.
-
+- Direct Bing reports return absent or null source positions as `null`. Missing source counts retain compatibility placeholders with `unavailable_metrics` and unavailable field evidence; genuine provider zeros remain observations. Query aggregates and cross-engine totals preserve these markers. Comparison deltas are unavailable per metric when a required input is missing.
+- `quick_wins` excludes rows with unavailable CTR and reports their skipped count instead of failing on a nullable metric.
 
 ## [1.3.0] - 2026-10-08
 

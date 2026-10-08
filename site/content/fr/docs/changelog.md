@@ -16,6 +16,8 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 - `seo_cannibalization` exclut les requêtes avec opérateurs de recherche, expose leur nombre distinct et accepte `include_search_operators=True`.
 - Robots Anthropic actuels : `ClaudeBot`, `Claude-User`, `Claude-SearchBot`, avec leurs rôles distincts.
 - `bing_query_stats` agrège par requête avant tri et limite ; `daily=True` conserve les lignes quotidiennes. Un CTR source contradictoire reste `null` avec ses diagnostics, même après agrégation.
+- Les rapports Bing renvoient à `null` les positions absentes ou nulles à la source. Les nombres de clics ou d’impressions manquants gardent leurs valeurs historiques avec `unavailable_metrics` et une preuve d’indisponibilité ; les vrais zéros restent des observations. Les agrégats et totaux conservent ces marqueurs. Chaque écart entre moteurs devient indisponible si une donnée nécessaire manque.
+- `quick_wins` exclut les lignes dont le CTR est indisponible et indique leur nombre au lieu d’échouer sur une métrique nulle.
 
 ## 1.3.0
 
