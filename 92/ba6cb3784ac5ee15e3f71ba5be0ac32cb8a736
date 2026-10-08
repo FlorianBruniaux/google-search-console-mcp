@@ -1,0 +1,91 @@
+docs/editorial-audit.md
+  s_05ea773ff72f20::t_08c49661e9ad1d 1-2,4-22,24,26,29-30,32,39-91
+  s_05ea773ff72f20::t_9ce28c01b2fd8a 92
+  s_05ea773ff72f20::t_17b2b9ae1b2795 3,23,27-28,31,33-38
+  s_05ea773ff72f20::t_9eda8d76a1d1f3 25
+site/content/fr/docs/evidence-and-safety.md
+  s_05ea773ff72f20::t_6402b8a2be6e81 94-99
+  s_05ea773ff72f20::t_175d22b6747653 84
+site/tests/site.spec.ts
+  s_05ea773ff72f20::t_9eda8d76a1d1f3 437-442,444-446,489
+  s_05ea773ff72f20::t_dd0ec352b53751 443
+CLAUDE.md
+  s_05ea773ff72f20::t_7067419e6bb23f 45,47,127,130,169-172
+site/scripts/prepare-doc-content.mjs
+  s_05ea773ff72f20::t_7067419e6bb23f 29
+site/content/en/evidence-and-safety.md
+  s_05ea773ff72f20::t_175d22b6747653 80
+  s_05ea773ff72f20::t_6402b8a2be6e81 90-95
+README.md
+  s_05ea773ff72f20::t_7067419e6bb23f 17,40,191,328,397,399,402,454,494,630-631,653
+tests/test_registry.py
+  s_05ea773ff72f20::t_0e1145592cf57d 85
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_7067419e6bb23f 27,42-45
+  s_05ea773ff72f20::t_175d22b6747653 29
+tests/test_editorial.py
+  s_05ea773ff72f20::t_3425c146e0ffb4 290
+  s_05ea773ff72f20::t_06b7ba285a413c 280-289,291
+  s_05ea773ff72f20::t_ea5e71f4b2d66a 1-203
+  s_05ea773ff72f20::t_93fbaa4f05ca9d 241-279
+  s_05ea773ff72f20::t_0d84e2dfc84974 292-309
+  s_05ea773ff72f20::t_7ddeff5896934d 204-212,214-240
+  s_05ea773ff72f20::t_24671f290a74f1 213
+docs/machine-readable/code-map.yaml
+  s_05ea773ff72f20::t_9eda8d76a1d1f3 17
+  s_05ea773ff72f20::t_7067419e6bb23f 9,18,38,150-153
+  s_05ea773ff72f20::t_64312eed8928e6 154
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_7067419e6bb23f 13-15
+src/gsc_mcp/tools/editorial.py
+  s_05ea773ff72f20::t_63a536d57dccf9 1-49
+site/astro.config.mjs
+  s_05ea773ff72f20::t_7067419e6bb23f 67
+src/gsc_mcp/editorial.py
+  s_05ea773ff72f20::t_63a536d57dccf9 1-36,38-44,64,75,77-87,89-94,97,107-124,127-129,131-142,144,148-159,161-164,166-180,203-211,213-233,235-244,250-252,255-256
+  s_05ea773ff72f20::t_9ce28c01b2fd8a 88,98-106,125,130,145,165,187,189-201
+  s_05ea773ff72f20::t_3425c146e0ffb4 37,45-63,65-74,76,95-96,126,143,146-147,181-186,188,202,212,234,248-249,253-254
+  s_05ea773ff72f20::t_333188161dc760 245-247
+  s_05ea773ff72f20::t_68bd234b86e212 160
+tests/test_evidence.py
+  s_05ea773ff72f20::t_07e0244476d4cf 475-492
+  s_05ea773ff72f20::t_b0b763e357334e 354,374,408-409,460
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_175d22b6747653 62,66
+  s_05ea773ff72f20::t_9ce28c01b2fd8a 82
+  s_05ea773ff72f20::t_f1b0d98e499681 70,79-81
+site/content/fr/docs/editorial-audit.md
+  s_05ea773ff72f20::t_17b2b9ae1b2795 9,29,33-34,37,39-44
+  s_05ea773ff72f20::t_6402b8a2be6e81 1-8,10-28,30,32,35-36,38,45-98
+  s_05ea773ff72f20::t_9eda8d76a1d1f3 31
+docs/architecture.md
+  s_05ea773ff72f20::t_7067419e6bb23f 5,12,225-228
+  s_05ea773ff72f20::t_175d22b6747653 179
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_7067419e6bb23f 7,10,16,184-186
+  s_05ea773ff72f20::t_31bfebc4159d77 187
+CHANGELOG.md
+  s_05ea773ff72f20::t_7067419e6bb23f 5-9
+src/gsc_mcp/evidence.py
+  s_05ea773ff72f20::t_fc1db5c16c92af 41,118-121,157,199-200
+src/gsc_mcp/registry.py
+  s_05ea773ff72f20::t_9f44f093fa0e63 77,157
+src/gsc_mcp/tools/properties.py
+  s_05ea773ff72f20::t_896f479848afdd 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "92ba6cb3784ac5ee15e3f71ba5be0ac32cb8a736",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
