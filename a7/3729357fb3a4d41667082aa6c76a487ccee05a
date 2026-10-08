@@ -1,0 +1,145 @@
+docs/installation.md
+  s_05ea773ff72f20::t_81cb58c19e25c7 97
+  s_05ea773ff72f20::t_85e697c346a209 3,87-96,98-102,163
+tests/test_evidence.py
+  s_05ea773ff72f20::t_eb2d8047f08561 336-345,347,386-390,396,398-401,404-405,408-410,550-551,553,570,573-574,590-592,594
+  s_05ea773ff72f20::t_2fb807482d99d3 578-580
+  s_05ea773ff72f20::t_506c2beaaaf9ad 391-395,397,402-403,406-407,571-572,575-577,593
+  s_05ea773ff72f20::t_faa34a425cfd70 581-583
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_f53a59c05e1099 18
+  s_05ea773ff72f20::t_81cb58c19e25c7 10,70
+  s_05ea773ff72f20::t_4ae44574c03693 62
+src/gsc_mcp/tools/bing_analytics.py
+  s_05ea773ff72f20::t_cbef8f18cd23ee 198-212,224-226,234-240,264-279
+  s_05ea773ff72f20::t_4280b2aa5fcd26 10-11,13-15,95-97,100,103,182,194-197,213-223,227-233,241-243,249,257,260-263,280,300-311,319
+  s_05ea773ff72f20::t_662f61d961e541 84-93,104-106
+  s_05ea773ff72f20::t_7c5fdeae4c6630 289-295
+  s_05ea773ff72f20::t_1ddfe3f8778494 156,166,256,258-259,281,287,296
+  s_05ea773ff72f20::t_d0634adad2df9a 12,94,117
+tests/test_technical.py
+  s_05ea773ff72f20::t_64a63f6c085eaa 588-605
+tests/test_cli.py
+  s_05ea773ff72f20::t_64a63f6c085eaa 286-330
+CHANGELOG.md
+  s_05ea773ff72f20::t_85e697c346a209 5-14
+src/gsc_mcp/evidence.py
+  s_05ea773ff72f20::t_d0634adad2df9a 189,191-193,303-304
+  s_05ea773ff72f20::t_2988b8ca82df23 173
+  s_05ea773ff72f20::t_2fb807482d99d3 209
+  s_05ea773ff72f20::t_4c7f08da4e9004 45,57,143-144,146-153,157,174-188,190,194-208,299-302,305-313
+src/gsc_mcp/tools/technical.py
+  s_05ea773ff72f20::t_307afc962c88d7 407,409
+tests/test_feedback_evidence.py
+  s_05ea773ff72f20::t_0e913ef406dbef 167-243
+  s_05ea773ff72f20::t_3fc2e90e7bfa28 1-111,113-116,119-126,128-135,137-145,148-166
+  s_05ea773ff72f20::t_c3fb49691fa3d0 112,117-118,127,136,146-147
+docs/validation/2026-10-08-seo-expert-feedback.md
+  s_05ea773ff72f20::t_4bfe9c50f97d2b 1-18,20-34,42-43
+  s_05ea773ff72f20::t_40aa431cad7e5e 19
+  s_05ea773ff72f20::t_c27f07c592a4f7 35-41
+site/content/fr/docs/bing-setup.md
+  s_05ea773ff72f20::t_f53a59c05e1099 38-39
+  s_05ea773ff72f20::t_81cb58c19e25c7 5,11,17,25-36
+  s_05ea773ff72f20::t_d2a5b7eeabb76a 37
+docs/machine-readable/code-map.yaml
+  s_05ea773ff72f20::t_85e697c346a209 17,34,41-43
+  s_05ea773ff72f20::t_40aa431cad7e5e 10
+  s_05ea773ff72f20::t_cc1bd355037832 44
+README.md
+  s_05ea773ff72f20::t_4ae44574c03693 455,463,496
+  s_05ea773ff72f20::t_40aa431cad7e5e 19,680
+  s_05ea773ff72f20::t_d96f500d63971a 156-157,280
+  s_05ea773ff72f20::t_805da6158923cc 633
+  s_05ea773ff72f20::t_85e697c346a209 179,188,224-227,421,424,438,548-555
+  s_05ea773ff72f20::t_ece0c5b8817807 556
+tests/test_bing_analytics.py
+  s_05ea773ff72f20::t_76ba8cb54ea30b 146,224-235
+  s_05ea773ff72f20::t_81ababf227a346 47,66-67,89-127,135-145,147-148,156-157,204-223
+  s_05ea773ff72f20::t_ddb973ecc47343 128-134,149-155
+  s_05ea773ff72f20::t_97a5eecd7bdb49 158-203
+  s_312dceb5d1c7f5::t_d36bc87a82005a 236-237
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_4ae44574c03693 16,19
+  s_05ea773ff72f20::t_85e697c346a209 21-25,77-81,164
+  s_05ea773ff72f20::t_40aa431cad7e5e 294
+  s_05ea773ff72f20::t_5222e6bf533e50 20
+src/gsc_mcp/tools/seo.py
+  s_05ea773ff72f20::t_ecb5e640424534 20-22,74-76,161-165,175,192-215,225-238,244-250,261-262,326,333-336,347,357,362-364,412-417,419-424
+  s_05ea773ff72f20::t_d283bd660ebeb9 101,110,119,148
+  s_05ea773ff72f20::t_aeaacacf63219b 120-122
+src/gsc_mcp/cli.py
+  s_05ea773ff72f20::t_307afc962c88d7 102-114,152-161
+tests/test_search_providers.py
+  s_05ea773ff72f20::t_3bd6ab1b6ec839 152-194
+tests/test_tool_selection.py
+  s_05ea773ff72f20::t_22a547fe7fc157 20-56
+  s_05ea773ff72f20::t_5b0b076be68122 1-19,57-74
+site/content/fr/docs/installation.md
+  s_05ea773ff72f20::t_81cb58c19e25c7 5,43-56,83-94
+  s_05ea773ff72f20::t_e7b5a973eb692d 95
+tests/test_seo_feedback.py
+  s_05ea773ff72f20::t_3a061cbc28806f 153,161
+  s_05ea773ff72f20::t_e80e73aca7017a 1-3,5-7,9-144
+  s_05ea773ff72f20::t_3bf12d80c38f69 4,8,145-152,154-160,162-175
+src/gsc_mcp/tools/search_compare.py
+  s_05ea773ff72f20::t_9a1ac4f6121363 53-54,56,71-75,88-90,156-159,163-166
+  s_05ea773ff72f20::t_2988b8ca82df23 128-130,135,140
+  s_05ea773ff72f20::t_cbef8f18cd23ee 10,33,120-121,152-153
+  s_05ea773ff72f20::t_d0634adad2df9a 48,55,57,91-92,175-176
+  s_05ea773ff72f20::t_a63d902150a169 11,34,47,85-87,160,168-174,177
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_81cb58c19e25c7 13-16,37-45
+  s_05ea773ff72f20::t_c09e018e40594c 46
+docs/architecture.md
+  s_05ea773ff72f20::t_85e697c346a209 7,13,47-50,77-78,80,180,184
+  s_05ea773ff72f20::t_4ae44574c03693 14,79
+  s_05ea773ff72f20::t_b1f4f4474737e6 185
+src/gsc_mcp/providers/bing.py
+  s_05ea773ff72f20::t_a63d902150a169 270-274,284-287,309,312-318,380,433-434,446
+  s_05ea773ff72f20::t_cbef8f18cd23ee 275-283,389-391,409,412-413,454-456,503,506-507,512-514,519
+  s_05ea773ff72f20::t_d0634adad2df9a 288-308,310-311,392-394,415,424,447,457-462,515-518
+  s_05ea773ff72f20::t_9a1ac4f6121363 383-385,410-411,416-423,463-465,504-505
+docs/bing-setup.md
+  s_05ea773ff72f20::t_d96f500d63971a 22
+  s_05ea773ff72f20::t_85e697c346a209 44-56
+  s_05ea773ff72f20::t_f53a59c05e1099 57-58
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_81cb58c19e25c7 11-19
+tests/test_search_compare.py
+  s_05ea773ff72f20::t_9dd891065259d5 452-487
+  s_05ea773ff72f20::t_49062f23375b2a 6,78-104
+  s_05ea773ff72f20::t_729dfee3adcf8a 105-106
+src/gsc_mcp/providers/base.py
+  s_05ea773ff72f20::t_a63d902150a169 83,94
+src/gsc_mcp/server.py
+  s_05ea773ff72f20::t_11b16a5e247bda 2,10-11,13-14,17-24
+src/gsc_mcp/tool_selection.py
+  s_05ea773ff72f20::t_2c8207fecb5485 1-43
+src/gsc_mcp/tools/properties.py
+  s_05ea773ff72f20::t_cd929f212e8337 96-97,100-102,111-112,114,122-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a73729357fb3a4d41667082aa6c76a487ccee05a",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_312dceb5d1c7f5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10705-778c-7a00-bd10-95a2f8d1b51e",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
