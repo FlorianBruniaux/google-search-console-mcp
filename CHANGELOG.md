@@ -9,6 +9,10 @@
 - `schema_validate` parcourt les nœuds JSON-LD `@graph`, y compris dans un tableau racine, sans compter le conteneur non typé comme un schéma valide.
 - `applicationCategory` et `operatingSystem` sont signalés comme propriétés recommandées de `SoftwareApplication`, sans invalider leur absence. La réponse distingue explicitement la présence de champs vérifiée localement de l'éligibilité Google aux résultats enrichis, non évaluée.
 - `heading_audit` ne signale plus `TL;DR` comme un titre vide.
+- `schema_validate` suit les redirects vers le **même site** (même host à un `www.` près, même port explicite ; le scheme peut changer) : `https://dobet.it/` → 301 → `https://www.dobet.it/` est audité au lieu de répondre `fetch_error`. L'ancien helper de `links.py` déménage vers `url_safety.fetch_html_following_redirects`, partagé par `schema_validate`, `internal_links_audit` et `link_equity_map`. Chaque saut repasse par `safe_fetch_html` (DNS-pinning rejoué), 5 sauts maximum, seuls 301/302/303/307/308 sont suivis. Un redirect vers un autre site, y compris un sous-domaine, ou vers une URL malformée (port invalide) lève `URLSafetyError`, remonté en `fetch_error` ; les deux tools de liens, qui suivaient n'importe quel host public depuis 1.1.2, sont resserrés de la même façon.
+- `schema_validate` et `internal_links_audit` renvoient `final_url` (l'URL réellement servie). Les deux tools de liens classent les liens contre cette `final_url` : après un redirect domaine nu → `www`, les liens vers le host `www` sont internes (sur `dobet.it`, 171 liens internes au lieu de 1).
+- `schema_validate` : un `@type` en liste (`["Person", "Organization"]`) faisait planter le tool (`TypeError: unhashable type`). `_primary_type()` retient la première entrée qui a une règle dans `_REQUIRED_FIELDS`, sinon la première.
+- `schema_validate` passe par `safe_fetch_html` au lieu d'un `httpx.Client` nu, donc gagne le DNS-pinning des autres tools. Le User-Agent envoyé change de `gsc-mcp-schema-validator/1.0` à `gsc-mcp/1.0`.
 
 ### Documentation
 

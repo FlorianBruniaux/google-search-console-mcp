@@ -182,6 +182,130 @@ def test_schema_validate_array_jsonld():
     assert types == {"WebSite", "Organization"}
 
 
+def test_schema_validate_graph_is_unwrapped():
+    """Schemas nested under @graph (Rank Math, Yoast) are validated one by one."""
+    html = """<html><head>
+    <script type="application/ld+json">
+    {"@context": "https://schema.org", "@graph": [
+      {"@type": "Organization", "name": "Org"},
+      {"@type": "WebSite", "name": "Example", "url": "https://example.com"}
+    ]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["schemas_detected"] == 2
+    types = {s["type"] for s in result["schemas"]}
+    assert types == {"Organization", "WebSite"}
+
+
+def test_schema_validate_graph_invalid_schema_is_not_healthy():
+    """An Article missing required fields inside @graph must not pass as healthy."""
+    html = """<html><head>
+    <script type="application/ld+json">
+    {"@context": "https://schema.org", "@graph": [
+      {"@type": "Article", "headline": "Only a headline"}
+    ]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "invalid_schemas"
+    assert result["schemas"][0]["type"] == "Article"
+    assert result["schemas"][0]["missing_required_fields"]
+
+
+def _redirect_client(redirects: dict[str, str], final_html: str):
+    """Mock httpx.Client whose get() answers a real 301 for urls in `redirects`, 200 otherwise."""
+    def fake_get(url, **_):
+        request = httpx.Request("GET", url)
+        if url in redirects:
+            return httpx.Response(301, headers={"location": redirects[url]}, request=request)
+        return httpx.Response(200, text=final_html, request=request)
+
+    client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
+    client.get.side_effect = fake_get
+    return client
+
+
+def test_schema_validate_follows_www_redirect():
+    """A bare-domain URL that 301s to its www canonical is audited, not reported as fetch_error."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@type": "WebSite", "name": "Example", "url": "https://www.example.com"}
+    </script></head></html>"""
+    client = _redirect_client({"https://example.com/": "https://www.example.com/"}, html)
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "healthy"
+    assert result["schemas_detected"] == 1
+    assert result["schemas"][0]["type"] == "WebSite"
+    assert result["final_url"] == "https://www.example.com/"
+
+
+def test_schema_validate_cross_host_redirect_is_refused():
+    """A redirect to another site is not followed: the audit would otherwise validate
+    another site's JSON-LD under the original URL."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@type": "WebSite", "name": "Evil", "url": "https://evil.example.net"}
+    </script></head></html>"""
+    client = _redirect_client({"https://example.com/": "https://evil.example.net/"}, html)
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "fetch_error"
+    assert "Cross-site redirect refused" in result["error"]
+    assert "evil.example.net" in result["error"]
+
+
+def test_schema_validate_redirect_to_blocked_host_is_refused():
+    """SSRF protection survives redirect-following: the target hop is re-checked."""
+    client = _redirect_client({"https://example.com/": "http://169.254.169.254/"}, "<html></html>")
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "fetch_error"
+    assert "Blocked hostname" in result["error"] or "Cross-site redirect refused" in result["error"]
+    assert "Redirect response" not in result["error"]
+
+
+def test_schema_validate_typed_graph_parent_is_validated_too():
+    """A node carrying both @type and @graph is an entity in its own right: its
+    missing required fields must surface, not be hidden behind the children."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@type": "Article", "headline": "Only a headline",
+     "@graph": [{"@type": "Organization", "name": "Example"}]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["schemas_detected"] == 2
+    by_type = {s["type"]: s for s in result["schemas"]}
+    assert set(by_type) == {"Article", "Organization"}
+    assert by_type["Article"]["missing_required_fields"] == ["author", "datePublished"]
+    assert result["verdict"] == "invalid_schemas"
+
+
+def test_schema_validate_redirect_to_malformed_port_is_fetch_error():
+    """A Location with an invalid port must come back as fetch_error, not escape as ValueError."""
+    client = _redirect_client({"https://example.com/": "https://example.com:not-a-port/"}, "<html></html>")
+    with patch("httpx.Client", return_value=client):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "fetch_error"
+    assert client.get.call_count == 1
+
+
+def test_schema_validate_list_valued_type_is_normalised():
+    """@type may be a list (["Person", "Organization"]); it must not crash and the
+    entry with known required fields is the one validated."""
+    html = """<html><head><script type="application/ld+json">
+    {"@context": "https://schema.org", "@graph": [
+      {"@type": ["Person", "Organization"], "name": "O"}
+    ]}
+    </script></head></html>"""
+    with patch("httpx.Client", return_value=_mock_http_get(html)):
+        result = json.loads(schema_validate("https://example.com/"))
+    assert result["verdict"] == "healthy"
+    assert result["schemas"][0]["type"] == "Organization"
+    assert result["schemas"][0]["valid"] is True
+
+
 def test_schema_validate_meta():
     with patch("httpx.Client", return_value=_mock_http_get(NO_SCHEMA_HTML)):
         result = json.loads(schema_validate("https://example.com/test"))

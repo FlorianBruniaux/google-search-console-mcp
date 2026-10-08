@@ -46,7 +46,7 @@ import socket
 import threading
 from contextlib import contextmanager
 from typing import Iterator
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import httpx
 
@@ -61,6 +61,7 @@ __all__ = [
     "safe_httpx_get",
     "safe_httpx_client",
     "safe_fetch_html",
+    "fetch_html_following_redirects",
 ]
 
 
@@ -383,6 +384,71 @@ def safe_fetch_html(url: str, *, timeout: int = 15) -> tuple[str, int]:
     )
     resp.raise_for_status()
     return resp.text, resp.status_code
+
+
+# Same-site canonicalization redirects (http -> https, bare domain <-> www,
+# trailing slash) are common and not worth reporting as a fetch failure. Each
+# hop below re-enters safe_fetch_html, so it gets the same DNS-pinned SSRF
+# check as a direct request; nothing here trusts httpx's own follow_redirects.
+# A redirect to any other site is refused: the caller is auditing one site,
+# and following it would attribute another site's page to the original URL.
+_MAX_REDIRECT_HOPS = 5
+_REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
+
+
+def _site_key(url: str) -> tuple[str, int | None]:
+    """(hostname without a leading 'www.', explicit port) used to compare redirect hops.
+
+    The explicit port is kept as-is (not the effective one) so that an
+    http -> https hop on the same host still counts as the same site.
+    Malformed targets raise URLSafetyError so callers return fetch_error.
+    """
+    try:
+        parsed = urlparse(url)
+        port = parsed.port
+    except ValueError as exc:
+        raise URLSafetyError(f"Redirect target has an invalid port or authority: {url}") from exc
+    host = (parsed.hostname or "").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    return host, port
+
+
+def fetch_html_following_redirects(
+    url: str, max_redirects: int = _MAX_REDIRECT_HOPS, *, timeout: int = 15
+) -> tuple[str, int, str]:
+    """Fetch url, following same-site redirects one safety-checked hop at a time.
+
+    Returns (html_text, status_code, final_url).
+
+    safe_fetch_html itself never follows a redirect (follow_redirects=False,
+    by SSRF design: httpx's built-in following would connect to the redirect
+    target without re-running DNS-pinning on it). This wraps it in a bounded
+    loop instead: each hop is a fresh safe_fetch_html call, which re-validates
+    and re-pins the new host exactly as it would for a direct request. A
+    redirect to a private or metadata address is refused at that hop like any
+    other unsafe URL, rather than silently followed.
+
+    Only 301/302/303/307/308 are followed, and only when the target is the
+    same site (same host ignoring a leading "www.", same explicit port; the
+    scheme may change). Anything else raises URLSafetyError.
+    """
+    current = url
+    for _ in range(max_redirects + 1):
+        try:
+            html, status = safe_fetch_html(current, timeout=timeout)
+            return html, status, current
+        except httpx.HTTPStatusError as exc:
+            location = exc.response.headers.get("location")
+            if exc.response.status_code not in _REDIRECT_STATUSES or not location:
+                raise
+            target = urljoin(current, location)
+            if _site_key(target) != _site_key(current):
+                raise URLSafetyError(
+                    f"Cross-site redirect refused: {current} -> {target}"
+                ) from exc
+            current = target
+    raise URLSafetyError(f"Too many redirects (> {max_redirects}) starting at {url}")
 
 
 def _cli() -> None:

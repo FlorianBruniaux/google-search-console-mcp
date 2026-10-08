@@ -20,7 +20,7 @@ import httpx
 
 from gsc_mcp.meta import with_meta
 from gsc_mcp.tools.analytics import get_search_analytics
-from gsc_mcp.url_safety import URLSafetyError, safe_fetch_html
+from gsc_mcp.url_safety import URLSafetyError, fetch_html_following_redirects
 
 
 # Semantic containers that demote a link. `role` values cover sites that still
@@ -146,37 +146,6 @@ def _classify(links: list[dict], page_url: str) -> list[dict]:
     return out
 
 
-# Bare scheme/host redirects (http -> https, bare domain -> www, trailing-slash
-# canonicalization) are common and not worth reporting as a crawl failure. Each
-# hop below re-enters safe_fetch_html, so it gets the same DNS-pinned SSRF
-# check as a direct request; nothing here trusts httpx's own follow_redirects.
-_MAX_REDIRECT_HOPS = 5
-
-
-def _fetch_following_redirects(url: str, max_redirects: int = _MAX_REDIRECT_HOPS) -> tuple[str, int]:
-    """Fetch url, following redirects one safety-checked hop at a time.
-
-    safe_fetch_html itself never follows a redirect (follow_redirects=False,
-    by SSRF design: httpx's built-in following would connect to the redirect
-    target without re-running DNS-pinning on it). This wraps it in a bounded
-    loop instead: each hop is a fresh safe_fetch_html call, which re-validates
-    and re-pins the new host exactly as it would for a direct request. A
-    redirect to a private or metadata address is refused at that hop like any
-    other unsafe URL, rather than silently followed.
-    """
-    current = url
-    for _ in range(max_redirects + 1):
-        try:
-            return safe_fetch_html(current)
-        except httpx.HTTPError as exc:
-            response = getattr(exc, "response", None)
-            location = response.headers.get("location") if response is not None else None
-            if not location:
-                raise
-            current = urljoin(current, location)
-    raise URLSafetyError(f"Too many redirects (> {max_redirects}) starting at {url}")
-
-
 def internal_links_audit(url: str) -> str:
     """Audit the internal linking of a single page, weighted by where each link sits.
 
@@ -192,7 +161,7 @@ def internal_links_audit(url: str) -> str:
     """
     params = {"url": url}
     try:
-        html, _status = _fetch_following_redirects(url)
+        html, _status, final_url = fetch_html_following_redirects(url)
     except (URLSafetyError, httpx.HTTPError) as exc:
         return json.dumps(with_meta(
             {"url": url, "error": str(exc), "verdict": "fetch_error"},
@@ -202,7 +171,9 @@ def internal_links_audit(url: str) -> str:
 
     parser = _LinkParser()
     parser.feed(html)
-    links = _classify(parser.links, url)
+    # Classify against the URL actually served: after a bare-domain -> www
+    # redirect, links to the www host are internal and the page is its own self-link.
+    links = _classify(parser.links, final_url)
 
     internal = [link for link in links if link["internal"]]
     external = [link for link in links if not link["internal"]]
@@ -316,6 +287,7 @@ def internal_links_audit(url: str) -> str:
     return json.dumps(with_meta(
         {
             "url": url,
+            "final_url": final_url,
             "total_links": len(links),
             "internal_count": len(internal),
             "external_count": len(external),
@@ -420,7 +392,7 @@ def link_equity_map(
         if i and delay_seconds:
             time.sleep(delay_seconds)
         try:
-            html, _status = _fetch_following_redirects(page_url)
+            html, _status, final_url = fetch_html_following_redirects(page_url)
         except (URLSafetyError, httpx.HTTPError) as exc:
             failed.append({"url": page_url, "error": str(exc)})
             continue
@@ -430,7 +402,7 @@ def link_equity_map(
 
         parser = _LinkParser()
         parser.feed(html)
-        for link in _classify(parser.links, page_url):
+        for link in _classify(parser.links, final_url):
             if not link["internal"] or link["self_link"]:
                 continue
             target = link["path"]
