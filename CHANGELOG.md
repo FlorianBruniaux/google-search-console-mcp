@@ -2,7 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- `ga4_ai_referrals` mesure les visites GA4 attribuées aux sources d’assistants documentées, avec pages d’entrée, propriété effective, dates concrètes, contrôle de compatibilité et limites de couverture. Le registre source compte désormais 82 outils ; le paquet publié 1.2.0 en conserve 81. Les sources candidates restent exclues des totaux confirmés.
+- `_meta.evidence.fields` distingue les observations, calculs, règles et preuves indisponibles par chemin de résultat. Les niveaux décrivent la méthode sans fabriquer de probabilité ni autoriser une écriture.
+- Quatre audits HTML exposent `untrusted_content` avec signaux déterministes français/anglais, emplacements et extraits bornés. Un résultat non signalé reste non fiable et ne peut pas remplacer les instructions de l’utilisateur.
+
 ### Fixed
+
+- `traffic_health_check` utilise les mêmes dates concrètes pour GSC et GA4, conserve les zéros mesurés et laisse les réponses vides ou indisponibles à `null`. Les ratios sont suspendus pour les fenêtres, filtres ou couvertures incompatibles ; les statuts disponibles restent des règles de seuil, sans établir la cause d’un problème de tracking.
+- `schema_validate` distingue un challenge SiteGround connu d’une page sans schémas. Le verdict `challenge_page` conserve le contexte HTTP et laisse les données de schéma indisponibles. Les règles sont validées sur des fixtures synthétiques, sans preuve du comportement réel du fournisseur.
 
 - Les 7 outils GA4 exposent la propriété réellement interrogée dans `_meta.sources.ga4.property`, y compris avec la configuration par défaut. Les 4 rapports combinés conservent cette provenance et le site GSC sans modifier les arguments demandés ; une source GA4 inconnue reste `null`.
 

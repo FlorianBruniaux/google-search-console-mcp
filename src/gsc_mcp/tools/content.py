@@ -18,6 +18,7 @@ from html.parser import HTMLParser
 import httpx
 
 from gsc_mcp.meta import with_meta
+from gsc_mcp.content_trust import observe_untrusted_content
 from gsc_mcp.url_safety import URLSafetyError, safe_fetch_html, safe_httpx_get, validate_url_strict
 
 
@@ -406,7 +407,7 @@ def page_technical_audit(url: str) -> str:
         validate_url_strict(url)
     except URLSafetyError as exc:
         return json.dumps(with_meta(
-            {"url": url, "error": str(exc), "verdict": "fetch_error"},
+            {"url": url, "error": str(exc), "verdict": "fetch_error", "untrusted_content": None},
             tool="page_technical_audit",
             params={"url": url},
         ))
@@ -416,13 +417,14 @@ def page_technical_audit(url: str) -> str:
             resp = client.get(url, headers={"User-Agent": "gsc-mcp-technical-audit/1.0"})
     except httpx.HTTPError as exc:
         return json.dumps(with_meta(
-            {"url": url, "error": str(exc), "verdict": "fetch_error"},
+            {"url": url, "error": str(exc), "verdict": "fetch_error", "untrusted_content": None},
             tool="page_technical_audit",
             params={"url": url},
         ))
 
     resp_headers = dict(resp.headers)
     html = resp.text
+    untrusted_content = observe_untrusted_content(html, source_url=url)
     issues: list[dict] = []
     findings: dict = {}
 
@@ -441,7 +443,7 @@ def page_technical_audit(url: str) -> str:
 
     if resp.status_code >= 400:
         return json.dumps(with_meta(
-            {"url": url, "error": f"HTTP {resp.status_code}", "verdict": "fetch_error"},
+            {"url": url, "error": f"HTTP {resp.status_code}", "verdict": "fetch_error", "untrusted_content": untrusted_content},
             tool="page_technical_audit",
             params={"url": url},
         ))
@@ -542,6 +544,7 @@ def page_technical_audit(url: str) -> str:
         {
             "url": url,
             "findings": findings,
+            "untrusted_content": untrusted_content,
             "issues": issues,
             "issues_count": len(issues),
             "critical_count": critical_count,
@@ -837,7 +840,7 @@ def heading_audit(url: str) -> str:
         html, _status = safe_fetch_html(url)
     except (URLSafetyError, httpx.HTTPError) as exc:
         return json.dumps(with_meta(
-            {"url": url, "error": str(exc), "verdict": "fetch_error"},
+            {"url": url, "error": str(exc), "verdict": "fetch_error", "untrusted_content": None},
             tool="heading_audit",
             params=params,
         ))
@@ -947,6 +950,7 @@ def heading_audit(url: str) -> str:
             "url": url,
             "title": title,
             "h1": h1s,
+            "untrusted_content": observe_untrusted_content(html, source_url=url),
             "h1_count": len(h1s),
             "heading_count": len(headings),
             "headings": headings[:50],

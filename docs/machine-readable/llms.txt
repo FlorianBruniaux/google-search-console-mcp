@@ -4,16 +4,16 @@
 
 ## What This Project Is
 
-Python MCP server exposing 81 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
+Python MCP server exposing 82 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
-Published package 1.2.0 contains the full 81-tool Google and Bing registry described below.
+Published package 1.2.0 contains 81 tools; this source registry adds unreleased ga4_ai_referrals for 82 tools.
 Setup guides: docs/installation.md, docs/google-setup.md, docs/bing-setup.md.
 Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 81 tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 82 source tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
@@ -121,8 +121,8 @@ TOOLS:
     redacted JSON/HTTP transport. GetKeywordStats and GetRelatedKeywords returned HTTP 400 in the
     live canary, remain UNKNOWN and are not registered as tools.
 
-  ga4.py (7 tools):
-    ga4_traffic_sources, ga4_organic_landing_pages, ga4_page_performance,
+  ga4.py (8 tools):
+    ga4_ai_referrals, ga4_traffic_sources, ga4_organic_landing_pages, ga4_page_performance,
     ga4_user_behavior, ga4_realtime, ga4_conversion_funnel, ga4_funnel
     ga4_funnel uses get_alpha_ga4_service() (v1alpha). All accept hostname + country filters.
     Filter helper: _build_dimension_filter(hostname, country, base_filter).

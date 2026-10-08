@@ -59,6 +59,7 @@ EXPECTED_EXISTING_TOOLS = {
     "sitemaps_get",
     "sitemap_audit",
     "ga4_organic_landing_pages",
+    "ga4_ai_referrals",
     "ga4_traffic_sources",
     "ga4_page_performance",
     "ga4_realtime",

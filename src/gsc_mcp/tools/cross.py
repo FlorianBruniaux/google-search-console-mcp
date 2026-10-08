@@ -5,16 +5,17 @@ JSON output, then join on normalised URL paths. GSC returns absolute URLs;
 GA4 returns paths (sometimes with query strings). _normalize_url strips both
 down to bare paths so the join is reliable.
 
-Note on date alignment: GSC uses a 3-day reporting lag while GA4 can report
-up to today. The windows are therefore not perfectly aligned, but both cover
-~28 days, which is accurate enough for health-check ratios.
+traffic_health_check aligns the requested calendar dates to the GSC window.
+Source time boundaries and the GSC-to-GA4 property mapping remain unverified.
+Other combined reports still use independent source windows.
 """
 
 import json
 import math
+from datetime import date
 from urllib.parse import urlsplit
 
-from gsc_mcp.tools.analytics import get_search_analytics
+from gsc_mcp.tools.analytics import _date_range, get_search_analytics
 from gsc_mcp.tools.ga4 import ga4_organic_landing_pages, ga4_page_performance
 from gsc_mcp.tools.inspection import inspect_url
 from gsc_mcp.tools.crux import crux_page_vitals
@@ -49,6 +50,45 @@ def _report_sources(site: str, ga4_response: dict) -> dict:
     }
 
 
+def _traffic_measurement(data: dict, rows_key: str, metric: str) -> tuple[str, int | float | None]:
+    """An empty or malformed report is not a measured zero."""
+    rows = data.get(rows_key)
+    if not isinstance(rows, list):
+        return "unknown", None
+    if not rows:
+        return "empty", None
+    values = [row.get(metric) if isinstance(row, dict) else None for row in rows]
+    if any(isinstance(value, bool) or not isinstance(value, (int, float))
+           or not math.isfinite(value) or value < 0 for value in values):
+        return "unknown", None
+    return "measured", sum(values)
+
+
+def _traffic_error(exc: Exception) -> dict:
+    # Auth helpers use RuntimeError for missing credentials/configuration.
+    configuration_error = isinstance(exc, RuntimeError) and str(exc).startswith(
+        ("No GSC config", "No GA4 config", "No credentials:", "OAuth browser flow disabled")
+    )
+    return {"availability": "unavailable", "reason": "configuration_error"
+            if configuration_error else "upstream_error", "error_type": type(exc).__name__}
+
+
+def _traffic_window(window: object) -> dict | None:
+    """Accept ordered concrete ISO dates, never GA4 relative date strings."""
+    if not isinstance(window, dict):
+        return None
+    start, end = window.get("start"), window.get("end")
+    if not isinstance(start, str) or not isinstance(end, str):
+        return None
+    try:
+        if (date.fromisoformat(start).isoformat() == start
+                and date.fromisoformat(end).isoformat() == end and start <= end):
+            return {"start": start, "end": end}
+    except ValueError:
+        pass
+    return None
+
+
 def traffic_health_check(
     site: str,
     days: int = 28,
@@ -56,39 +96,83 @@ def traffic_health_check(
     hostname: str | None = None,
     country: str | None = None,
 ) -> str:
-    """Compare total GSC clicks with total GA4 organic sessions to detect tracking gaps.
+    """Compare Google clicks and GA4 organic sessions over matching calendar dates.
 
-    Fetches aggregate GSC clicks (no page dimension) and sums all organic sessions
-    from GA4. The ratio ga4_sessions / gsc_clicks indicates tracking health:
-
-    - "no_gsc_data"  : zero GSC clicks (ratio is None, nothing to compare)
-    - "tracking_gap" : ratio < 0.6 (GA4 records far fewer sessions than GSC clicks)
-    - "filter_issue" : ratio > 1.3 (GA4 records more sessions than GSC clicks)
-    - "healthy"      : 0.6 <= ratio <= 1.3
-
-    Boundaries 0.6 and 1.3 are inclusive of the healthy range (strict < and >).
-    GA4 is queried with limit=10000 to avoid under-counting sessions on large sites.
-    hostname and country narrow the GA4 query to a specific host or country.
+    Ratios are heuristics, not proof of a tracking fault: sessions and clicks differ,
+    GA4 organic traffic can include other search engines, and source time boundaries
+    and property mapping are unverified. Empty reports yield null totals; explicit
+    zero rows remain zero. Missing sources, differing windows, incompatible filters,
+    or unverified/incomplete GA4 coverage prevent a numeric comparison.
     """
-    gsc_data = json.loads(get_search_analytics(site, days, dimensions=[]))
-    total_gsc_clicks = sum(r["clicks"] for r in gsc_data["rows"])
-    date_range = gsc_data["date_range"]
-
-    ga_data = json.loads(
-        ga4_organic_landing_pages(
-            start_date=f"{days}daysAgo",
-            end_date="today",
+    if isinstance(days, bool) or not isinstance(days, int) or days < 1:
+        raise ValueError("days must be a positive integer")
+    start, end = _date_range(days)
+    date_range = {"start": start, "end": end}
+    gsc_data, ga_data = {}, {}
+    gsc_state = {"site": site, "reported_site": None, "filters": {}, "time_zone": None,
+                 "observed_window": None, "reported_window": None, "coverage": None}
+    ga_state = {"property": None, "filters": {"hostname": hostname, "country": country, "session_medium": "organic"},
+                "time_zone": None, "observed_window": None, "reported_window": None, "coverage": None}
+    total_gsc_clicks = total_ga4_sessions = None
+    try:
+        gsc_data = json.loads(get_search_analytics(site, days, dimensions=[]))
+        reported = gsc_data.get("date_range")
+        resolved_window = _traffic_window(reported)
+        if resolved_window:
+            date_range = resolved_window
+        gsc_state["reported_window"] = reported
+        gsc_state["reported_site"] = gsc_data.get("site")
+        gsc_state["availability"], total_gsc_clicks = _traffic_measurement(gsc_data, "rows", "clicks")
+        # dimensions=[] requests a single aggregate, not a page/query sample.
+        rows = gsc_data.get("rows")
+        gsc_state["coverage"] = {"complete": isinstance(rows, list) and len(rows) == 1}
+    except Exception as exc:
+        gsc_state.update(_traffic_error(exc))
+    gsc_state["requested_window"] = date_range
+    ga_state["requested_window"] = date_range
+    try:
+        ga_data = json.loads(ga4_organic_landing_pages(
+            start_date=date_range["start"],
+            end_date=date_range["end"],
             limit=10000,
             property_id=property_id,
             hostname=hostname,
             country=country,
-        )
-    )
-    total_ga4_sessions = sum(p["sessions"] for p in ga_data["pages"])
+        ))
+        ga_state["reported_window"] = {"start": ga_data.get("start_date"), "end": ga_data.get("end_date")}
+        ga_state["availability"], total_ga4_sessions = _traffic_measurement(ga_data, "pages", "sessions")
+        ga_state["coverage"] = ga_data.get("coverage")
+        ga_state["time_zone"] = ga_data.get("time_zone")
+        ga_state["property"] = _report_sources(site, ga_data)["ga4"].get("property")
+    except Exception as exc:
+        ga_state.update(_traffic_error(exc))
 
-    if total_gsc_clicks == 0:
+    reasons = []
+    ratio = None
+    if any(state["availability"] == "unavailable" for state in (gsc_state, ga_state)):
+        status = "source_unavailable"
+        reasons.append("source_unavailable")
+    elif any(state["availability"] != "measured" for state in (gsc_state, ga_state)):
+        status = "insufficient_data"
+        reasons.append("empty_or_unknown_source")
+    elif gsc_state.get("reported_window") != date_range or ga_state.get("reported_window") != date_range:
+        status = "window_mismatch"
+        reasons.append("reported_windows_differ_or_unknown")
+    elif gsc_state["reported_site"] != site or country or (hostname and (site.startswith("sc-domain:") or urlsplit(site).hostname != hostname
+                                  or urlsplit(site).path not in ("", "/"))):
+        status = "incompatible_scope"
+        reasons.append("ga4_filters_do_not_match_unfiltered_gsc_scope")
+    elif (gsc_state["coverage"]["complete"] is not True
+          or not isinstance(ga_state.get("coverage"), dict)
+          or ga_state["coverage"].get("complete") is not True
+          or ga_state["coverage"].get("metric_restrictions") != []
+          or any(ga_state["coverage"].get(flag) is not False
+                 for flag in ("data_loss_from_other_row", "sampling", "subject_to_thresholding"))):
+        status = "incomplete_coverage"
+        reasons.append("source_coverage_incomplete_or_unknown")
+    elif total_gsc_clicks == 0:
         status = "no_gsc_data"
-        ratio = None
+        reasons.append("zero_gsc_clicks")
     else:
         ratio = total_ga4_sessions / total_gsc_clicks
         if ratio < 0.6:
@@ -107,7 +191,10 @@ def traffic_health_check(
                 "total_ga4_sessions": total_ga4_sessions,
                 "ratio": round(ratio, 3) if ratio is not None else None,
                 "status": status,
-                "note": "GSC data has a 3-day lag vs GA4. Ratios are approximate.",
+                "source_data": {"gsc": gsc_state, "ga4": ga_state},
+                "comparison": {"comparable": ratio is not None, "reasons": reasons,
+                               "calendar_alignment": "unknown", "property_mapping": "unverified"},
+                "note": "Requested dates are aligned to GSC's lagged window. Source time boundaries and property mapping are unverified. Google clicks and all-engine organic sessions differ; ratio statuses are heuristics, not tracking diagnoses.",
             },
             tool="traffic_health_check",
             params={"site": site, "days": days, "property_id": property_id, "hostname": hostname, "country": country},
@@ -414,8 +501,11 @@ def page_health_score(
     try:
         schema_raw = json.loads(schema_validate(url=url))
         schemas = schema_raw.get("schemas", [])
-        schemas_found = schema_raw.get("schemas_detected", 0)
-        if schemas_found > 0:
+        schemas_found = schema_raw.get("schemas_detected")
+        if (schema_raw.get("verdict") in ("challenge_page", "fetch_error")
+                or type(schemas_found) is not int or schemas_found < 0 or not isinstance(schemas, list)):
+            schema_available = False
+        elif schemas_found > 0:
             schema_pts += 10
             errors = [f for s in schemas for f in s.get("missing_required_fields", [])]
             if len(errors) == 0:

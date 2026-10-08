@@ -21,7 +21,8 @@ def _date_range(days: int, lag: int = _ANALYTICS_LAG_DAYS) -> tuple[str, str]:
 def _parse_row(row: dict, dimensions: list[str]) -> dict:
     keys = row.get("keys", [])
     parsed = {dim: keys[i] if i < len(keys) else None for i, dim in enumerate(dimensions)}
-    parsed["clicks"] = row.get("clicks", 0)
+    # An absent aggregate count is unknown, not evidence of zero traffic.
+    parsed["clicks"] = row.get("clicks", None if not dimensions else 0)
     parsed["impressions"] = row.get("impressions", 0)
     parsed["ctr"] = round(row.get("ctr", 0.0), 4)
     parsed["position"] = round(row.get("position", 0.0), 1)

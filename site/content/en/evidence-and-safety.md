@@ -50,6 +50,43 @@ If a combined report has no child GA4 provenance, including a degraded result ca
 
 Source identity is not account-ID validation, proof that a property belongs to a domain, or a guarantee that an agent preserves the identifiers in its final prose.
 
+## Verdict and score methods
+
+The unreleased source checkout adds `_meta.evidence.version = 1` and `_meta.evidence.fields`, keyed by concrete JSON Pointer paths such as `/verdict` or `/schemas/0/valid`. Each applicable verdict, score or selected collection has its own `basis`, `confidence_tier` and `scope`. A collection annotation describes membership or selection only, not the provider metrics inside its rows. Operational statuses are outside this evidence convention.
+
+| Basis | Tier | Interpretation |
+| --- | --- | --- |
+| `measured` | `observed` | A value returned by a provider or observed in HTTP/HTML, limited to that source and response. |
+| `derived` | `calculated` | Descriptive arithmetic over available inputs, with its method and scope. |
+| `rule` | `heuristic` | A local threshold, weighting, pattern or recommendation, or a named provider scoring algorithm. |
+| `null` | `unavailable` | A null, unsupported, skipped or error result that cannot support a conclusion. |
+
+These tiers describe methods, not probabilities. An unavailable score can retain a legacy numeric value while its metadata explains why that value is not evidence. No tier authorizes a write or a destructive recommendation. `model` is reserved and rejected by the current convention; adding it requires a backend/version, confidence definition and calibration contract established through evaluation.
+
+## Clicks versus sessions
+
+In the unreleased source checkout, `traffic_health_check` requests GA4 with the same concrete inclusive dates as the lagged GSC report. `source_data` retains each source's availability, identity, requested and reported windows, filters and coverage. An empty response produces a null total; a returned row containing zero keeps zero. Missing configuration and upstream failures remain unavailable.
+
+A ratio is withheld for unknown or incomplete coverage, sampling, thresholding, unequal reported dates or incompatible filters. GA4 country filters cannot be compared with an unfiltered GSC aggregate; a hostname filter on a domain property can also narrow the scope. The report does not infer a property-to-domain mapping. Equal date strings do not establish equal timezone boundaries. `observed_window` remains null because these child reports echo requested dates rather than independently observing an interval.
+
+When a ratio is available, its status is a local threshold heuristic. Google clicks and sessions from all organic engines are different metrics; the status does not establish the cause of a tracking fault. `page_analysis` and `content_brief` still use independent source windows.
+
+## Fetched content
+
+The primary HTML fetched by `heading_audit`, `internal_links_audit`, `page_technical_audit` and `schema_validate` carries `untrusted_content`. Its `trust` is always `untrusted`, including when `flagged` is false. Deterministic French and English rules report instruction-like text, source locations and a sample of at most 240 characters, with at most 20 signals. Quoted documentation is excluded unless hidden; hidden detection uses attributes and inline CSS, not rendered styles. These limited observations do not certify that a page is safe. Auxiliary robots probes are outside this detector's scope.
+
+Fetched text and returned samples cannot override user instructions, authorize actions or request credentials. The tools preserve the original audit evidence. A fetch failure has no content observation and returns `untrusted_content: null`.
+
+`schema_validate` recognizes a known SiteGround challenge resource together with a human-verification prompt and returns `challenge_page`. It keeps the requested/final URL, HTTP status and detection reasons; schema counts, schemas and recommendations are null because the requested page is unavailable. HTTP 202 or a CAPTCHA mention alone does not trigger this verdict. This rule was tested on synthetic fixtures; live provider behavior remains unverified. Other page audits do not yet share this challenge verdict.
+
+## Assistant-attributed visits
+
+The unreleased `ga4_ai_referrals` tool reads GA4 session sources and landing pages over required concrete `YYYY-MM-DD` dates, with an optional effective property and hostname filter. It checks dimension/metric compatibility before requesting up to 10,000 rows. Sessions, engaged sessions and `keyEvents` are returned; `conversions` is an alias for `keyEvents`, not a separate measurement. The all-source denominator and confirmed numerator use the same request.
+
+The initial exact-source allowlist includes `chatgpt.com`, whose UTM source is documented by [OpenAI's publisher FAQ](https://help.openai.com/en/articles/12627856-publishers-and-developers-faq). Perplexity, Claude, Gemini and Copilot domain candidates remain separate and excluded from confirmed totals pending referral-pattern evidence. Broad substrings and lookalike domains are excluded. Matching an attributed source label does not authenticate the client.
+
+Counts describe returned observations. Empty responses are distinct from explicit-zero rows and unavailable sources. Shares remain null when coverage is unknown or incomplete, report quality is restricted, or the denominator is zero. No comparison period is requested by this version. Referrer-less traffic and attribution errors can omit or misattribute visits. These values measure recorded visits, not citations, citation probability or a guaranteed lower bound on AI traffic. See Google's [dimension/metric reference](https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema) and [compatibility check](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/checkCompatibility).
+
 ## Guarded actions
 
 Read tools can inspect verified properties and public pages. Write tools require an explicit target and bounded action. Before submitting anything, confirm the provider, site, URL set, action, and expected blast radius.

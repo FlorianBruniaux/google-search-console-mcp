@@ -48,6 +48,7 @@ from gsc_mcp.tools.sitemaps import (
     sitemap_audit,
 )
 from gsc_mcp.tools.ga4 import (
+    ga4_ai_referrals,
     ga4_organic_landing_pages,
     ga4_traffic_sources,
     ga4_page_performance,
@@ -129,6 +130,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         sitemaps_get,
         sitemap_audit,
         ga4_organic_landing_pages,
+        ga4_ai_referrals,
         ga4_traffic_sources,
         ga4_page_performance,
         ga4_realtime,

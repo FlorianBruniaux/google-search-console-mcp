@@ -252,6 +252,7 @@ def test_bing_link_counts_normalizes_nested_links_without_private_fields(
         bing_analytics.bing_link_counts("https://example.com/", page=2)
     )
 
+    assert result["_meta"].pop("evidence") == {"version": 1, "fields": {}}
     assert result == {
         "site": "https://example.com/",
         "page": 2,

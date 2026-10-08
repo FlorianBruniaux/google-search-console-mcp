@@ -10,6 +10,12 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## Non publié
 
+- Ajout de `ga4_ai_referrals` pour les visites attribuées aux sources d’assistants documentées. Le registre source compte 82 outils ; le paquet publié 1.2.0 en conserve 81. Les candidats restent exclus des totaux confirmés et une couverture insuffisante empêche le calcul de parts.
+- Les verdicts et scores disposent de métadonnées par champ pour distinguer observations, calculs, règles et preuves indisponibles, sans probabilité inventée ni autorisation implicite d’action.
+- Les audits de titres, liens internes, technique et schémas signalent certains motifs d’instructions françaises et anglaises dans le HTML. Le contenu récupéré reste non fiable même sans signalement.
+- La comparaison GSC/GA4 aligne les dates demandées et distingue zéro, réponse vide et source indisponible. Les filtres ou couvertures incompatibles empêchent un ratio ; les statuts disponibles restent des heuristiques.
+- La validation de schémas distingue un challenge SiteGround connu de la page demandée. Les schémas restent indisponibles pour ce verdict ; les tests sont synthétiques.
+
 - Les rapports GA4 identifient la propriété effectivement interrogée, même avec la configuration par défaut. Les rapports combinés conservent cette provenance et le site GSC ; une source GA4 inconnue reste `null`.
 - La validation des schémas parcourt les nœuds JSON-LD `@graph`, y compris dans un tableau racine, et conserve les parents typés. Un `@type` en liste est pris en charge sans erreur.
 - Les champs recommandés de `SoftwareApplication` restent distincts des champs requis. La validation locale des champs ne prétend pas établir l’éligibilité Google aux résultats enrichis.

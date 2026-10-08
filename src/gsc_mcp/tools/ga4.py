@@ -10,6 +10,8 @@ from google.analytics.data_v1alpha.types import (
 )
 from google.analytics.data_v1beta.types import (
     BatchRunReportsRequest,
+    CheckCompatibilityRequest,
+    Compatibility,
     DateRange,
     Dimension,
     Filter,
@@ -23,6 +25,7 @@ from google.analytics.data_v1beta.types import (
 from gsc_mcp.auth import get_alpha_ga4_service, get_ga4_service, get_ga4_property_id
 from gsc_mcp.meta import with_meta
 from gsc_mcp.retry import with_retry
+from gsc_mcp.ai_referrals import MATCHING_RULES, assistant_breakdown, parse_row, totals, validate_window
 
 
 def _f(value: str) -> float:
@@ -37,6 +40,44 @@ def _i(value: str) -> int:
         return int(value)
     except (TypeError, ValueError):
         return 0
+
+
+def _nullable_i(value: str) -> int | None:
+    """Keep malformed traffic counts unknown instead of inventing a zero."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _report_coverage(response, returned_rows: int) -> tuple[dict, str | None]:
+    """Expose API coverage without guessing absent metadata."""
+    row_count = getattr(response, "row_count", None)
+    if type(row_count) is not int or row_count < 0:
+        row_count = None
+    metadata = getattr(response, "metadata", None)
+    loss = getattr(metadata, "data_loss_from_other_row", None)
+    thresholding = getattr(metadata, "subject_to_thresholding", None)
+    sampling = getattr(metadata, "sampling_metadatas", None)
+    time_zone = getattr(metadata, "time_zone", None)
+    empty_reason = getattr(metadata, "empty_reason", None)
+    restrictions = getattr(getattr(metadata, "schema_restriction_response", None), "active_metric_restrictions", None)
+    metric_restrictions = None
+    if restrictions is not None and not isinstance(restrictions, str) and hasattr(restrictions, "__len__"):
+        metric_restrictions = [
+            {"metric_name": item.metric_name, "restricted_metric_types": [int(value) for value in item.restricted_metric_types]}
+            for item in restrictions
+        ]
+    return {
+        "row_count": row_count,
+        "returned_rows": returned_rows,
+        "complete": row_count == returned_rows if row_count is not None else None,
+        "data_loss_from_other_row": loss if type(loss) is bool else None,
+        "sampling": bool(sampling) if sampling is not None and hasattr(sampling, "__len__") else None,
+        "subject_to_thresholding": thresholding if type(thresholding) is bool else None,
+        "empty_reason": empty_reason if isinstance(empty_reason, str) and empty_reason else None,
+        "metric_restrictions": metric_restrictions,
+    }, time_zone if isinstance(time_zone, str) and time_zone else None
 
 
 def _organic_filter() -> FilterExpression:
@@ -80,6 +121,110 @@ def _build_dimension_filter(
 
 
 @with_retry()
+def _ai_referral_request(client, method: str, request):
+    """Retry individual requests before composing an unavailable report."""
+    return getattr(client, method)(request)
+
+
+def ga4_ai_referrals(
+    start_date: str,
+    end_date: str,
+    property_id: str | None = None,
+    hostname: str | None = None,
+) -> str:
+    """Report observed GA4 visits attributed to exact documented assistant sources.
+
+    Requires inclusive YYYY-MM-DD dates. Only chatgpt.com is currently confirmed;
+    other candidate product sources remain separate. Reads up to 10000 all-source
+    landing-page rows in one compatible report. Shares require complete coverage;
+    counts describe returned observations, not citations or all true AI visits.
+    The conversions alias is sourced from the current GA4 keyEvents metric.
+    """
+    validate_window(start_date, end_date)
+    params = {"start_date": start_date, "end_date": end_date, "property_id": property_id, "hostname": hostname}
+    source = {"property": None, "filters": {"hostname": hostname},
+              "requested_window": {"start": start_date, "end": end_date},
+              "reported_window": None, "observed_window": None}
+    data = {
+        "start_date": start_date, "end_date": end_date, "availability": "unavailable",
+        "rows": [], "confirmed_totals": None, "candidate_totals": None, "assistants": [],
+        "total_sessions": None, "ai_session_share": None, "share_reason": "source_unavailable",
+        "coverage": None, "time_zone": None,
+        "comparison": {"availability": "unavailable", "reason": "not_requested"},
+        "matching_rules": MATCHING_RULES, "metric_mapping": {"conversions": "keyEvents"},
+        "limitations": [
+            "Recorded source attribution measures visits, not observed citations or citation probability.",
+            "Missing referrers and attribution errors can undercount or misattribute visits; counts are not a guaranteed lower bound.",
+            "Source labels including UTM tags can be spoofed; a matching label does not authenticate the client.",
+            "Totals describe returned rows; the 10000-row cap, row loss, sampling or thresholding can limit coverage.",
+            "Source calendar boundaries use the reported GA4 property timezone; no comparison period was requested.",
+            "The installed API metadata may not expose newer dataTruncationReasons fields.",
+        ],
+    }
+    try:
+        prop = get_ga4_property_id(override=property_id)
+        client = get_ga4_service()
+        dimensions = [Dimension(name=name) for name in ("sessionSource", "sessionMedium", "landingPagePlusQueryString")]
+        metrics = [Metric(name=name) for name in ("sessions", "engagedSessions", "keyEvents")]
+        dimension_filter = _build_dimension_filter(hostname)
+        source["property"] = prop
+        check = _ai_referral_request(client, "check_compatibility", CheckCompatibilityRequest(
+            property=prop, dimensions=dimensions, metrics=metrics, dimension_filter=dimension_filter,
+        ))
+        compatible_dimensions = {item.dimension_metadata.api_name for item in check.dimension_compatibilities
+                                 if item.compatibility == Compatibility.COMPATIBLE}
+        compatible_metrics = {item.metric_metadata.api_name for item in check.metric_compatibilities
+                              if item.compatibility == Compatibility.COMPATIBLE}
+        if not ({d.name for d in dimensions} <= compatible_dimensions
+                and {m.name for m in metrics} <= compatible_metrics):
+            data["reason"] = "incompatible_or_unknown_api_fields"
+        else:
+            response = _ai_referral_request(client, "run_report", RunReportRequest(
+                property=prop, dimensions=dimensions, metrics=metrics, dimension_filter=dimension_filter,
+                date_ranges=[DateRange(start_date=start_date, end_date=end_date)], limit=10000,
+            ))
+            data["coverage"], data["time_zone"] = _report_coverage(response, len(response.rows))
+            source["reported_window"] = source["requested_window"]
+            try:
+                rows = [parse_row(row) for row in response.rows]
+            except (TypeError, ValueError, AttributeError):
+                data.update(availability="unknown", reason="malformed_measurements", share_reason="unknown_source")
+            else:
+                data["availability"] = "measured" if rows else "empty"
+                data["rows"] = rows
+                if not rows:
+                    data["share_reason"] = "empty_source"
+                else:
+                    confirmed = [row for row in rows if row["classification"] == "confirmed"]
+                    candidates = [row for row in rows if row["classification"] == "candidate"]
+                    data["confirmed_totals"], data["candidate_totals"] = totals(confirmed), totals(candidates)
+                    data["assistants"] = assistant_breakdown(confirmed)
+                    coverage = data["coverage"]
+                    complete = coverage["complete"] is True and coverage["metric_restrictions"] == [] and all(
+                        coverage[flag] is False for flag in ("data_loss_from_other_row", "sampling", "subject_to_thresholding")
+                    )
+                    if not complete:
+                        data["share_reason"] = "incomplete_coverage"
+                    else:
+                        data["total_sessions"] = sum(row["sessions"] for row in rows)
+                        if data["total_sessions"] == 0:
+                            data["share_reason"] = "zero_denominator"
+                        else:
+                            data["ai_session_share"] = data["confirmed_totals"]["sessions"] / data["total_sessions"]
+                            data["share_reason"] = None
+    except Exception as exc:
+        configuration_error = isinstance(exc, RuntimeError) and str(exc).startswith(
+            ("No GA4 config", "No credentials:", "OAuth browser flow disabled")
+        )
+        data.update(reason="configuration_error" if configuration_error else "upstream_error", error_type=type(exc).__name__)
+    source["availability"] = data["availability"]
+    source["coverage"] = data["coverage"]
+    source["time_zone"] = data["time_zone"]
+    data["source_data"] = {"ga4": source}
+    return json.dumps(with_meta(data, tool="ga4_ai_referrals", params=params, sources={"ga4": {"property": source["property"]}}))
+
+
+@with_retry()
 def ga4_organic_landing_pages(
     start_date: str = "28daysAgo",
     end_date: str = "today",
@@ -119,7 +264,7 @@ def ga4_organic_landing_pages(
     pages = [
         {
             "landing_page": row.dimension_values[0].value,
-            "sessions": _i(row.metric_values[0].value),
+            "sessions": _nullable_i(row.metric_values[0].value),
             "engaged_sessions": _i(row.metric_values[1].value),
             "bounce_rate": _f(row.metric_values[2].value),
             "avg_session_duration": _f(row.metric_values[3].value),
@@ -129,7 +274,9 @@ def ga4_organic_landing_pages(
         for row in response.rows
     ]
 
-    data = {"start_date": start_date, "end_date": end_date, "count": len(pages), "pages": pages}
+    coverage, time_zone = _report_coverage(response, len(pages))
+    data = {"start_date": start_date, "end_date": end_date, "count": len(pages), "pages": pages,
+            "coverage": coverage, "time_zone": time_zone}
     if len(pages) >= limit:
         data["note"] = "Results may be truncated. Set a higher limit or filter by page_path for large properties."
     return json.dumps(with_meta(

@@ -14,7 +14,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tools](https://img.shields.io/badge/MCP%20tools-81-5c4ee5.svg)](#tools-81)
+[![Tools](https://img.shields.io/badge/MCP%20tools-82-5c4ee5.svg)](#tools-82)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
 [![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
@@ -33,7 +33,7 @@ Search Console MCP is the open-source connection between your data and your AI a
   <a href="#what-you-get">What you get</a> &middot;
   <a href="#choose-your-starting-point">Use cases</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
-  <a href="#tools-81">Tools</a> &middot;
+  <a href="#tools-82">Tools</a> &middot;
   <a href="#evidence-and-safety">Data limits &amp; safety</a>
 </p>
 
@@ -92,7 +92,7 @@ Replace the example site in the prompt with your own. Every copied prompt explic
 | Configure Google access | [Google setup guide](https://search-console.bruniaux.com/docs/google-setup/) | Service Account or OAuth access to the selected properties |
 | Configure Bing access | [Bing setup guide](https://search-console.bruniaux.com/docs/bing-setup/) | One account-level key for the verified sites visible to that account |
 | Run a first audit | [Starter prompts](https://search-console.bruniaux.com/docs/prompts/) | Full audit, health check, page inspection or GA4 analysis prompt |
-| Use the shell instead of MCP | [CLI usage](#cli-usage) | Commands generated from the same 81-tool registry |
+| Use the shell instead of MCP | [CLI usage](#cli-usage) | Commands generated from the source registry |
 
 ### Requirements
 
@@ -184,7 +184,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
 
-For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. Both installations expose the same 81-tool registry.
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 82 tools, including unreleased additions; published version 1.2.0 exposes 81.
 
 </details>
 
@@ -316,7 +316,7 @@ With this server, Claude pulls the actual numbers: `/projects/` at position 10.1
 
 Some tasks work without private data: checking indexation with `site:`, parsing sitemap structure, reading robots.txt. For those, any web-capable agent gets you there. But for anything that requires private GSC metrics (traffic drops, striking-distance queries, CTR anomalies, Indexing API submissions), there is no substitute for API access.
 
-The server also handles Google and Bing API mechanics: isolated credentials, bounded retries, same-origin checks for Bing writes, true HTTP batch for Google indexing requests, and structured JSON output across all 81 tools. The two providers keep distinct position semantics and expose uncertainty instead of forcing incomparable data into one claim.
+The server also handles Google and Bing API mechanics: isolated credentials, bounded retries, same-origin checks for Bing writes, true HTTP batch for Google indexing requests, and structured JSON output across the source registry. The two providers keep distinct position semantics and expose uncertainty instead of forcing incomparable data into one claim.
 
 </details>
 
@@ -325,7 +325,7 @@ The server also handles Google and Bing API mechanics: isolated credentials, bou
 ```mermaid
 flowchart TD
     C[Claude, Codex<br/>or another MCP client] --> S[FastMCP server]
-    S --> R[Shared registry<br/>81 tools]
+    S --> R[Shared source registry<br/>82 tools]
     R --> A[Read and analysis tools]
     R --> W[Guarded write tools]
     A --> G[Google APIs<br/>GSC, GA4, CrUX]
@@ -394,10 +394,12 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 </details>
 
-## Tools (81)
+## Tools (82)
+
+This source checkout includes unreleased `ga4_ai_referrals`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Published `gsc-mcp-tools==1.2.0` exposes 81 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
-<summary>Show all 81 tools</summary>
+<summary>Show all 82 source tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -432,12 +434,13 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 | Sitemaps | `sitemap_audit` | Fetch a sitemap and compare its URLs with 90 days of Search Analytics page rows; does not measure indexation |
 | GA4 | `ga4_organic_landing_pages` | Sessions and engagement for organic landing pages |
 | GA4 | `ga4_traffic_sources` | Sessions and conversions by channel, source and medium |
+| GA4 | `ga4_ai_referrals` | Unreleased: recorded assistant-attributed visits, exact source rules and coverage-gated shares |
 | GA4 | `ga4_page_performance` | 7 metrics per page path, optional CONTAINS filter |
 | GA4 | `ga4_realtime` | Active users right now by screen, country and device |
 | GA4 | `ga4_user_behavior` | Device, country and user-type breakdowns in one batch call |
 | GA4 | `ga4_conversion_funnel` | Converting pages and event counts, optional event filter |
 | GA4 | `ga4_funnel` | Multi-step funnel report via GA4 v1alpha RunFunnelReport, conversion rate per step |
-| Cross | `traffic_health_check` | GSC clicks vs GA4 organic sessions ratio, flags tracking gaps and filter issues |
+| Cross | `traffic_health_check` | Equal requested dates, zero/empty/unavailable states and coverage-gated heuristic ratios |
 | Cross | `page_analysis` | GSC+GA4 join per page with opportunity score, sorted by priority |
 | Cross | `page_health_score` | Composite 0-100 score (GSC 30 pts, GA4 25 pts, CrUX 25 pts, schema 20 pts), graceful degradation per component |
 | Cross | `content_brief` | Per-page top queries, question queries, and GA4 session data for content planning |
@@ -487,7 +490,7 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Version 1.2.0 and the source checkout both expose 81 commands, including Bing.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Published version 1.2.0 exposes 81 commands; the source checkout exposes 82, including unreleased ga4_ai_referrals.
 
 ```bash
 # List the commands in the installed build
@@ -623,7 +626,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
-- `llms.txt`: quick reference covering all 81 tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `llms.txt`: quick reference covering all 82 source tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 16 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
@@ -645,7 +648,7 @@ pip install -e .
 gsc-cli list
 ```
 
-The final command reads the shared registry and lists the 81 commands available in this checkout. Use this installation when developing or testing unreleased changes.
+The final command reads the shared registry and lists the 82 commands available in this checkout. Use this installation when developing or testing unreleased changes.
 
 <details>
 <summary>Run the test suite from the source checkout</summary>

@@ -25,10 +25,12 @@ def _gsc_json(rows, date_range=None):
 
 def _ga4_json(pages):
     return json.dumps({
-        "start_date": "28daysAgo",
-        "end_date": "today",
+        "start_date": "2026-05-01",
+        "end_date": "2026-05-28",
         "count": len(pages),
         "pages": pages,
+        "coverage": {"row_count": len(pages), "returned_rows": len(pages), "complete": True,
+                     "data_loss_from_other_row": False, "sampling": False, "subject_to_thresholding": False, "metric_restrictions": []},
         "_meta": {"tool": "ga4_organic_landing_pages", "params": {}, "sources": {"ga4": {"property": "properties/123456789"}}},
     })
 
@@ -89,9 +91,9 @@ def _thc(gsc_rows, ga4_pages, site=SITE, days=28):
 
 def test_thc_no_gsc_data():
     result = _thc([], [_ga4_page("/home", sessions=50)])
-    assert result["status"] == "no_gsc_data"
+    assert result["status"] == "insufficient_data"
     assert result["ratio"] is None
-    assert result["total_gsc_clicks"] == 0
+    assert result["total_gsc_clicks"] is None
 
 
 def test_thc_tracking_gap():
@@ -535,6 +537,14 @@ def test_phs_schema_no_schemas_detected_zero_pts():
     assert result["components"]["schema"]["available"] is True
     # max 100, earned = 30+25+25+0 = 80 -> score = 80
     assert result["score"] == 80
+
+
+@pytest.mark.parametrize("verdict", ["challenge_page", "fetch_error"])
+def test_page_health_schema_unavailable_does_not_score_missing_markup(verdict):
+    schema = json.dumps({"url": URL, "schemas_detected": None, "schemas": None, "verdict": verdict})
+    result = _phs(_inspect_json(), _ga4_page_perf_json(), _crux_json(), schema)
+    assert result["components"]["schema"]["available"] is False
+    assert result["score"] == 100
 
 
 def test_phs_meta_includes_hostname_and_country():
