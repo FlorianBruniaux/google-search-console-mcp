@@ -3,11 +3,11 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "92e89b81c8c2507ba65f5f643cdcb56c5e57b478800134ebe6cded79ed0bdacd"
+      "sourceHash": "9e225f3aee9958133ecf5753e3fb66d32bc2ba08305b4f2b0a8e1446bd862d07"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "b71b7fd42d6e6e6a1e17803d8b1c8de533bf590ab26cc1b0e09facfa65af2205"
+      "sourceHash": "519440547f2ad46197b4eb5dc931fbe0f59108f8e78c7d1cde7ab1b61db1d15a"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "e17f67c6f9ae954d07816cf9daaa4d141c1c484f4296ed38d1b5c8478ba9702b"
+      "sourceHash": "85d5a83a9de60c464b8fa4b734ad455fcf3625bd7818642721bef65842926c0e"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "4cc786a2dc2e20423aa64742196dc919c57b0b6c3561dffbc58151fd2f87577d"
+      "sourceHash": "64203450897578007d3bb32f9bd13cfbe1eb20e30f56002afef3c538a2f42630"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -79,11 +79,15 @@
     },
     "docs/editorial-audit.md": {
       "source": "docs/editorial-audit.md",
-      "sourceHash": "b77a41e64e7fcbdd7e1c8b3948fc39cf985186421385988abb0ebdb95903b1e5"
+      "sourceHash": "614b6b5f32bae1b82fdb89897205be4c2d88cca6a518862fadd6b71f93e6aab8"
     },
     "docs/audit-workflows.md": {
       "source": "docs/audit-workflows.md",
-      "sourceHash": "e66c2a6d10a4a03771b582d2e94732892941523840181c5422a19164297ab260"
+      "sourceHash": "b1cc8c537b40672f1d90a4ac976b5892ac26044106c906aef45a5a3670a5e7f7"
+    },
+    "docs/editorial-workflows.md": {
+      "source": "docs/editorial-workflows.md",
+      "sourceHash": "5a7beda4cd5f96f049b62ced7b0351ae1e252ef7a5384db83947c9e9f8b3d608"
     }
   }
 }

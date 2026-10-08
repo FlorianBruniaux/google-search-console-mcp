@@ -40,7 +40,7 @@ def _argparse_text(text: str) -> str:
 def _type_kind(ann) -> str:
     """Return a normalised tag for a parameter type annotation.
 
-    Tags: "str", "int", "float", "bool", "list_str", "list_dict", "unknown".
+    Tags: "str", "int", "float", "bool", "list_str", "list_dict", "dict", "unknown".
     """
     if ann is inspect.Parameter.empty or ann is str:
         return "str"
@@ -50,6 +50,8 @@ def _type_kind(ann) -> str:
         return "float"
     if ann is bool:
         return "bool"
+    if ann is dict:
+        return "dict"
     # typing.Optional[X] == typing.Union[X, None] — old-style Optional annotation
     origin = typing.get_origin(ann)
     if origin is typing.Union:
@@ -59,6 +61,8 @@ def _type_kind(ann) -> str:
             inner = non_none[0]
             if inner is str:
                 return "str"
+            if inner is dict:
+                return "dict"
             if inner is int:
                 return "int"
             if inner is float:
@@ -80,10 +84,14 @@ def _type_kind(ann) -> str:
             inner = non_none[0]
             if inner is str:
                 return "str"
+            if inner is dict:
+                return "dict"
             if isinstance(inner, types.GenericAlias) and inner.__origin__ is list:
                 item = typing.get_args(inner)
                 if item and item[0] is str:
                     return "list_str"
+                if item and item[0] is dict:
+                    return "list_dict"
     # Generic aliases: list[str], list[dict]
     if isinstance(ann, types.GenericAlias) and ann.__origin__ is list:
         item = typing.get_args(ann)
@@ -139,12 +147,13 @@ def _build_subparser(subparsers, fn) -> argparse.ArgumentParser:
             kw = {"action": "append", "required": required}
             if not required:
                 kw["default"] = default
-        elif kind == "list_dict":
+        elif kind in {"dict", "list_dict"}:
             kw = {
                 "type": str,
                 "required": required,
                 "metavar": "JSON",
                 "help": _argparse_text(
+                    'JSON object.' if kind == 'dict' else
                     'JSON array of dicts, e.g. \'[{"name":"step1","event":"purchase"}]\'. '
                     "Must be a valid JSON string."
                 ),
@@ -237,7 +246,7 @@ def _call_tool(fn_name: str, namespace: argparse.Namespace, keep_meta: bool) -> 
         if value is inspect.Parameter.empty:
             continue
         kind = _type_kind(ann)
-        if kind == "list_dict" and isinstance(value, str):
+        if kind in {"dict", "list_dict"} and isinstance(value, str):
             try:
                 value = json.loads(value)
             except json.JSONDecodeError as exc:
@@ -245,6 +254,9 @@ def _call_tool(fn_name: str, namespace: argparse.Namespace, keep_meta: bool) -> 
                     f"Error: --{pname.replace('_', '-')} is not valid JSON: {exc}",
                     file=sys.stderr,
                 )
+                return 2
+            if kind == "dict" and not isinstance(value, dict):
+                print(f"Error: --{pname.replace('_', '-')} must be a JSON object", file=sys.stderr)
                 return 2
         kwargs[pname] = value
 

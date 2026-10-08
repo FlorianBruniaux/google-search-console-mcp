@@ -8,6 +8,13 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
+## Non publié
+
+- `seo_change_impact` associe un événement déclaré à des fenêtres Google descriptives, avec couverture conservée, sans persistance ni effet causal identifié (#23).
+- `editorial_audit` accepte des brouillons plain/Markdown bornés avec langue FR/EN explicite, contenu protégé et emplacements Unicode (#24).
+- `rewrite_fidelity_check` signale les changements mécaniques de littéraux et qualificatifs à relire ; même sans alerte, la fidélité sémantique reste non évaluée (#20).
+- Le checkout contient 87 outils ; la version 1.3.0 conserve 85 outils. Les [workflows éditoriaux](/fr/docs/editorial-workflows/) et [audits bornés](/fr/docs/audit-workflows/) précisent les limites.
+
 ## 1.3.0
 
 - Ajout de `search_change_breakdown` pour des fenêtres Google explicites, dimensions indépendantes, couverture et résidus descriptifs (#21).

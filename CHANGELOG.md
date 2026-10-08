@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- Add `seo_change_impact` for caller-declared page events and descriptive Google before/after comparisons (#23), reusing coverage from `search_change_breakdown`; no event persistence or causal attribution.
+- Extend `editorial_audit` to caller plain-text/Markdown drafts (#24), with explicit FR/EN, bounded subset coverage, protected content and Unicode source spans.
+- Add `rewrite_fidelity_check` for mechanical protected-literal and qualifier review candidates (#20); zero findings leaves semantic fidelity, factual truth, scope and causality unassessed.
+- Source inventory increases from 85 to 87 tools. Release 1.3.0 remains the separate 85-tool surface. Add bilingual [editorial workflows](docs/editorial-workflows.md) and extend [bounded audit workflows](docs/audit-workflows.md).
+
 ## [1.3.0] - 2026-10-08
 
 ### Bounded audit workflows

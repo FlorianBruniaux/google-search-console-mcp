@@ -14,9 +14,9 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tools](https://img.shields.io/badge/MCP%20tools-85-5c4ee5.svg)](#tools-85)
+[![Tools](https://img.shields.io/badge/MCP%20tools-87-5c4ee5.svg)](#tools-87)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
-[![Tests](https://img.shields.io/badge/tests-1394%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-1551%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -37,7 +37,7 @@ Search Console MCP is the open-source connection between your data and your AI a
   <a href="#what-you-get">What you get</a> &middot;
   <a href="#choose-your-starting-point">Use cases</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
-  <a href="#tools-85">Tools</a> &middot;
+  <a href="#tools-87">Tools</a> &middot;
   <a href="#evidence-and-safety">Data limits &amp; safety</a>
 </p>
 
@@ -188,7 +188,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
 
-For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 85 tools, including unreleased additions; published version 1.2.0 exposes 81.
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 87 tools, including unreleased `seo_change_impact`, `rewrite_fidelity_check` and draft inputs for `editorial_audit`. Release 1.3.0 contains 85 tools and is [published on PyPI](https://pypi.org/project/gsc-mcp-tools/1.3.0/). Version 1.2.0 contains 81.
 
 </details>
 
@@ -325,7 +325,7 @@ The server also handles Google and Bing API mechanics: isolated credentials, bou
 ```mermaid
 flowchart TD
     C[Claude, Codex<br/>or another MCP client] --> S[FastMCP server]
-    S --> R[Shared source registry<br/>85 tools]
+    S --> R[Shared source registry<br/>87 tools]
     R --> A[Read and analysis tools]
     R --> W[Guarded write tools]
     A --> G[Google APIs<br/>GSC, GA4, CrUX]
@@ -394,12 +394,12 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 </details>
 
-## Tools (85)
+## Tools (87)
 
-Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. It exposes 85 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
+Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. It exposes 85 tools. The source checkout has 87, with unreleased follow-up and rewrite checks described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
-<summary>Show all 85 source tools</summary>
+<summary>Show all 87 source tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -452,7 +452,9 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | Drift | `drift_baseline` | Capture a baseline snapshot of a page (title, H1-H3, schema, canonical, CWV) stored locally in SQLite |
 | Drift | `drift_compare` | Diff a live fetch against the stored baseline and apply 17 rules (8 CRITICAL, 6 WARNING, 3 INFO) |
 | Drift | `drift_history` | List previous comparison runs for a URL with triggered findings per run |
-| Editorial | `editorial_audit` | Unreleased: FR/EN house-style warnings, localized excerpts and faithful rewrite guidance; no AI-authorship score |
+| Editorial | `editorial_audit` | FR/EN house-style warnings; unreleased caller plain/Markdown drafts with native source spans and bounded parsing |
+| Editorial | `rewrite_fidelity_check` | Unreleased: protected literals and qualifier review candidates; semantic fidelity and factual truth remain unassessed |
+| Follow-up | `seo_change_impact` | Unreleased: declared event and descriptive Google before/after evidence; no persistence or causal effect |
 | Content | `content_quality` | Fetch a URL and score visible text against E-E-A-T heuristics: filler phrases, information density, repetition, thin content |
 | Content | `hreflang_audit` | Fetch a URL and validate its hreflang implementation: x-default, ISO 639-1 codes, region codes, self-ref, protocol consistency |
 | Content | `page_technical_audit` | Fetch a URL and audit meta tags (title, description, canonical, robots), viewport, HTML lang, security headers, robots.txt Googlebot access |
@@ -493,7 +495,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Published version 1.2.0 exposes 81 commands; the source checkout exposes 85, including unreleased ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Release 1.3.0 has 85 commands; the source checkout exposes 87, adding unreleased `seo_change_impact` and `rewrite_fidelity_check`. Draft inputs extend `editorial_audit` without adding a command. [Version 1.3.0 is published on PyPI](https://pypi.org/project/gsc-mcp-tools/1.3.0/); version 1.2.0 has 81 commands.
 
 ```bash
 # List the commands in the installed build
@@ -618,7 +620,8 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | Configure Google APIs and authentication | [Google setup guide](docs/google-setup.md) |
 | Configure Bing Webmaster Tools | [Bing setup guide](docs/bing-setup.md) |
 | Run the first audit | [Starter prompts](docs/starter-prompt.md) and [`examples/`](examples/) |
-| Compare search changes and check link destinations | [Bounded audit workflows](docs/audit-workflows.md) |
+| Compare search changes, follow a declared edit and check link destinations | [Bounded audit workflows](docs/audit-workflows.md) |
+| Review a draft or compare a proposed rewrite | [Editorial workflows](docs/editorial-workflows.md) |
 | Understand the modules and data flow | [Architecture](docs/architecture.md) |
 | Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |
 | Review product designs and implementation plans | [Product design records](docs/superpowers/README.md) |
@@ -631,7 +634,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
 - [Editorial audit and rewrite profile](docs/editorial-audit.md): scoped FR/EN warnings and instructions for preserving meaning during rewrites.
-- `llms.txt`: quick reference covering all 85 source tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `llms.txt`: quick reference covering all 87 source tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 16 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
@@ -655,7 +658,7 @@ pip install -e .
 gsc-cli list
 ```
 
-The final command reads the shared registry and lists the 85 commands available in this checkout. Use this installation when developing or testing unreleased changes.
+The final command reads the shared registry and lists the 87 commands available in this checkout. Use this installation when developing or testing unreleased changes.
 
 <details>
 <summary>Run the test suite from the source checkout</summary>
@@ -667,7 +670,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-851 tests at this branch baseline, all mocked with no real external API calls.
+1551 tests pass in the source checkout, all mocked with no real external API calls.
 
 </details>
 

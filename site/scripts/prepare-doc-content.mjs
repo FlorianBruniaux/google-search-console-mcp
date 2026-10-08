@@ -27,6 +27,7 @@ export const publishedPages = [
   ['examples/content-brief.md', 'docs/examples/content-brief.md', 'Content brief from search data', 'Build a content brief from observed queries and pages.'],
   ['docs/architecture.md', 'docs/architecture.md', 'Architecture', 'Understand the MCP server, provider boundaries, and guarded write operations.'],
   ['docs/audit-workflows.md', 'docs/audit-workflows.md', 'Bounded audit workflows', 'Compare explicit Google windows and observe internal link destinations with coverage limits.'],
+  ['docs/editorial-workflows.md', 'docs/editorial-workflows.md', 'Draft and rewrite review workflows', 'Audit caller drafts and compare protected literals without certifying semantic fidelity.'],
   ['docs/editorial-audit.md', 'docs/editorial-audit.md', 'Editorial audit and faithful rewriting', 'Review FR/EN house-style warnings and preserve meaning in proposed rewrites.'],
   ['site/content/en/evidence-and-safety.md', 'docs/evidence-and-safety.md', 'Evidence and safety', 'Read results without confusing observed, derived, requested, crawled, and indexed states.'],
   ['CHANGELOG.md', 'docs/changelog.md', 'Changelog', 'Review the canonical release history for Search Console MCP.'],

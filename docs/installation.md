@@ -1,6 +1,6 @@
 # Installation and MCP client setup
 
-This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 81-tool registry. Python 3.11 or newer is required.
+This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 85-tool release registry. Python 3.11 or newer is required.
 
 ## Choose an installation mode
 

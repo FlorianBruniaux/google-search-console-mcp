@@ -6,16 +6,17 @@ version: "1.1.0"
 generated: "2026-10-08"
 package: gsc-mcp-tools
 python_min: "3.11"
-total_tools: 85
-total_tests: 851
+total_tools: 87
+total_tests: 1551
 
 tool_inventory:
   previous_surface: 61
   bing_reads: 15
   bing_writes: 4
   cross_engine: 1
-  unreleased_additions: 4
-  total: 85
+  release_1_3_additions: 4
+  unreleased_additions: 2
+  total: 87
   source_of_truth: src/gsc_mcp/registry.py
   invariant: "set(registry.TOOLS) == set(properties._ALL_TOOLS)"
 
@@ -35,7 +36,7 @@ core_modules:
     type: entry_point
 
   - path: src/gsc_mcp/registry.py
-    role: "Shared MCP and CLI registry for all 85 tools"
+    role: "Shared MCP and CLI registry for all 87 tools"
     exports: [TOOLS]
 
   - path: src/gsc_mcp/cli.py
@@ -161,6 +162,20 @@ tool_modules:
     tools: 1
     tool_names: [editorial_audit]
     role: "Bounded FR/EN house-style review, not AI-authorship or ranking measurement"
+
+  - path: src/gsc_mcp/tools/editorial_drafts.py
+    tools: 0
+    role: "Bounded plain/Markdown adapter for the existing editorial callable"
+
+  - path: src/gsc_mcp/tools/rewrite.py
+    tools: 1
+    tool_names: [rewrite_fidelity_check]
+    role: "Mechanical literal/qualifier review candidates; semantic dimensions unassessed"
+
+  - path: src/gsc_mcp/tools/change_impact.py
+    tools: 1
+    tool_names: [seo_change_impact]
+    role: "Caller-declared event and descriptive GSC windows; no persistence or causal effect"
 
   - path: src/gsc_mcp/tools/content.py
     tools: 5

@@ -34,7 +34,7 @@ def _inventory(names: str, applicability: str, reason: str) -> None:
 
 
 _inventory("""
-search_change_breakdown inspect_url batch_url_inspection check_indexing_issues analytics_anomalies
+search_change_breakdown seo_change_impact rewrite_fidelity_check inspect_url batch_url_inspection check_indexing_issues analytics_anomalies
 quick_wins traffic_drops seo_striking_distance seo_cannibalization seo_lost_queries
 check_alerts parasite_risk prune_candidates traffic_health_check page_analysis
 content_brief page_health_score compare_search_engines crux_page_vitals crux_history
@@ -127,6 +127,22 @@ _add("link_targets_audit", "rule", "Configured finite bounds or comparison again
      "/budgets/scheduling_deadline_seconds", "/budgets/source_max_body_bytes", "/budgets/target_max_body_bytes", "/budgets/deadline_overrun")
 
 
+# Caller events are declarations; performance leaves retain the provider basis.
+_add("seo_change_impact", "rule", "Caller-declared event/mapping provenance only; does not verify deployment or canonical identity", "/event/provenance", "/page_mapping/provenance")
+_add("seo_change_impact", "rule", "Local date, weekday, conservative lag and compatible observed-coverage gates; lag alone does not prove provider finalization", "/comparison/status", "/comparison/reasons", "/maturity_policy/lag_days", "/maturity_policy/latest_eligible_date", "/maturity_policy/provider_finalization_verified", "/windows/weekday_aligned")
+for prefix in ("/comparison/before", "/comparison/after"):
+    _add("seo_change_impact", "measured", "Google reported aggregate over the declared filtered page window; date/row coverage remains in search_evidence", f"{prefix}/clicks", f"{prefix}/impressions")
+    _add("seo_change_impact", "derived", "CTR from the reported counts when impressions are positive; not causal impact", f"{prefix}/ctr")
+_add("seo_change_impact", "derived", "Comparison minus baseline on compatible observed windows only; descriptive, not causal", "/comparison/descriptive_delta/*")
+_add("seo_change_impact", "measured", "Local report collection timestamps, not deployment timestamps", "/collection/*")
+_add("seo_change_impact", None, "Causal effect is not identified by a before/after comparison", "/attribution/causal_effect", "/attribution/status")
+_add("seo_change_impact", None, "Provider evidence is unavailable when the collection is absent", "/search_evidence")
+_add("rewrite_fidelity_check", "rule", "Bounded mechanical literal/qualifier extraction and lexical alignment only; findings require context review and do not certify facts or semantic fidelity", "/verdict", "/assessment", "/findings", "/findings/*/category", "/findings/*/operation", "/findings/*/context_review_required", "/findings_truncated", "/analysis_truncated")
+_add("rewrite_fidelity_check", "derived", "Counts over bounded extracted occurrences and local matches only", "/counts/*")
+_add("rewrite_fidelity_check", None, "Mechanical comparison does not assess semantic fidelity, factual truth, scope or causality", "/semantic_assessment/*")
+_add("editorial_audit", "rule", "Caller input provenance, supported-format parser selection and exclusion limits only; original source spans are codepoint coordinates, not rendered positions", "/source/origin", "/method/coverage", "/input_limits/*", "/input_truncated", "/method/location_basis")
+
+
 _INSPECTION = ("verdict", "robots_txt_state", "indexing_state", "page_fetch_state", "coverage_state")
 for tool, prefix in (("inspect_url", ""), ("batch_url_inspection", "/results/*"), ("check_indexing_issues", "/issues/*")):
     _add(tool, "measured", "Google URL Inspection provider observation for this URL, not all-engine/current-live truth",
@@ -179,7 +195,7 @@ _add("schema_validate", "measured", "Received HTTP response code only, not reque
 _add("content_quality", "rule", "Fixed phrase-list filler, regex entity/number density proxy, local weighting .35/.35/.20/.10 and clipping; thin<300 tokens else good>=60; not measured quality or AI authorship", "/filler_score", "/information_density", "/overall_quality", "/flags", "/verdict")
 _add("content_quality", "derived", "round(100*distinct repeated bigrams/distinct bigrams), short-text fallback zero; quality interpretation remains heuristic", "/repetition_score")
 _add("editorial_audit", "rule", "Versioned FR/EN house-style patterns; warnings need editorial judgment, never establish AI authorship or search impact", "/verdict", "/assessment", "/findings", "/findings/*/rule_id", "/findings/*/requires_context_review")
-_add("editorial_audit", "derived", "Counts and truncation over eligible parsed HTML segments and local pattern matches only", "/metrics/*", "/findings_truncated")
+_add("editorial_audit", "derived", "Counts and truncation over eligible parsed HTML or supported draft segments and local pattern matches only", "/metrics/*", "/findings_truncated")
 _add("editorial_audit", "measured", "Received HTTP response code only, not rendered page visibility", "/http_status")
 _add("editorial_audit", "rule", "Conservative known-provider challenge-page patterns; requested editorial content unavailable", "/challenge")
 _AUDITS = {
@@ -264,6 +280,10 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
         return None, "Unavailable, unsupported or tool error result; original verdict retained"
     if tool == "search_change_breakdown" and ((key == "availability" and value != "observed") or (key == "incompleteness_status" and value == "unknown")):
         return None, "Provider observation/coverage unavailable or unknown; no successful measurement inferred"
+    if tool == "seo_change_impact" and path == ("comparison", "status") and value != "observed":
+        return None, "The required before/after observations are unavailable or incompatible"
+    if tool == "rewrite_fidelity_check" and data.get("assessment") == "not_assessed" and path[0] in {"verdict", "assessment", "findings", "counts", "findings_truncated", "analysis_truncated"}:
+        return None, "Invalid input prevented mechanical assessment; placeholders are not zero findings"
     if tool == "editorial_audit" and data.get("assessment") != "house_style_review" and path[0] in {"verdict", "assessment", "findings", "metrics", "findings_truncated"}:
         return None, "Editorial content was not assessed; placeholders never mean no warnings"
     if tool == "seo_cannibalization" and key == "conflict_score" and parent.get("total_clicks") == 0:
@@ -318,4 +338,8 @@ def evidence_for(data: dict, tool: str) -> dict:
             validate_descriptor(record)
             pointer = "/" + "/".join(key.replace("~", "~0").replace("/", "~1") for key in path)
             fields[pointer] = record
+    if tool == "seo_change_impact" and isinstance(data.get("search_evidence"), dict):
+        fields.pop("/search_evidence", None)
+        nested = evidence_for(data["search_evidence"], "search_change_breakdown")
+        fields.update({"/search_evidence" + pointer: record for pointer, record in nested["fields"].items()})
     return {"version": 1, "fields": fields}

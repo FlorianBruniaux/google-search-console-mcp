@@ -4,14 +4,14 @@ Release 1.3.0 includes `search_change_breakdown` (Google-only explicit period co
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 85 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
+gsc-mcp is a FastMCP server exposing 87 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
 ```
 src/gsc_mcp/
 ├── server.py          # Entry point. Registers every function from registry.TOOLS
-├── registry.py        # Single source of truth for the 85 source MCP and CLI tools
+├── registry.py        # Single source of truth for the 87 source MCP and CLI tools
 ├── cli.py             # Flag-only CLI generated from registry function signatures
 ├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
@@ -230,3 +230,7 @@ The tool makes no Google API calls and requires no auth. `httpx` is used for the
 ### Editorial profile
 
 `editorial_audit` uses a packaged versioned FR/EN house-style profile and the existing bounded same-site safe fetcher. It returns rule warnings over eligible parsed passages, source locations, coverage limits and rewriting guidance. The profile is independent of `content_quality`, indexing and ranking scores. It never calls a classifier or writes content. See [editorial audit and rewrite profile](editorial-audit.md).
+
+### Unreleased source follow-up and draft checks
+
+The source registry contains 87 tools, adding `seo_change_impact` and `rewrite_fidelity_check` to the 85-tool 1.3.0 surface. `change_impact.py` retains caller events and reuses `search_change_breakdown` coverage without persisting events or attributing causality. IANA zones use system data or the packaged `tzdata` fallback. `editorial_drafts.py` adapts bounded caller text/Markdown into the existing editorial rule core; it performs no fetch, execution or file read. `rewrite.py` compares protected literals and qualifiers with local lexical anchors; semantic dimensions remain unassessed. Read [bounded audit workflows](audit-workflows.md) and [editorial workflows](editorial-workflows.md) for signatures and limits.

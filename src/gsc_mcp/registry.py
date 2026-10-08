@@ -75,6 +75,8 @@ from gsc_mcp.tools.content import (
     heading_audit,
 )
 from gsc_mcp.tools.editorial import editorial_audit
+from gsc_mcp.tools.rewrite import rewrite_fidelity_check
+from gsc_mcp.tools.change_impact import seo_change_impact
 from gsc_mcp.tools.links import internal_links_audit, link_equity_map
 from gsc_mcp.tools.link_targets import link_targets_audit
 from gsc_mcp.tools.bing_analytics import (
@@ -114,6 +116,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         get_performance_overview,
         compare_search_periods,
         search_change_breakdown,
+        seo_change_impact,
         get_search_by_page_query,
         get_advanced_search_analytics,
         analytics_anomalies,
@@ -158,6 +161,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         ga4_funnel,
         content_quality,
         editorial_audit,
+        rewrite_fidelity_check,
         hreflang_audit,
         page_technical_audit,
         preload_audit,

@@ -90,3 +90,5 @@ publier la page.
 ```
 
 The existing `content_quality` tool keeps its separate output and legacy quality formula. Editorial findings are not folded into that score. See [evidence and safety](../site/content/en/evidence-and-safety.md) for the evidence convention and fetched-content boundary.
+
+Unreleased source inputs also accept caller drafts. See [editorial workflows](editorial-workflows.md) for plain/Markdown coverage, native locations and mechanical original/revision checks. URL calls above retain their contract.

@@ -351,7 +351,10 @@ SUCCESS_SHAPES = {
     "crux_lcp_subparts": {"lcp_p75_ms": 2000, "lcp_rating": "good", "verdict": "good", "subparts": {"ttfb_ms": 1, "resource_load_delay_ms": 2, "resource_load_duration_ms": 3, "render_delay_ms": 4, "dominant_phase": "render_delay"}},
     "pagespeed_audit": {"performance_score": 90, "verdict": "good", "cwv": {"lcp": {"score": .8, "numeric_value": 2000}}, "top_opportunities": [{"score": .3}]},
     "schema_validate": {"verdict": "healthy", "schemas": [{"valid": True, "missing_required_fields": [], "missing_recommended_fields": [], "deprecated_rich_result": None}], "recommendations": [], "validation_scope": "local_required_field_presence", "google_rich_result_eligibility": "not_assessed", "challenge": {"provider": "siteground"}, "http_status": 200},
-    "editorial_audit": {"verdict": "checked", "assessment": "house_style_review", "findings": [{"rule_id": "stacked_modality", "requires_context_review": True}], "metrics": {"findings_detected": 1}, "findings_truncated": False, "http_status": 200, "challenge": {"provider": "siteground"}},
+    "editorial_audit": {"verdict": "checked", "assessment": "house_style_review", "findings": [{"rule_id": "stacked_modality", "requires_context_review": True}], "metrics": {"findings_detected": 1}, "findings_truncated": False, "http_status": 200, "challenge": {"provider": "siteground"},
+                        "source": {"origin": "caller", "format": "markdown"},
+                        "method": {"location_basis": "original_source_span", "coverage": {"parser": "bounded_markdown_subset", "rendered_coordinates": "not_assessed"}},
+                        "input_limits": {"max_characters": 100000, "max_blocks": 2000}, "input_truncated": False},
     "content_quality": {"verdict": "good", "filler_score": 0, "information_density": .4, "overall_quality": 60, "repetition_score": 0, "flags": []},
     "hreflang_audit": _AUDIT_SHAPE,
     "page_technical_audit": {**_AUDIT_SHAPE, "findings": {"status_code": 200, "redirected": False, "robots_txt_blocks_googlebot": False}},
@@ -395,6 +398,35 @@ SUCCESS_SHAPES["search_change_breakdown"] = {
                              "comparison": {"comparable": True, "reason": None},
                              "reconciliation": {"comparable": True, "reason": None, "overcoverage": False, "baseline_residual": _BREAKDOWN_COUNTS,
                                                 "comparison_residual": _BREAKDOWN_COUNTS, "total_delta_minus_matched_delta": _BREAKDOWN_COUNTS}}}}
+
+SUCCESS_SHAPES["seo_change_impact"] = {
+    "event": {"provenance": "caller_declared"}, "page_mapping": {"provenance": "caller_declared"},
+    "windows": {"weekday_aligned": False},
+    "maturity_policy": {"lag_days": 3, "latest_eligible_date": "2026-01-20", "provider_finalization_verified": False},
+    "comparison": {"status": "observed", "reasons": [],
+                   "before": {"clicks": 10, "impressions": 100, "ctr": .1},
+                   "after": {"clicks": 12, "impressions": 100, "ctr": .12},
+                   "descriptive_delta": {"clicks": 2, "impressions": 0, "ctr_percentage_points": 2}},
+    "collection": {"started_at": "2026-01-23T12:00:00+00:00", "completed_at": "2026-01-23T12:00:01+00:00"},
+    "attribution": {"causal_effect": None, "status": "not_identified"},
+    "search_evidence": copy.deepcopy(SUCCESS_SHAPES["search_change_breakdown"]),
+}
+SUCCESS_SHAPES["rewrite_fidelity_check"] = {
+    "verdict": "compared", "assessment": "mechanical_comparison_only",
+    "findings": [{"category": "number", "operation": "changed", "context_review_required": True}],
+    "findings_truncated": False, "analysis_truncated": False,
+    "counts": {"original_occurrences_checked": 1, "revised_occurrences_checked": 1,
+               "findings_detected": 1, "findings_returned": 1},
+    "semantic_assessment": {"fidelity": "unassessed", "factual_truth": "unassessed", "scope": "unassessed", "causality": "unassessed"},
+}
+# Null search_evidence is a distinct actual output branch, rather than a success
+# shape with contradictory provider data. The real-call tests exercise both.
+DEGRADED_SHAPES = {
+    "seo_change_impact": {"comparison": {"status": "unavailable", "reasons": ["insufficient_post_change_data"],
+                                        "before": None, "after": None,
+                                        "descriptive_delta": {"clicks": None, "impressions": None, "ctr_percentage_points": None}},
+                          "search_evidence": None},
+}
 
 
 _LINK_OBSERVATION = {
@@ -457,12 +489,120 @@ def test_search_breakdown_row_sum_and_residual_scopes_name_their_actual_formulas
         "Reported total change minus summed matched-row changes, only on compatible known aggregation; descriptive residual, not a cause")
 
 
+@pytest.mark.parametrize("missing_followup", [False, True])
+def test_real_change_impact_preserves_nested_metric_and_missing_row_provenance(monkeypatch, missing_followup):
+    from types import SimpleNamespace
+    from gsc_mcp.tools import change_impact, search_breakdown
+
+    def query(siteUrl, body):
+        before = body["startDate"] == "2020-01-01"
+        dimension = body.get("dimensions", [None])[0]
+        key = (body["startDate"] if dimension == "date" else
+               "baseline-query" if dimension == "query" and before else
+               "comparison-query" if dimension == "query" else
+               "https://example.com/article" if dimension == "page" else dimension)
+        row = {"keys": [] if key is None else [key], "clicks": 10 if before else 12,
+               "impressions": 100, "ctr": .8, "position": 2}
+        rows = [] if missing_followup and not before and dimension is None else [row]
+        return SimpleNamespace(execute=lambda: {"rows": rows, "responseAggregationType": "byPage"})
+
+    service = SimpleNamespace(searchanalytics=lambda: SimpleNamespace(query=query))
+    monkeypatch.setattr(search_breakdown, "get_searchconsole_service", lambda: service)
+    event = {"site": "sc-domain:example.com", "url": "https://example.com/article",
+             "changed_at": "2020-01-08T12:00:00-08:00", "timezone": "America/Los_Angeles",
+             "description": "Caller reports a heading change."}
+    result = json.loads(change_impact.seo_change_impact(event, "2020-01-01", "2020-01-01",
+                                                      "2020-01-09", "2020-01-09"))
+    records = result["_meta"]["evidence"]["fields"]
+    nested_records = result["search_evidence"]["_meta"]["evidence"]["fields"]
+    assert result["comparison"]["before"]["ctr"] == .1
+    assert_basis(records, "/event/provenance", "rule", "heuristic")
+    assert_basis(records, "/comparison/before/clicks", "measured", "observed")
+    assert_basis(records, "/comparison/before/ctr", "derived", "calculated")
+    assert_basis(records, "/attribution/causal_effect", None, "unavailable")
+    assert_basis(records, "/maturity_policy/provider_finalization_verified", "rule", "heuristic")
+    for pointer, basis, tier in [
+        ("/baseline_totals/baseline/metrics/clicks", "measured", "observed"),
+        ("/baseline_totals/baseline/metrics/ctr", "derived", "calculated"),
+        ("/periods/baseline/observed_dates", "measured", "observed"),
+        ("/breakdowns/query/baseline_only/0/baseline/clicks", "measured", "observed"),
+        ("/breakdowns/query/baseline_only/0/comparison", None, "unavailable"),
+        ("/breakdowns/query/baseline_only/0/delta", None, "unavailable"),
+        ("/breakdowns/query/comparison_only/0/baseline", None, "unavailable"),
+    ]:
+        assert_basis(records, "/search_evidence" + pointer, basis, tier)
+        assert records["/search_evidence" + pointer] == nested_records[pointer]
+    assert "/search_evidence" not in records
+    assert not any("/_meta/" in pointer for pointer in records)
+    if missing_followup:
+        assert result["comparison"]["status"] == "unavailable"
+        assert result["comparison"]["after"]["clicks"] is None
+        assert_basis(records, "/comparison/status", None, "unavailable")
+        assert_basis(records, "/comparison/after/clicks", None, "unavailable")
+        assert_basis(records, "/comparison/descriptive_delta/clicks", None, "unavailable")
+        assert_basis(records, "/search_evidence/baseline_totals/comparison/availability", None, "unavailable")
+    else:
+        assert result["comparison"]["status"] == "observed"
+        assert result["comparison"]["descriptive_delta"]["clicks"] == 2
+        assert_basis(records, "/comparison/status", "rule", "heuristic")
+        assert_basis(records, "/comparison/descriptive_delta/clicks", "derived", "calculated")
+
+
+def test_real_draft_editorial_evidence_describes_parser_limits_and_caller_provenance():
+    from gsc_mcp.tools.editorial import editorial_audit
+    result = json.loads(editorial_audit(text="It may potentially help.", language="en", format="markdown"))
+    records = result["_meta"]["evidence"]["fields"]
+    assert result["source"]["origin"] == "caller"
+    assert result["method"]["coverage"]["parser"] == "bounded_markdown_subset"
+    assert_basis(records, "/source/origin", "rule", "heuristic")
+    assert_basis(records, "/method/coverage", "rule", "heuristic")
+    assert_basis(records, "/method/location_basis", "rule", "heuristic")
+    assert_basis(records, "/input_limits/max_characters", "rule", "heuristic")
+    assert_basis(records, "/metrics/findings_detected", "derived", "calculated")
+    assert_basis(records, "/http_status", None, "unavailable")
+    assert "/coverage" not in records
+
+
+@pytest.mark.parametrize("options", [
+    {"original": ""}, {"revised": None}, {"original": "x" * 20001},
+    {"language": "de"}, {"format": "html"},
+])
+def test_real_rewrite_invalid_input_never_labels_placeholder_zero_findings_as_assessed(options):
+    from gsc_mcp.tools.rewrite import rewrite_fidelity_check
+    params = {"original": "The rate is 10%.", "revised": "The rate is 12%."}
+    params.update(options)
+    result = json.loads(rewrite_fidelity_check(**params))
+    assert result["verdict"] == "invalid_input"
+    assert result["assessment"] == "not_assessed"
+    assert result["findings"] is None
+    assert "counts" not in result
+    assert set(result["semantic_assessment"].values()) == {"unassessed"}
+    records = result["_meta"]["evidence"]["fields"]
+    for pointer in ("/verdict", "/assessment", "/findings", "/findings_truncated", "/analysis_truncated", "/error"):
+        assert_basis(records, pointer, None, "unavailable")
+    for dimension in ("fidelity", "factual_truth", "scope", "causality"):
+        assert_basis(records, "/semantic_assessment/" + dimension, None, "unavailable")
+
+
+def test_real_rewrite_mechanical_counts_do_not_certify_semantics():
+    from gsc_mcp.tools.rewrite import rewrite_fidelity_check
+    result = json.loads(rewrite_fidelity_check("The rate is 10%.", "The rate is 12%."))
+    assert result["assessment"] == "mechanical_comparison_only"
+    assert result["counts"]["findings_detected"] == 1
+    records = result["_meta"]["evidence"]["fields"]
+    assert_basis(records, "/findings/0/category", "rule", "heuristic")
+    assert_basis(records, "/findings/0/context_review_required", "rule", "heuristic")
+    assert_basis(records, "/counts/findings_detected", "derived", "calculated")
+    assert_basis(records, "/semantic_assessment/factual_truth", None, "unavailable")
+
+
 def test_all_applicable_tools_and_declarations_have_exercised_success_or_degraded_shapes():
     from gsc_mcp.evidence import INVENTORY, _PATHS
     applicable = {tool for tool, entry in INVENTORY.items() if entry["applicability"] == "fields"}
     assert applicable <= set(SUCCESS_SHAPES)
     for tool in INVENTORY:
-        fixtures = [SUCCESS_SHAPES.get(tool, {}), {"error": "failure", "verdict": "fetch_error", "indexed": False}]
+        fixtures = [SUCCESS_SHAPES.get(tool, {}), DEGRADED_SHAPES.get(tool, {}),
+                    {"error": "failure", "verdict": "fetch_error", "indexed": False}]
         emitted = {pointer for data in fixtures for pointer in fields(tool, data)}
         for template, _, _ in _PATHS[tool]:
             pattern = "^" + re.escape(template).replace(r"\*", "[^/]+") + "$"
@@ -489,6 +629,11 @@ _REVIEWED_SIGNALS = {
     "bing_webmaster.bing_feed_remove": "status",
     "editorial.editorial_audit": "assessment",
     "editorial.analyze_html": "assessment verdict",
+    "editorial_drafts.analyze_draft": "assessment",
+    "change_impact.seo_change_impact": "status",
+    "rewrite._compare": "category",
+    "rewrite.finding": "category",
+    "rewrite.rewrite_fidelity_check": "assessment verdict",
     "content.content_quality": "filler_score overall_quality repetition_score verdict",
     "content.hreflang_audit": "issues severity verdict",
     "content.page_technical_audit": "issues severity verdict",

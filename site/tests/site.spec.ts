@@ -486,7 +486,7 @@ for (const route of ['/docs/examples/quick-audit/', '/fr/docs/']) {
   }
 }
 
-for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/docs/editorial-audit/', '/docs/audit-workflows/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/', '/fr/docs/editorial-audit/', '/fr/docs/audit-workflows/']) {
+for (const route of ['/docs/', '/docs/installation/', '/docs/examples/quick-audit/', '/docs/editorial-audit/', '/docs/audit-workflows/', '/docs/editorial-workflows/', '/fr/docs/', '/fr/docs/installation/', '/fr/docs/examples/quick-audit/', '/fr/docs/editorial-audit/', '/fr/docs/audit-workflows/', '/fr/docs/editorial-workflows/']) {
   test(`keeps ${route} accessible and contained on mobile`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(route)
