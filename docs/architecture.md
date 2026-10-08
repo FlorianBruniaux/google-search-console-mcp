@@ -1,15 +1,17 @@
 # Architecture
 
+The unreleased source checkout includes `search_change_breakdown` (Google-only explicit period comparisons) and `link_targets_audit` (bounded public destination observations). Published package 1.2.0 remains at 81 tools. Read [bounded audit workflows](audit-workflows.md) for calls, result fields and evidence limits.
+
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 83 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
+gsc-mcp is a FastMCP server exposing 85 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
 ```
 src/gsc_mcp/
 ├── server.py          # Entry point. Registers every function from registry.TOOLS
-├── registry.py        # Single source of truth for the 83 source MCP and CLI tools
+├── registry.py        # Single source of truth for the 85 source MCP and CLI tools
 ├── cli.py             # Flag-only CLI generated from registry function signatures
 ├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
@@ -23,6 +25,7 @@ src/gsc_mcp/
 └── tools/
     ├── properties.py  # 3 capability and GSC property tools
     ├── analytics.py   # 10 GSC analytics tools + shared fetch/date helpers
+    ├── search_breakdown.py # Explicit Google periods and independent dimension views
     ├── seo.py         # 8 SEO analyses; 3 support Bing and 4 refuse unsupported Bing contracts
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
     ├── indexing.py    # submit_url, submit_batch, indexnow_submit
@@ -34,6 +37,7 @@ src/gsc_mcp/
     ├── drift.py       # 3 persisted SEO drift tools
     ├── content.py     # 5 on-page content and technical audits
     ├── links.py       # 2 internal-link tools
+    ├── link_targets.py # Bounded internal destination HTTP observations
     ├── bing_analytics.py   # 6 Bing performance/backlink reads
     ├── bing_webmaster.py   # 9 Bing reads + 4 guarded writes
     └── search_compare.py   # 1 evidence-bounded Google/Bing comparison

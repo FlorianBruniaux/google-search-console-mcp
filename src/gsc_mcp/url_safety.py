@@ -44,9 +44,12 @@ import ipaddress
 import re
 import socket
 import threading
+import time
 from contextlib import contextmanager
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Iterator
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, urlsplit, urlunsplit
 
 import httpx
 
@@ -62,6 +65,8 @@ __all__ = [
     "safe_httpx_client",
     "safe_fetch_html",
     "fetch_html_following_redirects",
+    "FetchObservationBudget",
+    "observe_get_redirects",
 ]
 
 
@@ -126,7 +131,7 @@ def is_safe_ip(ip_str: str) -> bool:
         ip = ipaddress.ip_address(ip_str)
     except ValueError:
         return False
-    return not (
+    return ip.is_global and not (
         ip.is_private
         or ip.is_loopback
         or ip.is_reserved
@@ -454,6 +459,238 @@ def fetch_html_following_redirects(
                 ) from exc
             current = target
     raise URLSafetyError(f"Too many redirects (> {max_redirects}) starting at {url}")
+
+
+@dataclass
+class FetchObservationBudget:
+    """Shared sequential request cap and cooperative scheduling deadline.
+
+    DNS and individual socket phases are synchronous: the deadline prevents
+    scheduling further work, but cannot cancel an in-flight resolver call.
+    """
+
+    max_requests: int
+    deadline_monotonic: float
+    requests_started: int = 0
+    dns_refusals: int = 0
+
+
+def redact_observation_url(value: str) -> str:
+    """Remove rejected URL userinfo from page-derived output, including malformed URLs."""
+    return re.sub(r"(//)[^/?#]*@", r"\1[redacted]@", value)
+
+
+def resolve_observation_reference(base_url: str, reference: str) -> str:
+    """Resolve href/Location while retaining an explicitly empty query.
+
+    urllib's urljoin loses the query delimiter or inherits base query bytes for
+    references such as '?' and '/a?'. Preserve that raw reference distinction
+    before normalization, including fragments and protocol-relative URLs.
+    Empty/fragment-only references also inherit a defined-empty base query.
+    """
+    resolved = urljoin(base_url, reference)
+    before_fragment = reference.split("#", 1)[0]
+    base_before_fragment = base_url.split("#", 1)[0]
+    explicit_empty_query = "?" in before_fragment and before_fragment.split("?", 1)[1] == ""
+    inherited_empty_query = (before_fragment == "" and "?" in base_before_fragment
+                             and base_before_fragment.split("?", 1)[1] == "")
+    if explicit_empty_query or inherited_empty_query:
+        path, marker, fragment = resolved.partition("#")
+        resolved = path.split("?", 1)[0] + "?"
+        if marker:
+            resolved += "#" + fragment
+    return resolved
+
+
+def normalize_observation_url(url: str) -> str:
+    """Validate raw syntax before constructing a query-preserving fetch identity.
+
+    No DNS lookup here. IPv6 is explicitly unsupported by the IPv4 pinning
+    transport. Path case, escapes, slash and query ordering stay untouched.
+    """
+    if not isinstance(url, str) or re.search(r"[\x00-\x20\x7f]", url):
+        raise URLSafetyError("invalid_url")
+    try:
+        parsed = urlsplit(url)
+        _reject_authority_confusion(url, parsed)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            raise URLSafetyError("invalid_url")
+        host = normalize_hostname(parsed.hostname).encode("idna").decode("ascii")
+        port = _effective_port(parsed)
+        if not 1 <= port <= 65535:
+            raise URLSafetyError("invalid_url")
+        try:
+            literal = ipaddress.ip_address(host)
+        except ValueError:
+            literal = None
+        if literal is not None and literal.version != 4:
+            raise URLSafetyError("unsupported_address_family")
+        if host in _BLOCKED_HOSTNAMES or (literal is not None and not is_safe_ip(host)):
+            raise URLSafetyError("unsafe_url")
+        authority = host if port == (443 if parsed.scheme == "https" else 80) else f"{host}:{port}"
+        normalized = urlunsplit((parsed.scheme, authority, parsed.path or "/", parsed.query, ""))
+        if "?" in url.split("#", 1)[0] and not parsed.query:
+            normalized += "?"
+        return normalized
+    except (ValueError, UnicodeError) as exc:
+        if isinstance(exc, URLSafetyError) and str(exc) in {"invalid_url", "unsafe_url", "unsupported_address_family"}:
+            raise
+        raise URLSafetyError("invalid_url") from exc
+
+
+def observation_site_key(url: str) -> tuple[str, int | None]:
+    """Eligibility: one www alias, standard web ports, otherwise exact numeric port."""
+    parsed = urlsplit(normalize_observation_url(url))
+    host = parsed.hostname
+    assert host is not None
+    if host.startswith("www."):
+        host = host[4:]
+    port = _effective_port(parsed)
+    return host, None if port == (443 if parsed.scheme == "https" else 80) else port
+
+
+def _observation_timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def observe_get_redirects(
+    url: str, *, site_url: str, budget: FetchObservationBudget,
+    max_redirects: int = 5, timeout: float = 10.0, max_body_bytes: int = 0,
+) -> dict:
+    """Observe terminal status and each received hop without eager body reads.
+
+    Source callers may request bounded raw identity bytes; target callers use
+    zero and never consume response bodies. Bounds describe application body
+    consumption, not exact socket traffic. The deadline is cooperative, not a
+    hard wall-clock guarantee. Existing eager fetcher semantics are unchanged.
+    """
+    started = time.monotonic()
+    result = {"requested_url": redact_observation_url(url), "last_requested_url": None,
+              "last_response_url": None, "final_url": None, "attempted": False,
+              "status_code": None, "last_observed_status": None, "hops": [],
+              "outcome": "unavailable", "availability_reason": None,
+              "started_at": _observation_timestamp(), "completed_at": None,
+              "elapsed_ms": 0.0, "body_complete": False}
+    if max_body_bytes:
+        result["body"] = b""
+    current, seen, followed = url, set(), 0
+    try:
+        original_site = observation_site_key(site_url)
+        while True:
+            current = normalize_observation_url(current)
+            if observation_site_key(current) != original_site:
+                result["availability_reason"] = "out_of_scope_redirect"
+                break
+            if current in seen:
+                result["availability_reason"] = "redirect_loop"
+                break
+            if budget.requests_started >= budget.max_requests:
+                result["availability_reason"] = "skipped_request_budget"
+                break
+            if time.monotonic() >= budget.deadline_monotonic:
+                result["availability_reason"] = "skipped_deadline"
+                break
+            try:
+                normalized, pinned_ip = validate_url_strict(current)
+            except URLSafetyError as exc:
+                budget.dns_refusals += 1
+                result["availability_reason"] = "dns_failure" if "DNS resolution failed" in str(exc) else "dns_refused"
+                break
+            if ipaddress.ip_address(pinned_ip).version != 4:
+                result["availability_reason"] = "unsupported_address_family"
+                break
+            remaining = budget.deadline_monotonic - time.monotonic()
+            if remaining <= 0:
+                result["availability_reason"] = "skipped_deadline"
+                break
+            parsed = urlsplit(normalized)
+            hop_started = time.monotonic()
+            with _pin_dns(parsed.hostname, pinned_ip, _effective_port(parsed)):
+                with httpx.Client(timeout=min(timeout, remaining), trust_env=False,
+                                  follow_redirects=False,
+                                  headers={"User-Agent": "gsc-mcp/1.0", "Accept-Encoding": "identity"}) as client:
+                    budget.requests_started += 1
+                    result["attempted"] = True
+                    result["last_requested_url"] = current
+                    seen.add(current)
+                    with client.stream("GET", current) as response:
+                        status = response.status_code
+                        location = response.headers.get("location")
+                        hop = {"requested_url": current, "status_code": status,
+                               "location": redact_observation_url(location) if location else location,
+                               "next_url": None, "observed_at": _observation_timestamp(),
+                               "elapsed_ms": round((time.monotonic() - hop_started) * 1000, 3)}
+                        result["hops"].append(hop)
+                        result["last_response_url"] = current
+                        result["last_observed_status"] = status
+                        if status in _REDIRECT_STATUSES:
+                            if not location:
+                                result["availability_reason"] = "redirect_missing_location"
+                                break
+                            # Validate before urljoin, which can erase raw control characters.
+                            if re.search(r"[\x00-\x20\x7f]", location):
+                                raise URLSafetyError("invalid_url")
+                            try:
+                                next_url = resolve_observation_reference(current, location)
+                            except ValueError as exc:
+                                raise URLSafetyError("invalid_url") from exc
+                            hop["next_url"] = redact_observation_url(next_url)
+                            # Record the received hop before rejecting its destination.
+                            next_url = normalize_observation_url(next_url)
+                            if observation_site_key(next_url) != original_site:
+                                result["availability_reason"] = "out_of_scope_redirect"
+                                break
+                            if next_url in seen:
+                                result["availability_reason"] = "redirect_loop"
+                                break
+                            if followed >= max_redirects:
+                                result["availability_reason"] = "redirect_hop_budget"
+                                break
+                            followed += 1
+                            current = next_url
+                            continue
+                        result["final_url"] = current
+                        result["status_code"] = status
+                        if max_body_bytes and 200 <= status < 300:
+                            if response.headers.get("content-encoding", "identity").lower() not in {"", "identity"}:
+                                result["availability_reason"] = "unsupported_content_encoding"
+                                break
+                            length = response.headers.get("content-length", "")
+                            if length.isdigit() and int(length) > max_body_bytes:
+                                result["availability_reason"] = "source_body_limit"
+                                break
+                            body = bytearray()
+                            chunks = iter(response.iter_raw(chunk_size=min(8192, max_body_bytes + 1)))
+                            while True:
+                                if time.monotonic() >= budget.deadline_monotonic:
+                                    result["availability_reason"] = "skipped_deadline"
+                                    break
+                                try:
+                                    chunk = next(chunks)
+                                except StopIteration:
+                                    break
+                                room = max_body_bytes - len(body)
+                                body.extend(chunk[:room])
+                                if len(chunk) > room:
+                                    result["availability_reason"] = "source_body_limit"
+                                    break
+                            result["body"] = bytes(body)
+                            if result["availability_reason"] is not None:
+                                break
+                            result["body_complete"] = True
+                        result["outcome"] = "observed"
+                        break
+    except URLSafetyError as exc:
+        reason = str(exc)
+        result["availability_reason"] = reason if reason in {"invalid_url", "unsafe_url", "unsupported_address_family"} else "dns_pin_unavailable"
+    except httpx.TimeoutException:
+        result["availability_reason"] = "timeout"
+    except httpx.HTTPError:
+        result["availability_reason"] = "network_error"
+    finally:
+        result["completed_at"] = _observation_timestamp()
+        result["elapsed_ms"] = round((time.monotonic() - started) * 1000, 3)
+    return result
 
 
 def _cli() -> None:

@@ -10,6 +10,10 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## Non publié
 
+- Ajout de `search_change_breakdown` pour des fenêtres Google explicites, dimensions indépendantes, couverture et résidus descriptifs (#21).
+- Ajout de `link_targets_audit` pour les statuts GET des destinations internes et leurs redirections, avec les ancres source (#19). Transport indisponible et erreur HTTP observée restent distincts.
+- Le registre source compte désormais 85 outils ; le paquet 1.2.0 publié reste à 81. Le [guide bilingue des audits bornés](/fr/docs/audit-workflows/) documente les appels et limites ; l’évaluation des classifieurs reste dans la documentation contributeur.
+
 - Ajout de `editorial_audit`, profil éditorial FR/EN versionné avec extraits localisés et consignes de réécriture fidèle (#17). Les citations, le code et les exceptions de genre sont protégés. Aucun score d’écriture IA ou de classement.
 - Le registre source compte 83 outils ; `content_quality` conserve son API et son score. Le paquet 1.2.0 publié reste à 81 outils.
 

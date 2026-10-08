@@ -76,6 +76,7 @@ from gsc_mcp.tools.content import (
 )
 from gsc_mcp.tools.editorial import editorial_audit
 from gsc_mcp.tools.links import internal_links_audit, link_equity_map
+from gsc_mcp.tools.link_targets import link_targets_audit
 from gsc_mcp.tools.bing_analytics import (
     bing_link_counts,
     bing_page_query_stats,
@@ -100,6 +101,7 @@ from gsc_mcp.tools.bing_webmaster import (
     bing_urls_submit_batch,
 )
 from gsc_mcp.tools.search_compare import compare_search_engines
+from gsc_mcp.tools.search_breakdown import search_change_breakdown
 
 
 TOOLS: dict[str, Callable[..., str]] = {
@@ -111,6 +113,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         get_search_analytics,
         get_performance_overview,
         compare_search_periods,
+        search_change_breakdown,
         get_search_by_page_query,
         get_advanced_search_analytics,
         analytics_anomalies,
@@ -166,6 +169,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         pagespeed_audit,
         heading_audit,
         internal_links_audit,
+        link_targets_audit,
         link_equity_map,
         prune_candidates,
         bing_sites_list,

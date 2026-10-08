@@ -375,6 +375,88 @@ for _tool in ("schema_validate", "page_technical_audit", "heading_audit", "inter
     SUCCESS_SHAPES[_tool] = {**SUCCESS_SHAPES[_tool], "untrusted_content": {"flagged": True, "signals": [{"basis": "rule"}]}}
 
 
+_BREAKDOWN_METRICS = {"clicks": 10, "impressions": 100, "ctr": .1, "position": 2}
+_BREAKDOWN_COUNTS = {"clicks": 10, "impressions": 100}
+SUCCESS_SHAPES["search_change_breakdown"] = {
+    "baseline_totals": {"baseline": {"metrics": _BREAKDOWN_METRICS, "availability": "observed", "response_aggregation_type": "byProperty", "fetch_error": None}},
+    "baseline_delta": {"clicks": -1}, "baseline_comparison": {"comparable": True, "reason": None},
+    "periods": {"baseline": {"coverage_probe_status": "observed", "incompleteness_status": "final_requested", "observed_dates": ["2026-01-01"],
+                              "observed_start": "2026-01-01", "observed_end": "2026-01-01", "missing_requested_dates": [], "observed_day_count": 1,
+                              "first_incomplete_date": None, "response_aggregation_type": "byProperty", "fetch_error": None}},
+    "request_budget": {"requests_made": 6, "max_requests": 20, "exhausted": False},
+    "breakdowns": {"query": {"matched": [{"baseline": _BREAKDOWN_METRICS, "comparison": _BREAKDOWN_METRICS, "delta": {"clicks": 0}}],
+                             "baseline_only": [{"baseline": _BREAKDOWN_METRICS, "comparison": None, "delta": None}],
+                             "comparison_only": [{"baseline": None, "comparison": _BREAKDOWN_METRICS, "delta": None}],
+                             "matched_count": 1, "baseline_only_count": 1, "comparison_only_count": 1,
+                             "matched_delta": _BREAKDOWN_COUNTS, "observed_sums": {"baseline": _BREAKDOWN_COUNTS},
+                             "displayed_counts": {"matched": 1}, "display_truncated": False,
+                             "baseline_coverage": {"rows_returned": 1, "pages_fetched": 1, "response_aggregation_type": "byProperty", "response_aggregation_types": ["byProperty"]},
+                             "comparison_coverage": {"rows_returned": 1, "pages_fetched": 1, "response_aggregation_type": "byProperty", "response_aggregation_types": ["byProperty"]},
+                             "comparison": {"comparable": True, "reason": None},
+                             "reconciliation": {"comparable": True, "reason": None, "overcoverage": False, "baseline_residual": _BREAKDOWN_COUNTS,
+                                                "comparison_residual": _BREAKDOWN_COUNTS, "total_delta_minus_matched_delta": _BREAKDOWN_COUNTS}}}}
+
+
+_LINK_OBSERVATION = {
+    "status_code": 404, "last_observed_status": 404, "attempted": True,
+    "started_at": "2026-01-01T00:00:00+00:00", "completed_at": "2026-01-01T00:00:01+00:00", "elapsed_ms": 1000,
+    "outcome": "observed", "availability_reason": None,
+    "hops": [{"status_code": 404, "observed_at": "2026-01-01T00:00:01+00:00", "elapsed_ms": 1000}],
+}
+SUCCESS_SHAPES["link_targets_audit"] = {
+    "collected_at": "2026-01-01T00:00:01+00:00", "source_body_complete": True,
+    "source_observation": {**_LINK_OBSERVATION, "status_code": 200, "body_complete": True},
+    "scope_policy": "same_site_www_alias_default_ports", "coverage": "complete", "targets": [
+        {**_LINK_OBSERVATION, "findings": ["http_not_found"], "source_links": [{"anchor": "Text", "zone": "body"}]}],
+    "total_anchors": 1, "distinct_in_scope_targets": 1, "targets_attempted": 1, "targets_completed": 1, "targets_skipped": 0,
+    "excluded_reasons": {"external": 1},
+    "budgets": {"max_targets": 30, "max_requests": 60, "requests_started": 2, "dns_refusals": 0, "max_redirects": 5,
+                "request_timeout_seconds": 10, "scheduling_deadline_seconds": 60, "source_max_body_bytes": 1048576,
+                "target_max_body_bytes": 0, "elapsed_ms": 1000, "deadline_overrun": False},
+    "untrusted_content": {"flagged": True, "signals": [{"basis": "rule"}]},
+}
+
+
+def test_link_destination_evidence_separates_received_status_from_unavailable_target():
+    records = fields("link_targets_audit", SUCCESS_SHAPES["link_targets_audit"])
+    assert_basis(records, "/targets/0/status_code", "measured", "observed")
+    assert_basis(records, "/source_observation/hops/0/status_code", "measured", "observed")
+    assert_basis(records, "/source_body_complete", "measured", "observed")
+
+
+    assert_basis(records, "/budgets/requests_started", "measured", "observed")
+    assert_basis(records, "/targets_completed", "derived", "calculated")
+    assert_basis(records, "/targets/0/findings", "rule", "heuristic")
+    assert_basis(records, "/coverage", "rule", "heuristic")
+    assert "/targets/0/source_links/0/anchor" not in records
+    unavailable = {"coverage": "partial", "targets": [{**_LINK_OBSERVATION, "status_code": None,
+                   "outcome": "unavailable", "availability_reason": "timeout", "last_observed_status": 301}]}
+    records = fields("link_targets_audit", unavailable)
+    assert_basis(records, "/targets/0/status_code", None, "unavailable")
+    assert_basis(records, "/targets/0/last_observed_status", "measured", "observed")
+    assert_basis(records, "/targets/0/availability_reason", "rule", "heuristic")
+    source_unavailable = {"coverage": "unavailable", "source_body_complete": False, "targets_completed": 0,
+                          "total_anchors": 0, "distinct_in_scope_targets": 0, "targets_attempted": 0, "targets_skipped": 0}
+    records = fields("link_targets_audit", source_unavailable)
+    assert_basis(records, "/total_anchors", None, "unavailable")
+    assert_basis(records, "/targets_completed", None, "unavailable")
+    assert_basis(records, "/source_body_complete", "measured", "observed")
+
+
+def test_search_breakdown_row_sum_and_residual_scopes_name_their_actual_formulas():
+    data = {"breakdowns": {"query": {"observed_sums": {"baseline": {"clicks": 10, "impressions": None}},
+             "reconciliation": {"baseline_residual": {"clicks": 5}, "total_delta_minus_matched_delta": {"clicks": 2}}}}}
+    records = fields("search_change_breakdown", data)
+    assert_basis(records, "/breakdowns/query/observed_sums/baseline/clicks", "derived", "calculated")
+    assert records["/breakdowns/query/observed_sums/baseline/clicks"]["scope"] == (
+        "Sum over retrieved valid per-period rows; not property totals; null when rows are empty or any required metric is missing")
+    assert_basis(records, "/breakdowns/query/observed_sums/baseline/impressions", None, "unavailable")
+    assert records["/breakdowns/query/reconciliation/baseline_residual/clicks"]["scope"] == (
+        "Reported period aggregate minus retrieved period row sum, only on compatible known aggregation; descriptive residual, not a cause")
+    assert records["/breakdowns/query/reconciliation/total_delta_minus_matched_delta/clicks"]["scope"] == (
+        "Reported total change minus summed matched-row changes, only on compatible known aggregation; descriptive residual, not a cause")
+
+
 def test_all_applicable_tools_and_declarations_have_exercised_success_or_degraded_shapes():
     from gsc_mcp.evidence import INVENTORY, _PATHS
     applicable = {tool for tool, entry in INVENTORY.items() if entry["applicability"] == "fields"}
@@ -430,6 +512,7 @@ _REVIEWED_SIGNALS = {
     "inspection.check_indexing_issues": "issues",
     "links.internal_links_audit": "issues severity verdict",
     "links.link_equity_map": "issues severity verdict",
+    "link_targets.link_targets_audit": "coverage",
     "seo._unsupported_bing": "verdict",
     "seo.quick_wins": "opportunities opportunity_score",
     "seo.traffic_drops": "diagnosis drops",
@@ -467,7 +550,7 @@ def test_output_signal_changes_require_an_explicit_inventory_review():
             for node in ast.walk(fn):
                 candidates = node.keys if isinstance(node, ast.Dict) else [node.slice] if isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store) else []
                 for key in candidates:
-                    if isinstance(key, ast.Constant) and isinstance(key.value, str) and (key.value in signals or key.value.endswith("_score")):
+                    if isinstance(key, ast.Constant) and isinstance(key.value, str) and (key.value in signals or key.value.endswith("_score") or (file.stem == "link_targets" and key.value == "coverage")):
                         keys.add(key.value)
             if keys:
                 actual[f"{file.stem}.{fn.name}"] = keys

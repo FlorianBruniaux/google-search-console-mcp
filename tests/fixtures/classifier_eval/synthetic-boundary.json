@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "corpus_id": "synthetic-boundary-fixture",
+  "taxonomy_version": "query-intent-v1",
+  "provenance": "synthetic",
+  "queries": [
+    {
+      "id": "q1",
+      "family_id": "f1",
+      "query": "comment fonctionne une pompe",
+      "language": "fr",
+      "label": "informational",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    },
+    {
+      "id": "q2",
+      "family_id": "f1",
+      "query": "how does a pump work",
+      "language": "en",
+      "label": "informational",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    },
+    {
+      "id": "q3",
+      "family_id": "f3",
+      "query": "compare pump types before buying",
+      "language": "en",
+      "label": "commercial",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    },
+    {
+      "id": "q4",
+      "family_id": "f4",
+      "query": "pompe",
+      "language": "fr",
+      "label": "unclassified",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    },
+    {
+      "id": "q5",
+      "family_id": "f5",
+      "query": "pump manufacturer official login",
+      "language": "en",
+      "label": "navigational",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    },
+    {
+      "id": "q6",
+      "family_id": "f6",
+      "query": "buy a pump online",
+      "language": "en",
+      "label": "transactional",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    },
+    {
+      "id": "q7",
+      "family_id": "f7",
+      "query": "instructions entretien pompe",
+      "language": "fr",
+      "label": "informational",
+      "split": "tuning",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "id": "p1",
+      "family_id": "pf1",
+      "left_id": "q1",
+      "right_id": "q2",
+      "label": "same_intent",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    },
+    {
+      "id": "p2",
+      "family_id": "pf2",
+      "left_id": "q4",
+      "right_id": "q5",
+      "label": "unclassified",
+      "split": "held_out",
+      "annotation": {
+        "provenance": "synthetic",
+        "annotator": "fixture-author",
+        "reviewer": "fixture-reviewer",
+        "source_authorization": "synthetic examples authored for tests",
+        "disagreement_resolution": "no disagreement in controlled fixture"
+      }
+    }
+  ]
+}

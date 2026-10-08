@@ -22,6 +22,16 @@ from gsc_mcp.url_safety import (
 
 
 class TestIsSafeIp:
+    @pytest.mark.parametrize("address, expected", [
+        ("93.184.216.34", True), ("8.8.8.8", True), ("100.64.0.1", False),
+        ("100.127.255.254", False), ("10.0.0.1", False), ("127.0.0.1", False),
+        ("169.254.169.254", False), ("224.0.0.1", False), ("192.0.2.1", False),
+        ("2606:4700:4700::1111", True), ("::1", False), ("fc00::1", False),
+        ("fe80::1", False), ("ff00::1", False), ("2001:db8::1", False),
+    ])
+    def test_public_unicast_contract_requires_global_address(self, address, expected):
+        assert is_safe_ip(address) is expected
+
     def test_public_ipv4(self):
         assert is_safe_ip("93.184.216.34") is True
 
@@ -346,3 +356,127 @@ class TestFetchHtmlFollowingRedirects:
         with patch("httpx.Client", return_value=client):
             with pytest.raises(URLSafetyError, match="Cross-site redirect refused"):
                 fetch_html_following_redirects("https://example.com/")
+
+
+class TestRedirectObserverDNS:
+    """Keep URL validation/pinning real; replace only external resolver/HTTP transport."""
+
+    @staticmethod
+    def _budget():
+        import time
+        return url_safety.FetchObservationBudget(20, time.monotonic() + 60)
+
+    def test_connection_dns_is_pinned_against_second_answer(self, monkeypatch):
+        calls, connection_ips = [], []
+        def resolver(*args, **kwargs):
+            calls.append(args)
+            ip = "93.184.216.34" if len(calls) == 1 else "10.0.0.1"
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, 443))]
+        monkeypatch.setattr(socket, "getaddrinfo", resolver)
+        actual_client = httpx.Client
+        def handle(request):
+            connection_ips.append(socket.getaddrinfo(request.url.host, 443)[0][4][0])
+            return httpx.Response(200)
+        monkeypatch.setattr(httpx, "Client", lambda **kwargs: actual_client(
+            transport=httpx.MockTransport(handle), **kwargs))
+        result = url_safety.observe_get_redirects("https://example.com/a", site_url="https://example.com/", budget=self._budget())
+        assert result["status_code"] == 200
+        assert connection_ips == ["93.184.216.34"] and len(calls) == 1
+        assert socket.getaddrinfo is resolver
+
+    def test_same_host_redirect_gets_fresh_dns_validation(self, monkeypatch):
+        calls, sent = [], []
+        def resolver(*args, **kwargs):
+            calls.append(args)
+            ip = "93.184.216.34" if len(calls) == 1 else "10.0.0.1"
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, 443))]
+        monkeypatch.setattr(socket, "getaddrinfo", resolver)
+        actual_client = httpx.Client
+        def handle(request):
+            sent.append(str(request.url))
+            return httpx.Response(301, headers={"location": "/b"})
+        monkeypatch.setattr(httpx, "Client", lambda **kwargs: actual_client(
+            transport=httpx.MockTransport(handle), **kwargs))
+        budget = self._budget()
+        result = url_safety.observe_get_redirects("https://example.com/a", site_url="https://example.com/", budget=budget)
+        assert result["availability_reason"] == "dns_refused"
+        assert result["last_observed_status"] == 301 and result["status_code"] is None
+        assert result["last_requested_url"] == "https://example.com/a"
+        assert sent == ["https://example.com/a"] and len(calls) == 2
+        assert budget.requests_started == 1 and budget.dns_refusals == 1
+
+    def test_mixed_dns_answers_are_refused_before_http(self, monkeypatch):
+        monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: [
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443)),
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("10.0.0.1", 443)),
+        ])
+        with patch("httpx.Client") as client:
+            result = url_safety.observe_get_redirects("https://example.com/a", site_url="https://example.com/", budget=self._budget())
+        assert result["availability_reason"] == "dns_refused"
+        assert result["attempted"] is False
+        client.assert_not_called()
+
+    def test_environment_proxy_cannot_send_credentials(self, monkeypatch):
+        monkeypatch.setenv("HTTP_PROXY", "http://user:secret@127.0.0.1:8888")
+        monkeypatch.setenv("HTTPS_PROXY", "http://user:secret@127.0.0.1:8888")
+        monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: [
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))])
+        actual_client, requests = httpx.Client, []
+        def factory(**kwargs):
+            assert kwargs["trust_env"] is False and kwargs["follow_redirects"] is False
+            def handler(request):
+                requests.append(request)
+                return httpx.Response(200)
+            return actual_client(transport=httpx.MockTransport(handler), **kwargs)
+        monkeypatch.setattr(httpx, "Client", factory)
+        result = url_safety.observe_get_redirects("https://example.com/a", site_url="https://example.com/", budget=self._budget())
+        assert result["status_code"] == 200
+        assert requests[0].headers["accept-encoding"] == "identity"
+        assert "authorization" not in requests[0].headers and "proxy-authorization" not in requests[0].headers
+
+    def test_pin_lock_contention_is_unavailable_without_started_request(self, monkeypatch):
+        monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: [
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))])
+        budget = self._budget()
+        with url_safety._pin_dns("example.com", "93.184.216.34", 443):
+            result = url_safety.observe_get_redirects("https://example.com/a", site_url="https://example.com/", budget=budget)
+        assert result["availability_reason"] == "dns_pin_unavailable"
+        assert result["attempted"] is False and budget.requests_started == 0
+
+
+    @pytest.mark.parametrize("url", ["https://100.64.0.1/", "https://100.127.255.254/"])
+    def test_observer_refuses_non_global_literal_without_http(self, url):
+        with patch("httpx.Client") as client, patch("socket.getaddrinfo") as dns:
+            result = url_safety.observe_get_redirects(url, site_url=url, budget=self._budget())
+        assert result["outcome"] == "unavailable" and result["availability_reason"] == "unsafe_url"
+        assert result["attempted"] is False and result["status_code"] is None
+        client.assert_not_called()
+        dns.assert_not_called()
+
+    @pytest.mark.parametrize("addresses", [["100.64.0.1"], ["93.184.216.34", "100.64.0.1"]])
+    def test_observer_refuses_every_non_global_dns_answer_including_mixed_set(self, monkeypatch, addresses):
+        monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: [
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, 443)) for ip in addresses])
+        with patch("httpx.Client") as client:
+            result = url_safety.observe_get_redirects("https://example.com/a", site_url="https://example.com/", budget=self._budget())
+        assert result["availability_reason"] == "dns_refused" and result["attempted"] is False
+        assert result["status_code"] is None
+        client.assert_not_called()
+
+    def test_non_global_dns_redirect_retains_predecessor_without_second_http(self, monkeypatch):
+        calls, sent = [], []
+        def resolver(*args, **kwargs):
+            calls.append(args)
+            addresses = ["93.184.216.34"] if len(calls) == 1 else ["93.184.216.34", "100.64.0.1"]
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, 443)) for ip in addresses]
+        monkeypatch.setattr(socket, "getaddrinfo", resolver)
+        actual_client = httpx.Client
+        def handler(request):
+            sent.append(str(request.url))
+            return httpx.Response(302, headers={"location": "/b"})
+        monkeypatch.setattr(httpx, "Client", lambda **kwargs: actual_client(
+            transport=httpx.MockTransport(handler), **kwargs))
+        result = url_safety.observe_get_redirects("https://example.com/a", site_url="https://example.com/", budget=self._budget())
+        assert result["availability_reason"] == "dns_refused"
+        assert result["last_observed_status"] == 302 and result["status_code"] is None
+        assert sent == ["https://example.com/a"] and len(calls) == 2

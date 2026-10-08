@@ -114,3 +114,7 @@ Avant une écriture, confirmez le fournisseur, le site, les URL, l’action et l
 Les identifiants restent dans l’environnement du serveur ou la configuration du client. Ne placez jamais de JSON de compte de service, jeton OAuth, clé Bing ou clé IndexNow dans un prompt.
 
 [Lire la version anglaise canonique](/docs/evidence-and-safety/).
+
+## Variations et destinations de liens
+
+`search_change_breakdown` conserve dimensions indépendantes, couverture par date, compatibilité des agrégations et métriques indisponibles. `link_targets_audit` sépare statuts HTTP reçus et transport indisponible, avec les ancres source. Les [audits à périmètre borné](/fr/docs/audit-workflows/) donnent les appels exacts et exemples synthétiques. Aucun de ces outils ne prouve causalité, indexation ou gain de classement.

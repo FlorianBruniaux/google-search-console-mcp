@@ -4,16 +4,16 @@
 
 ## What This Project Is
 
-Python MCP server exposing 83 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
+Python MCP server exposing 85 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
-Published package 1.2.0 contains 81 tools; this source registry adds unreleased ga4_ai_referrals and editorial_audit for 83 tools.
+Published package 1.2.0 contains 81 tools; this source registry adds unreleased ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit for 85 tools.
 Setup guides: docs/installation.md, docs/google-setup.md, docs/bing-setup.md.
 Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 83 source tools.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + iterates registry.TOOLS to register all 85 source tools.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) + MCP server both read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS only.
@@ -347,3 +347,7 @@ INDEXNOW KEY              : not an env var in the current code. indexnow_submit 
 - Any tool return → json.dumps(with_meta(...))
 - New tool registered → update registry.TOOLS and properties._ALL_TOOLS; counts are derived
 - New test → mock get_*_service at call site, never make real API calls
+
+BOUNDED AUDIT WORKFLOWS: docs/audit-workflows.md
+  search_change_breakdown(site, baseline_start, baseline_end, comparison_start, comparison_end, dimensions=None, filters=None, search_type="web", data_state="final", aggregation_type="auto", row_limit=1000, max_requests=20, limit=50): Google-only equal ordered inclusive windows; independent dimension views, source keys, null unavailable metrics, physical request budget, coverage and noncausal residuals.
+  link_targets_audit(url, max_targets=30, max_requests=60): source and destination GETs share budget; terminal statuses differ from unavailable requests; no target body reads, recursive crawl or ranking claim.

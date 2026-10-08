@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Bounded audit workflows
+
+- Add `search_change_breakdown` for explicit equal Google windows with independent dimension views, source coverage, aggregation compatibility and descriptive residuals (#21). Missing rows remain unknown; contribution does not establish cause.
+- Add `link_targets_audit` for bounded internal destination GET statuses and redirect hops, retaining source anchors (#19). Source requests share the budget; unavailable transport is separate from observed HTTP errors.
+- The source registry now has 85 tools; published package 1.2.0 remains at 81. Publish the bilingual [bounded audit workflow guide](docs/audit-workflows.md). Contributor classifier evaluation is documented separately.
+
 ### Editorial audit
 
 - Add `editorial_audit` with a packaged versioned FR/EN house-style profile, localized rule warnings and faithful rewrite guidance (#17). Code, quotations and genre-specific structural exceptions are protected; unsupported or unavailable content is explicit. This is not AI-authorship detection or a ranking score.

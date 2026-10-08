@@ -44,6 +44,7 @@ export default defineConfig({
           label: 'Use · Utiliser',
           items: [
             { slug: 'docs/prompts' },
+            { slug: 'docs/audit-workflows' },
             {
               label: 'Examples · Scénarios',
               collapsed: false,

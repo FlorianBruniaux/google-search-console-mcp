@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "corpus_id": "synthetic-boundary-fixture",
+  "run_id": "boundary-rules",
+  "run_kind": "rules",
+  "task": "intent",
+  "split": "held_out",
+  "predictions": [
+    {
+      "id": "q1",
+      "predicted_label": "informational"
+    },
+    {
+      "id": "q2",
+      "predicted_label": "commercial"
+    },
+    {
+      "id": "q4",
+      "predicted_label": "unclassified"
+    },
+    {
+      "id": "q6",
+      "predicted_label": "transactional"
+    }
+  ]
+}
