@@ -2,24 +2,28 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-08
+
 ### Bounded audit workflows
 
 - Add `search_change_breakdown` for explicit equal Google windows with independent dimension views, source coverage, aggregation compatibility and descriptive residuals (#21). Missing rows remain unknown; contribution does not establish cause.
 - Add `link_targets_audit` for bounded internal destination GET statuses and redirect hops, retaining source anchors (#19). Source requests share the budget; unavailable transport is separate from observed HTTP errors.
-- The source registry now has 85 tools; published package 1.2.0 remains at 81. Publish the bilingual [bounded audit workflow guide](docs/audit-workflows.md). Contributor classifier evaluation is documented separately.
+- Release 1.3.0 includes 85 tools, compared with 81 in 1.2.0. Publish the bilingual [bounded audit workflow guide](docs/audit-workflows.md). Contributor classifier evaluation is documented separately.
 
 ### Editorial audit
 
 - Add `editorial_audit` with a packaged versioned FR/EN house-style profile, localized rule warnings and faithful rewrite guidance (#17). Code, quotations and genre-specific structural exceptions are protected; unsupported or unavailable content is explicit. This is not AI-authorship detection or a ranking score.
-- Preserve the existing `content_quality` API and score. The source registry has 83 tools; published package 1.2.0 still has 81.
+- Preserve the existing `content_quality` API and score. The editorial audit adds one tool to the shared registry.
 
 ### Added
 
-- `ga4_ai_referrals` mesure les visites GA4 attribuées aux sources d’assistants documentées, avec pages d’entrée, propriété effective, dates concrètes, contrôle de compatibilité et limites de couverture. Le registre source compte désormais 82 outils ; le paquet publié 1.2.0 en conserve 81. Les sources candidates restent exclues des totaux confirmés.
+- `ga4_ai_referrals` mesure les visites GA4 attribuées aux sources d’assistants documentées, avec pages d’entrée, propriété effective, dates concrètes, contrôle de compatibilité et limites de couverture. Cette version inclut cet outil dans le registre partagé. Les sources candidates restent exclues des totaux confirmés.
 - `_meta.evidence.fields` distingue les observations, calculs, règles et preuves indisponibles par chemin de résultat. Les niveaux décrivent la méthode sans fabriquer de probabilité ni autoriser une écriture.
 - Quatre audits HTML exposent `untrusted_content` avec signaux déterministes français/anglais, emplacements et extraits bornés. Un résultat non signalé reste non fiable et ne peut pas remplacer les instructions de l’utilisateur.
 
 ### Fixed
+
+- Shared safe fetching now refuses non-global IP addresses. Link observation preserves explicit empty queries and detects fragment-only redirect loops.
 
 - `traffic_health_check` utilise les mêmes dates concrètes pour GSC et GA4, conserve les zéros mesurés et laisse les réponses vides ou indisponibles à `null`. Les ratios sont suspendus pour les fenêtres, filtres ou couvertures incompatibles ; les statuts disponibles restent des règles de seuil, sans établir la cause d’un problème de tracking.
 - `schema_validate` distingue un challenge SiteGround connu d’une page sans schémas. Le verdict `challenge_page` conserve le contexte HTTP et laisse les données de schéma indisponibles. Les règles sont validées sur des fixtures synthétiques, sans preuve du comportement réel du fournisseur.

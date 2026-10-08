@@ -23,7 +23,7 @@ command -v gsc-mcp-tools
 gsc-cli list
 ```
 
-`gsc-cli list` should print 81 commands for release `1.2.0`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
+`gsc-cli list` should print 85 commands for release `1.3.0`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
 
 Upgrade later with:
 
@@ -31,12 +31,12 @@ Upgrade later with:
 uv tool upgrade gsc-mcp-tools
 ```
 
-An installation created with `gsc-mcp-tools==1.2.0` stays pinned. Reinstall without the version constraint before using `uv tool upgrade`, or install the next explicit version with `--force`.
+An installation created with `gsc-mcp-tools==1.3.0` stays pinned. Reinstall without the version constraint before using `uv tool upgrade`, or install the next explicit version with `--force`.
 
 To reproduce this release exactly:
 
 ```bash
-uv tool install --force gsc-mcp-tools==1.2.0
+uv tool install --force gsc-mcp-tools==1.3.0
 ```
 
 ## Alternative installations

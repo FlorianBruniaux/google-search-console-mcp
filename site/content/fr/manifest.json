@@ -3,11 +3,11 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "dc0fad9f08393d5dd4c44f666e73ca2f5bdfd280e592a3ddfc89ea797c31b951"
+      "sourceHash": "92e89b81c8c2507ba65f5f643cdcb56c5e57b478800134ebe6cded79ed0bdacd"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "139152ff0d0671914471c55ba459943cd7c95628383eaccc0b0da25713a895c3"
+      "sourceHash": "b71b7fd42d6e6e6a1e17803d8b1c8de533bf590ab26cc1b0e09facfa65af2205"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -59,15 +59,15 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "52be133b82e787590004605a536a2582996687b2cfc49f6960e72479d3cd41bb"
+      "sourceHash": "e17f67c6f9ae954d07816cf9daaa4d141c1c484f4296ed38d1b5c8478ba9702b"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
-      "sourceHash": "bebf5188ecff5a9390da2bcd26e81d35346266a061f310cfd1a163af6875c497"
+      "sourceHash": "61bc54c7d8b3e1edbed8eeb1485e6c78cd7ffdacc81b25442e51f183861752bd"
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "f7c584f6b435bb2147d3e52936bce96831f3b7a8472c0964d1ba925b6b3e3beb"
+      "sourceHash": "4cc786a2dc2e20423aa64742196dc919c57b0b6c3561dffbc58151fd2f87577d"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -83,7 +83,7 @@
     },
     "docs/audit-workflows.md": {
       "source": "docs/audit-workflows.md",
-      "sourceHash": "b52a29880151e6bca71c477eae13670f45ff4085b265b1e1e8ed79fceec3273e"
+      "sourceHash": "e66c2a6d10a4a03771b582d2e94732892941523840181c5422a19164297ab260"
     }
   }
 }

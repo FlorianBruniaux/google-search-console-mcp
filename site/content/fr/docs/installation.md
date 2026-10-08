@@ -8,6 +8,8 @@ canonicalEnglish: /docs/installation/
 
 ## Installation recommandée
 
+La version 1.3.0 expose 85 outils.
+
 Pour un essai ponctuel :
 
 ```bash
