@@ -2,7 +2,7 @@
 title: "Historique des versions"
 description: "Résumé français des versions de Search Console MCP et lien vers l’historique canonique."
 lang: fr
-lastUpdated: 2026-10-07
+lastUpdated: 2026-10-08
 canonicalEnglish: /docs/changelog/
 ---
 
@@ -11,6 +11,11 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 ## Non publié
 
 - Les rapports GA4 identifient la propriété effectivement interrogée, même avec la configuration par défaut. Les rapports combinés conservent cette provenance et le site GSC ; une source GA4 inconnue reste `null`.
+- La validation des schémas parcourt les nœuds JSON-LD `@graph`, y compris dans un tableau racine, et conserve les parents typés. Un `@type` en liste est pris en charge sans erreur.
+- Les champs recommandés de `SoftwareApplication` restent distincts des champs requis. La validation locale des champs ne prétend pas établir l’éligibilité Google aux résultats enrichis.
+- Les audits de schémas et de liens suivent au plus cinq redirections vers le même site, avec validation de sécurité à chaque saut. Les redirections vers un autre site ou une URL malformée renvoient une erreur de récupération.
+- Les audits de schémas et de liens internes indiquent l’URL finale. Les outils de liens utilisent cette URL pour distinguer les liens internes après une redirection vers `www`.
+- L’audit des titres ne signale plus `TL;DR` comme un titre vide.
 
 - La landing et les scénarios utilisent des titres factuels avec des chiffres explicites.
 - La FAQ pose des questions directes en anglais et en français.

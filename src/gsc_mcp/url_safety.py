@@ -442,7 +442,12 @@ def fetch_html_following_redirects(
             location = exc.response.headers.get("location")
             if exc.response.status_code not in _REDIRECT_STATUSES or not location:
                 raise
-            target = urljoin(current, location)
+            try:
+                target = urljoin(current, location)
+            except ValueError as parse_error:
+                raise URLSafetyError(
+                    f"Redirect target has an invalid port or authority: {location}"
+                ) from parse_error
             if _site_key(target) != _site_key(current):
                 raise URLSafetyError(
                     f"Cross-site redirect refused: {current} -> {target}"
