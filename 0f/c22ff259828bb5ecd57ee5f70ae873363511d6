@@ -1,0 +1,129 @@
+src/gsc_mcp/tools/rewrite.py
+  s_05ea773ff72f20::t_f9dd8d4b15a72f 1-18,21-83,89-92,94-97,107,109,115-119,128-140,153-166,168-230,233-242,246,249-266,269-278
+  s_05ea773ff72f20::t_5d9a579aa14a8a 20,98-106,141-152,244-245
+  s_05ea773ff72f20::t_c653cf8019f88b 84-88,167
+  s_05ea773ff72f20::t_eca65f1098d3c6 19
+  s_05ea773ff72f20::t_e4fe9648748fb5 93,108,110-114,120-127,231-232,243,247-248,267-268
+CHANGELOG.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 5-9
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 45,48-51
+docs/architecture.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 7,14,233-236
+site/content/fr/docs/index.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 56-57
+pyproject.toml
+  s_05ea773ff72f20::t_4d121ec1aaf796 44
+docs/editorial-audit.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 93-94
+site/tests/site.spec.ts
+  s_05ea773ff72f20::t_4fbcfa0b29be54 489
+src/gsc_mcp/cli.py
+  s_05ea773ff72f20::t_9a39fb936e84d8 259
+  s_05ea773ff72f20::t_bf9e4f766d34b7 43,53-54,64-65,87-88,93-94,150,156,249,258,260
+src/gsc_mcp/tools/change_impact.py
+  s_05ea773ff72f20::t_03feba87742fd5 1-221
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_4fbcfa0b29be54 6,62,70,82,86-89
+  s_05ea773ff72f20::t_17861fb2ff35a8 10,90
+src/gsc_mcp/registry.py
+  s_05ea773ff72f20::t_36c0d48cb25de9 78-79,119,164
+tests/test_rewrite.py
+  s_05ea773ff72f20::t_a7138264c92e0c 1-149
+  s_05ea773ff72f20::t_4af3845be993a6 221-234
+  s_05ea773ff72f20::t_91f201ccdf27cb 235-255
+  s_05ea773ff72f20::t_d1d78c22aff23f 256-274
+  s_05ea773ff72f20::t_23caa406359ae3 196-213
+  s_05ea773ff72f20::t_dd6e65417da523 150-195
+  s_05ea773ff72f20::t_52d24dee857479 214-220
+src/gsc_mcp/tools/editorial_drafts.py
+  s_05ea773ff72f20::t_0d07d071837e63 30,38-45,62-64,67-75,114-116,120-124,127,146,151,177,180-184
+  s_05ea773ff72f20::t_3bc7ae700929fd 1-29,31-37,46-60,65-66,76-85,87-91,98-113,125-126,128,142-145,147-150,152-158,160-170,172,176,178,185-195,197-231,238-256,259-302
+  s_05ea773ff72f20::t_b1c1e224df1bea 117-119,196
+  s_05ea773ff72f20::t_8bcb6cf1934fe1 86,92-97,129-141,232-237
+  s_05ea773ff72f20::t_997df264748453 159,171,173-175,257-258
+  s_05ea773ff72f20::t_1213e18dc4d1ec 61,179
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_b4926ace0a957d 283
+  s_05ea773ff72f20::t_4fbcfa0b29be54 7,16,184,354-358
+tests/test_editorial_drafts.py
+  s_05ea773ff72f20::t_215131252abc85 171-190
+  s_05ea773ff72f20::t_0d07d071837e63 96
+  s_05ea773ff72f20::t_af0d5a4adc5b76 191-196
+  s_05ea773ff72f20::t_132d7dc356f053 197-216,218,221-237
+  s_05ea773ff72f20::t_6dde404d83ed74 1-95,97-131
+  s_05ea773ff72f20::t_14d27e0d483112 217,219-220
+  s_05ea773ff72f20::t_c382a0ac386d4d 132-170
+site/content/fr/docs/editorial-audit.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 99-100
+docs/editorial-workflows.md
+  s_05ea773ff72f20::t_17861fb2ff35a8 35
+  s_05ea773ff72f20::t_081eb52c1fd3d0 1-34,36-39
+site/astro.config.mjs
+  s_05ea773ff72f20::t_4fbcfa0b29be54 48
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 11-17
+docs/installation.md
+  s_05ea773ff72f20::t_17861fb2ff35a8 3
+src/gsc_mcp/evidence.py
+  s_05ea773ff72f20::t_36c0d48cb25de9 37,130-142,144-145,198,283-286,341-344
+  s_05ea773ff72f20::t_336440cf1dc30f 143
+site/content/en/index.md
+  s_05ea773ff72f20::t_4fbcfa0b29be54 48-49
+tests/test_evidence.py
+  s_05ea773ff72f20::t_07bb6420eb6c7b 354-356,402-430,604-605,632-636
+  s_05ea773ff72f20::t_f7008553a6b39c 357
+  s_05ea773ff72f20::t_c52b6c685482ad 492-598
+site/scripts/prepare-doc-content.mjs
+  s_05ea773ff72f20::t_4fbcfa0b29be54 30
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_e1184c295aa3b7 90-116
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_e1184c295aa3b7 96-122
+README.md
+  s_05ea773ff72f20::t_b4926ace0a957d 19,673
+  s_05ea773ff72f20::t_4fbcfa0b29be54 17,40,328,397,399,402,455-457,623-624,637,661
+  s_05ea773ff72f20::t_b9bb46452ed512 191,498
+tests/test_registry.py
+  s_05ea773ff72f20::t_36c0d48cb25de9 43,88
+site/content/fr/docs/editorial-workflows.md
+  s_05ea773ff72f20::t_17861fb2ff35a8 41
+  s_05ea773ff72f20::t_081eb52c1fd3d0 1-40,42-45
+docs/machine-readable/code-map.yaml
+  s_05ea773ff72f20::t_4fbcfa0b29be54 9,17-19,39,166-178
+  s_05ea773ff72f20::t_b4926ace0a957d 10
+  s_05ea773ff72f20::t_0b5a3a4036fc19 179
+tests/test_followup_integration.py
+  s_05ea773ff72f20::t_396f14220f96f9 1-9,11-24,28-39,41-46,48-56
+  s_05ea773ff72f20::t_336440cf1dc30f 47
+  s_05ea773ff72f20::t_58f7a7ad9a495f 10,27,40,57-65,70-73
+  s_05ea773ff72f20::t_08cf5d81fa4ace 25-26,66-69,74
+src/gsc_mcp/tools/editorial.py
+  s_05ea773ff72f20::t_3bc7ae700929fd 9,14,17-19,30-35,42-56
+  s_05ea773ff72f20::t_9c594edbae2f1c 1
+src/gsc_mcp/tools/properties.py
+  s_05ea773ff72f20::t_36c0d48cb25de9 15,60
+tests/test_change_impact.py
+  s_05ea773ff72f20::t_88474afb51ec0a 1-2,6-7,9-226
+  s_05ea773ff72f20::t_3dc2c1bdcc66da 3-5,8,227-257
+site/public/llms.txt
+  s_05ea773ff72f20::t_4fbcfa0b29be54 22-24
+uv.lock
+  s_05ea773ff72f20::t_c3eadf48d6a7ea 486,506,1252-1260
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0fc22ff259828bb5ecd57ee5f70ae873363511d6",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
