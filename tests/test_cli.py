@@ -283,6 +283,51 @@ def test_list_str_flag_repeated(mock_gsc_service, monkeypatch, capsys):
     assert result["count"] == 2
 
 
+@pytest.mark.parametrize("url_flags, expected", [
+    (["--urls", '["https://a.com/","https://b.com/"]'],
+     ["https://a.com/", "https://b.com/"]),
+    (["--urls", "https://example.com/a,b?q=x,y", "--urls", "https://b.com/"],
+     ["https://example.com/a,b?q=x,y", "https://b.com/"]),
+    (["--urls", '["https://example.com/a,b?q=x,y"]', "--urls", "https://b.com/"],
+     ["https://example.com/a,b?q=x,y", "https://b.com/"]),
+])
+def test_list_str_values_reach_real_inspection_tool(
+    url_flags, expected, mock_gsc_service, monkeypatch, capsys,
+):
+    mock_gsc_service.urlInspection().index().inspect().execute.return_value = (
+        _minimal_inspection_response()
+    )
+    monkeypatch.setattr("gsc_mcp.tools.inspection.get_searchconsole_service",
+                        lambda: mock_gsc_service)
+    assert main(["batch-url-inspection", *url_flags,
+                 "--site", "https://example.com/"]) == 0
+    output = json.loads(capsys.readouterr().out)
+    assert [item["url"] for item in output["results"]] == expected
+
+
+@pytest.mark.parametrize("value", ['["https://a.com/",]', '["https://a.com/", 1]',
+                                   '[{"url":"https://a.com/"}]'])
+def test_list_str_invalid_json_rejected_before_execution(value, monkeypatch, capsys):
+    def unexpected_service():
+        pytest.fail("Invalid CLI arguments must not reach Google")
+
+    monkeypatch.setattr("gsc_mcp.tools.inspection.get_searchconsole_service", unexpected_service)
+    with pytest.raises(SystemExit) as exc_info:
+        main(["batch-url-inspection", "--urls", value, "--site", "https://example.com/"])
+    assert exc_info.value.code == 2
+    assert "--urls" in capsys.readouterr().err
+
+
+def test_list_str_help_explains_repeat_json_and_commas(capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        main(["batch-url-inspection", "--help"])
+    assert exc_info.value.code == 0
+    help_text = " ".join(capsys.readouterr().out.split())
+    assert "Repeat --urls" in help_text
+    assert "JSON array of strings" in help_text
+    assert "Commas are preserved" in help_text
+
+
 # ---------------------------------------------------------------------------
 # 6. ga4_funnel --steps parses list[dict] from JSON string
 # ---------------------------------------------------------------------------

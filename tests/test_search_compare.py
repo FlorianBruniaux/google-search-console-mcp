@@ -3,6 +3,7 @@ import json
 import pytest
 
 from gsc_mcp.providers.base import SearchMetricBatch, SearchMetricRow
+from gsc_mcp.providers.bing import BingSearchProvider
 from gsc_mcp.tools.search_compare import compare_search_engines
 
 
@@ -72,6 +73,35 @@ def _install_providers(monkeypatch, google_batch, bing_batch):
         lambda days: ("2026-01-01", "2026-01-28"),
     )
     return providers
+
+
+def test_comparison_keeps_bing_ctr_anomaly_without_failing(monkeypatch):
+    google = _batch("google", "query", (_row("google", "query", "anomaly", clicks=1, impressions=10, ctr=0.1),))
+    class Client:
+        def read(self, method, params):
+            return [
+                {"Query": "anomaly", "Date": "2026-01-03", "Clicks": 3, "Impressions": 2},
+                {"Query": "valid", "Date": "2026-01-04", "Clicks": 1, "Impressions": 20},
+            ]
+    monkeypatch.setattr("gsc_mcp.providers.bing.get_bing_client", lambda: Client())
+    providers = _install_providers(monkeypatch, google, None)
+    monkeypatch.setattr(
+        "gsc_mcp.tools.search_compare.get_search_provider",
+        lambda engine: providers["google"] if engine == "google" else BingSearchProvider(),
+    )
+    result = json.loads(compare_search_engines("sc-domain:example.com", "https://example.com/"))
+    anomaly = next(row for row in result["rows"] if row["query"] == "anomaly")
+    assert anomaly["bing"]["clicks"] == 3
+    assert anomaly["bing"]["impressions"] == 2
+    assert anomaly["bing"]["ctr"] is None
+    assert anomaly["bing"]["metric_diagnostics"][0]["raw_ratio"] == 1.5
+    assert next(row for row in result["rows"] if row["query"] == "valid")["bing"]["ctr"] == 0.05
+    assert result["totals"]["bing"]["clicks"] == 4
+    assert result["totals"]["bing"]["impressions"] == 22
+    assert result["totals"]["bing"]["ctr"] is None
+    assert result["totals"]["bing"]["metric_diagnostics"][0]["clicks"] == 3
+    assert result["windows_comparable"] is False
+    assert anomaly["click_delta"] is None
 
 
 def test_query_comparison_normalizes_aggregates_outer_joins_and_sorts(monkeypatch):
@@ -419,3 +449,39 @@ def test_limit_is_applied_after_sorting(monkeypatch):
             "limit": 1,
         },
     }
+
+
+@pytest.mark.parametrize("unavailable", ["clicks", "impressions"])
+@pytest.mark.parametrize("engine", ["google", "bing"])
+def test_exact_window_deltas_require_each_count_input(monkeypatch, unavailable, engine):
+    metrics = {
+        "google": {"clicks": 5, "impressions": 50, "ctr": 0.1},
+        "bing": {"clicks": 3, "impressions": 30, "ctr": 0.1},
+    }
+    metrics[engine][unavailable] = 0
+    metrics[engine]["ctr"] = None
+    metrics[engine]["provider_metrics"] = {"unavailable_metrics": [unavailable, "ctr"]}
+    google = _batch("google", "query", (_row("google", "query", "same", **metrics["google"]),))
+    bing = _batch("bing", "query", (_row("bing", "query", "same", **metrics["bing"]),))
+    _install_providers(monkeypatch, google, bing)
+    result = json.loads(compare_search_engines("sc-domain:example.com", "https://example.com/"))
+    unknown_delta = "click_delta" if unavailable == "clicks" else "impression_delta"
+    known_delta = "impression_delta" if unavailable == "clicks" else "click_delta"
+    records = result["_meta"]["evidence"]["fields"]
+    for prefix, group in (("/rows/0", result["rows"][0]), ("/totals", result["totals"])):
+        assert group["windows_comparable"] is True
+        assert group[unknown_delta] is None
+        assert group[known_delta] == (-20 if unavailable == "clicks" else -2)
+        assert records[f"{prefix}/{unknown_delta}"]["basis"] is None
+        assert records[f"{prefix}/{known_delta}"]["basis"] == "derived"
+
+
+def test_exact_window_explicit_zero_counts_still_allow_deltas(monkeypatch):
+    google = _batch("google", "query", (_row("google", "query", "same", clicks=5, impressions=50, ctr=0.1),))
+    bing = _batch("bing", "query", (_row("bing", "query", "same", clicks=0, impressions=0, ctr=0.0),))
+    _install_providers(monkeypatch, google, bing)
+    result = json.loads(compare_search_engines("sc-domain:example.com", "https://example.com/"))
+    for group in (result["rows"][0], result["totals"]):
+        assert group["windows_comparable"] is True
+        assert group["click_delta"] == -5
+        assert group["impression_delta"] == -50

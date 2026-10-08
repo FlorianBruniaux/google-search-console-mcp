@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Feedback fixes
+
+- Add optional MCP startup selection through `GSC_MCP_TOOL_FAMILIES`. All 85 tools remain the default, `core` stays exposed and CLI listing keeps the full catalogue. Selection does not grant provider access or write permission.
+- String-list CLI options accept repeated flags or JSON arrays of strings; literal commas remain part of URLs. Invalid arrays fail before provider access.
+- `traffic_drops` uses a three-day reporting lag and returns candidate diagnoses with supporting metrics. Missing current query rows remain unavailable; CTR/ranking rules require observations and demand decline requires measured impression decline. Candidates do not prove causes. `seo_lost_queries` retains its existing lag behavior.
+- `seo_cannibalization` excludes search-operator queries by default, reports a distinct-query exclusion count and supports `include_search_operators=True`.
+- `ai_visibility_audit` uses `ClaudeBot`, `Claude-User` and `Claude-SearchBot` with separate purposes, replacing the legacy Anthropic agent name.
+- `bing_query_stats` aggregates by query before sorting and limiting by default; `daily=True` retains daily source rows. Invalid source CTR remains `null` with preserved anomaly diagnostics through aggregation and limiting.
+
+
 ## [1.3.0] - 2026-10-08
 
 ### Bounded audit workflows

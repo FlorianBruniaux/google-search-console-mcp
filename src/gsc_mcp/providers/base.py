@@ -80,7 +80,7 @@ class SearchMetricRow:
     page: str | None
     clicks: int
     impressions: int
-    ctr: float
+    ctr: float | None
     position: float | None
     provider_metrics: Mapping[str, object] = field(default_factory=dict)
 
@@ -91,7 +91,7 @@ class SearchMetricRow:
             raise ValueError("clicks must not be negative")
         if self.impressions < 0:
             raise ValueError("impressions must not be negative")
-        if not 0 <= self.ctr <= 1:
+        if self.ctr is not None and not 0 <= self.ctr <= 1:
             raise ValueError("ctr must be between 0 and 1")
         object.__setattr__(
             self,

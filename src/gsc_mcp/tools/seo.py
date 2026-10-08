@@ -17,6 +17,9 @@ _WIN_MIN_IMPRESSIONS = 10
 _STRIKING_MIN_POSITION = 8.0
 _STRIKING_MAX_POSITION = 15.0
 _CANNIBAL_MIN_CONFLICT = 0.1
+_SEARCH_OPERATOR_QUERY = re.compile(
+    r"(?:^|\s)-?(?:site|intitle|inurl|filetype):\S+", re.IGNORECASE
+)
 
 
 def _validate_engine(engine: str) -> None:
@@ -68,9 +71,9 @@ def _rows_as_dicts(batch: SearchMetricBatch) -> list[dict]:
     ]
 
 
-def _two_periods(days: int):
-    """Return (start_a, end_a, start_b, end_b) for two consecutive equal-length windows ending today."""
-    end_b = date.today()
+def _two_periods(days: int, lag: int = 0):
+    """Return two adjacent equal-length windows ending lag days before today."""
+    end_b = date.today() - timedelta(days=lag)
     start_b = end_b - timedelta(days=days - 1)
     end_a = start_b - timedelta(days=1)
     start_a = end_a - timedelta(days=days - 1)
@@ -95,6 +98,7 @@ def quick_wins(
 
     Sorted by opportunity_score = (benchmark_ctr - actual_ctr) * impressions. High scores mean
     large click gains are possible with CTR optimisation (title/meta improvements).
+    Unavailable CTRs are skipped; Bing reports the count in skipped_metric_rows.
     """
     _validate_engine(engine)
     start, end = _date_range(days)
@@ -103,6 +107,7 @@ def quick_wins(
     )
 
     opportunities = []
+    unavailable_ctr_count = 0
     for r in raw:
         pos = r.get("position", 0.0)
         if pos is None:
@@ -111,7 +116,10 @@ def quick_wins(
         if not (_WIN_MIN_POSITION <= pos <= _WIN_MAX_POSITION and imp >= min_impressions):
             continue
         bench = _benchmark_ctr(pos)
-        actual_ctr = r.get("ctr", 0.0)
+        actual_ctr = r.get("ctr")
+        if actual_ctr is None:
+            unavailable_ctr_count += 1
+            continue
         if actual_ctr >= bench:
             continue
         expected_clicks = round(bench * imp)
@@ -137,6 +145,7 @@ def quick_wins(
     params = {"site": site, "days": days, "min_impressions": min_impressions}
     if engine == "bing":
         data["engine"] = "bing"
+        data["skipped_metric_rows"] = {"ctr_unavailable": unavailable_ctr_count}
         params["engine"] = "bing"
 
     return json.dumps(with_meta(
@@ -149,9 +158,11 @@ def quick_wins(
 def traffic_drops(site: str, days: int = 28, engine: str = "google") -> str:
     """Find queries whose clicks dropped compared to the previous equally-sized period.
 
-    Each result includes a diagnosis: 'ranking_loss' (position degraded by more than 2),
-    'ctr_collapse' (CTR fell more than 30%), or 'demand_decline' (impressions also fell).
-    Note: uses date.today() without a GSC reporting lag, so the most recent 2-3 days may be incomplete.
+    Windows exclude the most recent 3 days for the GSC reporting lag. Diagnoses are
+    metric-rule candidates, not established causes: 'ranking_loss' (position worsened
+    by more than 2), 'ctr_collapse' (CTR fell more than 30%), or 'demand_decline'
+    (impressions fell). Multiple candidates can match; 'unknown' means insufficient
+    evidence. A query missing from current rows is unavailable, not observed zero.
     """
     _validate_engine(engine)
     if engine == "bing":
@@ -161,7 +172,7 @@ def traffic_drops(site: str, days: int = 28, engine: str = "google") -> str:
             {"site": site, "days": days},
         )
 
-    start_a, end_a, start_b, end_b = _two_periods(days)
+    start_a, end_a, start_b, end_b = _two_periods(days, lag=3)
 
     def fetch(start, end):
         rows = _rows_as_dicts(
@@ -178,6 +189,30 @@ def traffic_drops(site: str, days: int = 28, engine: str = "google") -> str:
     prev = fetch(start_a, end_a)
     curr = fetch(start_b, end_b)
 
+    def metrics(row):
+        if row is None:
+            return None
+        has_impressions = row["impressions"] > 0
+        return {
+            "clicks": row["clicks"],
+            "impressions": row["impressions"],
+            "ctr": row["ctr"] if has_impressions else None,
+            "position": row["position"] if has_impressions else None,
+        }
+
+    unavailable = [
+        {
+            "query": query,
+            "diagnosis": "unknown",
+            "diagnosis_status": "insufficient_evidence",
+            "diagnosis_candidates": [],
+            "reason": "current_query_not_returned",
+            "metrics_previous": metrics(prev_row),
+            "metrics_current": None,
+        }
+        for query, prev_row in prev.items()
+        if query not in curr
+    ]
     drops = []
     for query, curr_row in curr.items():
         prev_row = prev.get(query)
@@ -187,20 +222,32 @@ def traffic_drops(site: str, days: int = 28, engine: str = "google") -> str:
         if click_delta >= 0:
             continue
 
-        if curr_row["position"] > prev_row["position"] + 2:
-            diagnosis = "ranking_loss"
-        elif curr_row["ctr"] < prev_row["ctr"] * 0.7:
-            diagnosis = "ctr_collapse"
-        else:
-            diagnosis = "demand_decline"
+        previous_metrics = metrics(prev_row)
+        current_metrics = metrics(curr_row)
+        candidates = []
+        # No impressions means there is no CTR or ranking evidence to compare.
+        if prev_row["impressions"] > 0 and curr_row["impressions"] > 0:
+            previous_position = previous_metrics["position"]
+            current_position = current_metrics["position"]
+            if (previous_position is not None and current_position is not None
+                    and current_position > previous_position + 2):
+                candidates.append("ranking_loss")
+            if curr_row["ctr"] < prev_row["ctr"] * 0.7:
+                candidates.append("ctr_collapse")
+            if curr_row["impressions"] < prev_row["impressions"]:
+                candidates.append("demand_decline")
 
         drops.append({
             "query": query,
             "clicks_delta": click_delta,
             "impressions_delta": curr_row["impressions"] - prev_row["impressions"],
-            "position_current": curr_row["position"],
-            "position_previous": prev_row["position"],
-            "diagnosis": diagnosis,
+            "position_current": current_metrics["position"],
+            "position_previous": previous_metrics["position"],
+            "diagnosis": candidates[0] if candidates else "unknown",
+            "diagnosis_status": "candidate" if candidates else "insufficient_evidence",
+            "diagnosis_candidates": candidates,
+            "metrics_previous": previous_metrics,
+            "metrics_current": current_metrics,
         })
 
     drops.sort(key=lambda x: x["clicks_delta"])
@@ -211,6 +258,8 @@ def traffic_drops(site: str, days: int = 28, engine: str = "google") -> str:
             "period_a": {"start": start_a.isoformat(), "end": end_a.isoformat()},
             "period_b": {"start": start_b.isoformat(), "end": end_b.isoformat()},
             "drops": drops,
+            "unavailable_queries": unavailable,
+            "diagnosis_note": "Metric-rule candidates do not establish causes. Missing query rows do not establish zero traffic.",
         },
         tool="traffic_drops",
         params={"site": site, "days": days},
@@ -274,12 +323,17 @@ def seo_cannibalization(
     days: int = 28,
     min_impressions: int = 50,
     engine: str = "google",
+    include_search_operators: bool = False,
 ) -> str:
     """Detect queries where multiple pages compete for the same ranking slot.
 
     Uses the Herfindahl-Hirschman Index (HHI) to measure click concentration across pages.
     conflict_score = 1 - HHI: values near 1 mean clicks are split evenly across pages (high competition).
     Filters to queries with at least min_impressions total impressions to exclude noise.
+    Excludes queries containing site:, intitle:, inurl: or filetype: tokens by default,
+    counting distinct excluded queries in excluded_search_operator_queries. Pass
+    include_search_operators=True to include them. These signals are candidates for
+    review; shared queries and split clicks alone do not prove harmful competition.
     """
     _validate_engine(engine)
     if engine == "bing":
@@ -290,6 +344,7 @@ def seo_cannibalization(
                 "site": site,
                 "days": days,
                 "min_impressions": min_impressions,
+                "include_search_operators": include_search_operators,
             },
         )
 
@@ -299,9 +354,13 @@ def seo_cannibalization(
     )
 
     groups: dict[str, list[dict]] = {}
+    excluded_queries = set()
     for r in raw:
         query = r.get("query")
         if query is None:
+            continue
+        if not include_search_operators and _SEARCH_OPERATOR_QUERY.search(query):
+            excluded_queries.add(query)
             continue
         groups.setdefault(query, []).append(r)
 
@@ -350,9 +409,19 @@ def seo_cannibalization(
     conflicts.sort(key=lambda x: x["conflict_score"], reverse=True)
 
     return json.dumps(with_meta(
-        {"site": site, "date_range": {"start": start, "end": end}, "conflicts": conflicts},
+        {
+            "site": site,
+            "date_range": {"start": start, "end": end},
+            "conflicts": conflicts,
+            "excluded_search_operator_queries": len(excluded_queries),
+        },
         tool="seo_cannibalization",
-        params={"site": site, "days": days, "min_impressions": min_impressions},
+        params={
+            "site": site,
+            "days": days,
+            "min_impressions": min_impressions,
+            "include_search_operators": include_search_operators,
+        },
     ))
 
 

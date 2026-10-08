@@ -7,7 +7,12 @@ from collections.abc import Callable
 from datetime import date, timedelta
 
 from gsc_mcp.meta import with_meta
-from gsc_mcp.providers.bing import get_bing_client, parse_bing_date
+from gsc_mcp.providers.bing import (
+    BingSearchProvider,
+    bing_row_ctr_metrics,
+    get_bing_client,
+    parse_bing_date,
+)
 
 _MAX_LIMIT = 10_000
 _POSITION_SEMANTICS = {
@@ -76,18 +81,29 @@ def _requested_window(days: int) -> dict[str, object]:
 def _query_row(raw: dict, key_name: str) -> dict:
     impressions = int(raw.get("Impressions", 0) or 0)
     clicks = int(raw.get("Clicks", 0) or 0)
-    avg_impression_position = float(raw.get("AvgImpressionPosition", 0) or 0)
+    raw_impression_position = raw.get("AvgImpressionPosition")
+    raw_click_position = raw.get("AvgClickPosition")
+    avg_impression_position = (
+        round(float(raw_impression_position), 1)
+        if raw_impression_position is not None else None
+    )
+    avg_click_position = (
+        round(float(raw_click_position), 1)
+        if raw_click_position is not None else None
+    )
+    metrics = bing_row_ctr_metrics(raw, clicks, impressions)
+    observed_date = parse_bing_date(raw.get("Date"))
+    for diagnostic in metrics.get("metric_diagnostics", []):
+        diagnostic.update({"date": observed_date, key_name: raw.get("Query")})
     return {
         key_name: raw.get("Query"),
-        "date": parse_bing_date(raw.get("Date")),
+        "date": observed_date,
         "clicks": clicks,
         "impressions": impressions,
-        "ctr": round(clicks / impressions, 4) if impressions else 0.0,
-        "position": round(avg_impression_position, 1),
-        "avg_click_position": round(
-            float(raw.get("AvgClickPosition", 0) or 0), 1
-        ),
-        "avg_impression_position": round(avg_impression_position, 1),
+        **metrics,
+        "position": avg_impression_position,
+        "avg_click_position": avg_click_position,
+        "avg_impression_position": avg_impression_position,
     }
 
 
@@ -98,7 +114,7 @@ def _traffic_row(raw: dict) -> dict:
         "date": parse_bing_date(raw.get("Date")),
         "clicks": clicks,
         "impressions": impressions,
-        "ctr": round(clicks / impressions, 4) if impressions else 0.0,
+        **bing_row_ctr_metrics(raw, clicks, impressions),
     }
 
 
@@ -137,6 +153,7 @@ def _response(
     observed_rows: list[dict],
     position_semantics: dict[str, str] | str,
     metrics: dict[str, list[str]],
+    extra_meta: dict | None = None,
 ) -> str:
     payload = with_meta(data, tool=tool, params=params)
     payload["_meta"].update(
@@ -146,6 +163,7 @@ def _response(
             "observed_window": _observed_window(observed_rows),
             "position_semantics": position_semantics,
             "metrics": metrics,
+            **(extra_meta or {}),
         }
     )
     return json.dumps(payload)
@@ -161,6 +179,7 @@ def _position_stats(
     tool: str,
     extra_params: dict[str, object] | None = None,
     data: dict[str, object] | None = None,
+    daily: bool = True,
 ) -> str:
     _validate_window(days)
     _validate_limit(limit)
@@ -172,30 +191,124 @@ def _position_stats(
         requested_window,
         lambda raw: _query_row(raw, key_name),
     )
+    observed_rows = rows
+    query_data = {}
+    if tool == "bing_query_stats":
+        start, end = str(requested_window["start"]), str(requested_window["end"])
+        source_rows = (
+            [raw for raw in raw_rows if isinstance(raw, dict)]
+            if isinstance(raw_rows, list) else []
+        )
+        dated_rows = [
+            (raw, parse_bing_date(raw.get("Date"))) for raw in source_rows
+        ]
+        in_window = [
+            (raw, observed) for raw, observed in dated_rows
+            if observed is not None and start <= observed <= end
+        ]
+        diagnostics = [
+            diagnostic for row in observed_rows
+            for diagnostic in row.get("metric_diagnostics", [])
+        ]
+        if not daily:
+            rows = [
+                {
+                    "query": row.query,
+                    "date": None,
+                    "clicks": row.clicks,
+                    "impressions": row.impressions,
+                    "ctr": row.ctr,
+                    "position": row.position,
+                    **row.to_dict()["provider_metrics"],
+                }
+                for row in BingSearchProvider._aggregate_positions(
+                    in_window, "query"
+                )
+            ]
+        query_data = {
+            "aggregation_scope": "daily" if daily else "query",
+            "source_row_count": len(in_window),
+            "row_count": len(rows),
+            "local_truncated": len(rows) > limit,
+            "date_filtering": {
+                "invalid_date_row_count": sum(
+                    observed is None for _, observed in dated_rows
+                ),
+                "out_of_window_row_count": sum(
+                    observed is not None and not start <= observed <= end
+                    for _, observed in dated_rows
+                ),
+            },
+            "metric_diagnostics": diagnostics,
+        }
     rows.sort(key=lambda row: row["impressions"], reverse=True)
     visible_rows = rows[:limit]
     response_data = {
         "site": site,
         **(data or {}),
+        **query_data,
         "count": len(visible_rows),
         "rows": visible_rows,
     }
     public_params = {"site": site, "days": days, "limit": limit}
     if data:
         public_params.update(data)
+    extra_meta = {}
+    if tool == "bing_query_stats":
+        public_params["daily"] = daily
+        extra_meta = {
+            "window_exact": False,
+            "provider_completeness": "UNKNOWN",
+            "aggregation_semantics": {
+                "scope": "daily" if daily else "query",
+                "counts": (
+                    "source_row" if daily
+                    else "sum_of_dated_rows_in_requested_window"
+                ),
+                "ctr": (
+                    "source_row_ratio_unavailable_on_anomaly" if daily
+                    else "ratio_of_summed_counts_unavailable_on_source_anomaly"
+                ),
+                "avg_click_position": (
+                    "source_average" if daily
+                    else "click_weighted_over_rows_with_available_position"
+                ),
+                "avg_impression_position": (
+                    "source_average" if daily
+                    else "impression_weighted_over_rows_with_available_position"
+                ),
+            },
+        }
     return _response(
         data=response_data,
         tool=tool,
         params=public_params,
         requested_window=requested_window,
-        observed_rows=rows,
+        observed_rows=observed_rows,
         position_semantics=_POSITION_SEMANTICS,
-        metrics=_POSITION_METRICS,
+        metrics=(
+            {"measured": [], "derived": [
+                *_POSITION_METRICS["measured"], *_POSITION_METRICS["derived"]
+            ]}
+            if tool == "bing_query_stats" and not daily
+            else _POSITION_METRICS
+        ),
+        extra_meta=extra_meta,
     )
 
 
-def bing_query_stats(site: str, days: int = 30, limit: int = 1000) -> str:
-    """Return Bing query performance filtered to the requested rolling window."""
+def bing_query_stats(
+    site: str, days: int = 30, limit: int = 1000, daily: bool = False
+) -> str:
+    """Aggregate dated Bing rows by query within the requested local window.
+
+    Limit applies after aggregation. CTR uses summed counts; positions use click
+    or impression weights over rows with available positions. An anomalous
+    source CTR makes the aggregate CTR unavailable. Use daily=True for the
+    former individual dated rows. Provider completeness remains unknown.
+    """
+    if not isinstance(daily, bool):
+        raise ValueError("daily must be a boolean")
     return _position_stats(
         method="GetQueryStats",
         site=site,
@@ -203,6 +316,7 @@ def bing_query_stats(site: str, days: int = 30, limit: int = 1000) -> str:
         limit=limit,
         key_name="query",
         tool="bing_query_stats",
+        daily=daily,
     )
 
 

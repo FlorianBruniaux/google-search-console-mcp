@@ -8,6 +8,15 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
+## Non publié
+
+- Sélection facultative des familles MCP via `GSC_MCP_TOOL_FAMILIES`, avec catalogue complet par défaut, `core` conservé et CLI complète. Aucune permission fournisseur n’est accordée par cette sélection.
+- Listes de chaînes CLI transmises par options répétées ou tableaux JSON, sans découper les virgules des URL. Les tableaux invalides sont refusés avant l’appel fournisseur.
+- `traffic_drops` termine la fenêtre courante trois jours avant aujourd’hui. Les diagnostics sont des candidats documentés ; les requêtes courantes absentes restent indisponibles. Le comportement de `seo_lost_queries` est conservé.
+- `seo_cannibalization` exclut les requêtes avec opérateurs de recherche, expose leur nombre distinct et accepte `include_search_operators=True`.
+- Robots Anthropic actuels : `ClaudeBot`, `Claude-User`, `Claude-SearchBot`, avec leurs rôles distincts.
+- `bing_query_stats` agrège par requête avant tri et limite ; `daily=True` conserve les lignes quotidiennes. Un CTR source contradictoire reste `null` avec ses diagnostics, même après agrégation.
+
 ## 1.3.0
 
 - Ajout de `search_change_breakdown` pour des fenêtres Google explicites, dimensions indépendantes, couverture et résidus descriptifs (#21).

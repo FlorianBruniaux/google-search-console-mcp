@@ -149,6 +149,49 @@ def test_metric_batch_rejects_unknown_engine():
         )
 
 
+@pytest.mark.parametrize("dimension", ["query", "page", "date"])
+@pytest.mark.parametrize("impressions", [0, 2])
+def test_bing_invalid_ctr_retains_counts_and_source_diagnostics(
+    monkeypatch, dimension, impressions
+):
+    client = MagicMock()
+    client.read.return_value = [
+        {"Query": "anomaly", "Date": "2026-01-03", "Clicks": 3,
+         "Impressions": impressions, "AvgImpressionPosition": 4},
+        {"Query": "valid", "Date": "2026-01-04", "Clicks": 1,
+         "Impressions": 10, "AvgImpressionPosition": 5},
+    ]
+    monkeypatch.setattr("gsc_mcp.providers.bing.get_bing_client", lambda: client)
+    batch = BingSearchProvider().fetch(
+        SITE, "2026-01-01", "2026-01-31", dimensions=(dimension,)
+    )
+    anomalous = next(row for row in batch.rows if row.clicks == 3)
+    assert anomalous.impressions == impressions
+    assert anomalous.ctr is None
+    diagnostics = anomalous.to_dict()["provider_metrics"]["metric_diagnostics"]
+    assert diagnostics[0]["reason"] == "clicks_exceed_impressions"
+    assert diagnostics[0]["clicks"] == 3
+    assert diagnostics[0]["impressions"] == impressions
+    assert diagnostics[0]["date"] == "2026-01-03"
+    assert next(row for row in batch.rows if row.clicks == 1).ctr == 0.1
+
+
+def test_bing_source_ctr_anomaly_survives_a_valid_aggregate_ratio(monkeypatch):
+    client = MagicMock()
+    client.read.return_value = [
+        {"Query": "same", "Date": "2026-01-03", "Clicks": 3, "Impressions": 2},
+        {"Query": "same", "Date": "2026-01-04", "Clicks": 1, "Impressions": 10},
+    ]
+    monkeypatch.setattr("gsc_mcp.providers.bing.get_bing_client", lambda: client)
+    batch = BingSearchProvider().fetch(
+        SITE, "2026-01-01", "2026-01-31", dimensions=("query",)
+    )
+    assert batch.rows[0].clicks == 4
+    assert batch.rows[0].impressions == 12
+    assert batch.rows[0].ctr is None
+    assert batch.rows[0].to_dict()["provider_metrics"]["metric_diagnostics"][0]["raw_ratio"] == 1.5
+
+
 def test_get_search_provider_returns_supported_provider_and_rejects_unknown():
     assert isinstance(get_search_provider("google"), GoogleSearchProvider)
     assert isinstance(get_search_provider("bing"), BingSearchProvider)

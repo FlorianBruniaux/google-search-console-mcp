@@ -10,6 +10,10 @@ canonicalEnglish: /docs/architecture/
 
 Search Console MCP expose une interface MCP sur `stdio`. Le serveur et la CLI partagent le même registre d’outils. Chaque famille de fournisseur conserve son authentification, ses erreurs et ses sémantiques.
 
+## Sélection au démarrage (non publié)
+
+`tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose les 85 outils. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
+
 ## Sources de données
 
 - Google Search Console : propriétés, performances, inspection d’URL et sitemaps.
@@ -29,6 +33,16 @@ Le registre de la version 1.3.0 compte 85 outils. `ga4_ai_referrals` mesure les 
 `traffic_health_check` aligne les dates demandées et préserve les états zéro, vide, inconnu et indisponible. Les rapports combinés par page gardent encore leurs fenêtres indépendantes. Les métadonnées décrivent la méthode de chaque verdict ou score concerné sans modifier sa valeur. Cinq audits marquent leur HTML principal non fiable ; le détecteur de challenge protège la validation de schémas et l’audit éditorial.
 
 Consultez les [limites de preuve](/fr/docs/evidence-and-safety/) avant d’interpréter un ratio, un score, un signal d’instruction ou une visite attribuée.
+
+## Correctifs du checkout (non publiés)
+
+`traffic_drops` compare deux fenêtres adjacentes de même durée, avec une fin de fenêtre courante trois jours avant aujourd’hui. `seo_lost_queries` conserve sa fenêtre terminant aujourd’hui. Les `diagnosis_candidates`, leur `diagnosis_status` et les métriques précédentes/courantes documentent des règles, sans prouver de cause. Les candidats de classement et CTR exigent des impressions dans les deux périodes ; la baisse de demande exige une diminution observée des impressions. Une requête absente des lignes courantes figure dans `unavailable_queries` avec `metrics_current=null`. Son absence ne prouve pas un trafic nul ; CTR et position restent `null` avec zéro impression.
+
+`seo_cannibalization` conserve son score HHI mais exclut par défaut les requêtes contenant `site:`, `intitle:`, `inurl:` ou `filetype:`. `excluded_search_operator_queries` compte les chaînes distinctes exclues. `include_search_operators=True` les réintègre et conserve ce choix dans les métadonnées. Ces opérateurs peuvent volontairement renvoyer plusieurs pages.
+
+`bing_query_stats` agrège par requête avant le tri et la limite ; `daily=True` restitue les lignes quotidiennes. Les CTR source contradictoires restent indisponibles avec leurs diagnostics, même si la somme masque la contradiction. Le CTR utilise les totaux et les positions disponibles leurs pondérations respectives. Les adaptateurs Bing conservent aussi ces anomalies dans les comparaisons. Voir les [exemples Bing](/fr/docs/bing-setup/).
+
+`ai_visibility_audit` distingue `ClaudeBot` pour l’entraînement, `Claude-User` pour la navigation demandée par l’utilisateur et `Claude-SearchBot` pour la recherche, selon la [documentation des robots Anthropic](https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler). Une permission robots.txt ne prouve pas une activité de crawl ou une citation IA.
 
 ## Outils d’écriture
 
