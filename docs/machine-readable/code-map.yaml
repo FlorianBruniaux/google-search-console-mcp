@@ -3,10 +3,10 @@
 # Usage: @docs/machine-readable/code-map.yaml
 
 version: "1.1.0"
-generated: "2026-10-05"
+generated: "2026-10-08"
 package: gsc-mcp-tools
 python_min: "3.11"
-total_tools: 83
+total_tools: 85
 total_tests: 851
 
 tool_inventory:
@@ -14,8 +14,8 @@ tool_inventory:
   bing_reads: 15
   bing_writes: 4
   cross_engine: 1
-  unreleased_additions: 2
-  total: 83
+  unreleased_additions: 4
+  total: 85
   source_of_truth: src/gsc_mcp/registry.py
   invariant: "set(registry.TOOLS) == set(properties._ALL_TOOLS)"
 
@@ -35,7 +35,7 @@ core_modules:
     type: entry_point
 
   - path: src/gsc_mcp/registry.py
-    role: "Shared MCP and CLI registry for all 83 tools"
+    role: "Shared MCP and CLI registry for all 85 tools"
     exports: [TOOLS]
 
   - path: src/gsc_mcp/cli.py
@@ -102,6 +102,16 @@ tool_modules:
   - path: src/gsc_mcp/tools/analytics.py
     tools: 10
     tool_names: [get_search_analytics, get_performance_overview, compare_search_periods, get_search_by_page_query, get_advanced_search_analytics, analytics_anomalies, discover_performance, news_performance, search_type_breakdown, ai_overviews_impact]
+
+  - path: src/gsc_mcp/tools/search_breakdown.py
+    tools: 1
+    tool_names: [search_change_breakdown]
+    role: "Explicit Google windows, bounded independent dimensions and coverage-aware residuals"
+
+  - path: src/gsc_mcp/tools/link_targets.py
+    tools: 1
+    tool_names: [link_targets_audit]
+    role: "Bounded destination GET status observations; source anchors retained"
 
   - path: src/gsc_mcp/tools/seo.py
     tools: 8

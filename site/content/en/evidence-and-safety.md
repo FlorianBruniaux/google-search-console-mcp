@@ -110,3 +110,7 @@ Read tools can inspect verified properties and public pages. Write tools require
 Keep credentials in the MCP server environment or the client configuration. Do not paste service-account JSON, OAuth tokens, Bing API keys, or IndexNow keys into prompts or public issue reports.
 
 Continue with the [installation guide](/docs/installation/) or run a [quick audit](/docs/examples/quick-audit/).
+
+## Search changes and link destinations
+
+The unreleased `search_change_breakdown` keeps independent dimensions, date coverage, aggregation compatibility and unavailable metrics explicit. `link_targets_audit` separates received HTTP statuses from unavailable transport and retains each source anchor. Read [bounded audit workflows](/docs/audit-workflows/) for exact calls and synthetic examples. Neither tool establishes causality, indexation or ranking improvement.

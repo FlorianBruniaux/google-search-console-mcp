@@ -51,3 +51,5 @@ Le serveur expose des réponses de fournisseurs, des données de pages publiques
 Consultez l’[architecture](/fr/docs/architecture/), le [résumé des versions](/fr/docs/changelog/) ou le [dépôt source](https://github.com/FlorianBruniaux/google-search-console-mcp).
 
 [Lire la version anglaise canonique](/docs/).
+
+Pour comparer des fenêtres Google explicites et vérifier des destinations HTTP, consultez les [audits à périmètre borné](/fr/docs/audit-workflows/). Ces ajouts sont dans le code source non publié ; le paquet 1.2.0 expose 81 outils.

@@ -43,3 +43,7 @@ This single prompt triggers a multi-step investigation. The assistant will:
 ## Mutation boundary
 
 > Keep the audit read-only. If a recommendation requires a sitemap, URL, feed, Google Indexing API or IndexNow write, name the exact tool and target and wait for explicit confirmation in a separate turn. An accepted request is not evidence of crawl or indexation.
+
+## Bounded destination checks in the source checkout
+
+Use unreleased `link_targets_audit(url, max_targets=30, max_requests=60)` on one affected page to observe internal destination statuses and retain their source anchors. Source GETs and redirect hops consume the same request budget. A received 404 is an HTTP observation; a timeout or safety refusal leaves terminal status unavailable. Read [bounded audit workflows](../docs/audit-workflows.md) before interpreting partial coverage.

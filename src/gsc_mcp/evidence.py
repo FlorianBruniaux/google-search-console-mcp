@@ -34,13 +34,13 @@ def _inventory(names: str, applicability: str, reason: str) -> None:
 
 
 _inventory("""
-inspect_url batch_url_inspection check_indexing_issues analytics_anomalies
+search_change_breakdown inspect_url batch_url_inspection check_indexing_issues analytics_anomalies
 quick_wins traffic_drops seo_striking_distance seo_cannibalization seo_lost_queries
 check_alerts parasite_risk prune_candidates traffic_health_check page_analysis
 content_brief page_health_score compare_search_engines crux_page_vitals crux_history
 crux_lcp_subparts pagespeed_audit schema_validate content_quality editorial_audit hreflang_audit
 page_technical_audit preload_audit heading_audit ai_visibility_audit gbp_deprecation_lint
-internal_links_audit link_equity_map sitemap_audit drift_compare drift_history
+internal_links_audit link_targets_audit link_equity_map sitemap_audit drift_compare drift_history
 bing_feeds_list bing_feed_details bing_crawl_issues bing_url_info ga4_ai_referrals
 """, "fields", "Explicit observation, calculation or local conclusion paths; scope is per field")
 _inventory("ga4_funnel", "error_only", "Funnel metrics have no quality verdict; INVALID_STEPS is unavailable")
@@ -62,6 +62,69 @@ bing_url_submission_quota bing_link_counts bing_url_links
 def _add(tool: str, basis: str | None, scope: str, *paths: str) -> None:
     for path in paths:
         _PATHS[tool].append((path, basis, scope))
+
+
+# Search breakdown: collections describe selection only; metrics are explicit leaves.
+for prefix in ("/baseline_totals/*/metrics", "/breakdowns/*/matched/*/baseline",
+               "/breakdowns/*/matched/*/comparison", "/breakdowns/*/baseline_only/*/baseline",
+               "/breakdowns/*/comparison_only/*/comparison"):
+    _add("search_change_breakdown", "measured", "Google provider row/aggregate metric for requested filtered window only; position is raw provider row average",
+         *(f"{prefix}/{metric}" for metric in ("clicks", "impressions", "position")))
+    _add("search_change_breakdown", "derived", "CTR=clicks/impressions for present counts and positive impressions; no provider CTR fallback", f"{prefix}/ctr")
+_add("search_change_breakdown", "derived", "Comparison minus baseline on same known aggregation; CTR change in percentage points; retrieved rows only",
+     "/baseline_delta/*", "/breakdowns/*/matched/*/delta/*", "/breakdowns/*/matched_delta/*")
+_add("search_change_breakdown", "derived", "Sum over retrieved valid per-period rows; not property totals; null when rows are empty or any required metric is missing",
+     "/breakdowns/*/observed_sums/*/*")
+_add("search_change_breakdown", "derived", "Reported period aggregate minus retrieved period row sum, only on compatible known aggregation; descriptive residual, not a cause",
+     "/breakdowns/*/reconciliation/baseline_residual/*", "/breakdowns/*/reconciliation/comparison_residual/*")
+_add("search_change_breakdown", "derived", "Reported total change minus summed matched-row changes, only on compatible known aggregation; descriptive residual, not a cause",
+     "/breakdowns/*/reconciliation/total_delta_minus_matched_delta/*")
+_add("search_change_breakdown", "rule", "Observed selection, source compatibility and bounded fetch/display gates; no causal attribution or complete source guarantee",
+     "/baseline_comparison/comparable", "/baseline_comparison/reason", "/breakdowns/*/comparison/comparable", "/breakdowns/*/comparison/reason",
+     "/breakdowns/*/reconciliation/comparable", "/breakdowns/*/reconciliation/reason", "/breakdowns/*/reconciliation/overcoverage",
+     "/breakdowns/*/matched", "/breakdowns/*/baseline_only", "/breakdowns/*/comparison_only",
+     "/breakdowns/*/baseline_coverage/*", "/breakdowns/*/comparison_coverage/*", "/breakdowns/*/display_truncated",
+     "/baseline_totals/*/availability", "/periods/*/coverage_probe_status", "/periods/*/incompleteness_status")
+_add("search_change_breakdown", "derived", "Counts over retrieved observations only; missing dates are set difference against requested dates, not zero traffic",
+     "/breakdowns/*/matched_count", "/breakdowns/*/baseline_only_count", "/breakdowns/*/comparison_only_count",
+     "/breakdowns/*/displayed_counts/*", "/periods/*/missing_requested_dates", "/periods/*/observed_day_count", "/request_budget/*")
+_add("search_change_breakdown", "derived", "Counts of returned rows and successfully fetched API pages; not whole source coverage",
+     "/breakdowns/*/baseline_coverage/rows_returned", "/breakdowns/*/comparison_coverage/rows_returned",
+     "/breakdowns/*/baseline_coverage/pages_fetched", "/breakdowns/*/comparison_coverage/pages_fetched")
+_add("search_change_breakdown", "rule", "Configured request ceiling and comparison of counted attempts against that ceiling",
+     "/request_budget/max_requests", "/request_budget/exhausted")
+_add("search_change_breakdown", "measured", "Google returned aggregation/date metadata and returned date keys for the requested filtered window only",
+     "/baseline_totals/*/response_aggregation_type", "/periods/*/observed_dates", "/periods/*/observed_start", "/periods/*/observed_end",
+     "/periods/*/first_incomplete_date", "/periods/*/response_aggregation_type",
+     "/breakdowns/*/baseline_coverage/response_aggregation_type", "/breakdowns/*/comparison_coverage/response_aggregation_type",
+     "/breakdowns/*/baseline_coverage/response_aggregation_types", "/breakdowns/*/comparison_coverage/response_aggregation_types")
+_add("search_change_breakdown", None, "No observation for this period; missing API rows are censored/unknown, not zero",
+     "/breakdowns/*/baseline_only/*/comparison", "/breakdowns/*/baseline_only/*/delta",
+     "/breakdowns/*/comparison_only/*/baseline", "/breakdowns/*/comparison_only/*/delta",
+     "/baseline_totals/*/fetch_error", "/periods/*/fetch_error")
+
+# Destination statuses belong only to received responses, never unrequested hops.
+for prefix in ("/source_observation", "/targets/*"):
+    _add("link_targets_audit", "measured", "Received terminal/last HTTP status or received hop status only; not Google indexation, rendered availability or ranking impact",
+         f"{prefix}/status_code", f"{prefix}/last_observed_status", f"{prefix}/hops/*/status_code")
+    _add("link_targets_audit", "measured", "Local collection timestamps and monotonic elapsed duration for this observation only; no hard deadline guarantee",
+         f"{prefix}/started_at", f"{prefix}/completed_at", f"{prefix}/elapsed_ms",
+         f"{prefix}/hops/*/observed_at", f"{prefix}/hops/*/elapsed_ms")
+    _add("link_targets_audit", "measured", "Whether a physical GET was started for this chain; DNS-only refusal does not start a request",
+         f"{prefix}/attempted")
+    _add("link_targets_audit", "rule", "Local terminal/stop classification over received statuses and safety/budget gates; no inferred healthy status",
+         f"{prefix}/outcome", f"{prefix}/availability_reason")
+_add("link_targets_audit", "measured", "Observed bounded source identity-body completion; false means extraction cannot establish target coverage",
+     "/source_body_complete", "/source_observation/body_complete")
+_add("link_targets_audit", "measured", "Local collection timestamp, counted physical GET starts/DNS refusals and monotonic duration; not exact socket traffic",
+     "/collected_at", "/budgets/requests_started", "/budgets/dns_refusals", "/budgets/elapsed_ms")
+_add("link_targets_audit", "derived", "Counts over the completed bounded source parser input and destination observations only; no whole-site coverage",
+     "/total_anchors", "/distinct_in_scope_targets", "/targets_attempted", "/targets_completed", "/targets_skipped", "/excluded_reasons/*")
+_add("link_targets_audit", "rule", "Local same-site/port eligibility, collection-completeness and HTTP/redirect finding rules; findings do not establish SEO impact",
+     "/scope_policy", "/coverage", "/targets/*/findings")
+_add("link_targets_audit", "rule", "Configured finite bounds or comparison against cooperative scheduling deadline; does not cancel in-flight synchronous DNS/socket work",
+     "/budgets/max_targets", "/budgets/max_requests", "/budgets/max_redirects", "/budgets/request_timeout_seconds",
+     "/budgets/scheduling_deadline_seconds", "/budgets/source_max_body_bytes", "/budgets/target_max_body_bytes", "/budgets/deadline_overrun")
 
 
 _INSPECTION = ("verdict", "robots_txt_state", "indexing_state", "page_fetch_state", "coverage_state")
@@ -154,7 +217,7 @@ _add("ga4_ai_referrals", "derived", "Share of returned confirmed source-label se
 _add("ga4_ai_referrals", None, "Comparison is explicitly not requested", "/comparison/availability")
 _add("indexnow_submit", "measured", "Received IndexNow HTTP code, not indexing or crawling", "/status_code")
 _add("indexnow_submit", "rule", "HTTP protocol mapping only: 200 received/key verified, 202 received/key pending; no indexing proof or write authorization", "/status", "/verdict", "/key_validation")
-for tool in ("page_technical_audit", "heading_audit", "internal_links_audit", "schema_validate", "editorial_audit"):
+for tool in ("page_technical_audit", "heading_audit", "internal_links_audit", "link_targets_audit", "schema_validate", "editorial_audit"):
     _add(tool, "rule", "Narrow deterministic FR/EN instruction patterns in untrusted HTML; may miss or falsely flag prose; absence never establishes trust", "/untrusted_content/flagged", "/untrusted_content/signals", "/untrusted_content/signals/*")
 
 # Error paths are explicit; successful operational statuses stay unannotated.
@@ -188,6 +251,9 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
     null_is_rule = tool == "schema_validate" and key == "deprecated_rich_result"
     if value is None and not null_is_rule:
         return None, "Required evidence/value is null; original value retained"
+    if tool == "link_targets_audit" and data.get("coverage") == "unavailable" and path[0] in {
+            "total_anchors", "distinct_in_scope_targets", "targets_attempted", "targets_completed", "targets_skipped", "excluded_reasons"}:
+        return None, "Incomplete/unavailable source prevents target extraction; retained zeros are placeholders"
     if tool in {"inspect_url", "batch_url_inspection", "check_indexing_issues"}:
         if key in _INSPECTION and not _inspection_substantive(value):
             return None, "Google inspection state is missing/unknown/unspecified"
@@ -196,6 +262,8 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
             return None, "Local category fallback has no substantive provider input"
     elif key == "verdict" and value in {"error", "fetch_error", "ssrf_blocked", "missing_key", "unsupported", "not_enough_data", "no_baseline", "no_data"}:
         return None, "Unavailable, unsupported or tool error result; original verdict retained"
+    if tool == "search_change_breakdown" and ((key == "availability" and value != "observed") or (key == "incompleteness_status" and value == "unknown")):
+        return None, "Provider observation/coverage unavailable or unknown; no successful measurement inferred"
     if tool == "editorial_audit" and data.get("assessment") != "house_style_review" and path[0] in {"verdict", "assessment", "findings", "metrics", "findings_truncated"}:
         return None, "Editorial content was not assessed; placeholders never mean no warnings"
     if tool == "seo_cannibalization" and key == "conflict_score" and parent.get("total_clicks") == 0:

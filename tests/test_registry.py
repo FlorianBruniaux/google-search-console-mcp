@@ -39,6 +39,7 @@ EXPECTED_EXISTING_TOOLS = {
     "get_search_analytics",
     "get_performance_overview",
     "compare_search_periods",
+    "search_change_breakdown",
     "get_search_by_page_query",
     "get_advanced_search_analytics",
     "analytics_anomalies",
@@ -94,6 +95,7 @@ EXPECTED_EXISTING_TOOLS = {
     "pagespeed_audit",
     "heading_audit",
     "internal_links_audit",
+    "link_targets_audit",
     "link_equity_map",
     "prune_candidates",
 }

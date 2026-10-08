@@ -12,6 +12,8 @@ Replace `yourdomain.com` with your GSC property URL.
 
 The assistant calls `traffic_drops`, `analytics_anomalies` and `compare_search_periods` to find the affected window and isolate the pattern.
 
+For concrete equal windows, the unreleased source checkout can call `search_change_breakdown`. Ask for baseline `2026-09-01` through `2026-09-07` and comparison `2026-09-08` through `2026-09-14`, retaining each dimension separately. Read [bounded audit workflows](../docs/audit-workflows.md) for the exact CLI call. Absent rows are unknown, and matched contributions do not establish cause.
+
 ## Step 2: Separate traffic types
 
 > Was the drop in web search, Discover, or News? Break it down by search type.

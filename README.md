@@ -14,7 +14,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tools](https://img.shields.io/badge/MCP%20tools-83-5c4ee5.svg)](#tools-83)
+[![Tools](https://img.shields.io/badge/MCP%20tools-85-5c4ee5.svg)](#tools-85)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
 [![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
@@ -37,7 +37,7 @@ Search Console MCP is the open-source connection between your data and your AI a
   <a href="#what-you-get">What you get</a> &middot;
   <a href="#choose-your-starting-point">Use cases</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
-  <a href="#tools-83">Tools</a> &middot;
+  <a href="#tools-85">Tools</a> &middot;
   <a href="#evidence-and-safety">Data limits &amp; safety</a>
 </p>
 
@@ -188,7 +188,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
 
-For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 83 tools, including unreleased additions; published version 1.2.0 exposes 81.
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 85 tools, including unreleased additions; published version 1.2.0 exposes 81.
 
 </details>
 
@@ -325,7 +325,7 @@ The server also handles Google and Bing API mechanics: isolated credentials, bou
 ```mermaid
 flowchart TD
     C[Claude, Codex<br/>or another MCP client] --> S[FastMCP server]
-    S --> R[Shared source registry<br/>83 tools]
+    S --> R[Shared source registry<br/>85 tools]
     R --> A[Read and analysis tools]
     R --> W[Guarded write tools]
     A --> G[Google APIs<br/>GSC, GA4, CrUX]
@@ -394,12 +394,12 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 </details>
 
-## Tools (83)
+## Tools (85)
 
-This source checkout includes unreleased `ga4_ai_referrals` and `editorial_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Published `gsc-mcp-tools==1.2.0` exposes 81 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
+This source checkout includes unreleased `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Published `gsc-mcp-tools==1.2.0` exposes 81 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
-<summary>Show all 83 source tools</summary>
+<summary>Show all 85 source tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -408,6 +408,7 @@ This source checkout includes unreleased `ga4_ai_referrals` and `editorial_audit
 | Properties | `get_site_details` | Get details for a specific property |
 | Analytics | `get_search_analytics` | Query search performance data |
 | Analytics | `get_performance_overview` | Aggregate totals + top queries |
+| Analytics | `search_change_breakdown` | Compare explicit equal Google windows with independent bounded page/query/country/device views, coverage and residuals |
 | Analytics | `compare_search_periods` | Compare two consecutive periods |
 | Analytics | `get_search_by_page_query` | Performance broken down by page and query |
 | Analytics | `get_advanced_search_analytics` | Flexible query with custom dimensions and filters |
@@ -463,6 +464,7 @@ This source checkout includes unreleased `ga4_ai_referrals` and `editorial_audit
 | Technical | `gbp_deprecation_lint` | Scan a page for deprecated Google Business Profile features: .business.site links, Reserve with Google, GBP appointment widgets |
 | Technical | `pagespeed_audit` | Run a PageSpeed Insights API v5 audit: Lighthouse performance score, Core Web Vitals, top 3 improvement opportunities (requires GOOGLE_API_KEY) |
 | Content | `heading_audit` | Audit heading structure: H1 uniqueness, level jumps (H2 to H4), title vs H1 word-for-word duplication, headings carrying no information, words per H2 |
+| Links | `link_targets_audit` | Observe bounded internal destination HTTP statuses and redirect hops while preserving source anchors; no recursive crawl |
 | Links | `internal_links_audit` | Audit a page's internal links weighted by zone (body, nav, footer, header, aside): targets linked only from footer/nav, generic and empty anchors, internal nofollow, self-links |
 | Links | `link_equity_map` | Crawl the top pages by impressions, build the internal link graph, cross it with GSC: pages at position 11-20 with no body inbound link, orphan candidates, footer-only targets, hubs |
 | SEO | `prune_candidates` | Classify pages by measured traffic (has_traffic, impressions_no_clicks, low_impressions, zero_impressions) before any pruning call; a page with clicks is never a candidate |
@@ -491,7 +493,7 @@ This source checkout includes unreleased `ga4_ai_referrals` and `editorial_audit
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Published version 1.2.0 exposes 81 commands; the source checkout exposes 83, including unreleased ga4_ai_referrals and editorial_audit.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Published version 1.2.0 exposes 81 commands; the source checkout exposes 85, including unreleased ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit.
 
 ```bash
 # List the commands in the installed build
@@ -616,6 +618,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | Configure Google APIs and authentication | [Google setup guide](docs/google-setup.md) |
 | Configure Bing Webmaster Tools | [Bing setup guide](docs/bing-setup.md) |
 | Run the first audit | [Starter prompts](docs/starter-prompt.md) and [`examples/`](examples/) |
+| Compare search changes and check link destinations | [Bounded audit workflows](docs/audit-workflows.md) |
 | Understand the modules and data flow | [Architecture](docs/architecture.md) |
 | Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |
 | Review product designs and implementation plans | [Product design records](docs/superpowers/README.md) |
@@ -628,7 +631,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
 - [Editorial audit and rewrite profile](docs/editorial-audit.md): scoped FR/EN warnings and instructions for preserving meaning during rewrites.
-- `llms.txt`: quick reference covering all 83 source tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `llms.txt`: quick reference covering all 85 source tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 16 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns
@@ -640,6 +643,8 @@ Load `llms.txt` via your AI context or reference it in your CLAUDE.md with `@doc
 
 ## Development
 
+The [classifier evaluation guide](docs/classifier-evaluation.md) documents the synthetic corpus and reproducible evaluation for contributors. Its local results do not establish production accuracy or ranking impact.
+
 ### Source checkout for development
 
 ```bash
@@ -650,7 +655,7 @@ pip install -e .
 gsc-cli list
 ```
 
-The final command reads the shared registry and lists the 83 commands available in this checkout. Use this installation when developing or testing unreleased changes.
+The final command reads the shared registry and lists the 85 commands available in this checkout. Use this installation when developing or testing unreleased changes.
 
 <details>
 <summary>Run the test suite from the source checkout</summary>

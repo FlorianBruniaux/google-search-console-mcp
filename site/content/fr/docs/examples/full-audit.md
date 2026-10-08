@@ -23,3 +23,7 @@ Ne lance aucun outil d’écriture sans confirmation distincte.
 Le rapport doit conserver la source et la fenêtre avec chaque chiffre.
 
 [Lire la version anglaise canonique](/docs/examples/full-audit/).
+
+## Destinations HTTP dans le code source
+
+`link_targets_audit(url, max_targets=30, max_requests=60)` observe les destinations internes d’une page affectée et conserve ses ancres. Les GET source et redirections partagent le budget. Un 404 reçu est observé ; timeout ou refus laisse le statut terminal indisponible. Consultez les [audits à périmètre borné](/fr/docs/audit-workflows/) pour interpréter une couverture partielle.

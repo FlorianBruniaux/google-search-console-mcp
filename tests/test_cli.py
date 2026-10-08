@@ -398,3 +398,53 @@ def test_property_id_flag_propagated(monkeypatch, capsys):
     assert received.get("override") == "987654321", (
         f"--property-id was not forwarded; received: {received}"
     )
+
+
+def test_search_breakdown_dispatch_preserves_lists_filters_and_options(monkeypatch, capsys):
+    from types import SimpleNamespace
+    from gsc_mcp.tools import search_breakdown
+    requests = []
+
+    def query(siteUrl, body):
+        requests.append(body)
+        return SimpleNamespace(execute=lambda: {'rows': [], 'responseAggregationType': 'byProperty'})
+
+    monkeypatch.setattr(search_breakdown, 'get_searchconsole_service',
+                        lambda: SimpleNamespace(searchanalytics=lambda: SimpleNamespace(query=query)))
+    code = main(['search-change-breakdown', '--site', 'sc-domain:example.com',
+                 '--baseline-start', '2026-01-01', '--baseline-end', '2026-01-02',
+                 '--comparison-start', '2026-02-01', '--comparison-end', '2026-02-02',
+                 '--dimensions', 'query', '--dimensions', 'country', '--filters',
+                 '[{"dimension":"device","operator":"equals","expression":"MOBILE"}]',
+                 '--row-limit', '10', '--max-requests', '8', '--data-state', 'all', '--meta'])
+    assert code == 0
+    out = json.loads(capsys.readouterr().out)
+    assert set(out['breakdowns']) == {'query', 'country'}
+    assert out['_meta']['params']['max_requests'] == 8
+    assert len(requests) == 8
+    assert all(b['dimensionFilterGroups'][0]['filters'][0]['expression'] == 'MOBILE' for b in requests)
+
+
+def test_link_targets_dispatch_runs_real_tool_with_integer_budgets(monkeypatch, capsys):
+    import socket
+    import httpx
+    sent = []
+    monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: [
+        (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))])
+    actual_client = httpx.Client
+    class Body(httpx.SyncByteStream):
+        def __iter__(self):
+            yield b'<a href="/missing">Missing</a><a href="/skip">Skip</a>'
+    def handle(request):
+        sent.append(str(request.url))
+        return httpx.Response(200, stream=Body()) if request.url.path == "/" else httpx.Response(404)
+    monkeypatch.setattr(httpx, "Client", lambda **kwargs: actual_client(
+        transport=httpx.MockTransport(handle), **kwargs))
+    assert main(["link-targets-audit", "--url", "https://example.com/", "--max-targets", "1",
+                 "--max-requests", "2", "--meta"]) == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["targets"][0]["status_code"] == 404
+    assert output["targets"][1]["availability_reason"] == "skipped_target_budget"
+    assert output["_meta"]["params"]["max_requests"] == 2
+    assert sent == ["https://example.com/", "https://example.com/missing"]
+    assert output["_meta"]["evidence"]["fields"]["/targets/0/status_code"]["basis"] == "measured"
