@@ -4,7 +4,7 @@
 
 ## What This Project Is
 
-Python MCP server exposing 85 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
+Python MCP server exposing 87 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 Release 1.3.1 contains 85 tools, including ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit.
@@ -13,7 +13,7 @@ Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + registers registry.TOOLS (85 tools by default), subject to startup family selection since 1.3.1.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + registers registry.TOOLS (87 source tools by default), subject to startup family selection since 1.3.1.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) reads the full TOOLS catalogue; the MCP server applies startup family selection since 1.3.1 through tool_selection.py and GSC_MCP_TOOL_FAMILIES, with all tools by default and core always exposed. Unknown or empty selections fail startup. Restart after changes; selection does not grant provider access. Both frontends read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS; declare new module families in tool_selection.py.
@@ -192,7 +192,7 @@ TOOLS:
     CWV comparison optional, requires CRUX_API_KEY. No Google API calls otherwise.
     Adapted from claude-seo (Dan Colta, MIT).
 
-  editorial.py (1 tool): editorial_audit(url, language="auto", genre="general")
+  editorial.py (1 tool): editorial_audit(url=None, language="auto", genre="general", *, text=None, format="plain")
     Versioned FR/EN house-style warnings, eligible parsed text locations and faithful rewrite guidance.
     No authorship probability, ranking score, classifier call or content mutation. Unknown language/challenge/fetch failures remain unassessed.
 
@@ -291,7 +291,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 1492 tests on the current checkout, fully mocked.
+SETUP: pytest tests/ : 1649 tests on the combined source checkout; provider calls are mocked, not live validation.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -362,3 +362,8 @@ INDEXNOW KEY              : not an env var in the current code. indexnow_submit 
 BOUNDED AUDIT WORKFLOWS: docs/audit-workflows.md
   search_change_breakdown(site, baseline_start, baseline_end, comparison_start, comparison_end, dimensions=None, filters=None, search_type="web", data_state="final", aggregation_type="auto", row_limit=1000, max_requests=20, limit=50): Google-only equal ordered inclusive windows; independent dimension views, source keys, null unavailable metrics, physical request budget, coverage and noncausal residuals.
   link_targets_audit(url, max_targets=30, max_requests=60): source and destination GETs share budget; terminal statuses differ from unavailable requests; no target body reads, recursive crawl or ranking claim.
+
+UNRELEASED SOURCE: 87 tools; releases 1.3.0 and 1.3.1 contain 85.
+  change_impact.py (1 tool): seo_change_impact(event, baseline_start, baseline_end, comparison_start, comparison_end, filters=None, search_type="web", align_weekdays=False, page_mapping=None, concurrent_changes=None, row_limit=1000, max_requests=20, limit=50). Caller-declared event; GSC calendar/windows/coverage; no persistence or causal attribution. See docs/audit-workflows.md.
+  editorial_drafts.py (adapter, no additional tool): exactly one URL or caller text; plain/markdown subset, explicit draft FR/EN, Unicode native spans and protected exclusions. Auto draft language unavailable.
+  rewrite.py (1 tool): rewrite_fidelity_check(original, revised, language="en", format="plain"). Mechanical review candidates; no factual-truth/authorship/fidelity verdict even with zero findings. See docs/editorial-workflows.md.

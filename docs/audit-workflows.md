@@ -87,3 +87,30 @@ Fragments and default ports are removed from fetch identities; scheme and hostna
 Source parsing requires a completed terminal 2xx body. Retained raw identity bytes are capped at 1 MiB; unsupported content encoding is refused. UTF-8 decoding uses replacement for invalid bytes. Redirect and target response bodies are unread. The cap bounds retained/application-consumed source data, not exact socket traffic. The 60-second deadline limits cooperative scheduling and cannot cancel synchronous DNS or socket work; `budgets.deadline_overrun` reports overrun. Transport uses IPv4/A-record pinning; IPv6-only hosts are unavailable. Pin-lock contention is also unavailable.
 
 An HTTP failure is evidence to inspect and fix the affected link. It does not establish Google indexation, ranking impact or a guaranteed traffic gain. Continue with the [full audit](../examples/full-audit.md) or [traffic-drop investigation](../examples/traffic-drop.md), and preserve the [evidence boundaries](/docs/evidence-and-safety/) in the assistant's conclusions.
+
+## Follow a declared page change (unreleased)
+
+`seo_change_impact` is available in the 87-tool source checkout; published release 1.3.1 retains 85 tools. Install the checkout for this call. This explanatory example uses a caller-declared event, not an observed deployment or live follow-up:
+
+```python
+seo_change_impact(
+    event={"site": "sc-domain:example.com", "url": "https://example.com/guide/",
+           "changed_at": "2026-09-15T12:00:00+02:00", "timezone": "Europe/Paris",
+           "description": "Revised page title", "revision": "caller-revision"},
+    baseline_start="2026-09-08", baseline_end="2026-09-14",
+    comparison_start="2026-09-16", comparison_end="2026-09-22",
+    filters=None, search_type="web", align_weekdays=False,
+    page_mapping=None, concurrent_changes=["Caller reports a concurrent navigation edit"],
+    row_limit=1000, max_requests=20, limit=50,
+)
+```
+
+The event requires `site`, `url`, `changed_at`, `timezone` and `description`; `revision` and `baseline_id` are optional declarations. The timestamp includes seconds and an explicit offset matching the IANA timezone. The packaged `tzdata` dependency supplies a fallback on hosts without system timezone data. No deployment time is inferred from Git or fetched HTML. The caller keeps the event and report: `persistence.status` is `not_persisted`.
+
+Windows must be ordered, nonoverlapping and equal in inclusive length. They exclude the whole event date in Google's `America/Los_Angeles` calendar. `align_weekdays=True` also requires matching start weekdays. The three-day reporting lag in `maturity_policy` is a preflight policy; `provider_finalization_verified=false` explicitly avoids claiming finalized observations.
+
+The tool reuses `search_change_breakdown` with identical filters and finalized-data requests. Caller page filters are rejected. An optional `page_mapping` has exactly `baseline_url` and `comparison_url`, one matching the effective event URL. Two distinct mapped URLs are requested together in both windows; totals describe that combined scope. No canonical or redirect discovery occurs. Inspect the retained `search_evidence` coverage, missing dates/rows, request limits and aggregation compatibility described above.
+
+`comparison.status` is `observed` or `unavailable`. Missing or immature follow-up returns `insufficient_post_change_data`; missing baseline, incompatible aggregation and provider failures retain their reasons. Null observations never become zero. Available raw counts can survive an unavailable comparison, but its `descriptive_delta` stays null. Observed deltas report clicks, impressions and CTR percentage points. Collection timestamps retain the UTC interval.
+
+`concurrent_changes` contains caller declarations. Seasonality, search-system changes and other edits can affect the windows. `attribution.causal_effect` stays null and its status is `not_identified`; a before/after observation establishes no causal lift, ROI, significance or ranking guarantee. Controlled fixtures do not establish usefulness for a real property. For pre-publication text checks, use [editorial workflows](editorial-workflows.md).

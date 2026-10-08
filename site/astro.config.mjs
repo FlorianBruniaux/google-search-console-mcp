@@ -45,6 +45,7 @@ export default defineConfig({
           items: [
             { slug: 'docs/prompts' },
             { slug: 'docs/audit-workflows' },
+            { slug: 'docs/editorial-workflows' },
             {
               label: 'Examples · Scénarios',
               collapsed: false,

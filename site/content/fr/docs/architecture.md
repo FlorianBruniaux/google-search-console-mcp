@@ -12,7 +12,7 @@ Search Console MCP expose une interface MCP sur `stdio`. Le serveur et la CLI pa
 
 ## Sélection au démarrage (depuis 1.3.1)
 
-Depuis la version 1.3.1, `tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose les 85 outils. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
+Depuis la version 1.3.1, `tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose tout le catalogue : 85 outils dans la version publiée 1.3.1, 87 dans le checkout source. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
 
 ## Sources de données
 
@@ -56,6 +56,10 @@ Le client lance normalement un processus serveur enfant par session active. Évi
 
 ## Profil éditorial
 
-`editorial_audit` applique un profil FR/EN versionné aux passages HTML éligibles. Les alertes renvoient leurs extraits, emplacements et limites ; elles ne mesurent ni une probabilité d’écriture IA ni une pénalité de classement. L’outil conserve le sens lors des propositions de réécriture, reste distinct de `content_quality` et n’appelle aucun classificateur. Voir le [profil éditorial](/fr/docs/editorial-audit/).
+`editorial_audit` applique un profil FR/EN versionné aux passages HTML éligibles. Les alertes renvoient leurs extraits, emplacements et limites ; elles ne mesurent ni une probabilité d’écriture IA ni une pénalité de classement. Les instructions demandent de conserver le sens des propositions sans le certifier ; l’outil reste distinct de `content_quality` et n’appelle aucun classificateur. Voir le [profil éditorial](/fr/docs/editorial-audit/).
 
 `search_change_breakdown` compare des fenêtres Google explicites de même durée ; `link_targets_audit` observe les destinations internes publiques dans un budget partagé avec la source. Les [audits à périmètre borné](/fr/docs/audit-workflows/) détaillent leurs paramètres, résultats et limites.
+
+## Suivi et brouillons source non publiés
+
+Le registre source contient 87 outils : `seo_change_impact` et `rewrite_fidelity_check` s’ajoutent aux 85 outils de la version publiée 1.3.1. `change_impact.py` conserve les événements déclarés et réutilise la couverture de `search_change_breakdown`, sans persistance ni attribution causale. Les fuseaux IANA utilisent la base système ou le secours `tzdata` fourni. `editorial_drafts.py` adapte le texte/Markdown borné au cœur de règles existant, sans récupération réseau, exécution ni lecture de fichier. `rewrite.py` compare littéraux protégés et qualificatifs avec des ancres lexicales locales ; les dimensions sémantiques restent non évaluées. Consultez les [audits bornés](/fr/docs/audit-workflows/) et [workflows éditoriaux](/fr/docs/editorial-workflows/).

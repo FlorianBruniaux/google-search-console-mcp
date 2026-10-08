@@ -93,3 +93,30 @@ Les identités de requête retirent fragments et ports par défaut, normalisent 
 L’analyse exige un corps source terminal 2xx complet. Les octets bruts conservés en encodage identity sont bornés à 1 MiB ; les encodages de contenu non pris en charge sont refusés. Le décodage UTF-8 remplace les octets invalides. Les corps de redirection et de destination ne sont pas lus. Le plafond borne la rétention/consommation applicative, pas le trafic socket exact. La deadline de 60 secondes borne la planification coopérative sans pouvoir annuler DNS ou socket synchrones ; `budgets.deadline_overrun` signale le dépassement. Le transport utilise le pinning IPv4/A ; les hôtes uniquement IPv6 et la contention du verrou sont indisponibles.
 
 Un statut HTTP défaillant permet de vérifier le lien concerné. Il ne prouve ni indexation Google, ni impact de classement, ni gain de trafic garanti. Continuez avec l’[audit complet](/fr/docs/examples/full-audit/), l’[investigation de trafic](/fr/docs/examples/traffic-drop/) et les [limites de preuve](/fr/docs/evidence-and-safety/).
+
+## Suivre un changement déclaré (non publié)
+
+`seo_change_impact` appartient au checkout source de 87 outils ; la version publiée 1.3.1 conserve 85 outils. Installez le checkout pour cet appel. L’exemple ci-dessous est explicatif : l’événement est déclaré par l’appelant, sans preuve de déploiement ni suivi réel.
+
+```python
+seo_change_impact(
+    event={"site": "sc-domain:example.com", "url": "https://example.com/guide/",
+           "changed_at": "2026-09-15T12:00:00+02:00", "timezone": "Europe/Paris",
+           "description": "Revised page title", "revision": "caller-revision"},
+    baseline_start="2026-09-08", baseline_end="2026-09-14",
+    comparison_start="2026-09-16", comparison_end="2026-09-22",
+    filters=None, search_type="web", align_weekdays=False,
+    page_mapping=None, concurrent_changes=["Caller reports a concurrent navigation edit"],
+    row_limit=1000, max_requests=20, limit=50,
+)
+```
+
+L’événement exige `site`, `url`, `changed_at`, `timezone` et `description`. `revision` et `baseline_id` restent des déclarations facultatives. L’horodatage comprend les secondes et un décalage explicite conforme au fuseau IANA. La dépendance `tzdata` fournit une base de secours lorsque le système n’en possède pas. Aucun instant de déploiement n’est déduit de Git ou du HTML. L’appelant conserve l’événement et le rapport ; `persistence.status` vaut `not_persisted`.
+
+Les fenêtres inclusives ont la même durée, sont ordonnées et ne se chevauchent pas. Elles excluent toute la date de l’événement dans le calendrier Google `America/Los_Angeles`. `align_weekdays=True` impose aussi le même jour de semaine au début des fenêtres. Le délai de trois jours de `maturity_policy` est une politique préalable ; `provider_finalization_verified=false` ne certifie pas la finalisation des observations.
+
+L’outil réutilise `search_change_breakdown` avec des filtres identiques et des demandes de données finales. Les filtres de page fournis par l’appelant sont refusés. `page_mapping`, facultatif, contient exactement `baseline_url` et `comparison_url`, dont l’une correspond à l’URL effective de l’événement. Deux URL distinctes sont interrogées ensemble dans chaque fenêtre : les totaux concernent ce périmètre combiné, sans découverte de canonique ni de redirection. Consultez la couverture, les dates et lignes manquantes, les budgets et la compatibilité d’agrégation dans `search_evidence`.
+
+`comparison.status` vaut `observed` ou `unavailable`. Un suivi absent ou trop récent conserve `insufficient_post_change_data`. Une référence absente, une agrégation incompatible ou une erreur fournisseur conservent leurs motifs. Les valeurs nulles ne deviennent pas des zéros. Des comptages bruts peuvent rester disponibles même si la comparaison ne l’est pas ; `descriptive_delta` reste alors nul. Les deltas observés portent sur les clics, impressions et points de pourcentage de CTR. L’intervalle de collecte est horodaté en UTC.
+
+`concurrent_changes` conserve les déclarations de l’appelant. Saisonnalité, changements des moteurs et autres modifications peuvent affecter les fenêtres. `attribution.causal_effect` reste nul avec `status=not_identified` : aucun gain causal, ROI, significativité ou classement garanti n’est établi. Les fixtures ne prouvent pas l’utilité pour une propriété réelle. Consultez les [workflows éditoriaux](/fr/docs/editorial-workflows/) pour les contrôles avant publication.

@@ -19,3 +19,6 @@ Search Console MCP exposes structured search data to Claude, Codex and other com
 - Source: https://github.com/FlorianBruniaux/google-search-console-mcp
 - Package: https://pypi.org/project/gsc-mcp-tools/
 - License: https://search-console.bruniaux.com/docs/license/
+
+- Bounded audit workflows: https://search-console.bruniaux.com/docs/audit-workflows/
+- Draft and rewrite workflows: https://search-console.bruniaux.com/docs/editorial-workflows/
