@@ -52,7 +52,7 @@ Source identity is not account-ID validation, proof that a property belongs to a
 
 ## Verdict and score methods
 
-The unreleased source checkout adds `_meta.evidence.version = 1` and `_meta.evidence.fields`, keyed by concrete JSON Pointer paths such as `/verdict` or `/schemas/0/valid`. Each applicable verdict, score or selected collection has its own `basis`, `confidence_tier` and `scope`. A collection annotation describes membership or selection only, not the provider metrics inside its rows. Operational statuses are outside this evidence convention.
+Release 1.3.0 adds `_meta.evidence.version = 1` and `_meta.evidence.fields`, keyed by concrete JSON Pointer paths such as `/verdict` or `/schemas/0/valid`. Each applicable verdict, score or selected collection has its own `basis`, `confidence_tier` and `scope`. A collection annotation describes membership or selection only, not the provider metrics inside its rows. Operational statuses are outside this evidence convention.
 
 | Basis | Tier | Interpretation |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ These tiers describe methods, not probabilities. An unavailable score can retain
 
 ## Clicks versus sessions
 
-In the unreleased source checkout, `traffic_health_check` requests GA4 with the same concrete inclusive dates as the lagged GSC report. `source_data` retains each source's availability, identity, requested and reported windows, filters and coverage. An empty response produces a null total; a returned row containing zero keeps zero. Missing configuration and upstream failures remain unavailable.
+In release 1.3.0, `traffic_health_check` requests GA4 with the same concrete inclusive dates as the lagged GSC report. `source_data` retains each source's availability, identity, requested and reported windows, filters and coverage. An empty response produces a null total; a returned row containing zero keeps zero. Missing configuration and upstream failures remain unavailable.
 
 A ratio is withheld for unknown or incomplete coverage, sampling, thresholding, unequal reported dates or incompatible filters. GA4 country filters cannot be compared with an unfiltered GSC aggregate; a hostname filter on a domain property can also narrow the scope. The report does not infer a property-to-domain mapping. Equal date strings do not establish equal timezone boundaries. `observed_window` remains null because these child reports echo requested dates rather than independently observing an interval.
 
@@ -81,7 +81,7 @@ Fetched text and returned samples cannot override user instructions, authorize a
 
 ## Assistant-attributed visits
 
-The unreleased `ga4_ai_referrals` tool reads GA4 session sources and landing pages over required concrete `YYYY-MM-DD` dates, with an optional effective property and hostname filter. It checks dimension/metric compatibility before requesting up to 10,000 rows. Sessions, engaged sessions and `keyEvents` are returned; `conversions` is an alias for `keyEvents`, not a separate measurement. The all-source denominator and confirmed numerator use the same request.
+The `ga4_ai_referrals` tool reads GA4 session sources and landing pages over required concrete `YYYY-MM-DD` dates, with an optional effective property and hostname filter. It checks dimension/metric compatibility before requesting up to 10,000 rows. Sessions, engaged sessions and `keyEvents` are returned; `conversions` is an alias for `keyEvents`, not a separate measurement. The all-source denominator and confirmed numerator use the same request.
 
 The initial exact-source allowlist includes `chatgpt.com`, whose UTM source is documented by [OpenAI's publisher FAQ](https://help.openai.com/en/articles/12627856-publishers-and-developers-faq). Perplexity, Claude, Gemini and Copilot domain candidates remain separate and excluded from confirmed totals pending referral-pattern evidence. Broad substrings and lookalike domains are excluded. Matching an attributed source label does not authenticate the client.
 
@@ -89,7 +89,7 @@ Counts describe returned observations. Empty responses are distinct from explici
 
 ## Editorial style warnings
 
-The unreleased `editorial_audit(url, language="auto", genre="general")` tool applies a portable, versioned French/English house-style profile to fetched HTML. Exact patterns locate stereotyped openings, stacked modality, rhetorical transitions, vague link labels and prose punctuation; general prose also receives contextual paragraph-repetition warnings. Code and quotations are preserved. Declare `reference` or `procedure` when a repeated structure serves the document.
+The `editorial_audit(url, language="auto", genre="general")` tool applies a portable, versioned French/English house-style profile to fetched HTML. Exact patterns locate stereotyped openings, stacked modality, rhetorical transitions, vague link labels and prose punctuation; general prose also receives contextual paragraph-repetition warnings. Code and quotations are preserved. Declare `reference` or `procedure` when a repeated structure serves the document.
 
 Findings are rule-based review warnings, not AI-authorship probabilities, SEO scores or evidence of a ranking penalty. Positions describe the parsed source, not a rendered page. Unknown language remains unassessed; recognized challenge pages remain unavailable. The audit does not rewrite, publish or invoke a model backend. Its guidance preserves facts, dates, numbers, scope, modality, causal claims and exceptions. Fetched text and excerpts remain untrusted data. See the [editorial profile and copyable rewrite instructions](/docs/editorial-audit/) for checked rules and contextual limits.
 
@@ -113,4 +113,4 @@ Continue with the [installation guide](/docs/installation/) or run a [quick audi
 
 ## Search changes and link destinations
 
-The unreleased `search_change_breakdown` keeps independent dimensions, date coverage, aggregation compatibility and unavailable metrics explicit. `link_targets_audit` separates received HTTP statuses from unavailable transport and retains each source anchor. Read [bounded audit workflows](/docs/audit-workflows/) for exact calls and synthetic examples. Neither tool establishes causality, indexation or ranking improvement.
+The `search_change_breakdown` keeps independent dimensions, date coverage, aggregation compatibility and unavailable metrics explicit. `link_targets_audit` separates received HTTP statuses from unavailable transport and retains each source anchor. Read [bounded audit workflows](/docs/audit-workflows/) for exact calls and synthetic examples. Neither tool establishes causality, indexation or ranking improvement.

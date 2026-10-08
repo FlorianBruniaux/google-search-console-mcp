@@ -1,6 +1,6 @@
 # Architecture
 
-The unreleased source checkout includes `search_change_breakdown` (Google-only explicit period comparisons) and `link_targets_audit` (bounded public destination observations). Published package 1.2.0 remains at 81 tools. Read [bounded audit workflows](audit-workflows.md) for calls, result fields and evidence limits.
+Release 1.3.0 includes `search_change_breakdown` (Google-only explicit period comparisons) and `link_targets_audit` (bounded public destination observations). Release 1.3.0 exposes 85 tools. Read [bounded audit workflows](audit-workflows.md) for calls, result fields and evidence limits.
 
 ## Overview
 
@@ -176,7 +176,7 @@ Three algorithmic patterns introduced in Phase 1 reuse `_fetch_rows` and `_date_
 
 ## Cross-platform pattern (v0.2 Phase 3)
 
-In the unreleased source checkout, `traffic_health_check` resolves concrete GSC dates and passes them to GA4. Each source reports availability, requested/reported windows, filters and coverage. The ratio requires compatible covered inputs; empty responses remain null and explicit-zero rows stay zero. Calendar boundaries and property mapping remain unverified. Other combined reports still use independent windows.
+In release 1.3.0, `traffic_health_check` resolves concrete GSC dates and passes them to GA4. Each source reports availability, requested/reported windows, filters and coverage. The ratio requires compatible covered inputs; empty responses remain null and explicit-zero rows stay zero. Calendar boundaries and property mapping remain unverified. Other combined reports still use independent windows.
 
 `ga4_ai_referrals` checks property-specific dimension/metric compatibility and reads at most 10,000 source/medium/landing-page rows with sessions, engaged sessions and `keyEvents`. Confirmed source rules are dated; candidate sources are excluded from confirmed totals. All-source shares require complete unrestricted coverage. The output measures attributed visits, not citations. See the [evidence contract](https://search-console.bruniaux.com/docs/evidence-and-safety/).
 

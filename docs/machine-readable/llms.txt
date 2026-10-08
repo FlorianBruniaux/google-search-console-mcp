@@ -7,7 +7,7 @@
 Python MCP server exposing 85 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
-Published package 1.2.0 contains 81 tools; this source registry adds unreleased ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit for 85 tools.
+Release 1.3.0 contains 85 tools, including ga4_ai_referrals, editorial_audit, search_change_breakdown and link_targets_audit.
 Setup guides: docs/installation.md, docs/google-setup.md, docs/bing-setup.md.
 Prompt library: docs/starter-prompt.md and examples/.
 

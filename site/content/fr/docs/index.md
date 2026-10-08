@@ -52,4 +52,4 @@ Consultez l’[architecture](/fr/docs/architecture/), le [résumé des versions]
 
 [Lire la version anglaise canonique](/docs/).
 
-Pour comparer des fenêtres Google explicites et vérifier des destinations HTTP, consultez les [audits à périmètre borné](/fr/docs/audit-workflows/). Ces ajouts sont dans le code source non publié ; le paquet 1.2.0 expose 81 outils.
+Pour comparer des fenêtres Google explicites et vérifier des destinations HTTP, consultez les [audits à périmètre borné](/fr/docs/audit-workflows/). La version 1.3.0 inclut ces ajouts dans son registre de 85 outils.

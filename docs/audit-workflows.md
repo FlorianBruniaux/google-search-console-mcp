@@ -1,6 +1,6 @@
 # Bounded audit workflows
 
-`search_change_breakdown` and `link_targets_audit` are unreleased source-checkout tools. The source registry exposes 85 tools; published `gsc-mcp-tools==1.2.0` exposes 81. Install from the [source checkout instructions](installation.md) to use these additions. Examples below are synthetic explanatory fragments, not live Google or network runs.
+`search_change_breakdown` and `link_targets_audit` are included in `gsc-mcp-tools==1.3.0`, which exposes 85 tools. Follow the [installation instructions](installation.md) to use them. Examples below are synthetic explanatory fragments, not live Google or network runs.
 
 ## Compare explicit Google windows
 

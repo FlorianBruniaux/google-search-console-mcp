@@ -16,7 +16,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![Tools](https://img.shields.io/badge/MCP%20tools-85-5c4ee5.svg)](#tools-85)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
-[![Tests](https://img.shields.io/badge/tests-851%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-1394%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -90,7 +90,7 @@ Replace the example site in the prompt with your own. Every copied prompt explic
 
 | Goal | Command or guide | Result |
 | --- | --- | --- |
-| Run the published package | `uvx gsc-mcp-tools` | Starts all 81 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
+| Run the published package | `uvx gsc-mcp-tools` | Starts all 85 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
 | Install for Codex or Claude Desktop | [Installation guide](https://search-console.bruniaux.com/docs/installation/) | Persistent executable, upgrades, client configuration and verification |
 | Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
 | Configure Google access | [Google setup guide](https://search-console.bruniaux.com/docs/google-setup/) | Service Account or OAuth access to the selected properties |
@@ -106,7 +106,7 @@ Replace the example site in the prompt with your own. Every copied prompt explic
 
 ### Published package
 
-Use the published package for the complete 81-tool registry, including Bing:
+Use the published package for the complete 85-tool registry, including Bing:
 
 ```bash
 uvx gsc-mcp-tools
@@ -126,7 +126,7 @@ Upgrade that installation when a new release is available:
 uv tool upgrade gsc-mcp-tools
 ```
 
-To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.2.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
+To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.3.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
 
 Release `1.2.0` was built and published by [GitHub Actions](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml) through [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/). The workflow checks that the tag matches `pyproject.toml`, runs the full test suite, validates and smoke-tests the built wheel, then publishes that same artifact with a short-lived OIDC credential. See the [GitHub release](https://github.com/FlorianBruniaux/google-search-console-mcp/releases/tag/v1.2.0) and [PyPI files](https://pypi.org/project/gsc-mcp-tools/1.2.0/#files).
 
@@ -293,7 +293,7 @@ The Indexing API default quota is 200 requests per day per GCP project. The tool
 
 Google Search Console and Bing Webmaster Tools show how people find your pages in search. Optional GA4 data adds what those visitors do on your site; CrUX and public-page audits help identify performance, content and technical issues. Your assistant can use these sources together to decide which pages need attention.
 
-Version 1.2.0 exposes 81 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
+Version 1.3.0 exposes 85 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
 
 > [!IMPORTANT]
 > `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
@@ -396,7 +396,7 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 ## Tools (85)
 
-This source checkout includes unreleased `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Published `gsc-mcp-tools==1.2.0` exposes 81 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
+Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. It exposes 85 tools. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
 <summary>Show all 85 source tools</summary>

@@ -6,7 +6,7 @@ lastUpdated: 2026-10-08
 canonicalEnglish: /docs/audit-workflows/
 ---
 
-`search_change_breakdown` et `link_targets_audit` sont disponibles dans le code source non publié. Le registre source expose 85 outils ; `gsc-mcp-tools==1.2.0` publié en expose 81. Suivez les [instructions d’installation depuis le code source](/fr/docs/installation/). Les exemples ci-dessous sont des fragments synthétiques explicatifs, sans appel réel à Google ou au réseau.
+`search_change_breakdown` et `link_targets_audit` sont inclus dans `gsc-mcp-tools==1.3.0`, qui expose 85 outils. Suivez les [instructions d’installation](/fr/docs/installation/). Les exemples ci-dessous sont des fragments synthétiques explicatifs, sans appel réel à Google ou au réseau.
 
 ## Comparer des fenêtres Google explicites
 

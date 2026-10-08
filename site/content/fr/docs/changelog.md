@@ -8,16 +8,16 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
-## Non publié
+## 1.3.0
 
 - Ajout de `search_change_breakdown` pour des fenêtres Google explicites, dimensions indépendantes, couverture et résidus descriptifs (#21).
 - Ajout de `link_targets_audit` pour les statuts GET des destinations internes et leurs redirections, avec les ancres source (#19). Transport indisponible et erreur HTTP observée restent distincts.
-- Le registre source compte désormais 85 outils ; le paquet 1.2.0 publié reste à 81. Le [guide bilingue des audits bornés](/fr/docs/audit-workflows/) documente les appels et limites ; l’évaluation des classifieurs reste dans la documentation contributeur.
+- La version 1.3.0 compte 85 outils, contre 81 pour 1.2.0. Le [guide bilingue des audits bornés](/fr/docs/audit-workflows/) documente les appels et limites ; l’évaluation des classifieurs reste dans la documentation contributeur.
 
 - Ajout de `editorial_audit`, profil éditorial FR/EN versionné avec extraits localisés et consignes de réécriture fidèle (#17). Les citations, le code et les exceptions de genre sont protégés. Aucun score d’écriture IA ou de classement.
-- Le registre source compte 83 outils ; `content_quality` conserve son API et son score. Le paquet 1.2.0 publié reste à 81 outils.
+- `content_quality` conserve son API et son score.
 
-- Ajout de `ga4_ai_referrals` pour les visites attribuées aux sources d’assistants documentées. Le registre source compte 82 outils ; le paquet publié 1.2.0 en conserve 81. Les candidats restent exclus des totaux confirmés et une couverture insuffisante empêche le calcul de parts.
+- Ajout de `ga4_ai_referrals` pour les visites attribuées aux sources d’assistants documentées. Cet outil rejoint le registre partagé. Les candidats restent exclus des totaux confirmés et une couverture insuffisante empêche le calcul de parts.
 - Les verdicts et scores disposent de métadonnées par champ pour distinguer observations, calculs, règles et preuves indisponibles, sans probabilité inventée ni autorisation implicite d’action.
 - Les audits de titres, liens internes, technique et schémas signalent certains motifs d’instructions françaises et anglaises dans le HTML. Le contenu récupéré reste non fiable même sans signalement.
 - La comparaison GSC/GA4 aligne les dates demandées et distingue zéro, réponse vide et source indisponible. Les filtres ou couvertures incompatibles empêchent un ratio ; les statuts disponibles restent des heuristiques.
