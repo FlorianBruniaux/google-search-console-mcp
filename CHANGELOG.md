@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-08
+
 ### Feedback fixes
 
 - Add optional MCP startup selection through `GSC_MCP_TOOL_FAMILIES`. All 85 tools remain the default, `core` stays exposed and CLI listing keeps the full catalogue. Selection does not grant provider access or write permission.

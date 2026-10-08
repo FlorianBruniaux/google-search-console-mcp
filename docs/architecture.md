@@ -1,17 +1,17 @@
 # Architecture
 
-Release 1.3.0 includes `search_change_breakdown` (Google-only explicit period comparisons) and `link_targets_audit` (bounded public destination observations). Release 1.3.0 exposes 85 tools. Read [bounded audit workflows](audit-workflows.md) for calls, result fields and evidence limits.
+Release 1.3.0 includes `search_change_breakdown` (Google-only explicit period comparisons) and `link_targets_audit` (bounded public destination observations). Release 1.3.1 retains 85 tools and includes the feedback fixes documented below. Read [bounded audit workflows](audit-workflows.md) for calls, result fields and evidence limits.
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 85 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The CLI derives its full command surface from `registry.TOOLS`. In the unreleased checkout, the server selects MCP families at startup with `GSC_MCP_TOOL_FAMILIES`, exposing all by default and retaining `core`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
+gsc-mcp is a FastMCP server exposing 85 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The CLI derives its full command surface from `registry.TOOLS`. Since version 1.3.1, the server selects MCP families at startup with `GSC_MCP_TOOL_FAMILIES`, exposing all by default and retaining `core`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
 ```
 src/gsc_mcp/
 ├── server.py          # Entry point. Registers startup-selected functions from registry.TOOLS
-├── tool_selection.py  # Unreleased startup MCP family selection
+├── tool_selection.py  # MCP startup family selection since 1.3.1
 ├── registry.py        # Single source of truth for the 85 source MCP and CLI tools
 ├── cli.py             # Flag-only CLI generated from registry function signatures
 ├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader
@@ -44,9 +44,9 @@ src/gsc_mcp/
     └── search_compare.py   # 1 evidence-bounded Google/Bing comparison
 ```
 
-## Startup discovery selection (unreleased)
+## Startup discovery selection (since 1.3.1)
 
-`tool_selection.py` validates `GSC_MCP_TOOL_FAMILIES` against the catalogue families before server registration. Unknown or empty selections fail startup. The CLI still reads the full registry. Restart the MCP process after a selection change; discovery selection does not change provider credentials, permissions or confirmation requirements. See [installation configuration](installation.md#select-mcp-tool-families-unreleased).
+`tool_selection.py` validates `GSC_MCP_TOOL_FAMILIES` against the catalogue families before server registration. Unknown or empty selections fail startup. The CLI still reads the full registry. Restart the MCP process after a selection change; discovery selection does not change provider credentials, permissions or confirmation requirements. See [installation configuration](installation.md#select-mcp-tool-families-since-131).
 
 ## Google clients, Bing transport and IndexNow
 
@@ -74,9 +74,9 @@ The Bing adapter supports one dimension at a time: query, page or date. It filte
 
 The redacted live canary verified 15 of 17 Bing read methods. `GetKeywordStats` and `GetRelatedKeywords` returned HTTP 400 and have no registered tools. The public Bing API also does not expose the full URL Inspection or AI Performance interface.
 
-In the unreleased checkout, `bing_query_stats` aggregates query rows before ranking and limiting; `daily=True` returns the source daily rows. CTR is a ratio of summed counts and positions use their corresponding available click/impression weights. Anomalous source CTR remains unavailable with diagnostics even when aggregation would hide the anomaly. Bing query, page and date adapters preserve those diagnostics for comparisons as well. See [Bing aggregation examples](bing-setup.md#query-aggregation-unreleased).
+Since version 1.3.1, `bing_query_stats` aggregates query rows before ranking and limiting; `daily=True` returns the source daily rows. CTR is a ratio of summed counts and positions use their corresponding available click/impression weights. Anomalous source CTR remains unavailable with diagnostics even when aggregation would hide the anomaly. Bing query, page and date adapters preserve those diagnostics for comparisons as well. See [Bing aggregation examples](bing-setup.md#query-aggregation-since-131).
 
-In the unreleased checkout, `ai_visibility_audit` checks `ClaudeBot` (training), `Claude-User` (user-directed retrieval) and `Claude-SearchBot` (search), alongside the other configured bots. These names and purposes follow [Anthropic's crawler documentation](https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler). Robots permissions are local observations, not proof of crawler activity or AI citations.
+Since version 1.3.1, `ai_visibility_audit` checks `ClaudeBot` (training), `Claude-User` (user-directed retrieval) and `Claude-SearchBot` (search), alongside the other configured bots. These names and purposes follow [Anthropic's crawler documentation](https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler). Robots permissions are local observations, not proof of crawler activity or AI citations.
 
 ## GA4 pattern: protobuf objects, not dicts
 
@@ -177,11 +177,11 @@ FastMCP also has first-class Python support with a decorator-based API that keep
 
 Three algorithmic patterns introduced in Phase 1 reuse `_fetch_rows` and `_date_range` from `analytics.py` without adding dependencies.
 
-**Two-period comparison.** Both tools compare adjacent windows of `days` length. In the unreleased checkout, `traffic_drops` ends its current window three days before `date.today()` to allow for GSC reporting lag; `seo_lost_queries` retains its current window ending today. `traffic_drops` returns metric-based `diagnosis_candidates`, their `diagnosis_status` and previous/current metrics. Ranking and CTR candidates require impressions in both periods; demand decline requires observed impression decline. These rules do not prove causes. Missing current query rows appear in `unavailable_queries` with `metrics_current=null`; absence does not establish zero traffic. CTR and position are `null` when impressions are zero. The lost-query tool's separate previous-period iteration and `prev_clicks >= 5` guard are unchanged.
+**Two-period comparison.** Both tools compare adjacent windows of `days` length. Since version 1.3.1, `traffic_drops` ends its current window three days before `date.today()` to allow for GSC reporting lag; `seo_lost_queries` retains its current window ending today. `traffic_drops` returns metric-based `diagnosis_candidates`, their `diagnosis_status` and previous/current metrics. Ranking and CTR candidates require impressions in both periods; demand decline requires observed impression decline. These rules do not prove causes. Missing current query rows appear in `unavailable_queries` with `metrics_current=null`; absence does not establish zero traffic. CTR and position are `null` when impressions are zero. The lost-query tool's separate previous-period iteration and `prev_clicks >= 5` guard are unchanged.
 
 **HHI conflict score.** `seo_cannibalization` queries with `dimensions=["query","page"]` so each row carries both keys. Rows are grouped by query; for each group with more than one page, the Herfindahl-Hirschman Index measures concentration: `hhi = sum((clicks_i / total_clicks)^2)` and `conflict_score = 1 - hhi`. A score near 0 means one page dominates (no real conflict); near 1 means clicks are split evenly. When `total_clicks == 0` the function falls back to `hhi = 1/n` (uniform share), avoiding division by zero while still surfacing impression-heavy splits. Only groups with `conflict_score > 0.1` are returned.
 
-In the unreleased checkout, `seo_cannibalization` excludes queries containing `site:`, `intitle:`, `inurl:` or `filetype:` search operators by default. `excluded_search_operator_queries` counts distinct excluded query strings. `include_search_operators=True` retains them and records the opt-in in metadata. Operator queries can intentionally return several pages, so a split alone does not establish an SEO conflict.
+Since version 1.3.1, `seo_cannibalization` excludes queries containing `site:`, `intitle:`, `inurl:` or `filetype:` search operators by default. `excluded_search_operator_queries` counts distinct excluded query strings. `include_search_operators=True` retains them and records the opt-in in metadata. Operator queries can intentionally return several pages, so a split alone does not establish an SEO conflict.
 
 **Z-score anomaly detection.** `analytics_anomalies` queries with `dimensions=["date"]` to get a daily click series, then uses `statistics.pstdev` (population standard deviation, not sample) because the series is a complete known dataset rather than a sample from a larger population. The guard `if std == 0: return []` handles flat series and all-zero traffic, both common on low-traffic sites, without raising `ZeroDivisionError`.
 

@@ -22,12 +22,12 @@ Ne commitez jamais cette valeur et ne la collez pas dans une conversation publiq
 
 Utilisez d’abord l’outil de liste des sites Bing. Vérifiez que les URL retournées correspondent exactement aux variantes attendues, notamment le protocole et le sous-domaine. Une clé valide ne garantit pas l’accès à un site non vérifié dans le compte.
 
-## Agrégation des requêtes (non publié)
+## Agrégation des requêtes (depuis 1.3.1)
 
-Dans le checkout, `bing_query_stats` renvoie une ligne par requête par défaut. Il agrège les dates source dans la fenêtre locale demandée avant le tri et la limite. Les clics et impressions sont additionnés ; le CTR est leur ratio. Les positions disponibles sont pondérées par leurs nombres de clics ou d’impressions respectifs.
+Depuis la version 1.3.1, `bing_query_stats` renvoie une ligne par requête par défaut. Il agrège les dates source dans la fenêtre locale demandée avant le tri et la limite. Les clics et impressions sont additionnés ; le CTR est leur ratio. Les positions disponibles sont pondérées par leurs nombres de clics ou d’impressions respectifs.
 
 ```bash
-# Totaux par requête, comportement par défaut du checkout
+# Totaux par requête, comportement par défaut depuis 1.3.1
 gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20
 # Lignes source quotidiennes
 gsc-cli bing-query-stats --site https://example.com/ --days 28 --limit 20 --daily

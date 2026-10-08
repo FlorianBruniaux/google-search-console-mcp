@@ -10,9 +10,9 @@ canonicalEnglish: /docs/architecture/
 
 Search Console MCP expose une interface MCP sur `stdio`. Le serveur et la CLI partagent le même registre d’outils. Chaque famille de fournisseur conserve son authentification, ses erreurs et ses sémantiques.
 
-## Sélection au démarrage (non publié)
+## Sélection au démarrage (depuis 1.3.1)
 
-`tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose les 85 outils. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
+Depuis la version 1.3.1, `tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose les 85 outils. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
 
 ## Sources de données
 
@@ -34,7 +34,7 @@ Le registre de la version 1.3.0 compte 85 outils. `ga4_ai_referrals` mesure les 
 
 Consultez les [limites de preuve](/fr/docs/evidence-and-safety/) avant d’interpréter un ratio, un score, un signal d’instruction ou une visite attribuée.
 
-## Correctifs du checkout (non publiés)
+## Correctifs de la version 1.3.1
 
 `traffic_drops` compare deux fenêtres adjacentes de même durée, avec une fin de fenêtre courante trois jours avant aujourd’hui. `seo_lost_queries` conserve sa fenêtre terminant aujourd’hui. Les `diagnosis_candidates`, leur `diagnosis_status` et les métriques précédentes/courantes documentent des règles, sans prouver de cause. Les candidats de classement et CTR exigent des impressions dans les deux périodes ; la baisse de demande exige une diminution observée des impressions. Une requête absente des lignes courantes figure dans `unavailable_queries` avec `metrics_current=null`. Son absence ne prouve pas un trafic nul ; CTR et position restent `null` avec zéro impression.
 
