@@ -2,14 +2,14 @@
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 81 tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
+gsc-mcp is a FastMCP server exposing 82 source tools over the Model Context Protocol. Each tool is a plain Python function returning a JSON string. The server and CLI derive their command surface from `registry.TOOLS`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
 ```
 src/gsc_mcp/
 ├── server.py          # Entry point. Registers every function from registry.TOOLS
-├── registry.py        # Single source of truth for the 81 MCP and CLI tools
+├── registry.py        # Single source of truth for the 82 source MCP and CLI tools
 ├── cli.py             # Flag-only CLI generated from registry function signatures
 ├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
@@ -27,7 +27,7 @@ src/gsc_mcp/
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
     ├── indexing.py    # submit_url, submit_batch, indexnow_submit
     ├── sitemaps.py    # list_sitemaps, submit_sitemap, sitemaps_get, sitemaps_delete, sitemap_audit
-    ├── ga4.py         # 7 GA4 tools + _build_dimension_filter helper
+    ├── ga4.py         # 8 GA4 tools + _build_dimension_filter helper
     ├── cross.py       # 4 GSC+GA4 tools + _normalize_url helper
     ├── crux.py        # 3 Chrome UX Report tools via httpx
     ├── technical.py   # 5 schema, AI visibility, GBP and PageSpeed tools
@@ -86,7 +86,7 @@ For `ga4_user_behavior`, a single `BatchRunReportsRequest` wraps three sub-reque
 
 The `GA4_PROPERTY_ID` environment variable accepts either a bare numeric ID (`123456789`) or the full resource name (`properties/123456789`). `get_ga4_property_id(override=None)` normalises it and raises `RuntimeError` if absent and no override is passed, validated lazily (first tool call, never at startup).
 
-All 7 GA4 tools and the 4 GSC+GA4 cross tools accept an optional `property_id: str = None` parameter. When provided, it is forwarded to `get_ga4_property_id(override=property_id)` and takes precedence over the env var. This allows querying multiple GA4 properties from a single MCP instance without config changes.
+All 8 GA4 tools and the 4 GSC+GA4 cross tools accept an optional `property_id: str = None` parameter. When provided, it is forwarded to `get_ga4_property_id(override=property_id)` and takes precedence over the env var. This allows querying multiple GA4 properties from a single MCP instance without config changes.
 
 Token files are JSON, not pickle. `google.oauth2.credentials.Credentials` provides `.to_json()` and `.from_authorized_user_info()` for round-tripping safely.
 
@@ -171,6 +171,12 @@ Three algorithmic patterns introduced in Phase 1 reuse `_fetch_rows` and `_date_
 **Z-score anomaly detection.** `analytics_anomalies` queries with `dimensions=["date"]` to get a daily click series, then uses `statistics.pstdev` (population standard deviation, not sample) because the series is a complete known dataset rather than a sample from a larger population. The guard `if std == 0: return []` handles flat series and all-zero traffic, both common on low-traffic sites, without raising `ZeroDivisionError`.
 
 ## Cross-platform pattern (v0.2 Phase 3)
+
+In the unreleased source checkout, `traffic_health_check` resolves concrete GSC dates and passes them to GA4. Each source reports availability, requested/reported windows, filters and coverage. The ratio requires compatible covered inputs; empty responses remain null and explicit-zero rows stay zero. Calendar boundaries and property mapping remain unverified. Other combined reports still use independent windows.
+
+`ga4_ai_referrals` checks property-specific dimension/metric compatibility and reads at most 10,000 source/medium/landing-page rows with sessions, engaged sessions and `keyEvents`. Confirmed source rules are dated; candidate sources are excluded from confirmed totals. All-source shares require complete unrestricted coverage. The output measures attributed visits, not citations. See the [evidence contract](https://search-console.bruniaux.com/docs/evidence-and-safety/).
+
+`with_meta` adds concrete per-field JSON Pointer evidence descriptors from a tool/path inventory. No whole-output basis is inferred for mixed reports, and no numeric confidence is fabricated. Existing metrics and source identities retain their meanings. The shared HTML trust observer does not execute or rewrite fetched instructions; a narrow challenge detector protects schema assessment only.
 
 `cross.py` does not call the Google APIs directly. It calls the high-level tool functions from `analytics.py` and `ga4.py`, parses their JSON string output with `json.loads`, and then joins the results.
 

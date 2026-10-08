@@ -2,7 +2,7 @@
 title: "Architecture"
 description: "Comprendre le serveur MCP, les limites entre fournisseurs et les écritures protégées."
 lang: fr
-lastUpdated: 2026-10-06
+lastUpdated: 2026-10-08
 canonicalEnglish: /docs/architecture/
 ---
 
@@ -21,6 +21,14 @@ Search Console MCP expose une interface MCP sur `stdio`. Le serveur et la CLI pa
 ## Frontières
 
 Une propriété est toujours un paramètre explicite. Les résultats Google et Bing ne sont pas fusionnés. Les lectures de pages arbitraires passent par les protections réseau du serveur. Les sorties structurées conservent les métadonnées nécessaires à l’interprétation.
+
+## Ajouts du code source non publié
+
+Le registre source compte 82 outils ; le paquet 1.2.0 publié en expose 81. `ga4_ai_referrals` mesure les visites attribuées à des sources d’assistants documentées, après contrôle de compatibilité et avec des parts conditionnées par la couverture. Les sources candidates restent séparées.
+
+`traffic_health_check` aligne les dates demandées et préserve les états zéro, vide, inconnu et indisponible. Les rapports combinés par page gardent encore leurs fenêtres indépendantes. Les métadonnées décrivent la méthode de chaque verdict ou score concerné sans modifier sa valeur. Quatre audits marquent leur HTML principal non fiable ; le détecteur de challenge protège uniquement la validation de schémas.
+
+Consultez les [limites de preuve](/fr/docs/evidence-and-safety/) avant d’interpréter un ratio, un score, un signal d’instruction ou une visite attribuée.
 
 ## Outils d’écriture
 

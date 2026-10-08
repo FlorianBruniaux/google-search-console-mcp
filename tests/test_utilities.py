@@ -19,6 +19,7 @@ def test_with_meta_preserves_data():
     data = {"rows": [{"keys": ["q"], "clicks": 10}]}
     result = with_meta(data, tool="test", params={})
     assert result["rows"] == data["rows"]
+    assert result["_meta"]["evidence"]["fields"] == {}
 
 
 def test_with_meta_returns_dict():

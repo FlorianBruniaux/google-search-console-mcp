@@ -6,7 +6,7 @@ version: "1.1.0"
 generated: "2026-10-05"
 package: gsc-mcp-tools
 python_min: "3.11"
-total_tools: 81
+total_tools: 82
 total_tests: 851
 
 tool_inventory:
@@ -14,7 +14,7 @@ tool_inventory:
   bing_reads: 15
   bing_writes: 4
   cross_engine: 1
-  total: 81
+  total: 82
   source_of_truth: src/gsc_mcp/registry.py
   invariant: "set(registry.TOOLS) == set(properties._ALL_TOOLS)"
 
@@ -34,7 +34,7 @@ core_modules:
     type: entry_point
 
   - path: src/gsc_mcp/registry.py
-    role: "Shared MCP and CLI registry for all 81 tools"
+    role: "Shared MCP and CLI registry for all 82 tools"
     exports: [TOOLS]
 
   - path: src/gsc_mcp/cli.py
@@ -124,8 +124,8 @@ tool_modules:
     tool_names: [list_sitemaps, submit_sitemap, sitemaps_delete, sitemaps_get, sitemap_audit]
 
   - path: src/gsc_mcp/tools/ga4.py
-    tools: 7
-    tool_names: [ga4_organic_landing_pages, ga4_traffic_sources, ga4_page_performance, ga4_realtime, ga4_user_behavior, ga4_conversion_funnel, ga4_funnel]
+    tools: 8
+    tool_names: [ga4_ai_referrals, ga4_organic_landing_pages, ga4_traffic_sources, ga4_page_performance, ga4_realtime, ga4_user_behavior, ga4_conversion_funnel, ga4_funnel]
     env_vars: [GA4_PROPERTY_ID]
 
   - path: src/gsc_mcp/tools/cross.py

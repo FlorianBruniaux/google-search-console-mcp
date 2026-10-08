@@ -155,7 +155,9 @@ def test_funnel_validation_does_not_resolve_a_property(monkeypatch):
 
 def test_metadata_sources_are_optional_and_leave_requested_params_unchanged():
     params = {"property_id": None}
-    assert with_meta({"rows": []}, "example", params) == {
+    original = with_meta({"rows": []}, "example", params)
+    assert original["_meta"].pop("evidence") == {"version": 1, "fields": {}, "inventory_status": "unregistered"}
+    assert original == {
         "rows": [], "_meta": {"tool": "example", "params": params},
     }
     result = with_meta({"rows": []}, "example", params, sources={"ga4": {"property": "properties/123456789"}})

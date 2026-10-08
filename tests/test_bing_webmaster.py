@@ -392,6 +392,10 @@ def test_bing_url_submit_validates_before_exact_write_and_marks_indexing_unverif
         "status",
         "indexed",
     }
+    evidence = result["_meta"].pop("evidence")
+    assert evidence["fields"]["/indexed"]["basis"] is None
+    assert evidence["fields"]["/indexed"]["confidence_tier"] == "unavailable"
+    assert "/status" not in evidence["fields"]
     assert result == {
         "engine": "bing",
         "site": SITE,

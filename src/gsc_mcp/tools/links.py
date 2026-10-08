@@ -19,6 +19,7 @@ from urllib.parse import urljoin, urlsplit
 import httpx
 
 from gsc_mcp.meta import with_meta
+from gsc_mcp.content_trust import observe_untrusted_content
 from gsc_mcp.tools.analytics import get_search_analytics
 from gsc_mcp.url_safety import URLSafetyError, fetch_html_following_redirects
 
@@ -164,7 +165,7 @@ def internal_links_audit(url: str) -> str:
         html, _status, final_url = fetch_html_following_redirects(url)
     except (URLSafetyError, httpx.HTTPError) as exc:
         return json.dumps(with_meta(
-            {"url": url, "error": str(exc), "verdict": "fetch_error"},
+            {"url": url, "error": str(exc), "verdict": "fetch_error", "untrusted_content": None},
             tool="internal_links_audit",
             params=params,
         ))
@@ -289,6 +290,7 @@ def internal_links_audit(url: str) -> str:
             "url": url,
             "final_url": final_url,
             "total_links": len(links),
+            "untrusted_content": observe_untrusted_content(html, source_url=final_url),
             "internal_count": len(internal),
             "external_count": len(external),
             "by_zone": by_zone,

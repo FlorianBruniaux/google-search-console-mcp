@@ -406,6 +406,9 @@ def test_limit_is_applied_after_sorting(monkeypatch):
     assert result["row_count"] == 2
     assert result["returned_count"] == 1
     assert [row["query"] for row in result["rows"]] == ["high"]
+    evidence = result["_meta"].pop("evidence")
+    assert evidence["version"] == 1
+    assert "/rows/0/click_delta" in evidence["fields"]
     assert result["_meta"] == {
         "tool": "compare_search_engines",
         "params": {

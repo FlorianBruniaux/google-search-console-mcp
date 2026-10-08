@@ -39,8 +39,8 @@ export function getSiteLinks(locale: Locale) {
 export const landingContent = {
   en: {
     seo: {
-      title: 'Search Console MCP for Google, Bing and SEO Analytics',
-      description: 'Let Claude or Codex analyze your SEO changes, find ranking opportunities and suggest prioritized fixes using Google Search Console, Bing and GA4 data.',
+      title: 'Search Console MCP: AI-Powered SEO Audits for Google and Bing',
+      description: 'Automate SEO audits with Claude or Codex. Use your Google and Bing data to find prioritized fixes and improve your search visibility, without needing SEO expertise.',
       imageAlt: 'Search Console MCP: Google, Bing and SEO analytics for AI assistants. Connect, Measure, Compare, Explain, Submit.',
     },
     header: {
@@ -49,15 +49,14 @@ export const landingContent = {
       external: 'opens in a new tab', themeDark: 'Switch to dark theme', themeLight: 'Switch to light theme',
     },
     hero: {
-      kicker: 'SEO analysis with Claude or Codex', title: 'Know what to fix to improve your search rankings.',
-      copy: 'Ask your AI assistant what changed in your SEO and what to fix first. Search Console MCP connects your search metrics and page audits so it can explain the findings and suggest prioritized corrections, without requiring SEO expertise.',
+      kicker: 'Automate SEO audits with Claude or Codex', title: 'Improve your search visibility with AI.',
+      copy: 'Let Claude or Codex retrieve your Google and Bing data, audit your pages and recommend the fixes to prioritize. Less manual checking, a clear action plan, no SEO expertise required.',
       evidenceTitle: 'Unavailable metrics are reported as unavailable.',
-      evidenceCopy: 'Unsupported Bing analyses are identified explicitly. Cross-engine deltas require exact, matching observed windows.',
       evidenceLink: 'Read the data limits',
-      setup: 'Connect your accounts once, then ask in plain language. Review the suggested changes and measure their effect.',
+      setup: 'Connect your accounts once, then ask in plain language. You review the proposed fixes and track the results.',
       copyCommand: 'Copy uvx command', installPath: 'View installation path', intentsLabel: 'Common SEO workflows',
       intents: [['Start with SEO', '#seo-getting-started'], ['Understand a traffic drop', '#seo-traffic'], ['Find ranking opportunities', '#seo-rankings'], ['Check page visibility', '#seo-indexing']],
-      terminalLabel: 'Example SEO request and suggested output', terminalPrompt: 'Analyze my latest SEO changes and tell me what to fix first.',
+      terminalLabel: 'Example SEO request and suggested output', terminalPrompt: 'Audit my site and give me the three fixes to prioritize for Google and Bing.',
       exampleLabel: 'Illustrative output, not a live site report',
       exampleItems: [['Explain a traffic drop', 'Compare clicks and positions, then identify possible causes.'], ['Improve a search snippet', 'Suggest a title rewrite for a page with impressions but few clicks.'], ['Help a page rank higher', 'Find pages close to page one and suggest content or internal-link changes.']],
       terminalResult: 'registered tools, structured JSON output',
@@ -86,7 +85,7 @@ export const landingContent = {
       ], boundary: 'Google and Bing position semantics remain separate.',
     },
     workflow: {
-      kicker: '02 / Workflow', title: 'Ask, review the fixes, then measure the results.',
+      kicker: '02 / Workflow', title: 'Automate the audit. Review the fixes. Track the results.',
       steps: [['Connect', 'Install in Claude, Codex or another MCP client and connect the accounts you use.'], ['Ask', 'Describe your goal in plain language, such as understanding a traffic drop or finding ranking opportunities.'], ['Analyze', 'Your assistant calls the tools, compares metrics and audits pages to propose a prioritized action plan.'], ['Fix', 'Review the recommendations. Apply them yourself or ask a coding assistant with repository access to help.'], ['Measure', 'Rerun the analysis to track changes. Schedule recurring checks through your client or an external automation.']],
     },
     install: {
@@ -95,7 +94,7 @@ export const landingContent = {
       copyLabels: ['Copy evaluate command', 'Copy persistent install command', 'Copy verification command'], expected: 'Expected: the registered commands and their one-line descriptions.', guide: 'Read the client-specific installation guide',
     },
     evidence: {
-      kicker: '04 / Evidence & safety', title: '3 result states: observed, derived, requested.', intro: 'An accepted submission proves neither crawl nor indexation.', guide: 'Read the Bing API contract',
+      kicker: '04 / Evidence & safety', title: '3 result states: observed, derived, requested.', intro: 'Unsupported Bing analyses are identified explicitly. Cross-engine deltas require exact, matching observed windows. An accepted submission proves neither crawl nor indexation.', guide: 'Read the data limits',
       states: [['Observed', 'API responses and fetched public-page data.'], ['Derived', 'Calculations tied to an explicit observed window.'], ['Requested', 'A provider accepted a submission. Crawl and indexation remain unproven.']],
     },
     faq: {
@@ -111,9 +110,9 @@ export const landingContent = {
         { question: 'Where should credentials be stored?', answer: 'Keep credentials in the MCP server environment or the client configuration. The public website never receives them, and prompts should not contain secret values.' },
       ],
     },
-    final: { kicker: 'Start with your own site.', title: 'Get your first SEO action plan.', copy: 'Install Search Console MCP, connect your accounts and ask your assistant what changed and what to fix first.', button: 'Copy final uvx command', guide: 'Read the installation guide' },
+    final: { kicker: 'Start with your own site.', title: 'Get your first SEO action plan.', copy: 'Connect your accounts and let Claude or Codex run your first audit. Get prioritized fixes to improve your search visibility.', button: 'Copy final uvx command', guide: 'Read the installation guide' },
     footer: {
-      tagline: 'Understand your SEO changes. Know what to fix next.', creator: 'Open-source AI engineering by', groups: { navigate: 'Navigate', product: 'Product', ecosystem: 'Ecosystem' },
+      tagline: 'Automate SEO audits. Improve your search visibility with AI.', creator: 'Open-source AI engineering by', groups: { navigate: 'Navigate', product: 'Product', ecosystem: 'Ecosystem' },
       nav: [['Overview', '#main-content'], ['Choose a problem', '#outcomes'], ['Providers', '#capabilities'], ['Workflow', '#workflow'], ['Install', '#install'], ['Safety', '#safety'], ['FAQ', '#faq']],
       product: ['Documentation', 'GitHub', 'PyPI', 'Installation docs', 'Changelog', 'MIT license'], ecosystem: ['All projects', 'Claude Code Guide', 'StarMapper', 'CCBoard', 'CC-Copilot Bridge', 'YT Insights'],
       creatorLinks: ['Portfolio', 'Blog', 'GitHub profile', 'LinkedIn'], external: 'opens in a new tab',
@@ -121,8 +120,8 @@ export const landingContent = {
   },
   fr: {
     seo: {
-      title: "Search Console MCP pour Google, Bing et l’analyse SEO",
-      description: 'Avec Claude ou Codex, analysez vos évolutions SEO et obtenez des correctifs priorisés à partir de vos données Google Search Console, Bing et GA4.',
+      title: "Search Console MCP : audits SEO avec l’IA pour Google et Bing",
+      description: 'Automatisez vos audits SEO avec Claude ou Codex. Obtenez les corrections prioritaires pour améliorer votre visibilité sur Google et Bing, sans expertise SEO requise.',
       imageAlt: 'Search Console MCP : analytics Google, Bing et SEO pour assistants IA. Connecter, Mesurer, Comparer, Expliquer, Soumettre.',
     },
     header: {
@@ -131,15 +130,14 @@ export const landingContent = {
       external: 'ouvre un nouvel onglet', themeDark: 'Passer au thème sombre', themeLight: 'Passer au thème clair',
     },
     hero: {
-      kicker: 'Analyse SEO avec Claude ou Codex', title: 'Sachez quoi corriger pour mieux vous positionner.',
-      copy: 'Demandez à votre assistant IA ce qui évolue dans votre SEO et quoi corriger en priorité. Search Console MCP lui donne accès à vos métriques et aux audits de vos pages pour expliquer les résultats et proposer des correctifs, sans expertise SEO requise.',
+      kicker: 'Automatisez vos audits SEO avec Claude ou Codex', title: 'Améliorez votre référencement avec l’IA.',
+      copy: 'Laissez Claude ou Codex récupérer vos données Google et Bing, auditer vos pages et proposer les corrections prioritaires. Moins de vérifications manuelles, un plan d’action clair, sans expertise SEO requise.',
       evidenceTitle: 'Les métriques indisponibles sont signalées comme indisponibles.',
-      evidenceCopy: 'Les analyses Bing non prises en charge sont signalées explicitement. Les écarts entre moteurs exigent des périodes observées exactes et identiques.',
       evidenceLink: 'Lire les limites des données',
-      setup: 'Connectez vos comptes une fois, puis posez vos questions en langage courant. Validez les corrections proposées et mesurez leur effet.',
+      setup: 'Connectez vos comptes une fois, puis posez vos questions en langage courant. Vous validez les corrections et suivez les résultats.',
       copyCommand: 'Copier la commande uvx', installPath: "Voir le parcours d’installation", intentsLabel: 'Workflows SEO courants',
       intents: [['Débuter en SEO', '#seo-getting-started'], ['Comprendre une baisse de trafic', '#seo-traffic'], ['Trouver des opportunités', '#seo-rankings'], ['Vérifier la visibilité des pages', '#seo-indexing']],
-      terminalLabel: 'Exemple de demande SEO et de résultat proposé', terminalPrompt: 'Analyse les dernières évolutions de mon SEO et dis-moi quoi corriger en priorité.', terminalResult: 'outils enregistrés, sortie JSON structurée',
+      terminalLabel: 'Exemple de demande SEO et de résultat proposé', terminalPrompt: 'Audite mon site et donne-moi les trois corrections prioritaires pour Google et Bing.', terminalResult: 'outils enregistrés, sortie JSON structurée',
       exampleLabel: 'Exemple illustratif, pas un rapport sur un site réel',
       exampleItems: [['Expliquer une baisse de trafic', 'Comparer les clics et les positions, puis identifier les causes possibles.'], ['Améliorer un résultat de recherche', 'Proposer un nouveau titre pour une page visible mais peu cliquée.'], ['Aider une page à mieux se positionner', 'Repérer les pages proches de la première page et proposer des changements de contenu ou de liens internes.']],
     },
@@ -167,7 +165,7 @@ export const landingContent = {
       ], boundary: 'Les sémantiques de position Google et Bing restent séparées.',
     },
     workflow: {
-      kicker: '02 / Fonctionnement', title: 'Demandez, validez les correctifs, puis mesurez les résultats.',
+      kicker: '02 / Fonctionnement', title: 'Automatisez l’audit. Validez les corrections. Suivez les résultats.',
       steps: [['Connecter', 'Installez dans Claude, Codex ou un autre client MCP et connectez les comptes que vous utilisez.'], ['Demander', 'Décrivez votre objectif en langage courant : comprendre une baisse de trafic ou trouver des opportunités de classement.'], ['Analyser', 'Votre assistant appelle les outils, compare les métriques et audite les pages pour proposer un plan d’action priorisé.'], ['Corriger', 'Validez les recommandations. Appliquez-les ou demandez l’aide d’un assistant de code ayant accès au dépôt.'], ['Mesurer', 'Relancez l’analyse pour suivre les évolutions. Programmez les contrôles récurrents via votre client ou une automatisation externe.']],
     },
     install: {
@@ -176,7 +174,7 @@ export const landingContent = {
       copyLabels: ["Copier la commande d’évaluation", "Copier la commande d’installation", 'Copier la commande de vérification'], expected: 'Résultat attendu : les commandes enregistrées et leur description sur une ligne.', guide: "Lire le guide d’installation par client",
     },
     evidence: {
-      kicker: '04 / Preuves et sécurité', title: '3 états de résultat : observé, calculé, demandé.', intro: "Une soumission acceptée ne prouve ni l’exploration ni l’indexation.", guide: 'Lire le contrat de l’API Bing',
+      kicker: '04 / Preuves et sécurité', title: '3 états de résultat : observé, calculé, demandé.', intro: "Les analyses Bing non prises en charge sont signalées explicitement. Les écarts entre moteurs exigent des périodes observées exactes et identiques. Une soumission acceptée ne prouve ni l’exploration ni l’indexation.", guide: 'Lire les limites des données',
       states: [['Observé', 'Réponses des API et données issues des pages publiques.'], ['Calculé', 'Calculs liés à une période observée explicite.'], ['Demandé', "Un moteur a accepté une soumission. L’exploration et l’indexation restent à prouver."]],
     },
     faq: {
@@ -192,9 +190,9 @@ export const landingContent = {
         { question: 'Où stocker les identifiants ?', answer: 'Conservez les identifiants dans l’environnement du serveur MCP ou dans la configuration du client. Le site public ne les reçoit jamais et les prompts ne doivent pas contenir de secrets.' },
       ],
     },
-    final: { kicker: 'Commencez avec votre site.', title: 'Obtenez votre premier plan d’action SEO.', copy: 'Installez Search Console MCP, connectez vos comptes et demandez à votre assistant ce qui évolue et quoi corriger en priorité.', button: 'Copier la commande uvx finale', guide: "Lire le guide d’installation" },
+    final: { kicker: 'Commencez avec votre site.', title: 'Obtenez votre premier plan d’action SEO.', copy: 'Connectez vos comptes et laissez Claude ou Codex réaliser votre premier audit. Obtenez les corrections prioritaires pour améliorer votre visibilité.', button: 'Copier la commande uvx finale', guide: "Lire le guide d’installation" },
     footer: {
-      tagline: 'Comprenez vos évolutions SEO. Sachez quoi corriger.', creator: 'Ingénierie IA open source par', groups: { navigate: 'Navigation', product: 'Produit', ecosystem: 'Écosystème' },
+      tagline: 'Automatisez vos audits SEO. Améliorez votre visibilité avec l’IA.', creator: 'Ingénierie IA open source par', groups: { navigate: 'Navigation', product: 'Produit', ecosystem: 'Écosystème' },
       nav: [['Vue d’ensemble', '#main-content'], ['Choisir un problème', '#outcomes'], ['Moteurs', '#capabilities'], ['Workflow', '#workflow'], ['Installation', '#install'], ['Sécurité', '#safety'], ['FAQ', '#faq']],
       product: ['Documentation', 'GitHub', 'PyPI', "Guide d’installation", 'Historique', 'Licence MIT'], ecosystem: ['Tous les projets', 'Guide Claude Code', 'StarMapper', 'CCBoard', 'CC-Copilot Bridge', 'YT Insights'],
       creatorLinks: ['Portfolio', 'Blog', 'Profil GitHub', 'LinkedIn'], external: 'ouvre un nouvel onglet',

@@ -9,6 +9,8 @@ from urllib.parse import urlparse
 import httpx
 
 from gsc_mcp.meta import with_meta
+from gsc_mcp.content_trust import observe_untrusted_content
+from gsc_mcp.page_challenges import detect_challenge_page
 from gsc_mcp.url_safety import (
     URLSafetyError,
     fetch_html_following_redirects,
@@ -121,13 +123,35 @@ def schema_validate(url: str) -> str:
     Recommended properties are reported separately and do not affect validity.
     Verdicts: healthy (all schemas valid) | missing_schemas (none found) |
               invalid_schemas (found but at least one has missing required fields) |
+              challenge_page (known challenge replaces the unavailable page) |
               fetch_error (URL not reachable).
     """
     try:
-        html, _status, final_url = fetch_html_following_redirects(url)
+        html, status, final_url = fetch_html_following_redirects(url)
     except (URLSafetyError, httpx.HTTPError) as e:
         return json.dumps(with_meta(
-            {"url": url, "error": str(e), "verdict": "fetch_error"},
+            {"url": url, "error": str(e), "verdict": "fetch_error", "untrusted_content": None},
+            tool="schema_validate",
+            params={"url": url},
+        ))
+
+    untrusted_content = observe_untrusted_content(html, source_url=final_url)
+    challenge = detect_challenge_page(html)
+    if challenge:
+        return json.dumps(with_meta(
+            {
+                "url": url,
+                "final_url": final_url,
+                "http_status": status,
+                "challenge": challenge,
+                "untrusted_content": untrusted_content,
+                "schemas_detected": None,
+                "validation_scope": "not_assessed",
+                "google_rich_result_eligibility": "not_assessed",
+                "schemas": None,
+                "recommendations": None,
+                "verdict": "challenge_page",
+            },
             tool="schema_validate",
             params={"url": url},
         ))
@@ -172,6 +196,7 @@ def schema_validate(url: str) -> str:
             "url": url,
             "final_url": final_url,
             "schemas_detected": len(detected),
+            "untrusted_content": untrusted_content,
             "validation_scope": "local_required_field_presence",
             "google_rich_result_eligibility": "not_assessed",
             "schemas": detected,

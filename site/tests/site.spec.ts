@@ -119,7 +119,7 @@ test('switches the complete landing between English and French', async ({ page }
   await page.getByRole('link', { name: 'FR', exact: true }).click()
   await expect(page).toHaveURL('/fr/')
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Sachez quoi corriger')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Améliorez votre référencement')
   await expect(page.getByRole('link', { name: 'Documentation', exact: true }).first()).toHaveAttribute('href', '/fr/docs/')
   await page.getByRole('link', { name: 'EN', exact: true }).click()
   await expect(page).toHaveURL('/')
@@ -441,7 +441,7 @@ test('returns from the documentation to the product home', async ({ page }) => {
   await expect(brand.getByText('← Accueil')).toBeVisible()
   await brand.click()
   await expect(page).toHaveURL('/fr/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Sachez quoi corriger')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Améliorez votre référencement')
 })
 
 for (const route of ['/docs/examples/quick-audit/', '/fr/docs/']) {
