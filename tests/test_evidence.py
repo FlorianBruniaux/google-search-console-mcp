@@ -483,7 +483,22 @@ SUCCESS_SHAPES["search_weekday_reference"] = {
                               "comparison": {"start": "2025-12-29", "end": "2026-01-25"}},
         "delta": {"clicks": -1, "impressions": 0}, "status": "observed", "reasons": [],
         "report_lag_days": 3, "method": "prior_disjoint_same_weekdays", "timezone": "America/Los_Angeles",
-        "causal_interpretation": False},
+        "causal_interpretation": False, "alignment": {"weekday_aligned": True, "leap_day_clamped": False}},
+    "reference_strategy": "rolling_daily",
+    "robust_reference": {"method": "sum_of_prior_same_weekday_daily_medians.v1", "status": "observed",
+        "reasons": [], "minimum_support_per_weekday": 6, "timezone": "America/Los_Angeles", "data_state": "final",
+        "formula": "same-weekday medians", "causal_interpretation": False,
+        "support_by_weekday": {"0": {"clicks": {"days": 8, "median": 0, "median_absolute_deviation": 0}}},
+        "expected_counts": {"clicks": 0}, "delta": {"clicks": 80}, "requested_window": {"start": "2025-01-01", "end": "2025-02-25"},
+        "observed_dates": ["2025-01-01"], "omitted_dates": [], "omitted_days": 0, "fetch_error": None},
+    "context_preflight": {"version": 1, "stale_after_days": 7, "retrieved_at": "2026-01-01T00:00:00Z",
+        "collection_registry_status": "caller_declared_unverified", "collection_health": "unknown",
+        "authority_verification": "not_performed", "causal_interpretation": False,
+        "records": [{"id": "event", "provider": "google", "report_type": "search_analytics", "source_url": "https://status.search.google.com/",
+            "start": "2026-01-01", "end": "2026-01-02", "uncertainty": "scope_unverified", "date_overlap": True,
+            "origin": "caller_declared", "family": "collection_incidents", "relevance": "unverified", "causal_interpretation": False},
+            {"id": "business", "kind": "deployment", "start": "2026-01-01", "end": "2026-01-02", "uncertainty": "scope_unverified",
+             "date_overlap": True, "origin": "caller_declared", "family": "business_events", "relevance": "unverified", "causal_interpretation": False}]},
 }
 
 SUCCESS_SHAPES["crawl_import_preview"] = {
@@ -503,6 +518,8 @@ SUCCESS_SHAPES["crawl_import_preview"] = {
 }
 
 DEGRADED_SHAPES = {
+    "search_weekday_reference": {"reference_strategy": "all", "assessment": "undetermined", "causal_interpretation": False,
+        "references": {"weekday": {"weekday_reference": {"status": "unavailable", "delta": None}}}},
     "ai_overviews_impact": {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "http_status": 403,
                             "rows": [{"searchAppearance": None, "clicks": None,
                                       "dimension_status": "missing_or_invalid",
@@ -712,7 +729,8 @@ _REVIEWED_SIGNALS = {
     "analytics._parse_appearance_row": "unavailable_metrics",
     "crawl_import._preview": "status",
     "crawl_import.crawl_import_preview": "status",
-    "traffic_reference.search_weekday_reference": "status",
+    "traffic_reference.search_weekday_reference": "assessment status",
+    "traffic_context.robust_reference": "status",
     "analytics.ai_overviews_impact": "status",
     "analytics.analytics_anomalies": "z_score",
     "bing_webmaster._feed_row": "status",
@@ -791,7 +809,7 @@ _REVIEWED_SIGNALS = {
 def test_output_signal_changes_require_an_explicit_inventory_review():
     import gsc_mcp
     root = Path(inspect.getfile(gsc_mcp)).parent
-    files = [*sorted((root / "tools").glob("*.py")), root / "ai_referrals.py", root / "content_trust.py", root / "page_challenges.py", root / "editorial.py", root / "providers" / "bing.py"]
+    files = [*sorted((root / "tools").glob("*.py")), root / "ai_referrals.py", root / "content_trust.py", root / "page_challenges.py", root / "editorial.py", root / "traffic_context.py", root / "providers" / "bing.py"]
     signals = {"verdict", "visibility_verdict", "status", "rating", "lcp_rating", "score", "overall_quality", "diagnosis", "risk", "site_risk", "severity", "valid", "allowed", "action", "current_focus", "triggered", "category", "opportunities", "conflicts", "drops", "lost_queries", "alerts", "queries", "issues", "question_queries", "assessment", "flagged", "classification",
                "diagnosis_status", "diagnosis_candidates", "metrics_current", "metrics_previous", "unavailable_queries",
                "excluded_search_operator_queries", "skipped_metric_rows", "metric_diagnostics", "unavailable_metrics", "aggregation_scope",

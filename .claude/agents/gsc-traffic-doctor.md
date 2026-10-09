@@ -7,6 +7,8 @@ tools:
   - mcp__gsc-mcp__compare_search_periods
   - mcp__gsc-mcp__traffic_drops
   - mcp__gsc-mcp__analytics_anomalies
+  - mcp__gsc-mcp__search_weekday_reference
+  - mcp__gsc-mcp__traffic_health_check
   - mcp__gsc-mcp__search_change_breakdown
   - mcp__gsc-mcp__seo_lost_queries
   - mcp__gsc-mcp__check_alerts

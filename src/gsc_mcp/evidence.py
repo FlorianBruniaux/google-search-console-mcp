@@ -325,6 +325,29 @@ _add("search_weekday_reference", "derived", "Calendar calculation in Pacific tim
 _add("search_weekday_reference", "rule", "Local coverage/source compatibility gate and configured three-day lag; no causal attribution",
      "/weekday_reference/status", "/weekday_reference/reasons", "/weekday_reference/report_lag_days",
      "/weekday_reference/method", "/weekday_reference/timezone", "/weekday_reference/causal_interpretation")
+_add("search_weekday_reference", "derived", "Disclosed calendar alignment, observed-history robust arithmetic or omitted-day accounting; no causal model",
+     "/weekday_reference/alignment/*", "/robust_reference/support_by_weekday/*/*/*",
+     "/robust_reference/expected_counts/*", "/robust_reference/delta/*",
+     "/robust_reference/requested_window/*", "/robust_reference/omitted_days", "/robust_reference/omitted_dates",
+     "/context_preflight/records/*/date_overlap")
+_add("search_weekday_reference", "measured", "Dates returned by the bounded historical Google date query; completeness is not guaranteed",
+     "/robust_reference/observed_dates")
+_add("search_weekday_reference", "rule", "Versioned local reference/support policy and sign comparison; agreement is not causal evidence",
+     "/reference_strategy", "/assessment", "/causal_interpretation", "/robust_reference/method",
+     "/robust_reference/status", "/robust_reference/reasons", "/robust_reference/minimum_support_per_weekday",
+     "/robust_reference/timezone", "/robust_reference/data_state", "/robust_reference/formula",
+     "/robust_reference/causal_interpretation", "/context_preflight/version", "/context_preflight/stale_after_days",
+     "/context_preflight/collection_registry_status", "/context_preflight/causal_interpretation",
+     "/context_preflight/records/*/origin", "/context_preflight/records/*/family",
+     "/context_preflight/records/*/causal_interpretation")
+_add("search_weekday_reference", "measured", "Caller-declared context, not independently verified collection incidents or business facts",
+     "/context_preflight/retrieved_at", "/context_preflight/records/*/id", "/context_preflight/records/*/provider",
+     "/context_preflight/records/*/report_type", "/context_preflight/records/*/source_url",
+     "/context_preflight/records/*/start", "/context_preflight/records/*/end",
+     "/context_preflight/records/*/uncertainty", "/context_preflight/records/*/kind")
+_add("search_weekday_reference", None, "No independently verified incident registry, cause or relevance assessment is supplied",
+     "/context_preflight/collection_health", "/context_preflight/authority_verification",
+     "/context_preflight/records/*/relevance", "/robust_reference/fetch_error")
 
 
 _inventory("crawl_import_preview", "fields", "Imported producer observations plus local input validation; not independently measured website or indexing")
@@ -397,7 +420,7 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
         return None, "Unavailable, unsupported or tool error result; original verdict retained"
     if tool in {"search_change_breakdown", "search_weekday_reference"} and ((key == "availability" and value != "observed") or (key == "incompleteness_status" and value == "unknown")):
         return None, "Provider observation/coverage unavailable or unknown; no successful measurement inferred"
-    if tool == "search_weekday_reference" and path == ("weekday_reference", "status") and value != "observed":
+    if tool == "search_weekday_reference" and path in {("weekday_reference", "status"), ("robust_reference", "status")} and value != "observed":
         return None, "Required reference coverage or compatible aggregate is unavailable; no seasonal conclusion established"
     if tool == "crawl_import_preview" and path == ("status",) and value == "rejected":
         return None, "Rejected input supplies no supported crawl observation; validation failure is not an empty or healthy crawl"
@@ -463,4 +486,8 @@ def evidence_for(data: dict, tool: str) -> dict:
         fields.pop("/search_evidence", None)
         nested = evidence_for(data["search_evidence"], "search_change_breakdown")
         fields.update({"/search_evidence" + pointer: record for pointer, record in nested["fields"].items()})
+    if tool == "search_weekday_reference" and isinstance(data.get("references"), dict):
+        for strategy, report in data['references'].items():
+            nested = evidence_for(report, tool)
+            fields.update({"/references/" + strategy + pointer: record for pointer, record in nested['fields'].items()})
     return {"version": 1, "fields": fields}

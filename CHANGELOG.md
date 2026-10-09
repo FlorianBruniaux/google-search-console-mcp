@@ -4,6 +4,8 @@
 
 <!-- unreleased-updated: 2026-10-09 -->
 
+- Extend the existing traffic reference with optional annual and robust daily baselines, combined mixed/undetermined results and bounded caller-declared incident/business context (#46). Preserve default weekday behavior and one aggregate physical-attempt budget; no causal attribution.
+
 - Align SEO role allowlists with the shared skills; bound host-agent attempts and synthesis input bytes, validate property-selected URLs, preserve skipped branches and share discovery observations (#39 pilot). Native host/provider request budgets remain unverified.
 
 - Preserve explicit zero versus unavailable appearance metrics, requested dates and source identity; distinguish malformed/partial responses without inferring AI exposure (#37).
