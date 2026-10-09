@@ -1,0 +1,69 @@
+tests/test_evidence.py
+  s_05ea773ff72f20::t_0e49522abcc990 556,558-563,779
+  s_05ea773ff72f20::t_9550e180fa3bde 557
+src/gsc_mcp/tools/properties.py
+  s_05ea773ff72f20::t_0e49522abcc990 22
+src/gsc_mcp/tools/crawl_snapshots.py
+  s_05ea773ff72f20::t_f38dba4f441bc4 417-421
+  s_05ea773ff72f20::t_9550e180fa3bde 346-416,422-451
+tests/test_crawl_diff.py
+  s_05ea773ff72f20::t_96ded5192f018f 1-105
+  s_05ea773ff72f20::t_a0138ef7ae13a1 106-113
+src/gsc_mcp/registry.py
+  s_05ea773ff72f20::t_0e49522abcc990 110,130
+tests/test_registry.py
+  s_05ea773ff72f20::t_0e49522abcc990 50
+src/gsc_mcp/evidence.py
+  s_05ea773ff72f20::t_0e49522abcc990 407-408,410-416,442-443
+  s_05ea773ff72f20::t_9550e180fa3bde 409
+docs/validation/2026-10-09-crawl-diff.md
+  s_05ea773ff72f20::t_46d7a293fb6c38 1-11
+.agents/skills/crawl-import/SKILL.md
+  s_05ea773ff72f20::t_7ed77811aa6ae3 14-15
+.agents/skills/crawl-import/evals/calls.json
+  s_05ea773ff72f20::t_d79072591033b0 3-50
+.agents/skills/crawl-import/evals/scenarios.json
+  s_05ea773ff72f20::t_6ce6a097a31e47 2-4,13-17
+.agents/skills/onpage-audit/SKILL.md
+  s_05ea773ff72f20::t_fdbbf78e4ca0ea 17-18
+.agents/skills/onpage-audit/evals/calls.json
+  s_05ea773ff72f20::t_9bf9ce9bc867cf 31-37
+CHANGELOG.md
+  s_05ea773ff72f20::t_d62a34d4eeaaf6 7-8
+CLAUDE.md
+  s_05ea773ff72f20::t_eda2d731e5c8a1 45,47,131,134
+README.md
+  s_05ea773ff72f20::t_17beb9b5c792ca 17,42,298,330,402,411,463,665
+docs/architecture.md
+  s_05ea773ff72f20::t_ce9e63aaa72c35 7,15
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_930e6c65063b6c 193-194
+docs/crawl-snapshots.md
+  s_05ea773ff72f20::t_8c76d3178fc1cb 36-43
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_54f0575c9f2ce3 7,16,374
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_4b966c9d895bfc 15
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_2159e5364b6eb7 192-193
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_ae5ac6ee9c6cbd 13-14
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_55a5f3d7b588d1 62,70,86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c29cf8de9e96be6475b4aa500a5474a1b3cc464c",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
