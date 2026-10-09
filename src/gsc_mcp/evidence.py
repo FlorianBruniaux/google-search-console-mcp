@@ -110,6 +110,21 @@ _add("search_change_breakdown", None, "No observation for this period; missing A
      "/breakdowns/*/comparison_only/*/baseline", "/breakdowns/*/comparison_only/*/delta",
      "/baseline_totals/*/fetch_error", "/periods/*/fetch_error")
 
+# Narrow evidence-first pilot: identities and references never imply causality.
+_add("search_change_breakdown", "derived", "Deterministic SHA-256 of exact property/target/rule identity or sanitized retrieved observation; not storage or a provider identifier",
+     "/report_contract/snapshot_id", "/report_contract/findings/*/finding_id")
+_add("search_change_breakdown", "derived", "JSON-pointer selection over displayed nonnull provider metrics, calculated metrics or explicitly unavailable values; destination evidence retains its own basis",
+     "/report_contract/findings/*/facts", "/report_contract/findings/*/calculations", "/report_contract/findings/*/unavailable")
+_add("search_change_breakdown", "rule", "Versioned descriptive comparison contract and display selection; no cause hypothesis is generated",
+     "/report_contract/rule_version", "/report_contract/findings/*/hypotheses", "/report_contract/verification/complete_source_coverage")
+_add("search_change_breakdown", None, "Causal effect and calibrated probabilistic precision were not verified; method tiers are not probabilities",
+     "/report_contract/verification/causal_effect", "/report_contract/verification/probabilistic_precision")
+_add("search_change_breakdown", "derived", "UTF-8 bytes of the actual complete serialized envelope including metadata, or counted omission of displayed records; not tokens or source coverage",
+     "/response_budget/serialized_bytes", "/response_budget/full_response_bytes", "/response_budget/omitted_rows/*/*",
+     "/response_budget/omitted_findings", "/response_budget/omitted_unavailable_metrics/*/*")
+_add("search_change_breakdown", "rule", "Optional caller byte ceiling and local complete-envelope budget classification; exceeded is an explicit error, not a successful report",
+     "/response_budget/max_bytes", "/response_budget/status", "/error/code")
+
 # Destination statuses belong only to received responses, never unrequested hops.
 for prefix in ("/source_observation", "/targets/*"):
     _add("link_targets_audit", "measured", "Received terminal/last HTTP status or received hop status only; not Google indexation, rendered availability or ranking impact",

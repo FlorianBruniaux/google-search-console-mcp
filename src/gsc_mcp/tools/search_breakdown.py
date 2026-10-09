@@ -1,7 +1,6 @@
 """Bounded, descriptive Google period comparisons. Contributions are not causes."""
 from __future__ import annotations
 
-import json
 import math
 import re
 from copy import deepcopy
@@ -9,7 +8,7 @@ from datetime import date, timedelta
 from typing import Optional
 
 from gsc_mcp.auth import get_searchconsole_service
-from gsc_mcp.meta import with_meta
+from gsc_mcp.reporting import serialize_search_report
 
 _DIMENSIONS = ('page', 'query', 'country', 'device')
 _METRICS = ('clicks', 'impressions', 'ctr', 'position')
@@ -105,6 +104,7 @@ def search_change_breakdown(
     row_limit: int = 1000,
     max_requests: int = 20,
     limit: int = 50,
+    output_max_bytes: int | None = None,
 ) -> str:
     """Compare equal explicit Google windows using independent bounded segment views.
 
@@ -112,6 +112,9 @@ def search_change_breakdown(
     row average, never averaged across segments. Deltas describe observations, not
     causality. All calls use identical filters/source options. Requests have one
     attempt each, with no whole-report retries or hidden pagination probes.
+    output_max_bytes optionally bounds the entire UTF-8 JSON envelope, including
+    metadata. Oversize reports return a counted omission error or fail explicitly
+    if even the source/coverage/error envelope cannot fit. No stored detail path.
     """
     params = dict(site=site, baseline_start=baseline_start, baseline_end=baseline_end,
                   comparison_start=comparison_start, comparison_end=comparison_end,
@@ -145,6 +148,10 @@ def search_change_breakdown(
     _integer(row_limit, 'row_limit', 1, 100000)
     _integer(limit, 'limit', 1, 1000)
     _integer(max_requests, 'max_requests', 4 + 2 * len(dims), 100)
+    if output_max_bytes is not None and (type(output_max_bytes) is not int or output_max_bytes <= 0):
+        raise ValueError('output_max_bytes must be a positive integer or None')
+    if output_max_bytes is not None:
+        params['output_max_bytes'] = output_max_bytes
     service = get_searchconsole_service()
     requests_made = 0
     common = {'type': search_type, 'dataState': data_state, 'aggregationType': aggregation_type}
@@ -329,5 +336,5 @@ def search_change_breakdown(
                               'Observed contributors and residuals do not establish causes.',
                               'Finalized records were requested, not complete coverage, when data_state=final.',
                               'Values requested with data_state=all can change as unfinished data is finalized.']}
-    return json.dumps(with_meta(result, 'search_change_breakdown', params,
-                                sources={'google': {'site': site}}), allow_nan=False)
+    observations = {dim: {name: streams[dim, name]['rows'] for name in names} for dim in dims}
+    return serialize_search_report(result, params, observations, output_max_bytes)
