@@ -5,7 +5,7 @@ for (const prefix of ['', '/fr']) {
   for (const route of ['sitemap', 'updates']) {
     for (const width of [390, 1440]) {
       for (const theme of ['light', 'dark']) {
-        test(`discovery ${prefix || 'en'} ${route} ${width}px ${theme} is readable and navigable`, async ({ page }) => {
+        test(`discovery ${prefix || 'en'} ${route} ${width}px ${theme} is readable and navigable`, async ({ page }, testInfo) => {
           await page.setViewportSize({ width, height: 1000 })
           await page.addInitScript((value) => localStorage.setItem('theme', value), theme)
           await page.goto(`${prefix}/${route}/`)
@@ -16,7 +16,7 @@ for (const prefix of ['', '/fr']) {
           await expect(page.locator('.header-actions a[hreflang]')).toHaveAttribute('href', `${otherPrefix}/${route}/`)
           const results = await new AxeBuilder({ page }).analyze()
           expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
-          await page.screenshot({ path: `/private/tmp/gsc-discovery-${prefix ? 'fr' : 'en'}-${route}-${width}-${theme}.png`, fullPage: route === 'sitemap' })
+          await page.screenshot({ path: testInfo.outputPath('discovery.png'), fullPage: route === 'sitemap' })
           await page.locator(`.site-footer a[href="${prefix}/sitemap/"]`).click()
           await expect(page).toHaveURL(`${prefix}/sitemap/`)
           await page.locator(`main a[href="${prefix}/docs/installation/"]`).click()
