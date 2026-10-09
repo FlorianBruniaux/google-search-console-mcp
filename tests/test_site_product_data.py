@@ -67,13 +67,29 @@ def test_export_matches_repository_sources(tmp_path):
     project = tomllib.loads(
         (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )["project"]
-    assert payload == {
+    assert {key: value for key, value in payload.items() if key != "tools"} == {
         "package": project["name"],
         "pythonRequires": project["requires-python"],
         "repository": project["urls"]["Repository"],
         "toolCount": len(TOOLS),
         "version": project["version"],
     }
+    catalogue = {tool["name"]: tool for tool in payload["tools"]}
+    assert set(catalogue) == set(TOOLS)
+    for name, fn in TOOLS.items():
+        assert catalogue[name]["description"]
+        assert catalogue[name]["source"].startswith("src/gsc_mcp/tools/")
+        assert catalogue[name]["line"] > 0
+    assert catalogue["rewrite_fidelity_check"]["family"] == "editorial"
+    assert catalogue["search_weekday_reference"]["family"] == "analytics"
+
+
+def test_catalogue_is_complete_even_when_runtime_families_are_filtered(tmp_path, monkeypatch):
+    monkeypatch.setenv("GSC_MCP_TOOL_FAMILIES", "sitemaps")
+    output = tmp_path / "product.json"
+    result = run_export(REPO_ROOT / "pyproject.toml", REPO_ROOT / "src", output)
+    assert result.returncode == 0, result.stderr
+    assert len(json.loads(output.read_text())["tools"]) == len(TOOLS)
 
 
 def test_export_is_byte_deterministic(tmp_path):

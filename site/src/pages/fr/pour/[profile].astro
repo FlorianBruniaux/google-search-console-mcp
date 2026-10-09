@@ -1,0 +1,8 @@
+---
+import JourneyPage from '../../../components/JourneyPage.astro'
+import { getProfiles } from '../../../data/journeys'
+export function getStaticPaths() {
+  return getProfiles('fr').map((item) => ({ params: { profile: item.href.split('/')[3] }, props: { profileId: item.id } }))
+}
+---
+<JourneyPage locale="fr" profileId={Astro.props.profileId} />

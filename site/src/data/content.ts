@@ -22,13 +22,13 @@ const localizedPaths = {
     home: '/', otherHome: '/fr/', docs: '/docs/', install: '/docs/installation/', googleSetup: '/docs/google-setup/',
     bingSetup: '/docs/bing-setup/', starterPrompts: '/docs/prompts/', changelog: '/docs/changelog/',
     architecture: '/docs/architecture/', bingContract: '/docs/evidence-and-safety/', license: '/docs/license/',
-    sitemap: '/sitemap/', updates: '/updates/',
+    sitemap: '/sitemap/', updates: '/updates/', tools: '/tools/',
   },
   fr: {
     home: '/fr/', otherHome: '/', docs: '/fr/docs/', install: '/fr/docs/installation/', googleSetup: '/fr/docs/google-setup/',
     bingSetup: '/fr/docs/bing-setup/', starterPrompts: '/fr/docs/prompts/', changelog: '/fr/docs/changelog/',
     architecture: '/fr/docs/architecture/', bingContract: '/fr/docs/evidence-and-safety/', license: '/fr/docs/license/',
-    sitemap: '/fr/sitemap/', updates: '/fr/updates/',
+    sitemap: '/fr/sitemap/', updates: '/fr/updates/', tools: '/fr/tools/',
   },
 } as const
 

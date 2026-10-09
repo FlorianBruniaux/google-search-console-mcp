@@ -5,12 +5,14 @@ const { locale, toolCount } = Astro.props
 const content = landingContent[locale].hero
 const links = getSiteLinks(locale)
 const command = 'uvx gsc-mcp-tools'
+const fr = locale === 'fr'
 ---
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero-grid">
     <div>
       <p class="kicker">{content.kicker}</p>
+      <div class="hero-catalogue"><a href={links.tools}><strong>{toolCount} {fr ? 'outils SEO' : 'SEO tools'}</strong><span>{fr ? 'Explorer le catalogue' : 'Explore the catalogue'} →</span></a><span>Google + Bing · GA4 / CrUX {fr ? 'en option' : 'optional'}</span></div>
       <h1 id="hero-title">{content.title}</h1>
       <p class="hero-copy">{content.copy}</p>
       <p class="hero-setup">{content.setup}</p>
@@ -19,6 +21,7 @@ const command = 'uvx gsc-mcp-tools'
         <a class="button button-secondary" href="#install">{content.installPath}</a>
       </div>
       <p id="hero-copy-status" class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+      <div class="hero-proof-links"><a class="text-link" href="#audit-checks">{fr ? 'Ce que l’audit vérifie' : 'What the audit checks'} →</a><a class="text-link" href="#real-example">{fr ? 'Voir un audit réel' : 'See a real audit'} →</a></div>
       <p class="hero-evidence">
         <strong>{content.evidenceTitle}</strong>
         <a href={links.bingContract}>{content.evidenceLink}</a>

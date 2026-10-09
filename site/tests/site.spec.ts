@@ -1,5 +1,67 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+const catalogueCount = JSON.parse(readFileSync(new URL('../src/generated/product.json', import.meta.url), 'utf8')).toolCount
+
+for (const locale of [
+  { prefix: '', folder: 'for', menu: 'Your path', slugs: ['site-owners', 'seo-experts', 'content-teams', 'developers'], copy: 'Copy prompt', copied: 'Prompt copied.' },
+  { prefix: '/fr', folder: 'pour', menu: 'Votre parcours', slugs: ['proprietaires', 'experts-seo', 'equipes-contenu', 'developpeurs'], copy: 'Copier le prompt', copied: 'Prompt copié.' },
+]) {
+  for (const width of [390, 1440]) {
+    for (const theme of ['light', 'dark']) {
+      test(`persona paths ${locale.prefix || 'en'} ${width}px ${theme}`, async ({ page, context }, testInfo) => {
+        await page.setViewportSize({ width, height: 1000 })
+        await page.addInitScript((value) => localStorage.setItem('theme', value), theme)
+        await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+        await page.goto(`${locale.prefix}/`)
+        if (width === 390) await page.locator('#mobile-menu-toggle').click()
+        await page.getByRole('button', { name: locale.menu, exact: true }).click()
+        await page.locator(`#nav-panel-start a[href="${locale.prefix}/${locale.folder}/${locale.slugs[0]}/"]`).click()
+        for (const slug of locale.slugs) {
+          await page.goto(`${locale.prefix}/${locale.folder}/${slug}/`)
+          await expect(page.locator('main h1')).toHaveCount(1)
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+          const other = locale.prefix ? '' : '/fr'
+          await expect(page.locator('.header-actions a[hreflang]')).toHaveAttribute('href', new RegExp(`^${other}/(?:for|pour)/`))
+          await page.locator('.journey-actions a[href="#details"]').click()
+          await expect(page.locator('#details')).toBeInViewport()
+          await page.locator('#prompt button').click()
+          await expect(page.locator('#journey-copy-status')).toHaveText(locale.copied)
+          await page.locator('.journey-prompt-preview summary').click()
+          await expect(page.locator('.journey-prompt')).toBeVisible()
+          expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(await page.locator('.journey-prompt').innerText())
+          const results = await new AxeBuilder({ page }).analyze()
+          expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
+          await page.goto(`${locale.prefix}/${locale.folder}/${slug}/`)
+          await page.screenshot({ path: testInfo.outputPath(`${slug}.png`), fullPage: true })
+        }
+        await page.goto(`${locale.prefix}/tools/#tool-rewrite_fidelity_check`)
+        await expect(page.locator('#tool-rewrite_fidelity_check')).toBeInViewport()
+        await page.locator('#tool-rewrite_fidelity_check summary').click()
+        await expect(page.locator('#tool-rewrite_fidelity_check pre')).toContainText('original: str')
+        await expect(page.locator('article.tool-entry')).toHaveCount(catalogueCount)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        const results = await new AxeBuilder({ page }).analyze()
+        expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
+        await page.goto(`${locale.prefix}/tools/`)
+        await page.screenshot({ path: testInfo.outputPath('catalogue.png') })
+      })
+    }
+  }
+}
+
+test('persona prompts remain available without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 1000 } })
+  try {
+    const page = await context.newPage()
+    await page.goto('/fr/pour/equipes-contenu/')
+    await page.locator('.journey-actions a[href="#details"]').click()
+    await expect(page.locator('#details')).toBeInViewport()
+    await page.locator('.journey-prompt-preview summary').click()
+    await expect(page.locator('.journey-prompt')).toBeVisible()
+    await expect(page.locator('.journey-prompt')).toContainText('rewrite_fidelity_check')
+  } finally { await context.close() }
+})
 
 for (const prefix of ['', '/fr']) {
   for (const route of ['sitemap', 'updates']) {
@@ -231,7 +293,7 @@ test('keeps one desktop intent panel open and restores trigger focus', async ({ 
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto('/')
   const analyze = page.getByRole('button', { name: 'Analyze' })
-  const start = page.getByRole('button', { name: 'Start' })
+  const start = page.getByRole('button', { name: 'Your path' })
   await analyze.click()
   await expect(analyze).toHaveAttribute('aria-expanded', 'true')
   await start.click()

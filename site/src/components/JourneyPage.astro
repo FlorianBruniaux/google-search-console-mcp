@@ -1,0 +1,57 @@
+---
+import { getProfiles, getProfilePrompt, profilePath, type ProfileId } from '../data/journeys'
+import { getSiteLinks, type Locale } from '../data/content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import SiteHeader from './SiteHeader.astro'
+import SiteFooter from './SiteFooter.astro'
+interface Props { locale: Locale; profileId: ProfileId }
+const { locale, profileId } = Astro.props
+const fr = locale === 'fr'
+const links = getSiteLinks(locale)
+const profile = getProfiles(locale).find((item) => item.id === profileId)!
+const prompt = getProfilePrompt(locale, profile.request)
+const alternatePaths = { en: profilePath('en', profileId), fr: profilePath('fr', profileId) }
+const steps = fr ? [
+  ['Connecter votre assistant', 'Installez le serveur et reconnectez votre client MCP. Configurez uniquement les sources nécessaires à votre demande.', links.install, 'Guide d’installation'],
+  ['Vérifier ce qui est accessible', 'Listez les outils exposés. Pour les données privées, vérifiez séparément les propriétés Google ou les sites Bing. Un brouillon éditorial peut être testé sans ces comptes.', links.starterPrompts, 'Prompts et test sans compte'],
+  ['Lancer une demande bornée', 'Utilisez le prompt ci-dessous. L’assistant demande les informations manquantes, explique les résultats et propose les prochaines actions.', '#prompt', 'Aller au prompt'],
+] : [
+  ['Connect your assistant', 'Install the server and reconnect your MCP client. Configure only the sources needed for your request.', links.install, 'Installation guide'],
+  ['Verify available access', 'List exposed tools. For private data, verify Google properties or Bing sites separately. Editorial drafts can be checked without those accounts.', links.starterPrompts, 'Prompts and account-free test'],
+  ['Make a bounded request', 'Use the prompt below. Your assistant asks for missing inputs, explains results and proposes next actions.', '#prompt', 'Jump to the prompt'],
+]
+---
+<BaseLayout title={`${profile.label} · Search Console MCP`} description={profile.intro} lang={locale} {alternatePaths}>
+  <SiteHeader {locale} {alternatePaths} />
+  <main id="main-content" class="discovery-page container" tabindex="-1">
+    <nav class="discovery-breadcrumb" aria-label={fr ? 'Fil d’Ariane' : 'Breadcrumb'}><a href={links.home}>{fr ? 'Accueil' : 'Home'}</a><span aria-hidden="true">/</span><a href={`${links.home}#personas`}>{fr ? 'Votre parcours' : 'Your path'}</a><span aria-hidden="true">/</span><span aria-current="page">{profile.label}</span></nav>
+    <div class="journey-hero">
+      <div class="discovery-heading"><p class="kicker">{profile.label}</p><h1>{profile.title}</h1><p>{profile.intro}</p>
+        <nav class="journey-actions" aria-label={fr ? 'Choisir le niveau de détail' : 'Choose explanation depth'}>
+          <a class="button button-primary" href="#guided">{fr ? 'Démarrage guidé' : 'Guided start'}</a>
+          <a class="button button-secondary" href="#details">{fr ? 'Voir les détails' : 'View details'}</a>
+        </nav>
+      </div>
+      <aside class="journey-question"><p class="kicker">{fr ? 'Une demande concrète' : 'A concrete request'}</p><p>{profile.question.replace(' ?', '\u00a0?')}</p><strong>{fr ? 'Ce que vous obtenez' : 'What you get'}</strong><p>{profile.result}</p></aside>
+    </div>
+    <section id="guided" aria-labelledby="guided-title" class="journey-section">
+      <h2 id="guided-title">{fr ? 'Démarrage guidé' : 'Guided start'}</h2>
+      <ol class="journey-steps">{steps.map(([title, description, href, label]) => <li><h3>{title}</h3><p>{description}</p><a class="text-link" href={href}>{label} →</a></li>)}</ol>
+    </section>
+    <section id="details" aria-labelledby="details-title" class="journey-section">
+      <h2 id="details-title">{fr ? 'Les contrôles et leurs limites' : 'Checks and their limits'}</h2>
+      <div class="journey-details"><div><h3>{fr ? 'Ce que l’analyse regarde' : 'What the analysis checks'}</h3><ul>{profile.checks.map((check) => <li>{check}</li>)}</ul><p class="boundary-note">{profile.boundary}</p></div>
+        <div><h3>{fr ? 'Outils à explorer' : 'Tools to explore'}</h3><ul class="journey-tool-list">{profile.tools.map((tool) => <li><a class="text-link" href={`${links.tools}#tool-${tool}`}><code>{tool}</code> →</a></li>)}</ul><a class="text-link" href={`${links.docs}${profile.guide}`}>{fr ? 'Lire le guide de ce parcours' : 'Read this path’s guide'} →</a><a class="text-link" href={`${links.home}#real-example`}>{fr ? 'Voir les preuves d’un audit réel' : 'See evidence from a real audit'} →</a></div>
+      </div>
+    </section>
+    <section id="prompt" class="journey-section" aria-labelledby="prompt-title">
+      <h2 id="prompt-title">{fr ? 'Le prompt à utiliser dans votre assistant' : 'The prompt to use in your assistant'}</h2>
+      <p>{fr ? 'Adaptez les exemples d’URL avant d’envoyer. L’assistant demande les textes, périodes ou budgets qui manquent.' : 'Replace example URLs before sending. Your assistant asks for missing texts, periods or budgets.'}</p>
+      <button class="button seo-copy-button" type="button" data-copy-prompt={prompt} aria-controls="journey-copy-status">{fr ? 'Copier le prompt' : 'Copy prompt'}</button>
+      <p id="journey-copy-status" class="copy-status" data-prompt-copy-status role="status" aria-live="polite"></p>
+      <details class="journey-prompt-preview"><summary>{fr ? 'Lire et sélectionner le prompt complet' : 'Read and select the full prompt'}</summary><pre class="journey-prompt"><code>{prompt}</code></pre></details>
+    </section>
+    <nav class="journey-other" aria-label={fr ? 'Autres parcours' : 'Other paths'}>{getProfiles(locale).filter((item) => item.id !== profileId).map((item) => <a class="text-link" href={item.href}>{item.label} →</a>)}</nav>
+  </main>
+  <SiteFooter {locale} />
+</BaseLayout>

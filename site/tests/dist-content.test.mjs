@@ -70,7 +70,7 @@ test('publishes a fully localized French landing', async () => {
   assert.match(frenchHtml, /<a href="\/" lang="en" hreflang="en">EN<\/a>/)
   assert.match(frenchHtml, /<a href="\/fr\/docs\/">Documentation<\/a>/)
   assert.match(frenchHtml, />Analyser</)
-  assert.match(frenchHtml, />Démarrer</)
+  assert.match(frenchHtml, />Votre parcours</)
   assert.match(frenchHtml, />Utiliser votre assistant IA pour le SEO\.</)
 })
 
@@ -114,7 +114,7 @@ test('renders every product section and provider boundary', () => {
 })
 
 test('renders the intent menu without unsupported controls', () => {
-  for (const label of ['Analyze', 'Start', 'Resources', 'Search providers', 'Workflow', 'Install', 'Configure providers', 'Project', 'Trust &amp; documentation']) {
+  for (const label of ['Analyze', 'Your path', 'Resources', 'Search providers', 'Workflow', 'Guided installation', 'By role', 'Project', 'Trust &amp; documentation']) {
     assert.match(html, new RegExp(label))
   }
   assert.doesNotMatch(html, /Search \(Cmd\+K\)|Latest:/)

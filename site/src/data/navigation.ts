@@ -1,4 +1,5 @@
 import { getSiteLinks, type Locale } from './content'
+import { getProfiles } from './journeys'
 
 export interface NavigationLink { href: string; label: string; description: string; external?: boolean }
 export interface NavigationGroup { label: string; links: NavigationLink[] }
@@ -8,6 +9,24 @@ export interface NavigationSection {
   description: string
   overview: { href: string; label: string; external?: boolean }
   groups: NavigationGroup[]
+}
+
+function getJourneyNavigation(locale: Locale): NavigationSection {
+  const fr = locale === 'fr'
+  const links = getSiteLinks(locale)
+  return {
+    id: 'start', label: fr ? 'Votre parcours' : 'Your path',
+    description: fr ? 'Choisissez votre métier. Chaque parcours propose un démarrage guidé et les détails des contrôles.' : 'Choose your role. Each path includes guided setup and detailed checks.',
+    overview: { href: '#personas', label: fr ? 'Comparer les parcours' : 'Compare the paths' },
+    groups: [
+      { label: fr ? 'Par métier' : 'By role', links: getProfiles(locale).map((profile) => ({ href: profile.href, label: profile.label, description: profile.intro })) },
+      { label: fr ? 'Accès directs' : 'Direct access', links: [
+        { href: links.install, label: fr ? 'Installation guidée' : 'Guided installation', description: fr ? 'Découvrir MCP quel que soit votre niveau SEO.' : 'Get started with MCP at any SEO experience level.' },
+        { href: links.tools, label: fr ? 'Catalogue des outils' : 'Tool catalogue', description: fr ? 'Familles, paramètres et contrats du serveur.' : 'Families, parameters and server contracts.' },
+        { href: links.starterPrompts, label: fr ? 'Prompts et premiers tests' : 'Prompts and first tests', description: fr ? 'Demandes bornées et test sans compte Google ou Bing.' : 'Bounded requests and a test without Google or Bing accounts.' },
+      ] },
+    ],
+  }
 }
 
 export function getNavigationSections(locale: Locale): NavigationSection[] {
@@ -30,21 +49,7 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
         ] },
       ],
     },
-    {
-      id: 'start', label: 'Démarrer', description: 'Installez la configuration minimale utile, puis vérifiez chaque moteur séparément.', overview: { href: '#install', label: "Voir le parcours d’installation" },
-      groups: [
-        { label: 'Installation', links: [
-          { href: '#install-evaluate', label: 'Évaluer une fois', description: 'Lancer le package avec uvx sans modifier le projet.' },
-          { href: '#install-persistent', label: 'Installation durable', description: "Installer l’exécutable pour un usage MCP répété." },
-          { href: '#install-verify', label: 'Vérifier les accès', description: 'Lister les propriétés et valider les moteurs indépendamment.' },
-        ] },
-        { label: 'Configurer les moteurs', links: [
-          { href: links.googleSetup, label: 'Configuration Google', description: 'Configurer Search Console et les services Google facultatifs.' },
-          { href: links.bingSetup, label: 'Configuration Bing', description: 'Configurer Webmaster Tools et IndexNow par hôte.' },
-          { href: links.starterPrompts, label: 'Prompts de démarrage', description: 'Utiliser des prompts bornés pour les audits courants.' },
-        ] },
-      ],
-    },
+    getJourneyNavigation(locale),
     {
       id: 'resources', label: 'Ressources', description: "Consultez le code source, l’historique et les contrats d’utilisation explicites.", overview: { href: links.repository, label: 'Ouvrir le dépôt', external: true },
       groups: [
@@ -57,6 +62,8 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
         ] },
         { label: 'Confiance et documentation', links: [
           { href: links.install, label: 'Installation', description: 'Configuration et vérification par client.' },
+          { href: links.googleSetup, label: 'Configuration Google', description: 'Accès Search Console et sources Google facultatives.' },
+          { href: links.bingSetup, label: 'Configuration Bing', description: 'Accès Webmaster Tools et distinction avec IndexNow.' },
           { href: links.bingContract, label: 'Preuves et sécurité', description: "États, périmètres et limites d’écriture." },
           { href: links.license, label: 'Licence', description: 'Conditions de la licence MIT.' },
           { href: '#faq', label: 'FAQ', description: 'Identifiants, moteurs et sémantique des preuves.' },
@@ -83,21 +90,7 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
         ] },
       ],
     },
-    {
-      id: 'start', label: 'Start', description: 'Install the smallest useful setup, then verify each provider separately.', overview: { href: '#install', label: 'See the installation path' },
-      groups: [
-        { label: 'Install', links: [
-          { href: '#install-evaluate', label: 'Evaluate once', description: 'Run the package with uvx without changing a project.' },
-          { href: '#install-persistent', label: 'Persistent install', description: 'Install the executable for repeat MCP use.' },
-          { href: '#install-verify', label: 'Verify access', description: 'List properties and validate providers independently.' },
-        ] },
-        { label: 'Configure providers', links: [
-          { href: links.googleSetup, label: 'Google setup', description: 'Configure Search Console and optional Google services.' },
-          { href: links.bingSetup, label: 'Bing setup', description: 'Configure Webmaster Tools and host-scoped IndexNow.' },
-          { href: links.starterPrompts, label: 'Starter prompts', description: 'Use bounded prompts for common audit workflows.' },
-        ] },
-      ],
-    },
+    getJourneyNavigation(locale),
     {
       id: 'resources', label: 'Resources', description: 'Inspect the source, release history and explicit operating contracts.', overview: { href: links.repository, label: 'Open the repository', external: true },
       groups: [
@@ -110,6 +103,8 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
         ] },
         { label: 'Trust & documentation', links: [
           { href: links.install, label: 'Installation', description: 'Client-specific setup and verification.' },
+          { href: links.googleSetup, label: 'Google setup', description: 'Search Console access and optional Google sources.' },
+          { href: links.bingSetup, label: 'Bing setup', description: 'Webmaster Tools access and distinction from IndexNow.' },
           { href: links.bingContract, label: 'Evidence and safety', description: 'States, scopes and write boundaries.' },
           { href: links.license, label: 'License', description: 'MIT usage terms.' },
           { href: '#faq', label: 'FAQ', description: 'Credentials, providers and evidence semantics.' },

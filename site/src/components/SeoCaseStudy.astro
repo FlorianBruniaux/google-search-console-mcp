@@ -50,6 +50,12 @@ const text = {
   },
 }[locale]
 const { current, derived } = evidence.summary
+const stageTools = [
+  ['get_performance_overview', 'compare_search_periods'],
+  ['get_search_analytics', 'quick_wins'],
+  ['page_technical_audit', 'heading_audit', 'internal_links_audit'],
+  [],
+]
 const metrics = [
   [number(current.clicks), text.labels[0], `+${number(derived.clickChangePct, 2)} % ${text.change}`],
   [number(current.impressions), text.labels[1], `+${number(derived.impressionChangePct, 2)} % ${text.change}`],
@@ -69,7 +75,9 @@ const metrics = [
       {metrics.map(([value, label, detail]) => <li><strong>{value}</strong><span>{label}</span><small>{detail}</small></li>)}
     </ul>
     <ol class="seo-case-stages">
-      {text.stages.map(([title, copy], index) => <li><span class="kicker">{String(index + 1).padStart(2, '0')}</span><strong>{title}</strong><p>{copy}</p></li>)}
+      {text.stages.map(([title, copy], index) => <li><span class="kicker">{String(index + 1).padStart(2, '0')}</span><strong>{title}</strong><p>{copy}</p><div class="seo-case-tools">{stageTools[index].length
+        ? stageTools[index].map((tool) => <a href={`${links.tools}#tool-${tool}`}><code>{tool}</code></a>)
+        : <span>{locale === 'fr' ? 'Interprétation de l’assistant, à valider' : 'Assistant interpretation, to review'}</span>}</div></li>)}
     </ol>
     <div class="seo-case-findings">
       {[

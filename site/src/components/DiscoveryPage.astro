@@ -5,6 +5,7 @@ import SiteHeader from './SiteHeader.astro'
 import SiteFooter from './SiteFooter.astro'
 import { getSiteLinks, type Locale } from '../data/content'
 import { latestUpdate, formatUpdateDate } from '../data/updates.mjs'
+import { getProfiles } from '../data/journeys'
 
 interface Props { locale: Locale; page: 'sitemap' | 'updates' }
 const { locale, page } = Astro.props
@@ -40,7 +41,9 @@ const historyHeadings = headings.filter((heading) => heading.depth === 2)
         <li><a href={links.home}>{fr ? 'Accueil et présentation' : 'Home and overview'}</a></li>
         <li><a href={links.updates}>{fr ? 'Nouveautés et versions' : 'Updates and releases'}</a></li>
         <li><a href={links.sitemap}>{title}</a></li>
+        <li><a href={links.tools}>{fr ? 'Catalogue des outils' : 'Tool catalogue'}</a></li>
       </ul></section>
+      <section class="sitemap-group" aria-labelledby="sitemap-personas"><h2 id="sitemap-personas">{fr ? 'Votre parcours' : 'Your path'}</h2><ul>{getProfiles(locale).map((profile) => <li><a href={profile.href}>{profile.label}</a></li>)}</ul></section>
       <div class="sitemap-grid">{groups.map((group, index) => <section class="sitemap-group" aria-labelledby={`sitemap-group-${index}`}>
         <h2 id={`sitemap-group-${index}`}>{group.title}</h2><ul>{group.ids.map((id) => {
           const entry = docs.find((doc) => doc.id === `${namespace}${id ? `/${id}` : ''}`)

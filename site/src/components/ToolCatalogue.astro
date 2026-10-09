@@ -1,0 +1,39 @@
+---
+import product from '../generated/product.json'
+import { familyContent, externalWrites } from '../data/tool-families'
+import { getSiteLinks, type Locale } from '../data/content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import SiteHeader from './SiteHeader.astro'
+import SiteFooter from './SiteFooter.astro'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const fr = locale === 'fr'
+const links = getSiteLinks(locale)
+const alternatePaths = { en: '/tools/', fr: '/fr/tools/' }
+const families = [...new Set(product.tools.map((tool) => tool.family))]
+const title = fr ? 'Catalogue des outils' : 'Tool catalogue'
+const description = fr ? 'Les outils de Search Console MCP par famille, avec leurs paramètres et les liens vers les contrats du serveur.' : 'Search Console MCP tools by family, with parameters and links to server contracts.'
+---
+<BaseLayout title={`${title} · Search Console MCP`} {description} lang={locale} {alternatePaths}>
+  <SiteHeader {locale} {alternatePaths} />
+  <main id="main-content" class="discovery-page container" tabindex="-1">
+    <nav class="discovery-breadcrumb" aria-label={fr ? 'Fil d’Ariane' : 'Breadcrumb'}><a href={links.home}>{fr ? 'Accueil' : 'Home'}</a><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav>
+    <div class="discovery-heading"><p class="kicker">v{product.version} · {product.toolCount} {fr ? 'outils' : 'tools'}</p><h1>{title}</h1><p>{description}</p></div>
+    <p class="boundary-note">{fr ? 'Ce catalogue contient le registre complet. Votre serveur peut exposer moins d’outils selon les familles activées. Les sources ont leurs propres accès ; GA4 et CrUX sont facultatifs.' : 'This catalogue covers the full registry. Your server may expose fewer tools depending on enabled families. Sources require their own access; GA4 and CrUX are optional.'} <a class="text-link" href={links.install}>{fr ? 'Configurer les familles' : 'Configure families'} →</a></p>
+    <nav class="catalogue-index" aria-label={fr ? 'Familles d’outils' : 'Tool families'}>{families.map((family) => <a href={`#family-${family}`}>{familyContent(family, locale).label} <span>{product.tools.filter((tool) => tool.family === family).length}</span></a>)}</nav>
+    {fr && <p class="catalogue-language">Les descriptions et signatures ci-dessous sont extraites du serveur en anglais. Les guides liés expliquent les usages en français.</p>}
+    {families.map((family) => {
+      const content = familyContent(family, locale)
+      return <section id={`family-${family}`} class="catalogue-family" aria-labelledby={`family-title-${family}`}>
+        <div class="catalogue-heading"><div><p class="kicker">{family}</p><h2 id={`family-title-${family}`}>{content.label}</h2><p>{content.description}</p></div><a class="text-link" href={`${links.docs}${content.guide}`}>{fr ? 'Guide de cette famille' : 'Family guide'} →</a></div>
+        <div class="tool-list">{product.tools.filter((tool) => tool.family === family).map((tool) => <article id={`tool-${tool.name}`} class="tool-entry">
+          <h3><code>{tool.name}</code></h3>
+          {externalWrites.has(tool.name) && <p class="tool-write">{fr ? 'Écriture externe : cible et confirmation explicites requises.' : 'External write: explicit target and confirmation required.'}</p>}
+          <p lang="en">{tool.description}</p>
+          <details><summary>{fr ? 'Paramètres et contrat source' : 'Parameters and source contract'}</summary><pre><code>{tool.name}{tool.signature}</code></pre><a class="text-link" href={`${product.repository}/blob/main/${tool.source}#L${tool.line}`}>{fr ? 'Lire le contrat dans le code' : 'Read the contract in source'} ↗</a></details>
+        </article>)}</div>
+      </section>
+    })}
+  </main>
+  <SiteFooter {locale} />
+</BaseLayout>
