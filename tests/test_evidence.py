@@ -518,6 +518,8 @@ SUCCESS_SHAPES["crawl_import_preview"] = {
 }
 
 DEGRADED_SHAPES = {
+    "crawl_log_audit": {"status": "unavailable", "coverage": {"consumed_bytes": 0},
+        "error": "FileNotFoundError", "verification": {"error": "TimeoutError"}},
     "search_weekday_reference": {"reference_strategy": "all", "assessment": "undetermined", "causal_interpretation": False,
         "references": {"weekday": {"weekday_reference": {"status": "unavailable", "delta": None}}}},
     "ai_overviews_impact": {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "http_status": 403,
@@ -530,6 +532,22 @@ DEGRADED_SHAPES = {
                                         "before": None, "after": None,
                                         "descriptive_delta": {"clicks": None, "impressions": None, "ctr_percentage_points": None}},
                           "search_evidence": None},
+}
+
+SUCCESS_SHAPES['crawl_log_audit'] = {
+    'status': 'observed', 'site': 'sc-domain:example.com', 'profile': 'combined',
+    'coverage': {'consumed_bytes': 100, 'lines_considered': 1, 'parsed_lines': 1, 'invalid_lines': 0,
+                 'excluded_lines': 0, 'paths_not_retained': 0, 'summary_omitted_paths': 0, 'limits_hit': []},
+    'source': {'sha256_consumed_bytes': 'fixture', 'file_bytes_at_open': 100,
+               'stable_during_read': True, 'site_association': 'caller_declared_unverified'},
+    'observed_window': {'start': '2026-10-09T10:00:00Z', 'end': '2026-10-09T10:00:00Z',
+                        'timezone': 'UTC', 'source_offsets': {'+0200': 1}},
+    'status_counts': {'404': 1}, 'declared_ua_counts': {'googlebot': 1}, 'identity_counts': {'declared_only': 1},
+    'verification': {'status': 'observed', 'method': 'published_ip_ranges', 'source_url': 'https://developers.google.com/',
+                     'retrieved_at': '2026-10-09T10:00:00Z', 'creation_time_as_declared': 'fixture',
+                     'prefix_count': 1, 'sha256': 'fixture', 'historical_identity': 'unverified'},
+    'paths': [{'requests': 1, 'status_counts': {'404': 1}, 'path_hash': 'fixture', 'path': '/public', 'origin': 'relative_to_declared_site'}],
+    'normalization': 'query stripped', 'indexing_status': 'unavailable', 'untrusted_content': {'authority': 'data_only'},
 }
 
 
@@ -726,6 +744,8 @@ def test_all_applicable_tools_and_declarations_have_exercised_success_or_degrade
 # dictionaries and output assignments are included; generated JSON-LD and
 # operational statuses are reviewed exclusions rather than blanket observations.
 _REVIEWED_SIGNALS = {
+    'crawl_logs._google_ranges': 'status',
+    'crawl_logs.crawl_log_audit': 'status',
     "analytics._parse_appearance_row": "unavailable_metrics",
     "crawl_import._preview": "status",
     "crawl_import.crawl_import_preview": "status",

@@ -4,7 +4,7 @@
 
 ## What This Project Is
 
-Python MCP server exposing 89 Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
+Python MCP server exposing 90 source Google Search Console / Bing Webmaster / GA4 / CrUX / IndexNow / drift-monitoring / content-audit / internal-linking / AI-visibility tools to AI agents.
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 Release 1.4.0 contains 89 tools, adding seo_change_impact, rewrite_fidelity_check, search_weekday_reference and crawl_import_preview to the 85-tool registry of 1.3.1. Draft inputs extend editorial_audit.
@@ -13,7 +13,7 @@ Prompt library: docs/starter-prompt.md and examples/.
 
 ## Module Map
 
-ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + registers registry.TOOLS (89 source tools by default), subject to startup family selection since 1.3.1.
+ENTRY POINT: src/gsc_mcp/server.py : FastMCP("gsc-mcp") + registers registry.TOOLS (90 source tools by default), subject to startup family selection since 1.3.1.
 REGISTRY: src/gsc_mcp/registry.py : Single source of truth. Dict[str, Callable] keyed by function name.
   assert set(TOOLS) == set(_ALL_TOOLS) at import time; any mismatch fails loudly.
   CLI (gsc-cli) reads the full TOOLS catalogue; the MCP server applies startup family selection since 1.3.1 through tool_selection.py and GSC_MCP_TOOL_FAMILIES, with all tools by default and core always exposed. Unknown or empty selections fail startup. Restart after changes; selection does not grant provider access. Both frontends read TOOLS. Adding a tool = update registry.py + properties._ALL_TOOLS; declare new module families in tool_selection.py.
@@ -370,3 +370,5 @@ RELEASE 1.4.0: 89 tools; releases 1.3.0 and 1.3.1 contain 85.
   traffic_reference.py (1 tool): search_weekday_reference(site, days=28, end_date=None, dimensions=None, filters=None, search_type="web", aggregation_type="auto", row_limit=1000, max_requests=20, limit=50). Final-requested equal disjoint Google windows shifted by whole weeks, same weekdays, ending no later than Pacific today minus three days; incomplete coverage is unavailable, annual/causal inference unproved.
   crawl_import.py (1 tool): crawl_import_preview(report_json, producer="siteone"). Bounded in-memory preview of caller-provided SiteOne JSON; no file, crawler, network, credential or GSC join. Imported scores are producer heuristics.
   .claude workflow pilot: 12 tests passed in a controlled host; native Claude runtime and model quality unverified. Python PR CI is owner-gated; publishing reruns the test suite and checks the built wheel before upload.
+
+SOURCE AFTER 1.4.0: crawl_logs.py adds crawl_log_audit(log_path, site, profile="combined"). Read-only bounded local common/combined logs, explicit timezone offsets, masked IPs/paths/queries, optional one-fetch current Google range membership. Historical identity and indexing remain unverified. No DNS, persistence, uploads or joins. The source registry has 90 tools.

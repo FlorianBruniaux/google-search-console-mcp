@@ -1,0 +1,21 @@
+{
+  "target": "crawl-log-audit",
+  "type": "command",
+  "skill": "crawl-log-audit",
+  "positive": [
+    "Audit my local Apache combined access log for SEO crawl requests",
+    "Analyse les logs de crawl serveur SEO et les requêtes Googlebot",
+    "Count declared Googlebot and Bingbot requests in my local access logs",
+    "Analyse le fichier de logs serveur Apache pour les erreurs HTTP des robots",
+    "Audit this common-format server log with parsing and timezone coverage",
+    "Contrôle les logs de crawl avec limite de lignes et d’octets",
+    "Review HTTP status counts in this SEO access log without revealing IPs",
+    "Compare declared Googlebot user agents with current IP ranges in my crawl logs"
+  ],
+  "negative": [
+    "Inspect whether this URL is indexed in Google Search Console",
+    "Audit my submitted XML sitemap download errors",
+    "Find query-level click declines in Search Analytics",
+    "Fix a Python stack trace in my application"
+  ]
+}

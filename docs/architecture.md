@@ -4,7 +4,7 @@ Release 1.3.0 includes `search_change_breakdown` (Google-only explicit period co
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 89 source tools over the Model Context Protocol by default. Each tool is a plain Python function returning a JSON string. The CLI derives its full command surface from `registry.TOOLS`. Since version 1.3.1, the server selects MCP families at startup with `GSC_MCP_TOOL_FAMILIES`, exposing all by default and retaining `core`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
+gsc-mcp is a FastMCP server exposing 90 source tools over the Model Context Protocol by default. Each tool is a plain Python function returning a JSON string. The CLI derives its full command surface from `registry.TOOLS`. Since version 1.3.1, the server selects MCP families at startup with `GSC_MCP_TOOL_FAMILIES`, exposing all by default and retaining `core`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
@@ -12,7 +12,7 @@ gsc-mcp is a FastMCP server exposing 89 source tools over the Model Context Prot
 src/gsc_mcp/
 ├── server.py          # Entry point. Registers startup-selected functions from registry.TOOLS
 ├── tool_selection.py  # MCP startup family selection since 1.3.1
-├── registry.py        # Single source of truth for the 89 source MCP and CLI tools
+├── registry.py        # Single source of truth for the 90 source MCP and CLI tools
 ├── cli.py             # Flag-only CLI generated from registry function signatures
 ├── reporting.py       # Bounded search report output and snapshot provenance
 ├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader

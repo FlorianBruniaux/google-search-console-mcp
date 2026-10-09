@@ -4,6 +4,8 @@
 
 <!-- unreleased-updated: 2026-10-09 -->
 
+- Add `crawl_log_audit` and a shared read-only log skill: bounded local common/combined parsing, masked sensitive fields, explicit coverage and optional current Google IP-range membership (#43). The source registry now contains 90 tools; historical identity and indexing remain unverified.
+
 - Accept long strings in withheld SiteOne top-level annexes while retaining supported-field and global input limits. Add a licensed public-export fixture and replay all 73 rows (#42 compatibility).
 
 - Extend the existing traffic reference with optional annual and robust daily baselines, combined mixed/undetermined results and bounded caller-declared incident/business context (#46). Preserve default weekday behavior and one aggregate physical-attempt budget; no causal attribution.

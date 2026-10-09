@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "calls": {
+    "crawl_log_audit": ["log_path", "site", "profile", "max_bytes", "max_lines", "max_paths", "limit", "include_paths", "verify_googlebot"]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}
