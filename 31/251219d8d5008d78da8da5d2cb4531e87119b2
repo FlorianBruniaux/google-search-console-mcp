@@ -1,0 +1,83 @@
+site/src/pages/fr/pour/[profile].astro
+  s_05ea773ff72f20::t_b08211d0e788e3 1-8
+site/src/components/SiteFooter.astro
+  s_05ea773ff72f20::t_fe14245b73c5f5 12,16
+site/src/data/journeys.ts
+  s_05ea773ff72f20::t_7831e640f94921 1-116
+site/src/pages/for/[profile].astro
+  s_05ea773ff72f20::t_b08211d0e788e3 1-8
+site/tests/dist-content.test.mjs
+  s_05ea773ff72f20::t_916dfa71dc244b 73,117
+site/src/components/DiscoveryPage.astro
+  s_05ea773ff72f20::t_fe14245b73c5f5 8,44,46
+site/src/data/content.ts
+  s_05ea773ff72f20::t_b08211d0e788e3 25,31
+site/scripts/export-product-data.py
+  s_05ea773ff72f20::t_47446e3bae5cac 4,45-48,51-58,60,69-70
+  s_05ea773ff72f20::t_cb09636d961ea6 49-50,59
+site/src/components/SeoCaseStudy.astro
+  s_05ea773ff72f20::t_df68cdbf8da7cf 53-58,78-80
+tests/test_site_product_data.py
+  s_05ea773ff72f20::t_61a014a724ec6a 70,77-92
+site/tests/dist-journeys.test.mjs
+  s_05ea773ff72f20::t_81edb25ccae299 33-35,37-41
+  s_05ea773ff72f20::t_61a014a724ec6a 1-32,42-43
+  s_05ea773ff72f20::t_e5535f2073174b 36
+site/src/components/AuditCoverage.astro
+  s_05ea773ff72f20::t_e7a07cb6d0d6be 1-28
+site/src/data/tool-families.ts
+  s_05ea773ff72f20::t_e7a07cb6d0d6be 1-28
+site/src/components/ToolCatalogue.astro
+  s_05ea773ff72f20::t_e7a07cb6d0d6be 1-21,23-39
+  s_05ea773ff72f20::t_81edb25ccae299 22
+site/src/data/navigation.ts
+  s_05ea773ff72f20::t_fe14245b73c5f5 2,14-31,52,93
+  s_05ea773ff72f20::t_e5535f2073174b 65-66,106-107
+site/src/styles/global.css
+  s_05ea773ff72f20::t_916dfa71dc244b 184-216,222-255
+  s_05ea773ff72f20::t_df68cdbf8da7cf 217-221
+site/tests/site.spec.ts
+  s_05ea773ff72f20::t_a6046eed129389 6-29,32-40,43-59,62-64
+  s_05ea773ff72f20::t_916dfa71dc244b 296
+  s_05ea773ff72f20::t_9f1e9674a09145 30-31
+  s_05ea773ff72f20::t_e5535f2073174b 3-4,41-42
+  s_05ea773ff72f20::t_df68cdbf8da7cf 60-61
+  s_e488605d7362bc::t_2ccf7137d777bd 5
+site/src/pages/tools.astro
+  s_05ea773ff72f20::t_e7a07cb6d0d6be 1-4
+site/src/components/LandingPage.astro
+  s_05ea773ff72f20::t_fe14245b73c5f5 18-19,52-55
+site/src/components/PersonaPaths.astro
+  s_05ea773ff72f20::t_b08211d0e788e3 1-21
+site/src/components/Hero.astro
+  s_05ea773ff72f20::t_fe14245b73c5f5 8,15,24
+site/src/components/JourneyPage.astro
+  s_05ea773ff72f20::t_b08211d0e788e3 1-34,36-51,53-57
+  s_05ea773ff72f20::t_df68cdbf8da7cf 35,52
+site/src/pages/fr/tools.astro
+  s_05ea773ff72f20::t_e7a07cb6d0d6be 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "31251219d8d5008d78da8da5d2cb4531e87119b2",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_e488605d7362bc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1114b-25b9-7151-aca6-1a0a544c7bfd",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
