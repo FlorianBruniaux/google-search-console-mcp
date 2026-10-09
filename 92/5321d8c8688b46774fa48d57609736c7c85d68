@@ -1,0 +1,75 @@
+tests/test_crawl_logs.py
+  s_05ea773ff72f20::t_edd0a848eb1310 1-100
+  s_05ea773ff72f20::t_3801e51d05ec51 101-145
+tests/test_registry.py
+  s_05ea773ff72f20::t_9934835897097a 45
+README.md
+  s_05ea773ff72f20::t_20ee8073288e89 403
+  s_05ea773ff72f20::t_7ff4614b36735f 17,42,298,330,399-402,408,458,582,610,627,659,683
+site/tests/doc-content-source.test.mjs
+  s_05ea773ff72f20::t_7ff4614b36735f 84-85
+tests/test_evidence.py
+  s_05ea773ff72f20::t_b339c1d40258d0 521-522,537-552,747-748
+.agents/skills/crawl-log-audit/evals/calls.json
+  s_05ea773ff72f20::t_c5aaefbeb2ae31 1-7
+src/gsc_mcp/registry.py
+  s_05ea773ff72f20::t_9934835897097a 109,124
+docs/crawl-log-audit.md
+  s_05ea773ff72f20::t_c5aaefbeb2ae31 1-16
+.agents/skills/crawl-log-audit/SKILL.md
+  s_05ea773ff72f20::t_c5aaefbeb2ae31 1-19
+.agents/skills/crawl-log-audit/evals/scenarios.json
+  s_05ea773ff72f20::t_c5aaefbeb2ae31 1-21
+docs/validation/2026-10-09-crawl-logs.md
+  s_05ea773ff72f20::t_20ee8073288e89 1-9
+src/gsc_mcp/tools/crawl_logs.py
+  s_05ea773ff72f20::t_b339c1d40258d0 161-164,201
+  s_05ea773ff72f20::t_9503fc5fd9cc7f 1-27,32-112,114-115,117-160,165-197,199-200,202-236,239-253
+  s_05ea773ff72f20::t_9934835897097a 28-31,113,116,198,237-238,254-255
+src/gsc_mcp/tool_selection.py
+  s_05ea773ff72f20::t_9934835897097a 9
+src/gsc_mcp/evidence.py
+  s_05ea773ff72f20::t_9934835897097a 353-369,410-411
+src/gsc_mcp/tools/properties.py
+  s_05ea773ff72f20::t_9934835897097a 17
+site/scripts/prepare-doc-content.mjs
+  s_05ea773ff72f20::t_7ff4614b36735f 67
+.claude/routing-corpus/crawl-log-audit/scenarios.json
+  s_05ea773ff72f20::t_d947d5a57dcff3 1
+.claude/skills/crawl-log-audit/SKILL.md
+  s_05ea773ff72f20::t_7aa71d403c9492 1
+CHANGELOG.md
+  s_05ea773ff72f20::t_6d50053058e495 7-8
+CLAUDE.md
+  s_05ea773ff72f20::t_0c95a6319d2c16 45,47,131,134
+docs/architecture.md
+  s_05ea773ff72f20::t_ef15b0de075468 7,15
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_9f6d1de285e4fa 184-187
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_4c147531b251d1 7,16,373-374
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_1828867014573e 15
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_ce6b60e3864cdd 183-186
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_e2b85bb7e6b634 13-14
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_d670e7a6b1d146 62,70,86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "925321d8c8688b46774fa48d57609736c7c85d68",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
