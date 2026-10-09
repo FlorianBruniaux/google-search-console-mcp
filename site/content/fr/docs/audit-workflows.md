@@ -184,3 +184,8 @@ L’outil réutilise `search_change_breakdown` avec des filtres identiques et de
 ## Logs serveur locaux (source après 1.4.0)
 
 `crawl_log_audit(log_path, site)` lit progressivement un fichier Apache common/combined sélectionné par l’appelant. La sortie masque par défaut chemins lisibles, queries, IP clients, utilisateurs, referrers et lignes brutes. Vérifiez couverture, hash des octets consommés, fenêtre UTC et limites atteintes. Les étiquettes de robots sont déclarées ; une appartenance aux plages Google actuelles ne prouve ni identité historique ni indexation. Aucune jointure n’est effectuée. Consultez le [contrat local et exemple CLI](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-log-audit.md).
+
+
+## Snapshots locaux de crawl
+
+Commencez par `crawl_snapshot_import` en mode aperçu avant de choisir `persist=True`. Gardez la propriété exacte et le snapshot ID. `crawl_snapshot_read` pagine les lignes compatibles ; `crawl_snapshot_join` accepte des rapports GSC par page et link map fournis, sous limites. Les URL brutes et inconnues restent explicites. La rétention est locale et la purge explicite ; aucun crawl ni upload n’est lancé. Consultez le [contrat d’inventaire versionné et de purge](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-snapshots.md).

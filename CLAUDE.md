@@ -42,9 +42,9 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Architecture
 
-**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 90 source tools by iterating `registry.TOOLS`. The count is derived from the registry, not maintained in server or CLI help text.
+**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 94 source tools by iterating `registry.TOOLS`. The count is derived from the registry, not maintained in server or CLI help text.
 
-**Registry** (`src/gsc_mcp/registry.py`): imports all 90 source tool functions and exposes `TOOLS: dict[str, Callable[..., str]]`. An `assert` at import time verifies `set(TOOLS) == set(_ALL_TOOLS)` from `properties.py`, so any mismatch fails loudly at startup. The current surface adds 19 Bing tools and `compare_search_engines` to the existing catalogue.
+**Registry** (`src/gsc_mcp/registry.py`): imports all 94 source tool functions and exposes `TOOLS: dict[str, Callable[..., str]]`. An `assert` at import time verifies `set(TOOLS) == set(_ALL_TOOLS)` from `properties.py`, so any mismatch fails loudly at startup. The current surface adds 19 Bing tools and `compare_search_engines` to the existing catalogue.
 
 **CLI** (`src/gsc_mcp/cli.py`): shell frontend that generates all subcommands and count labels from `TOOLS` by introspection. All-flags (no positionals). `list[dict]` params take a JSON string. Sets `GSC_NO_BROWSER=1` at startup to prevent accidental OAuth browser popups.
 
@@ -128,10 +128,10 @@ For GA4 tools that filter by hostname/country, use `_build_dimension_filter(host
 
 ## CLI (gsc-cli)
 
-`gsc-cli` exposes all 90 tools as shell commands, auto-generated from `registry.TOOLS`. No manual CLI registration or count update is needed.
+`gsc-cli` exposes all 94 tools as shell commands, auto-generated from `registry.TOOLS`. No manual CLI registration or count update is needed.
 
 ```bash
-# List all 90 source commands
+# List all 94 source commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)

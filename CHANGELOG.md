@@ -4,6 +4,8 @@
 
 <!-- unreleased-updated: 2026-10-09 -->
 
+- Add versioned site-owned crawl snapshots: optional private local storage, quota/idempotency checks, paginated full inventories, explicit cleanup and bounded exact-URL GSC/link-map reconciliation (#42). The source registry contains 94 tools; supplied metadata does not authenticate provider origin.
+
 - Add `crawl_log_audit` and a shared read-only log skill: bounded local common/combined parsing, masked sensitive fields, explicit coverage and optional current Google IP-range membership (#43). The source registry now contains 90 tools; historical identity and indexing remain unverified.
 
 - Accept long strings in withheld SiteOne top-level annexes while retaining supported-field and global input limits. Add a licensed public-export fixture and replay all 73 rows (#42 compatibility).

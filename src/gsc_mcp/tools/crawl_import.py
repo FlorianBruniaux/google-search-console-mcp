@@ -319,7 +319,7 @@ def _scores(document: dict[str, object]) -> dict[str, object]:
     return {"basis": "third_party_heuristic", "ranking_signal": False, "value": value}
 
 
-def _rows(document: dict[str, object]) -> tuple[list[dict[str, object]], list[dict[str, object]], int, int]:
+def _rows(document: dict[str, object], *, preview_rows: int = 50) -> tuple[list[dict[str, object]], list[dict[str, object]], int, int]:
     rows, rejected, accepted_count, rejected_count = [], [], 0, 0
     for index, row in enumerate(document["results"]):
         invalid = _row_errors(row)
@@ -331,7 +331,7 @@ def _rows(document: dict[str, object]) -> tuple[list[dict[str, object]], list[di
                 rejected.append({"row_index": index, "reason": "credential_url" if credential else "invalid_row_schema", "fields": invalid})
         else:
             accepted_count += 1
-            if len(rows) < _LIMITS["preview_rows"]:
+            if len(rows) < preview_rows:
                 rows.append({"row_index": index, "raw_url": row["url"],
                              **{key: row[key] for key in _ROW_FIELDS - {"url", "extras"}},
                              "extras_field_count": len(row["extras"])})
