@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "inspect_url": [
+      "url",
+      "site"
+    ],
+    "heading_audit": [
+      "url"
+    ],
+    "internal_links_audit": [
+      "url"
+    ],
+    "page_technical_audit": [
+      "url"
+    ],
+    "content_quality": [
+      "url"
+    ],
+    "schema_validate": [
+      "url"
+    ],
+    "content_brief": [
+      "site",
+      "page_url",
+      "days"
+    ],
+    "crux_page_vitals": [
+      "url"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

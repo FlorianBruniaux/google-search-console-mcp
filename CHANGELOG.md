@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+<!-- unreleased-updated: 2026-10-09 -->
+
+- Add four bilingual persona paths and a generated 89-tool website catalogue, with audit checks and source-linked examples.
+- Share the 13 SEO playbooks between Claude and Codex from `.agents/skills/`; correct unsupported calls, penalty/AI-loss attribution, schema eligibility claims and unmeasured ranking gains. Add repository discovery, signature and BM25 calibration checks (#38).
+
 ## [1.4.0] - 2026-10-09
 
 - Add bilingual HTML sitemaps and dated updates pages, linked from the homepage banner, navigation and footers. Updates reuse the changelog and distinguish source changes from published PyPI versions.

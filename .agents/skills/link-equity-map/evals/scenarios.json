@@ -1,0 +1,23 @@
+{
+  "target": "link-equity-map",
+  "type": "command",
+  "positive": [
+    "Cartographie le graphe de maillage de tout mon site",
+    "Analyse les hubs dans le graphe du maillage de tout le site",
+    "Graphe du maillage du site : pages sans lien entrant dans l’échantillon",
+    "Cartographie le graphe du maillage sur plusieurs pages du site",
+    "Map the site-wide internal link graph",
+    "Review hubs in a site-wide internal link graph sample",
+    "Map orphan candidates within a site-wide internal link graph",
+    "Build an internal link graph across several site pages"
+  ],
+  "negative": [
+    "audit du maillage interne de cette page",
+    "internal link placement on this url",
+    "mes balises h1 h2 h3",
+    "audit seo complet de cette page",
+    "trouve-moi des backlinks externes",
+    "quelles pages je peux supprimer",
+    "pourquoi mon trafic a chuté"
+  ]
+}

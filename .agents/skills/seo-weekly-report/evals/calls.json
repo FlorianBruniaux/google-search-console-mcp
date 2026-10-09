@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "compare_search_periods": [
+      "site",
+      "days"
+    ],
+    "check_alerts": [
+      "site",
+      "days"
+    ],
+    "analytics_anomalies": [
+      "site",
+      "days"
+    ],
+    "get_search_analytics": [
+      "site",
+      "days",
+      "dimensions",
+      "row_limit"
+    ],
+    "search_change_breakdown": [
+      "site",
+      "baseline_start",
+      "baseline_end",
+      "comparison_start",
+      "comparison_end",
+      "dimensions"
+    ],
+    "get_performance_overview": [
+      "site",
+      "days"
+    ],
+    "traffic_health_check": [
+      "site",
+      "days"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

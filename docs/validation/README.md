@@ -9,3 +9,5 @@ These records describe local checks and their limits. They do not establish live
 - [Agent workflow checks, 2026-10-09](2026-10-09-agent-review.md): controlled host routing, bounded agent calls and evidence review; native runtime and model quality remain unverified.
 
 - [First delivery set, 2026-10-09](2026-10-09-first-delivery-set.md): integrated suite, package/site checks, independent review and remaining issue scope.
+
+- [Shared SEO playbooks, 2026-10-09](2026-10-09-shared-playbooks.md): canonical repository sources, both-host discovery, call signatures and local BM25 calibration.

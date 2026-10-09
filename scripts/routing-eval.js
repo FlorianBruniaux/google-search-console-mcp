@@ -42,18 +42,30 @@ const MIN_NEG = 2;
 
 function loadScenarios() {
   const out = [];
-  for (const file of findScenariosFiles()) {
+  const repository = process.argv.includes("--repo");
+  const hostIndex = process.argv.indexOf("--host");
+  const host = hostIndex < 0 ? "codex" : process.argv[hostIndex + 1];
+  if (repository && !["claude", "codex"].includes(host)) throw new Error("--host must be claude or codex");
+  const canonicalRoot = path.resolve(".agents/skills");
+  const files = repository ? fs.readdirSync(canonicalRoot).sort().map(name => {
+    const skill = path.resolve(host === "claude" ? ".claude/skills" : ".agents/skills", name, "SKILL.md");
+    const canonical = path.join(canonicalRoot, name, "SKILL.md");
+    if (fs.realpathSync(skill) !== fs.realpathSync(canonical)) throw new Error("Divergent skill: " + name);
+    return path.join(canonicalRoot, name, "evals", "scenarios.json");
+  }) : findScenariosFiles();
+  for (const file of files) {
     let data;
     try {
       data = JSON.parse(fs.readFileSync(file, "utf8"));
     } catch {
+      if (repository) throw new Error("Missing repository scenarios: " + file);
       console.error(`skipped unreadable ${file}`);
       continue;
     }
     if (!data || typeof data.target !== "string" || !Array.isArray(data.positive)) {
       continue;
     }
-    const scope = file.includes(path.join(".claude", "routing-corpus"))
+    const scope = repository || file.includes(path.join(".claude", "routing-corpus"))
       ? "project"
       : "global";
     for (const p of data.positive) {
@@ -151,7 +163,7 @@ function analyse(scenarios) {
 }
 
 function main() {
-  const only = process.argv[2];
+  const only = process.argv[2]?.startsWith("--") ? null : process.argv[2];
   const scenarios = loadScenarios();
   if (!scenarios.length) {
     console.error("No scenarios found. Is CLAUDE_PROJECT_DIR set?");
@@ -201,4 +213,5 @@ function main() {
   process.exit(conflicts.length ? 1 : 0);
 }
 
-main();
+if (require.main === module) main();
+module.exports = { loadScenarios, analyse };

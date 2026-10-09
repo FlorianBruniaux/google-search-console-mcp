@@ -1,0 +1,21 @@
+{
+  "target": "traffic-drop-diagnosis",
+  "type": "command",
+  "skill": "traffic-drop-diagnosis",
+  "positive": [
+    "Diagnostique la chute de trafic Google depuis lundi",
+    "Analyse la chute de trafic Google avec les périodes avant et après",
+    "Mon trafic Google a chuté, diagnostique les segments affectés",
+    "Diagnostic de chute de trafic Google : requêtes, pages et appareils",
+    "Diagnose this Google search traffic drop",
+    "Investigate a sustained Google search traffic drop",
+    "Compare affected segments around this Google traffic drop",
+    "Google search traffic drop diagnosis: examine queries and pages"
+  ],
+  "negative": [
+    "Update my Python dependencies and deploy the application",
+    "Écris un message commercial sans analyser de données SEO",
+    "Deux pages rankent sur la même requête, est-ce une cannibalisation ?",
+    "Review competing Google pages before recommending consolidation"
+  ]
+}

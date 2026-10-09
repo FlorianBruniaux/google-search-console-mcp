@@ -1,0 +1,19 @@
+{
+  "target": "schema-audit",
+  "skill": "schema-audit",
+  "type": "command",
+  "positive": [
+    "Vérifie les erreurs JSON-LD sur mes pages",
+    "Audit structured data schemas on these URLs",
+    "Mes données structurées contiennent-elles les champs requis ?",
+    "Review JSON-LD required and recommended schema properties",
+    "Pourquoi mon balisage schema ne donne pas de rich results ?",
+    "Check schema markup without promising Google eligibility",
+    "Analyse la santé des schémas de mes pages visibles",
+    "Inspect structured data errors and rich-result evidence limits"
+  ],
+  "negative": [
+    "Audit my heading outline and H1 hierarchy",
+    "Compare Search Console clicks before a dated decline"
+  ]
+}

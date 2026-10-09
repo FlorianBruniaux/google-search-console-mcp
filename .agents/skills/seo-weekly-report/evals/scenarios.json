@@ -1,0 +1,21 @@
+{
+  "target": "seo-weekly-report",
+  "type": "command",
+  "skill": "seo-weekly-report",
+  "positive": [
+    "Fais mon rapport SEO hebdomadaire avec clics et impressions",
+    "Prépare le bilan SEO hebdomadaire du site",
+    "Rapport SEO hebdomadaire : compare cette semaine et la précédente",
+    "Rédige un récap SEO hebdomadaire avec les anomalies observées",
+    "Generate a weekly SEO report with clicks and impressions",
+    "Prepare my weekly SEO performance report",
+    "Weekly SEO report: compare this week against the previous week",
+    "Summarize query changes in a weekly SEO report"
+  ],
+  "negative": [
+    "Update my Python dependencies and deploy the application",
+    "Écris un message commercial sans analyser de données SEO",
+    "Mes clics Google ont chuté depuis lundi, aide-moi à examiner la baisse",
+    "Diagnose this sudden Google search traffic drop using comparable periods"
+  ]
+}

@@ -3,9 +3,11 @@ import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import { publishedPages } from '../scripts/prepare-doc-content.mjs'
+import { latestUpdate } from '../src/data/updates.mjs'
 
 const dist = new URL('../dist/', import.meta.url)
 const readPage = (path) => readFile(new URL(`${path}index.html`, dist), 'utf8')
+const latest = latestUpdate(await readFile(new URL('../../CHANGELOG.md', import.meta.url), 'utf8'))
 
 for (const prefix of ['', 'fr/']) {
   test(`HTML sitemap lists every published documentation page in ${prefix || 'English'}`, async () => {
@@ -26,9 +28,15 @@ for (const prefix of ['', 'fr/']) {
     const html = await readPage(`${prefix}updates/`)
     const home = await readPage(prefix)
     assert.match(html, /<time datetime="2026-10-09"/)
-    assert.match(html, /v1\.4\.0/)
-    assert.match(html, prefix ? /Cette version est disponible sur PyPI/ : /This version is available on PyPI/)
-    assert.doesNotMatch(html, /On main · not released on PyPI|Sur main · non publié sur PyPI/)
+    assert.match(html, /1\.4\.0/)
+    const status = prefix ? /Sur main · non publié sur PyPI/ : /On main · not released on PyPI/
+    if (latest.published) {
+      assert.match(html, prefix ? /Cette version est disponible sur PyPI/ : /This version is available on PyPI/)
+      assert.doesNotMatch(html, status)
+    } else {
+      assert.match(html, status)
+      assert.doesNotMatch(html, prefix ? /Cette version est disponible sur PyPI/ : /This version is available on PyPI/)
+    }
     assert.match(html, /1\.3\.1/)
     assert.match(html, /2026-10-08/)
     assert.match(html, /search_weekday_reference/)
@@ -36,7 +44,7 @@ for (const prefix of ['', 'fr/']) {
     assert.ok(home.includes(`href="/${prefix}updates/"`))
     assert.ok(home.includes(`href="/${prefix}sitemap/"`))
     assert.match(home, /<time datetime="2026-10-09"/)
-    assert.match(home, /v1\.4\.0/)
+    assert.match(home, latest.published ? /v1\.4\.0/ : prefix ? /Sur main · non publié/ : /On main · unreleased/)
     assert.ok(html.includes(`href="/${prefix}#install"`), 'Shared header must link to the home installation section')
     const other = prefix ? '' : 'fr/'
     assert.ok(html.includes(`href="/${other}updates/"`), 'Language switch must preserve the page')

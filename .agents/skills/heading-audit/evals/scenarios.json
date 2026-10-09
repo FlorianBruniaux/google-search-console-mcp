@@ -1,0 +1,32 @@
+{
+  "target": "heading-audit",
+  "type": "command",
+  "positive": [
+    "j'ai deux h1 sur cette page",
+    "mes balises h1 h2 h3",
+    "combien de h1 sur cette page",
+    "hiérarchie de titres bancale",
+    "mon title et mon h1 sont identiques",
+    "audit des balises hn",
+    "mes h2 ne racontent rien",
+    "mes sous-titres sont trop espacés",
+    "mes titres et sous-titres ne suivent aucune logique",
+    "duplicate h1 tag on this page",
+    "my title tag duplicates the h1",
+    "h2 h3 hierarchy validation",
+    "heading levels skip from h2 to h4",
+    "one h1 per page rule"
+  ],
+  "negative": [
+    "audit seo global de cette url",
+    "audit seo complet de cette page",
+    "mes liens internes sont mal placés",
+    "audit du maillage interne de cette page",
+    "regarde le maillage de mon site",
+    "voici mon plan, dis-moi ce qui cloche",
+    "j'ai une idée floue, aide-moi à la structurer",
+    "vérifie ce composant React avant de merger",
+    "write the section headings for this readme",
+    "génère-moi le schema json-ld"
+  ]
+}

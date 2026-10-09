@@ -1,0 +1,21 @@
+{
+  "target": "page-deep-dive",
+  "type": "command",
+  "skill": "page-deep-dive",
+  "positive": [
+    "Diagnostic de cette URL : combine trafic Google, indexation et CrUX",
+    "Analyse détaillée de cette URL avec trafic, indexation et Core Web Vitals",
+    "Diagnostic de cette page précise : requêtes Google et Core Web Vitals",
+    "Combine indexation, trafic et Core Web Vitals pour le diagnostic de cette URL",
+    "Diagnose this URL using traffic, indexing and CrUX together",
+    "Single-page diagnostic combining indexing, traffic and field vitals",
+    "Review traffic, indexing and Core Web Vitals for this URL diagnostic",
+    "Diagnose one URL with Google query traffic, indexing and field performance"
+  ],
+  "negative": [
+    "Update my Python dependencies and deploy the application",
+    "Écris un message commercial sans analyser de données SEO",
+    "Mes clics Google ont chuté depuis lundi, aide-moi à examiner la baisse",
+    "Diagnose this sudden Google search traffic drop using comparable periods"
+  ]
+}

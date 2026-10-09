@@ -1,0 +1,26 @@
+{
+  "target": "internal-linking-audit",
+  "type": "command",
+  "positive": [
+    "Audit du maillage interne sur cette seule page, avec ancres et zones",
+    "Vérifie les ancres et le maillage interne de cette seule URL",
+    "Analyse les liens internes sortants de cette seule page",
+    "Maillage interne de cette seule page : compare corps, footer et navigation",
+    "Audit outgoing internal links on this single page",
+    "Check anchor text and link placement on this single page",
+    "Review the outgoing internal links of this single URL",
+    "Single-page internal links audit: body versus footer placement"
+  ],
+  "negative": [
+    "cartographie le maillage de tout mon site",
+    "quelles pages en page 2 ne reçoivent aucun lien",
+    "mes pages orphelines sur l'ensemble du site",
+    "quelles pages de mon site ont besoin de liens internes",
+    "orphan pages across the entire site",
+    "mon title et mon h1 sont identiques",
+    "audit des balises hn",
+    "audit seo complet de cette page",
+    "trouve-moi des backlinks externes",
+    "pourquoi mon trafic a chuté"
+  ]
+}

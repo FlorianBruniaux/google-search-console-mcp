@@ -1,0 +1,21 @@
+{
+  "target": "content-opportunities",
+  "type": "command",
+  "skill": "content-opportunities",
+  "positive": [
+    "Quelles pages optimiser en priorité avec les données de requêtes ?",
+    "Find content optimization candidates near page one",
+    "Où trouver des opportunités de contenu dans Search Console ?",
+    "Review striking-distance queries for content improvements",
+    "Donne des idées de contenu fondées sur les requêtes observées",
+    "Which content pages should I review for optimization?",
+    "Mes pages sont en deuxième page, quelles candidates examiner ?",
+    "Identify content opportunities without promising future clicks"
+  ],
+  "negative": [
+    "Update my Python dependencies and deploy the application",
+    "Écris un message commercial sans analyser de données SEO",
+    "Mes clics Google ont chuté depuis lundi, aide-moi à examiner la baisse",
+    "Diagnose this sudden Google search traffic drop using comparable periods"
+  ]
+}

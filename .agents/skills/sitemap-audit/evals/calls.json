@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "batch_url_inspection": [
+      "site",
+      "urls"
+    ],
+    "check_indexing_issues": [
+      "site",
+      "urls"
+    ],
+    "sitemap_audit": [
+      "site",
+      "sitemap_url"
+    ],
+    "list_sitemaps": [
+      "site"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

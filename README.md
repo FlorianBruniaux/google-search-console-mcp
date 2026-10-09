@@ -572,9 +572,9 @@ Exit codes: `0` success, `1` Google API error, `2` credential/config error or in
 
 </details>
 
-## Claude agents and skills
+## Agents and shared SEO skills
 
-The `.claude/` directory ships 12 Claude Code agents, 14 skills and 2 development commands. The nine SEO workflow agents below each reference a focused skill. Three additional specialist agents cover Python implementation, pytest and security review.
+The repository ships 12 Claude Code agents, 13 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. Three additional specialist agents cover Python implementation, pytest and security review.
 
 ### Agents
 
@@ -585,11 +585,11 @@ The `.claude/` directory ships 12 Claude Code agents, 14 skills and 2 developmen
 |---|---|---|
 | `gsc-seo-reporter` | `seo-weekly-report` | Weekly traffic recap, period-over-period summary |
 | `gsc-traffic-doctor` | `traffic-drop-diagnosis` | Sudden or sustained drop in clicks or impressions |
-| `gsc-content-optimizer` | `content-opportunities` | Pages close to page 1 (positions 4-20) worth a push |
+| `gsc-content-optimizer` | `content-opportunities` | Observed content optimization candidates; no predicted gains |
 | `gsc-cannibalization-checker` | `cannibalization-check` | Multiple pages competing for the same query |
 | `gsc-indexing-auditor` | `indexing-audit` | Crawl errors, pages not indexed, coverage gaps |
-| `gsc-sitemap-auditor` | `sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
-| `gsc-schema-auditor` | `schema-audit` | JSON-LD errors blocking rich results |
+| `gsc-sitemap-auditor` | `sitemap-audit` | Sitemap submission and sampled search visibility |
+| `gsc-schema-auditor` | `schema-audit` | JSON-LD local required-field checks; eligibility unassessed |
 | `gsc-page-analyst` | `page-deep-dive` | Full diagnostic for a single URL |
 | `gsc-ai-overviews-analyst` | `ai-overviews-impact` | Generic search appearances with unavailable/unverified AI exposure |
 
@@ -599,7 +599,7 @@ To use an agent from Claude Code, ask naturally ("why did traffic drop?") or inv
 
 ### Skills
 
-Skills live in `.claude/skills/` and are invokable directly via slash command. They define the exact steps, tool call sequence, and output format. Agents reference them; skills run standalone when you want to drive the workflow yourself without delegating to an agent.
+SEO skills have one canonical source in `.agents/skills/`, discovered by Codex and projected into `.claude/skills/` for Claude. Each contains supported calls, evidence limits and shared FR/EN routing cases. Use them directly or through the Claude agents. [Shared-playbook validation](docs/validation/2026-10-09-shared-playbooks.md) separates repository discovery checks from unverified native execution and human SEO accuracy.
 
 <details>
 <summary>Show 14 skills + 2 development commands</summary>
@@ -608,11 +608,11 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 |---|---|---|
 | `seo-weekly-report` | `/seo-weekly-report` | Weekly traffic recap, period-over-period summary |
 | `traffic-drop-diagnosis` | `/traffic-drop-diagnosis` | Sudden or sustained drop in clicks or impressions |
-| `content-opportunities` | `/content-opportunities` | Pages close to page 1 (positions 4-20) worth a push |
+| `content-opportunities` | `/content-opportunities` | Observed content optimization candidates; no predicted gains |
 | `cannibalization-check` | `/cannibalization-check` | Multiple pages competing for the same query |
 | `indexing-audit` | `/indexing-audit` | Crawl errors, pages not indexed, coverage gaps |
-| `sitemap-audit` | `/sitemap-audit` | Sitemap health and declared-vs-indexed coverage |
-| `schema-audit` | `/schema-audit` | JSON-LD errors blocking rich results |
+| `sitemap-audit` | `/sitemap-audit` | Sitemap submission and sampled search visibility |
+| `schema-audit` | `/schema-audit` | JSON-LD local required-field checks; eligibility unassessed |
 | `page-deep-dive` | `/page-deep-dive` | Full diagnostic for a single URL |
 | `ai-overviews-impact` | `/ai-overviews-impact` | Inspect generic Web search appearances without AI attribution |
 | `heading-audit` | `/heading-audit` | Heading hierarchy, H1 uniqueness, title overlap and section density |

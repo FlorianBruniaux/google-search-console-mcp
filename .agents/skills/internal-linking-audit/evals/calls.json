@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "calls": {
+    "seo_striking_distance": [
+      "site",
+      "days"
+    ],
+    "internal_links_audit": [
+      "url"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

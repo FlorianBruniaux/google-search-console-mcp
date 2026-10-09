@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "compare_search_periods": [
+      "site",
+      "days"
+    ],
+    "check_alerts": [
+      "site",
+      "days"
+    ],
+    "analytics_anomalies": [
+      "site",
+      "days"
+    ],
+    "traffic_drops": [
+      "site",
+      "days"
+    ],
+    "seo_lost_queries": [
+      "site",
+      "days"
+    ],
+    "search_change_breakdown": [
+      "site",
+      "baseline_start",
+      "baseline_end",
+      "comparison_start",
+      "comparison_end",
+      "dimensions"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

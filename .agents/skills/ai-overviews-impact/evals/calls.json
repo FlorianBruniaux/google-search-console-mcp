@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "compare_search_periods": [
+      "site",
+      "days"
+    ],
+    "ai_overviews_impact": [
+      "site",
+      "days",
+      "limit"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}
