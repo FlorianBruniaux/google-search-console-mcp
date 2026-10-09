@@ -1,40 +1,23 @@
 ---
 name: traffic-drop-diagnosis
-description: Diagnose sudden or sustained traffic drops by finding the affected period,
-  lost queries, and most likely root cause. Use when asked why traffic fell, what
-  changed, or whether a Google algorithm update had an impact. Aussi déclenché en
-  français par "pourquoi mon trafic a chuté", "j'ai perdu du trafic", "chute de
-  trafic", "mes clics se sont effondrés", "le site a décroché", "cette page a
-  décroché", "est-ce que c'est une mise à jour Google", "qu'est-ce qui s'est passé
-  sur mon site", "je ranke plus".
+description: Diagnose a Google Search traffic decline with dated property totals, query and page changes, and explicit evidence limits. Use for a sudden or sustained click decline, a page that lost traffic, or a suspected algorithm update. Déclenché aussi par « chute de trafic », « mes clics ont baissé », « cette page a décroché » ou « mise à jour Google ».
 ---
 
 # Traffic Drop Diagnosis
 
-Systematically diagnose the root cause of a traffic decline.
+Describe what changed before proposing why. GSC search rows and heuristic labels do not establish a cause.
 
 ## Steps
 
-1. Call `list_properties` to confirm the exact `site_url`.
-2. Call `traffic_drops` to identify the time range and magnitude of the drop. Note the start date and affected segments (queries, pages, device types).
-3. Call `check_alerts` to check for manual actions, security issues, or GSC notifications around the drop date.
-4. Call `analytics_anomalies` to detect statistical anomalies and corroborate the drop timing with data.
-5. Call `seo_lost_queries` to find the specific queries that lost clicks or impressions. Note the top 20 by click loss.
-6. Call `compare_search_periods` for the 28 days before vs. the 28 days after the drop, using `dimensions=query` and `limit=50`. Flag any query with more than 30% click decline.
-7. Cross-reference the drop timing against known Google algorithm update dates. Ask the user for the approximate drop date if not yet provided.
+1. Call `list_properties()` and use the exact selected Google property as `site`. Keep that property in every call and in the report. Done when the property and search surface are identified.
+2. Establish the suspected change date from the user or the available dated data. For a rolling check, call `compare_search_periods(site, days=28)`; it returns two consecutive property-level windows, not query rows. Call `traffic_drops(site, days=28)` for query-level candidates and `analytics_anomalies(site, days=90)` for daily outliers. The latter's z-score is a statistical flag, not a cause. Done when actual returned windows and any incomplete or missing observations are recorded.
+3. For a dated decline, choose disjoint, equal-length baseline and comparison windows around it, avoiding recent incomplete GSC days. Call `search_change_breakdown(site, baseline_start, baseline_end, comparison_start, comparison_end, dimensions=["query", "page", "device", "country"])`. Reduce dimensions if the request budget or question calls for it. Read `periods`, `baseline_comparison`, each dimension's `comparison` and coverage, and `limitations` before quoting a delta. Separate dimension views describe the same traffic and must not be added together. Done when the affected segments are tied to their requested and observed dates and coverage.
+4. Optionally call `seo_lost_queries(site, days=28)` to find leads, but its current window includes recent days and a missing current query row can appear as zero in its output. Check any lead against observed rows and coverage in `search_change_breakdown` before presenting it as a loss. `check_alerts(site, days=28)` may add traffic concentration or high-impression, low-rank opportunities; it supplies no manual-action, security, or notification status. Done when each lead is either corroborated or marked uncertain.
+5. Rank *hypotheses* only where evidence supports them. A contemporaneous public algorithm update is a timing clue, not attribution; verify its dated source if used. Manual actions, security incidents, crawl failures, tracking faults and indexation changes remain `UNKNOWN` until checked through an appropriate separate source. Ask for the user's dated context only when it changes the window or investigation. Done when no unsupported cause is presented as a finding.
 
-## Output format
+## Report
 
-Present a structured diagnosis in four sections:
-
-**Drop summary**: date range, magnitude (clicks and impressions % change), overall health status from step 2.
-
-**Root cause candidates** (ranked by likelihood based on the data):
-1. Manual action or penalty (from `check_alerts`)
-2. Algorithm update impact (correlated with timing)
-3. Specific query losses (from `seo_lost_queries`)
-4. Technical issues (crawl or index problems)
-
-**Most affected queries**: table with Query | Clicks before | Clicks after | % change
-
-**Next steps**: specific actions ordered by priority, one per root cause candidate identified.
+- **Observed change:** property, Google search type, requested and observed windows, property-level clicks and impressions, comparison status and coverage. State `UNKNOWN` rather than turning missing rows or unavailable totals into zero.
+- **Affected segments:** observed query/page/device/country changes, with their window and coverage. Label a calculated delta as arithmetic, and avoid a percentage when its baseline is zero or unavailable.
+- **Possible causes:** evidence for and against each hypothesis, missing checks and confidence stated in words. A query-level ranking or CTR rule is a lead, not a diagnosis.
+- **Next check:** the smallest read-only check that could discriminate the leading hypotheses. Do not execute indexing, sitemap or other write tools.
