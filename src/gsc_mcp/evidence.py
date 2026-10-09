@@ -350,6 +350,23 @@ _add("search_weekday_reference", None, "No independently verified incident regis
      "/context_preflight/records/*/relevance", "/robust_reference/fetch_error")
 
 
+_inventory("crawl_log_audit", "fields", "Local access-log observations; site association is caller-declared, identity and indexing remain bounded")
+_add("crawl_log_audit", "measured", "Timestamp offsets/statuses returned by parsed local log records, or source file/registry observations; no authenticated historical identity",
+     "/observed_window/start", "/observed_window/end", "/source/file_bytes_at_open", "/source/stable_during_read",
+     "/verification/retrieved_at", "/verification/creation_time_as_declared")
+_add("crawl_log_audit", "derived", "Counts and digest over actually consumed local bytes/parsed rows; path/UA classifications do not prove bot identity",
+     "/coverage/*", "/status_counts/*", "/declared_ua_counts/*", "/identity_counts/*",
+     "/paths/*/requests", "/paths/*/status_counts/*", "/paths/*/path_hash", "/source/sha256_consumed_bytes",
+     "/observed_window/source_offsets/*", "/verification/prefix_count", "/verification/sha256")
+_add("crawl_log_audit", "rule", "Explicit local profile, scope, normalization, privacy and optional current-IP membership policy; no indexing inference",
+     "/status", "/site", "/profile", "/source/site_association", "/observed_window/timezone",
+     "/verification/status", "/verification/method", "/verification/source_url", "/normalization",
+     "/coverage/limits_hit", "/untrusted_content/*")
+_add("crawl_log_audit", "measured", "Caller-enabled log path/origin strings after query stripping; untrusted and not authenticated site inventory",
+     "/paths/*/path", "/paths/*/origin")
+_add("crawl_log_audit", None, "Historical bot identity and indexing are unverified; registry/file errors retain their unavailability",
+     "/verification/historical_identity", "/verification/error", "/error", "/indexing_status")
+
 _inventory("crawl_import_preview", "fields", "Imported producer observations plus local input validation; not independently measured website or indexing")
 _add("crawl_import_preview", "measured", "Observed in the caller-supplied SiteOne report; collector accuracy and website state were not independently verified",
      "/source/declared_name", "/source/version", "/source/executed_at", "/scope/initial_url", "/scope/options/*",
@@ -390,6 +407,8 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
     null_is_rule = tool == "schema_validate" and key == "deprecated_rich_result"
     if value is None and not null_is_rule:
         return None, "Required evidence/value is null; original value retained"
+    if tool == 'crawl_log_audit' and data.get('status') == 'unavailable' and path[0] in {'status', 'coverage'}:
+        return None, 'Local log assessment unavailable; count placeholders do not establish an empty or healthy log'
     if tool == "ai_overviews_impact" and path[0] == "rows" and key in {"clicks", "impressions", "ctr", "position"} and value == 0 and data.get('metric_origin') != 'explicit_provider_fields':
         return None, "Legacy parser zero may be a provider zero or a missing metric default; provider origin is unavailable"
     if tool == "traffic_drops" and path[0] == "drops" and key in {"diagnosis", "diagnosis_status", "diagnosis_candidates"}:

@@ -42,6 +42,7 @@ EXPECTED_EXISTING_TOOLS = {
     "search_change_breakdown",
     "search_weekday_reference",
     "crawl_import_preview",
+    "crawl_log_audit",
     "seo_change_impact",
     "get_search_by_page_query",
     "get_advanced_search_analytics",

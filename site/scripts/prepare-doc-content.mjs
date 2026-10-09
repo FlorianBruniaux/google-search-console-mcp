@@ -64,6 +64,7 @@ function removeFirstHeading(content) {
 
 function rewriteEnglishLinks(content, sourcePath) {
   return content.replace(/\]\(([^)#]+\.(?:md|json))(#[^)]+)?\)/g, (_match, href, anchor = '') => {
+    if (/^https?:\/\//i.test(href)) return _match
     const absoluteSource = resolve(repositoryRoot, dirname(sourcePath), href)
     const repositoryPath = relative(repositoryRoot, absoluteSource).replaceAll('\\', '/')
     const publicRoute = routeBySource.get(repositoryPath)

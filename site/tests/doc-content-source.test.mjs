@@ -81,6 +81,8 @@ test('generated pages expose Starlight metadata and public links', async () => {
   assert.match(english, /\/docs\/installation\//)
   assert.match(french, /lang: fr/)
   assert.match(french, /canonicalEnglish: \/docs\//)
+  const workflows = await readFile(join(generatedRoot, 'docs/audit-workflows.md'), 'utf8')
+  assert.match(workflows, /https:\/\/github\.com\/FlorianBruniaux\/google-search-console-mcp\/blob\/main\/docs\/crawl-log-audit\.md/)
 })
 
 test('ships exactly two documented WebP illustrations with accessible captions', async () => {

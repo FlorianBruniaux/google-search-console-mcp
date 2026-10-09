@@ -10,6 +10,8 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## À publier
 
+- Ajouter `crawl_log_audit` et son guide partagé : lecture locale bornée, champs sensibles masqués, couverture explicite et vérification optionnelle des plages IP Google actuelles (#43). Le registre source contient 90 outils ; identité historique et indexation restent non vérifiées.
+
 - Accepter les longues chaînes des annexes SiteOne exclues de la sortie, sans modifier les limites des champs utilisés ni les limites globales. Ajouter une fixture d’export public avec licence et rejouer ses 73 lignes (#42, compatibilité).
 
 - Étendre les références de trafic avec historique annuel, médianes quotidiennes, résultats mixtes/indéterminés et contexte métier/incidents déclaré (#46), sous un budget global de tentatives. Le comportement par défaut reste identique, sans attribution causale.
