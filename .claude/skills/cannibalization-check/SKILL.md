@@ -1,32 +1,20 @@
 ---
 name: cannibalization-check
-description: Detect keyword cannibalization, meaning queries where multiple pages compete
-  for the same rankings. Use when asked about competing pages, keyword overlap, or
-  cannibalization. Aussi déclenché en français par "cannibalisation", "deux pages
-  qui se battent sur le même mot clé", "mes pages se font concurrence", "j'ai du
-  contenu en double qui ranke", "quelle page ranke sur ce mot clé", "Google prend
-  pas la bonne page".
+description: Review same-query Google Search pages for evidence of harmful intent competition before considering consolidation. Use for keyword cannibalization, competing pages or an unexpected ranking URL. Déclenché aussi par « cannibalisation », « mes pages se font concurrence » ou « Google choisit la mauvaise page ».
 ---
 
-# Keyword Cannibalization Check
+# Cannibalization Check
 
-Identify queries where multiple pages on the same site are competing for rankings.
+Multiple URLs appearing for one query are candidates for review, not proof that either page harms the other.
 
 ## Steps
 
-1. Call `list_properties` to confirm the exact `site_url`.
-2. Call `seo_cannibalization` to get a dedicated cannibalization report. This tool groups query+page combinations and surfaces the most severe conflicts directly, without manual filtering.
-3. If `seo_cannibalization` returns limited results, supplement with `get_advanced_search_analytics` using `dimensions=query,page`, `sort_by=impressions`, `row_limit=1000`. Group rows by `query`: those with two or more distinct pages are candidates.
-4. For each cannibalizing query, collect both page URLs with their individual clicks, impressions, CTR, and position.
-5. Sort candidates by total impressions (most valuable conflicts first).
-6. Limit the output to the top 20 most severe cases.
+1. Call `list_properties()` and select the exact Google `site`. Call `seo_cannibalization(site, days=90)` to find shared-query candidates. Its conflict score is a heuristic over retrieved page rows, with a uniform-share fallback when clicks are zero. It measures neither lost traffic nor harm. Done when the property, 90-day window and candidates are recorded.
+2. For candidates worth examining, call `get_advanced_search_analytics(site, dimensions=["query", "page"], date_range_days=90, row_limit=25000)` to review the observed query/page clicks, impressions, CTR and position. The returned top rows can omit queries or pages. Distinguish reported zero from a missing row; neither a missing row nor a score proves a page is unindexed. Done when each cited metric has its URL, query and window.
+3. Compare the pages' purpose and search intent. Distinct intents, legitimate variants and complementary pages may both deserve to rank. If page content or intent cannot be checked with available evidence, record `intent UNKNOWN` and stop short of a consolidation proposal. Done when same-intent evidence is stated separately from the shared-query observation.
+4. Before *proposing* a canonical, redirect, merge, deletion or `noindex`, call `get_search_analytics(site, days=90, dimensions=["page"], row_limit=25000)` and extract each candidate's observed page traffic, then call `inspect_url(url, site)` separately for each URL to read indexing and canonical fields. A missing page row is `UNKNOWN`, not zero traffic; an unavailable or ambiguous inspection is `UNKNOWN`, not unindexed. If coverage is insufficient, retain the pages and name the needed check. Done when every affected URL has a 90-day traffic observation or an explicit unknown, plus a separate inspection result or explicit unknown.
+5. Recommend a change only if the same intent and a harmful conflict are supported, and explain why the chosen target is preferable using the page's role, traffic and inspection evidence. Position or CTR alone does not decide the target. A recommendation remains conditional on the site's business purpose and implementation review. Do not execute any write or destructive action. Done when every proposed action names its evidence, uncertainty and affected URLs.
 
-## Output format
+## Report
 
-For each cannibalization case:
-- **Query**: the competing keyword
-- **Pages**: list each URL with its metrics (clicks / impressions / CTR / position)
-- **Severity**: High / Medium / Low based on impressions at stake
-- **Recommendation**: which page to consolidate to (pick the one with better position or CTR), and whether to use a canonical, redirect, or content merge
-
-Present as a markdown table followed by a prioritized action list.
+For each candidate, show the exact property and each tool's returned date window, query, URLs, observed clicks/impressions/CTR/position, intent assessment, each URL's 90-day page traffic and URL Inspection status. If calls crossed a date boundary, do not present their windows as identical. Keep observations, calculated shares or differences, and hypotheses distinct. Prioritize by observed opportunity and evidence quality, not by the tool's conflict score alone. If evidence does not justify consolidation, report the overlap and the next read-only check instead of selecting a winner.

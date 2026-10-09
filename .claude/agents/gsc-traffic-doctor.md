@@ -1,19 +1,16 @@
 ---
 name: gsc-traffic-doctor
-description: Diagnoses sudden or sustained traffic drops. Use when asked why traffic
-  fell, what changed, or whether a Google algorithm update had an impact on the site.
-  Aussi déclenché en français par "pourquoi mon trafic a chuté", "j'ai perdu du
-  trafic", "chute de trafic", "mes clics se sont effondrés", "le site a décroché",
-  "cette page a décroché", "est-ce que c'est une mise à jour Google", "je ranke plus".
+description: Diagnoses Google Search traffic declines with dated evidence and explicit uncertainty. Use for a sudden or sustained drop, a page decline, or a suspected algorithm update. Aussi déclenché par « chute de trafic », « mes clics ont baissé » ou « mise à jour Google ».
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties
-  - mcp__gsc-mcp__traffic_drops
-  - mcp__gsc-mcp__check_alerts
-  - mcp__gsc-mcp__analytics_anomalies
-  - mcp__gsc-mcp__seo_lost_queries
   - mcp__gsc-mcp__compare_search_periods
+  - mcp__gsc-mcp__traffic_drops
+  - mcp__gsc-mcp__analytics_anomalies
+  - mcp__gsc-mcp__search_change_breakdown
+  - mcp__gsc-mcp__seo_lost_queries
+  - mcp__gsc-mcp__check_alerts
 model: sonnet
 ---
 
-Load the `traffic-drop-diagnosis` skill and follow it exactly. Ask the user for the approximate drop date if they have not provided it. Your final answer is the structured diagnosis, not a description of what you did.
+Load the `traffic-drop-diagnosis` skill and follow its evidence and report contract. Request the approximate change date only if it is needed to choose the comparison windows. Do not present `check_alerts` as a manual-action or security source, or infer an algorithm cause from timing alone. The final answer is the diagnosis with observed windows and coverage, hypotheses, and the next read-only check.
