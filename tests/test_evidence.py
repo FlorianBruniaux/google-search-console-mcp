@@ -459,6 +459,9 @@ SUCCESS_SHAPES["seo_change_impact"] = {
 # Synthetic provider-shaped labels exercise provenance, not live AI support.
 SUCCESS_SHAPES["ai_overviews_impact"] = {
     "source_status": "observed", "count": 1,
+    "metric_origin": "explicit_provider_fields",
+    "coverage": {"observed_window": None, "retrieved_rows": 1, "partial_rows": 0,
+                 "display_truncated": False, "all_source_rows_guaranteed": False},
     "rows": [{"searchAppearance": "TEST_APPEARANCE", "clicks": 1, "impressions": 10,
               "ctr": .1, "position": 1.0}],
     "ai_exposure": {"status": "unavailable", "verification": "unverified"},
@@ -501,6 +504,9 @@ SUCCESS_SHAPES["crawl_import_preview"] = {
 
 DEGRADED_SHAPES = {
     "ai_overviews_impact": {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "http_status": 403,
+                            "rows": [{"searchAppearance": None, "clicks": None,
+                                      "dimension_status": "missing_or_invalid",
+                                      "unavailable_metrics": {"clicks": "missing_provider_value"}}],
                             "source_status": "access_denied", "error_meaning": "access_denied",
                             "ai_exposure": {"status": "unavailable", "verification": "unverified"}},
     "seo_change_impact": {"comparison": {"status": "unavailable", "reasons": ["insufficient_post_change_data"],
@@ -703,6 +709,7 @@ def test_all_applicable_tools_and_declarations_have_exercised_success_or_degrade
 # dictionaries and output assignments are included; generated JSON-LD and
 # operational statuses are reviewed exclusions rather than blanket observations.
 _REVIEWED_SIGNALS = {
+    "analytics._parse_appearance_row": "unavailable_metrics",
     "crawl_import._preview": "status",
     "crawl_import.crawl_import_preview": "status",
     "traffic_reference.search_weekday_reference": "status",

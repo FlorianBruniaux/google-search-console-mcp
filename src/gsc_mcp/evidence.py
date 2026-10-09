@@ -68,6 +68,10 @@ def _add(tool: str, basis: str | None, scope: str, *paths: str) -> None:
 _add("ai_overviews_impact", "measured", "Google returned generic Web search-appearance label/metric for the requested window; not an AI-specific observation",
      "/rows/*/searchAppearance", "/rows/*/clicks", "/rows/*/impressions", "/rows/*/ctr", "/rows/*/position", "/http_status")
 _add("ai_overviews_impact", "derived", "Count of displayed generic appearance rows after impression sorting and limit; not a count of AI-exposed queries", "/count")
+_add("ai_overviews_impact", "derived", "Counts of retrieved rows and partial rows; not complete provider coverage", "/coverage/retrieved_rows", "/coverage/partial_rows")
+_add("ai_overviews_impact", "rule", "Explicit source field validation or disclosure of requested scope; no AI mapping or coverage guarantee",
+     "/metric_origin", "/coverage/display_truncated", "/coverage/all_source_rows_guaranteed", "/rows/*/dimension_status", "/rows/*/unavailable_metrics/*")
+_add("ai_overviews_impact", None, "No dated coverage probe establishes an observed window", "/coverage/observed_window")
 _add("ai_overviews_impact", "rule", "Local generic source-result classification: observed/empty response, invalid or unsupported request (400), access denied (403); no property AI capability inference", "/source_status", "/error_meaning")
 _add("ai_overviews_impact", None, "AI exposure has no verified provider appearance mapping or live observation; generic traffic cannot identify AI presence, absence or causal effect", "/ai_exposure/status", "/ai_exposure/verification")
 
@@ -363,7 +367,7 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
     null_is_rule = tool == "schema_validate" and key == "deprecated_rich_result"
     if value is None and not null_is_rule:
         return None, "Required evidence/value is null; original value retained"
-    if tool == "ai_overviews_impact" and path[0] == "rows" and key in {"clicks", "impressions", "ctr", "position"} and value == 0:
+    if tool == "ai_overviews_impact" and path[0] == "rows" and key in {"clicks", "impressions", "ctr", "position"} and value == 0 and data.get('metric_origin') != 'explicit_provider_fields':
         return None, "Legacy parser zero may be a provider zero or a missing metric default; provider origin is unavailable"
     if tool == "traffic_drops" and path[0] == "drops" and key in {"diagnosis", "diagnosis_status", "diagnosis_candidates"}:
         if parent.get("diagnosis") == "unknown" or parent.get("diagnosis_status") == "insufficient_evidence":

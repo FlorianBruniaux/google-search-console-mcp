@@ -102,8 +102,54 @@ def test_parser_default_metrics_do_not_become_measured_ai_or_generic_traffic(moc
         "rows": [{"keys": ["TEST_APPEARANCE"]}]}
     with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(ai_overviews_impact(SITE))
-    # Preserve legacy parsed zeros, but their provider origin cannot be established.
-    assert result["rows"][0]["impressions"] == 0
+    assert result["rows"][0]["impressions"] is None
+    assert result["source_status"] == "partial"
     records = result["_meta"]["evidence"]["fields"]
     for key in ("clicks", "impressions", "ctr", "position"):
         assert records[f"/rows/0/{key}"]["basis"] is None
+
+
+def test_explicit_zero_and_masked_null_have_distinct_provider_origin(mock_gsc_service):
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        'rows': [{'keys': ['TEST'], 'clicks': 0, 'impressions': 0, 'ctr': None, 'position': 0}]}
+    with patch('gsc_mcp.tools.analytics.get_searchconsole_service', return_value=mock_gsc_service):
+        result = json.loads(ai_overviews_impact(SITE))
+    row = result['rows'][0]
+    assert row['clicks'] == 0 and row['impressions'] == 0 and row['ctr'] is None
+    assert row['unavailable_metrics'] == {'ctr': 'null_provider_value'}
+    fields = result['_meta']['evidence']['fields']
+    assert fields['/rows/0/clicks']['basis'] == 'measured'
+    assert fields['/rows/0/ctr']['basis'] is None
+    assert result['_meta']['sources']['google']['site'] == SITE
+    assert result['coverage']['observed_window'] is None
+    assert result['date_range']['start'] <= result['date_range']['end']
+
+
+def test_missing_dimension_and_invalid_metrics_are_partial_not_ai_absence(mock_gsc_service):
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {
+        'rows': [{'clicks': 1, 'impressions': None, 'ctr': 'masked', 'position': float('nan')}]}
+    with patch('gsc_mcp.tools.analytics.get_searchconsole_service', return_value=mock_gsc_service):
+        result = json.loads(ai_overviews_impact(SITE))
+    assert result['source_status'] == 'partial'
+    assert result['rows'][0]['searchAppearance'] is None
+    assert result['rows'][0]['position'] is None
+    assert result['ai_exposure']['status'] == 'unavailable'
+
+
+@pytest.mark.parametrize('arguments', [{'days': 0}, {'days': True}, {'limit': 0}, {'limit': -1}])
+def test_invalid_bounds_fail_before_access(arguments):
+    with patch('gsc_mcp.tools.analytics.get_searchconsole_service') as service:
+        with pytest.raises(ValueError):
+            ai_overviews_impact(SITE, **arguments)
+        service.assert_not_called()
+
+
+@pytest.mark.parametrize('response', [None, {'rows': None}, {'rows': 'unavailable'}])
+def test_malformed_container_preserves_failure_and_unknown_exposure(mock_gsc_service, response):
+    mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = response
+    with patch('gsc_mcp.tools.analytics.get_searchconsole_service', return_value=mock_gsc_service):
+        result = json.loads(ai_overviews_impact(SITE))
+    assert result['source_status'] == 'malformed_response'
+    assert result['error'] == 'INVALID_SEARCH_APPEARANCE_RESPONSE'
+    assert result['ai_exposure']['status'] == 'unavailable'
+    assert result['_meta']['sources']['google']['site'] == SITE

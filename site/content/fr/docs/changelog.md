@@ -10,6 +10,9 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## À publier
 
+- Conserver les zéros explicites et les métriques d’apparence indisponibles, les dates demandées et la propriété source ; distinguer les réponses partielles ou malformées sans inférer une exposition IA (#37).
+- Les identifiants des constats incluent les options source et la version de règle v2 ; observations, critères manquants et vérification restent explicites dans le budget d’octets du rapport complet (#40).
+
 - Quatre parcours bilingues par profil et un catalogue des 89 outils généré depuis le registre, avec périmètres de contrôle et exemples sourcés.
 - Les 13 playbooks SEO partagent leur source dans `.agents/skills/` entre Claude et Codex. Correction des appels non pris en charge et des affirmations non étayées sur les pénalités, pertes IA, résultats enrichis et gains de positions. Vérification des projections, signatures et scénarios BM25 du dépôt (#38).
 

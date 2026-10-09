@@ -1,5 +1,6 @@
 import json
 import statistics
+import math
 from datetime import date, timedelta
 from googleapiclient.errors import HttpError
 from gsc_mcp.auth import get_searchconsole_service
@@ -30,7 +31,7 @@ def _parse_row(row: dict, dimensions: list[str]) -> dict:
 
 
 @with_retry()
-def _fetch_rows(svc, site: str, body: dict) -> list[dict]:
+def _fetch_rows(svc, site: str, body: dict, parser=None) -> list[dict]:
     rows: list[dict] = []
     start_row = 0
     pages_fetched = 0
@@ -39,8 +40,12 @@ def _fetch_rows(svc, site: str, body: dict) -> list[dict]:
     while pages_fetched < _MAX_PAGES:
         page_body = {**body, "startRow": start_row, "rowLimit": _MAX_ROWS_PER_PAGE}
         response = svc.searchanalytics().query(siteUrl=site, body=page_body).execute()
+        if parser is not None and not isinstance(response, dict):
+            raise _InvalidAppearanceResponse('invalid_response_container')
         page_rows = response.get("rows", [])
-        rows.extend([_parse_row(r, dimensions) for r in page_rows])
+        if parser is not None and not isinstance(page_rows, list):
+            raise _InvalidAppearanceResponse('invalid_rows_container')
+        rows.extend([parser(r, dimensions) if parser is not None else _parse_row(r, dimensions) for r in page_rows])
         pages_fetched += 1
         if len(page_rows) < _MAX_ROWS_PER_PAGE:
             break
@@ -296,6 +301,36 @@ def search_type_breakdown(site: str, url: str | None = None, days: int = 28) -> 
     ))
 
 
+class _InvalidAppearanceResponse(ValueError):
+    pass
+
+
+def _parse_appearance_row(row: dict, dimensions: list[str]) -> dict:
+    """Preserve explicit zeros and distinguish absent, null and invalid values."""
+    if not isinstance(row, dict):
+        row = {}
+    keys = row.get('keys')
+    label = keys[0] if isinstance(keys, list) and len(keys) == 1 and isinstance(keys[0], str) and keys[0] else None
+    parsed = {'searchAppearance': label}
+    unavailable = {}
+    for metric in ('clicks', 'impressions', 'ctr', 'position'):
+        value = row.get(metric)
+        if value is None:
+            unavailable[metric] = 'null_provider_value' if metric in row else 'missing_provider_value'
+        elif (type(value) not in (int, float) or not math.isfinite(value) or value < 0
+              or (metric == 'ctr' and value > 1)):
+            unavailable[metric] = 'invalid_provider_value'
+            value = None
+        elif metric in ('ctr', 'position'):
+            value = round(value, 4 if metric == 'ctr' else 1)
+        parsed[metric] = value
+    if unavailable:
+        parsed['unavailable_metrics'] = unavailable
+    if label is None:
+        parsed['dimension_status'] = 'missing_or_invalid'
+    return parsed
+
+
 def ai_overviews_impact(site: str, days: int = 28, limit: int = 100) -> str:
     """Discover generic Web search appearances; AI exposure remains unverified.
 
@@ -305,12 +340,21 @@ def ai_overviews_impact(site: str, days: int = 28, limit: int = 100) -> str:
     HTTP 400 means invalid/unsupported request; 403 means access denied. Neither
     establishes whether this property appears in AI Overviews.
     """
+    if type(days) is not int or not 1 <= days <= 366:
+        raise ValueError('days must be an integer from 1 to 366')
+    if type(limit) is not int or not 1 <= limit <= 25000:
+        raise ValueError('limit must be an integer from 1 to 25000')
     start, end = _date_range(days)
     svc = get_searchconsole_service()
     body = {"startDate": start, "endDate": end, "dimensions": ["searchAppearance"],
             "type": "web", "dataState": "all"}
     data = {
+        "site": site, "days": days, "date_range": {"start": start, "end": end},
         "source_scope": "web_search_appearance",
+        "metric_origin": "explicit_provider_fields",
+        "coverage": {"observed_window": None, "all_source_rows_guaranteed": False,
+                     "data_state": "all", "provider_timezone": "America/Los_Angeles",
+                     "request_date_clock": "server_local_date"},
         "ai_exposure": {"status": "unavailable", "verification": "unverified"},
         "evidence_limits": [
             "Returned rows describe generic Web search appearances, not AI exposure by query.",
@@ -321,7 +365,9 @@ def ai_overviews_impact(site: str, days: int = 28, limit: int = 100) -> str:
         ],
     }
     try:
-        rows = _fetch_rows(svc, site, body)
+        rows = _fetch_rows(svc, site, body, parser=_parse_appearance_row)
+    except _InvalidAppearanceResponse:
+        data.update({"error": "INVALID_SEARCH_APPEARANCE_RESPONSE", "source_status": "malformed_response"})
     except HttpError as e:
         if e.resp.status not in (400, 403):
             raise
@@ -329,11 +375,15 @@ def ai_overviews_impact(site: str, days: int = 28, limit: int = 100) -> str:
         data.update({"error": "AI_OVERVIEWS_NOT_AVAILABLE", "reason": str(e),
                      "http_status": e.resp.status, "source_status": status, "error_meaning": status})
     else:
-        rows.sort(key=lambda row: row.get("impressions", 0), reverse=True)
+        rows.sort(key=lambda row: row.get("impressions") if row.get("impressions") is not None else -1, reverse=True)
+        partial = sum(bool(row.get('unavailable_metrics') or row.get('dimension_status')) for row in rows)
+        data['coverage'].update({'retrieved_rows': len(rows), 'partial_rows': partial,
+                                 'display_truncated': len(rows) > limit})
         data.update({"site": site, "days": days, "count": len(rows[:limit]), "rows": rows[:limit],
-                     "source_status": "observed" if rows else "empty"})
+                     "source_status": "partial" if partial else "observed" if rows else "empty"})
     return json.dumps(with_meta(data, tool="ai_overviews_impact",
-                               params={"site": site, "days": days, "limit": limit}))
+                               params={"site": site, "days": days, "limit": limit},
+                               sources={'google': {'site': site}}), allow_nan=False)
 
 
 def get_advanced_search_analytics(

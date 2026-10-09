@@ -8,7 +8,7 @@ from hashlib import sha256
 
 from gsc_mcp.meta import with_meta
 
-_RULE_VERSION = 'search_change_breakdown.observed_segment.v1'
+_RULE_VERSION = 'search_change_breakdown.observed_segment.v2'
 _SECTIONS = ('matched', 'baseline_only', 'comparison_only')
 
 
@@ -47,14 +47,23 @@ def _references(row: dict, pointer: str) -> dict[str, list[str]]:
 def search_report_contract(report: dict, observations: dict) -> dict:
     """Describe displayed findings; hash all retrieved sanitized observations."""
     findings = []
+    source_identity = {key: report[key] for key in
+                       ('engine', 'search_type', 'data_state', 'aggregation_type')}
+    # The single filter group is AND; order does not change its semantic scope.
+    source_identity['filters'] = sorted(report['filters'], key=lambda f: json.dumps(f, sort_keys=True))
     for dimension, breakdown in report['breakdowns'].items():
         for section in _SECTIONS:
             for index, row in enumerate(breakdown[section]):
                 target = {'dimension': dimension, 'key': row['key']}
-                identity = {'property': report['site'], 'target': target, 'rule_version': _RULE_VERSION}
+                identity = {'property': report['site'], 'target': target, 'rule_version': _RULE_VERSION,
+                            'source': source_identity}
                 pointer = f'/breakdowns/{_pointer(dimension)}/{section}/{index}'
                 findings.append({'finding_id': 'finding:' + _identity(identity), 'target': target,
-                                 **_references(row, pointer), 'hypotheses': []})
+                                 **_references(row, pointer), 'hypotheses': [], 'kind': 'observation',
+                                 'method_version': _RULE_VERSION, 'source_ref': '/report_contract/scope',
+                                 'fix_candidates': [],
+                                 'missing_criteria': ['cause_not_identified', 'business_context_not_reviewed'],
+                                 'verification_step': 'Review referenced source values, coverage and intent before proposing any change.'})
     return {'version': 1, 'rule_version': _RULE_VERSION,
             'snapshot_id': 'snapshot:' + _identity({'report': report, 'observations': observations}),
             'scope': {'property': report['site'], 'periods': deepcopy(report['periods']),

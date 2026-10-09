@@ -11,3 +11,5 @@ These records describe local checks and their limits. They do not establish live
 - [First delivery set, 2026-10-09](2026-10-09-first-delivery-set.md): integrated suite, package/site checks, independent review and remaining issue scope.
 
 - [Shared SEO playbooks, 2026-10-09](2026-10-09-shared-playbooks.md): canonical repository sources, both-host discovery, call signatures and local BM25 calibration.
+
+- [Appearance and report integrity, 2026-10-09](2026-10-09-appearance-report-integrity.md): masked/missing metrics, source identity and report semantic identities with explicit budget failure.

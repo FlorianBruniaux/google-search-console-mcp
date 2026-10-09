@@ -10,6 +10,8 @@ Release 1.4.0 includes the AI-appearance correction, report contract/budget, wee
 
 `source_scope` is `web_search_appearance`; `ai_exposure.status` is `unavailable` and `ai_exposure.verification` is `unverified`. Success distinguishes observed and empty appearances. HTTP 400 retains the legacy error alias while identifying an invalid or unsupported request; HTTP 403 identifies access denial. Neither empty data nor these errors establishes AI presence or absence. Values requested with `dataState=all` can change during finalization. No causal click-loss estimate is produced.
 
+On the source branch after 1.4.0, appearance metrics distinguish explicit provider zero from missing, null and invalid values. Partial rows, missing dimensions and malformed containers remain separate from empty data and HTTP rejection. Exact site and requested dates travel with the response; the observed window remains unknown without a dated probe. `days` is bounded to 1..366 and `limit` to 1..25000 before access.
+
 See Google's [search-appearance request guidelines](https://developers.google.com/webmaster-tools/v1/how-tos/all-your-data#getting_search_appearance_data) and [AI-feature measurement limits](https://developers.google.com/search/docs/appearance/ai-features#measuring-the-performance-of-your-site). Tests use synthetic provider responses; they do not verify a live property's capabilities.
 
 ## Compare explicit Google windows
@@ -65,7 +67,7 @@ A page view can return byPage aggregation while totals use byProperty. Matched p
 
 ## Report evidence and response budget (since 1.4.0)
 
-Release 1.4.0 adds `report_contract` to `search_change_breakdown`. It separates observed metric pointers (`facts`), calculated deltas and CTR (`calculations`), and absent evidence (`unavailable`). `hypotheses` is empty. Each finding has an identifier scoped to the exact GSC property, dimension, key and rule version. The snapshot fingerprint hashes the report and all retrieved sanitized observations, including rows hidden by the display limit. It does not store a snapshot or provide a retrieval handle.
+Release 1.4.0 adds `report_contract` to `search_change_breakdown`. It separates observed metric pointers (`facts`), calculated deltas and CTR (`calculations`), and absent evidence (`unavailable`). `hypotheses` is empty. Each finding has an identifier scoped to the exact GSC property, dimension, key and rule version. On the source branch after 1.4.0, rule version v2 also includes engine, search type, data state, AND filters and aggregation basis; filter order does not alter identity. Records explicitly classify observations, retain empty hypotheses/fix candidates and name missing criteria plus a verification step. Rule-version changes intentionally change finding identifiers. The snapshot fingerprint hashes the report and all retrieved sanitized observations, including rows hidden by the display limit. It does not store a snapshot or provide a retrieval handle.
 
 `output_max_bytes=None` retains the full report. Set a positive integer, for example `output_max_bytes=50000` or CLI `--output-max-bytes 50000`, to bound the UTF-8 JSON envelope, including `_meta`. Budgeted CLI output preserves that envelope even without `--meta`; the final CLI newline and MCP transport wrapper are outside the count. Inspect `response_budget.status` and `serialized_bytes`.
 
