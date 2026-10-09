@@ -1,0 +1,69 @@
+.claude/agents/gsc-indexing-auditor.md
+  s_05ea773ff72f20::t_5f765397a160a6 17-30
+.claude/agents/gsc-sitemap-auditor.md
+  s_05ea773ff72f20::t_5f765397a160a6 16-29
+.claude/agents/gsc-evidence-reviewer.md
+  s_05ea773ff72f20::t_5f765397a160a6 1-50
+docs/validation/2026-10-09-agent-review.md
+  s_05ea773ff72f20::t_bd76a6e30ef4c0 67,75-80
+  s_05ea773ff72f20::t_e92ec5cc33e288 1-66,68-74,81-94
+.claude/agents/gsc-seo-reporter.md
+  s_05ea773ff72f20::t_5f765397a160a6 19-36
+.claude/workflows/mega-audit.js
+  s_05ea773ff72f20::t_bd76a6e30ef4c0 59,68-69
+  s_05ea773ff72f20::t_cac1744871c048 2,8-14,19,25,28,32-36,38,42-58,60-67,70-79,81,86,91-94,100-101,109,113,116-117,127-128,132,139,141,143-144,146,149-150,152-153,155-156,162-167,169,171-174,176,178,180,186,189-190,192,195-198,201-202,204,206-208,212,224-225,228-236,242,245-248,257-260,263-265,278,284,286,296,298,308-309,311,313,324,330-331,342,344,356,358,365,367-368,370-371,379,383,394-411,413-423,425-432,436-445
+tests/test_agent_workflow.py
+  s_05ea773ff72f20::t_566f9d51234e3f 1-139
+.github/workflows/ci.yml
+  s_05ea773ff72f20::t_a01eb99da582e1 36-39
+CHANGELOG.md
+  s_05ea773ff72f20::t_f0101f6e7f54c4 8-13
+CLAUDE.md
+  s_05ea773ff72f20::t_cfb48bbc5e5049 45,47,55-58
+README.md
+  s_05ea773ff72f20::t_c703c253e8eb11 17,19,40,188,328,397,399,402,412,420,452,500,592,615,639,650,674,686
+docs/architecture.md
+  s_05ea773ff72f20::t_a0e7d4f6043a79 7,15,17,31-32,250-256
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_3ed1fbccd65908 5-14,66-97,135
+docs/classifier-evaluation.md
+  s_05ea773ff72f20::t_960eeb07b04735 213-237
+docs/installation.md
+  s_05ea773ff72f20::t_ab72ec13e54964 3
+docs/machine-readable/code-map.yaml
+  s_05ea773ff72f20::t_d6057120c9a0b7 6,9-10,18-19,39,49-51,117-127,231-236
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_a91c75a3f192bc 7,16,294,363,366,370-372
+docs/validation/2026-10-09-ci-baseline.md
+  s_05ea773ff72f20::t_ccb4f934f82e1f 44-47
+docs/validation/2026-10-09-first-delivery-set.md
+  s_05ea773ff72f20::t_0ca1c2164d9a6d 1-52
+docs/validation/README.md
+  s_05ea773ff72f20::t_978ca46e1b43c1 1-11
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_778c6e694229bc 5,15,65-71
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_9d13ee42d195fd 5,11-20,72-103,141
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_dbf5da463bcb42 5,16-20
+site/content/fr/docs/installation.md
+  s_05ea773ff72f20::t_96ecb55f44cb18 5,11
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_a2e418352e8606 10,62,70,86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4cad4e4e3203d1d0c3d6730620c45c5f184d2125",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
