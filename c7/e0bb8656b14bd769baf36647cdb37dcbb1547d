@@ -1,0 +1,29 @@
+.github/workflows/ci.yml
+  s_312dceb5d1c7f5::t_735b846fe1c802 1-53
+docs/validation/2026-10-09-ci-baseline.md
+  s_05ea773ff72f20::t_2b7b326e13d378 1-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c7e0bb8656b14bd769baf36647cdb37dcbb1547d",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_312dceb5d1c7f5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10705-778c-7a00-bd10-95a2f8d1b51e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
