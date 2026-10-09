@@ -473,6 +473,16 @@ SUCCESS_SHAPES["rewrite_fidelity_check"] = {
 }
 # Null search_evidence is a distinct actual output branch, rather than a success
 # shape with contradictory provider data. The real-call tests exercise both.
+SUCCESS_SHAPES["search_weekday_reference"] = {
+    **copy.deepcopy(SUCCESS_SHAPES["search_change_breakdown"]),
+    "weekday_reference": {"shift_days": 28, "eligible_end": "2026-01-25",
+        "effective_windows": {"baseline": {"start": "2025-12-01", "end": "2025-12-28"},
+                              "comparison": {"start": "2025-12-29", "end": "2026-01-25"}},
+        "delta": {"clicks": -1, "impressions": 0}, "status": "observed", "reasons": [],
+        "report_lag_days": 3, "method": "prior_disjoint_same_weekdays", "timezone": "America/Los_Angeles",
+        "causal_interpretation": False},
+}
+
 DEGRADED_SHAPES = {
     "ai_overviews_impact": {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "http_status": 403,
                             "source_status": "access_denied", "error_meaning": "access_denied",
@@ -677,6 +687,7 @@ def test_all_applicable_tools_and_declarations_have_exercised_success_or_degrade
 # dictionaries and output assignments are included; generated JSON-LD and
 # operational statuses are reviewed exclusions rather than blanket observations.
 _REVIEWED_SIGNALS = {
+    "traffic_reference.search_weekday_reference": "status",
     "analytics.ai_overviews_impact": "status",
     "analytics.analytics_anomalies": "z_score",
     "bing_webmaster._feed_row": "status",

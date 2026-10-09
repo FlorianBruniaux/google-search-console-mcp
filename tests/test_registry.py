@@ -40,6 +40,7 @@ EXPECTED_EXISTING_TOOLS = {
     "get_performance_overview",
     "compare_search_periods",
     "search_change_breakdown",
+    "search_weekday_reference",
     "seo_change_impact",
     "get_search_by_page_query",
     "get_advanced_search_analytics",

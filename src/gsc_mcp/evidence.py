@@ -312,6 +312,17 @@ for tool in ("bing_url_submit", "bing_urls_submit_batch", "bing_feed_submit", "b
     _add(tool, None, "Notification acceptance does not verify indexing; retained unverified sentinel", "/indexed")
 
 
+# The weekday wrapper retains the child report, including its unavailable paths.
+_inventory("search_weekday_reference", "fields", "Same descriptive Google observations plus bounded calendar and coverage gates")
+_PATHS["search_weekday_reference"] = list(_PATHS["search_change_breakdown"])
+_add("search_weekday_reference", "derived", "Calendar calculation in Pacific time; lag is a request policy, not confirmed provider completeness",
+     "/weekday_reference/shift_days", "/weekday_reference/eligible_end",
+     "/weekday_reference/effective_windows/*/*", "/weekday_reference/delta/*")
+_add("search_weekday_reference", "rule", "Local coverage/source compatibility gate and configured three-day lag; no causal attribution",
+     "/weekday_reference/status", "/weekday_reference/reasons", "/weekday_reference/report_lag_days",
+     "/weekday_reference/method", "/weekday_reference/timezone", "/weekday_reference/causal_interpretation")
+
+
 def _expand(value, parts: list[str], path: tuple[str, ...] = (), parent=None):
     if not parts:
         yield path, value, parent
@@ -362,8 +373,10 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
             return None, "Local category fallback has no substantive provider input"
     elif key == "verdict" and value in {"error", "fetch_error", "ssrf_blocked", "missing_key", "unsupported", "not_enough_data", "no_baseline", "no_data"}:
         return None, "Unavailable, unsupported or tool error result; original verdict retained"
-    if tool == "search_change_breakdown" and ((key == "availability" and value != "observed") or (key == "incompleteness_status" and value == "unknown")):
+    if tool in {"search_change_breakdown", "search_weekday_reference"} and ((key == "availability" and value != "observed") or (key == "incompleteness_status" and value == "unknown")):
         return None, "Provider observation/coverage unavailable or unknown; no successful measurement inferred"
+    if tool == "search_weekday_reference" and path == ("weekday_reference", "status") and value != "observed":
+        return None, "Required reference coverage or compatible aggregate is unavailable; no seasonal conclusion established"
     if tool == "seo_change_impact" and path == ("comparison", "status") and value != "observed":
         return None, "The required before/after observations are unavailable or incompatible"
     if tool == "rewrite_fidelity_check" and data.get("assessment") == "not_assessed" and path[0] in {"verdict", "assessment", "findings", "counts", "findings_truncated", "analysis_truncated"}:
