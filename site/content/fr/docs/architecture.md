@@ -2,7 +2,7 @@
 title: "Architecture"
 description: "Comprendre le serveur MCP, les limites entre fournisseurs et les écritures protégées."
 lang: fr
-lastUpdated: 2026-10-08
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/architecture/
 ---
 
@@ -12,7 +12,7 @@ Search Console MCP expose une interface MCP sur `stdio`. Le serveur et la CLI pa
 
 ## Sélection au démarrage (depuis 1.3.1)
 
-Depuis la version 1.3.1, `tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose tout le catalogue : 85 outils dans la version publiée 1.3.1, 87 dans le checkout source. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
+Depuis la version 1.3.1, `tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose tout le catalogue : 85 outils dans la version publiée 1.3.1, 89 dans le checkout source. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
 
 ## Sources de données
 
@@ -62,4 +62,10 @@ Le client lance normalement un processus serveur enfant par session active. Évi
 
 ## Suivi et brouillons source non publiés
 
-Le registre source contient 87 outils : `seo_change_impact` et `rewrite_fidelity_check` s’ajoutent aux 85 outils de la version publiée 1.3.1. `change_impact.py` conserve les événements déclarés et réutilise la couverture de `search_change_breakdown`, sans persistance ni attribution causale. Les fuseaux IANA utilisent la base système ou le secours `tzdata` fourni. `editorial_drafts.py` adapte le texte/Markdown borné au cœur de règles existant, sans récupération réseau, exécution ni lecture de fichier. `rewrite.py` compare littéraux protégés et qualificatifs avec des ancres lexicales locales ; les dimensions sémantiques restent non évaluées. Consultez les [audits bornés](/fr/docs/audit-workflows/) et [workflows éditoriaux](/fr/docs/editorial-workflows/).
+Le registre source contient 89 outils : `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` et `crawl_import_preview` s’ajoutent aux 85 outils de la version publiée 1.3.1. Les versions 1.3.0 et 1.3.1 conservent chacune 85 outils. `change_impact.py` conserve les événements déclarés et réutilise la couverture de `search_change_breakdown`, sans persistance ni attribution causale.
+
+Les fuseaux IANA utilisent la base système ou le secours `tzdata` fourni. `editorial_drafts.py` adapte le texte/Markdown borné au cœur de règles existant, sans récupération réseau, exécution ni lecture de fichier. `rewrite.py` compare littéraux protégés et qualificatifs avec des ancres lexicales locales ; les dimensions sémantiques restent non évaluées.
+
+`reporting.py` ajoute une empreinte déterministe au rapport `search_change_breakdown` sans stocker celui-ci. Le budget facultatif couvre tout le JSON UTF-8, métadonnées comprises ; la CLI préserve le JSON retourné en cas de dépassement ; un plafond trop faible pour l’enveloppe minimale produit une erreur explicite sans JSON. Une seule dimension demandée est valide.
+
+`traffic_reference.py` compare des périodes Google égales et disjointes sur les mêmes jours de semaine, jusqu’à trois jours avant la date Pacifique courante ; elle ne prouve ni effet annuel ni cause. `crawl_import.py` prévisualise en mémoire un JSON SiteOne fourni par l’appelant, avec des bornes fixes, sans crawl, fichier, accès réseau, secret ni jointure GSC. Consultez les [audits bornés](/fr/docs/audit-workflows/) et [workflows éditoriaux](/fr/docs/editorial-workflows/).

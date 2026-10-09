@@ -2,11 +2,21 @@
 title: "Audits à périmètre borné"
 description: "Comparer des fenêtres Google explicites et observer les destinations des liens internes avec leurs limites de couverture."
 lang: fr
-lastUpdated: 2026-10-08
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/audit-workflows/
 ---
 
 `search_change_breakdown` et `link_targets_audit` sont inclus dans `gsc-mcp-tools==1.3.0`, qui expose 85 outils. Suivez les [instructions d’installation](/fr/docs/installation/). Les exemples ci-dessous sont des fragments synthétiques explicatifs, sans appel réel à Google ou au réseau.
+
+La correction des apparences IA, le contrat/budget de rapport et les deux nouveaux outils ci-dessous ne sont pas publiés. La version 1.3.1 conserve 85 outils ; ce checkout en a 89. Installez le checkout source pour ces changements.
+
+## Les apparences de recherche ne prouvent pas une exposition IA
+
+`ai_overviews_impact(site, days=28, limit=100)` conserve son nom public mais lit les lignes génériques Web `searchAppearance`. Il demande cette dimension seule, conformément à la documentation Google ; il ne fournit pas de comparaison d’exposition IA par requête. Les valeurs d’apparence reçues sont des observations, sans règle vérifiée identifiant les AI Overviews.
+
+`source_scope` vaut `web_search_appearance` ; `ai_exposure.status` vaut `unavailable` et `ai_exposure.verification`, `unverified`. Une réponse réussie distingue les apparences observées d’une réponse vide. HTTP 400 conserve l’alias d’erreur existant et signale une requête invalide ou non prise en charge ; HTTP 403 signale un accès refusé. Ni une réponse vide ni ces erreurs ne prouvent une présence ou une absence IA. Les valeurs demandées avec `dataState=all` peuvent changer pendant leur finalisation. Le rapport ne calcule pas de perte de clics causée par l’IA.
+
+Consultez les [consignes Google sur les apparences](https://developers.google.com/webmaster-tools/v1/how-tos/all-your-data#getting_search_appearance_data) et les [limites de mesure des fonctionnalités IA](https://developers.google.com/search/docs/appearance/ai-features#measuring-the-performance-of-your-site). Les tests utilisent des réponses synthétiques ; ils ne vérifient pas les capacités d’une propriété réelle.
 
 ## Comparer des fenêtres Google explicites
 
@@ -59,6 +69,38 @@ Les lignes complètes contiennent aussi impressions, CTR, position et raisons d�
 
 Une vue page peut revenir en byPage avec des totaux en byProperty. Ses deltas de lignes communes peuvent rester comparables, mais une agrégation différente ou inconnue rend la réconciliation indisponible. `observed_sums`, `matched_delta` et les résidus signés décrivent uniquement les lignes récupérées ; la surcouverture est signalée. Les vues page, query, country et device recouvrent le même trafic et ne s’additionnent pas. Une contribution ou un résidu ne prouve pas la cause d’une variation.
 
+## Preuves du rapport et budget de sortie (non publié)
+
+Le checkout source ajoute `report_contract` à `search_change_breakdown`. Il distingue les pointeurs vers les métriques observées (`facts`), les deltas et CTR calculés (`calculations`) et les preuves absentes (`unavailable`). `hypotheses` reste vide. Chaque identifiant de constat dépend de la propriété GSC exacte, de la dimension, de la clé et de la version de règle. L’empreinte du snapshot couvre le rapport et toutes les observations récupérées et assainies, y compris les lignes masquées par la limite d’affichage. Elle ne stocke aucun snapshot et ne fournit aucun accès au détail.
+
+`output_max_bytes=None` conserve le rapport complet. Un entier positif, par exemple `output_max_bytes=50000` ou `--output-max-bytes 50000` en CLI, borne l’enveloppe JSON UTF-8, métadonnées `_meta` comprises. Avec ce budget, la CLI conserve cette enveloppe même sans `--meta`. Le saut de ligne final et l’enveloppe de transport MCP sont hors du compte. Vérifiez `response_budget.status` et `serialized_bytes`.
+
+Si les lignes dépassent le budget, la réponse contient `RESPONSE_BUDGET_EXCEEDED`. Elle retire les lignes et constats affichés avec leurs comptes et raisons d’indisponibilité, tout en conservant erreurs source, couverture et résumés. Si cette enveloppe minimale dépasse encore le plafond, l’appel lève `ResponseBudgetExceeded` avec le nombre minimal d’octets et les erreurs source. Le JSON n’est jamais coupé. Aucun accès au détail, nouvel appel automatique ou stockage durable n’est fourni.
+
+## Comparer des périodes disjointes avec les mêmes jours de semaine (non publié)
+
+```python
+search_weekday_reference(
+    site="sc-domain:example.com", days=28, end_date="2026-09-30",
+    dimensions=["query"], filters=None, search_type="web",
+    aggregation_type="auto", row_limit=1000, max_requests=20, limit=50,
+)
+```
+
+Cet outil source appelle une fois `search_change_breakdown` avec `data_state="final"`. La fin par défaut est trois jours avant la date courante dans `America/Los_Angeles`. Une fin explicite doit respecter ce délai. La référence est décalée de `7 * ceil(days / 7)` jours : les périodes ont la même durée, restent disjointes et commencent le même jour de semaine, même pour une durée non multiple de sept. Le budget de requêtes physiques de l’outil enfant s’applique.
+
+`weekday_reference` conserve dates effectives, décalage, délai, métadonnées de l’appel enfant et raisons de couverture. Des dates absentes ou des agrégats incompatibles/inconnus laissent le delta nul et le statut `unavailable`. Une demande final avec trois jours de délai ne certifie pas la complétude fournisseur. La référence observée décrit clics et impressions, sans prouver une saisonnalité annuelle, un incident du moteur ni une cause. Cet outil n’a pas de paramètre de budget de sortie en octets.
+
+## Prévisualiser un export SiteOne en mémoire (non publié)
+
+```python
+crawl_import_preview(report_json='{"results":[]}', producer="siteone")
+```
+
+Fournissez l’export comme chaîne JSON. Cet adaptateur source ne lit aucun chemin, ne lance aucun crawler, ne récupère aucune URL, n’installe rien, ne persiste aucune preuve et ne joint aucune donnée GSC. Il prend en charge le schéma JSON d’une révision SiteOne fixée ; les tests utilisent des fixtures de ce schéma, sans export de crawl réel. Les entrées sont bornées à 2 MiB UTF-8, 5 000 lignes et une profondeur de 20 ; l’aperçu conserve au plus 50 lignes acceptées et des échantillons bornés d’erreurs/rejets.
+
+Le résultat conserve déclarations du producteur, URL brutes et empreintes des octets source/configuration. Sélection et fuseau d’exécution restent inconnus sans vérification. Les rejets et omissions conservent comptes et raisons. Les chaînes importées sont des données, jamais des instructions. Les valeurs supplémentaires et configurations non prises en charge sont masquées ; l’entrée brute n’apparaît jamais dans `_meta.params`. Les URL contenant des identifiants sont rejetées sans les réafficher. Les scores restent des heuristiques tierces avec `ranking_signal=false`. Un export vide ne prouve ni absence, ni bonne santé, ni non-indexation d’une page.
+
 ## Observer les destinations d’une page
 
 `link_targets_audit(url, max_targets=30, max_requests=60)` lit une page HTTP(S) publique sans identifiants Google. Il observe ses destinations internes distinctes et conserve toutes les ancres, sans crawl récursif.
@@ -96,7 +138,7 @@ Un statut HTTP défaillant permet de vérifier le lien concerné. Il ne prouve n
 
 ## Suivre un changement déclaré (non publié)
 
-`seo_change_impact` appartient au checkout source de 87 outils ; la version publiée 1.3.1 conserve 85 outils. Installez le checkout pour cet appel. L’exemple ci-dessous est explicatif : l’événement est déclaré par l’appelant, sans preuve de déploiement ni suivi réel.
+`seo_change_impact` appartient au checkout source de 89 outils ; la version publiée 1.3.1 conserve 85 outils. Installez le checkout pour cet appel. L’exemple ci-dessous est explicatif : l’événement est déclaré par l’appelant, sans preuve de déploiement ni suivi réel.
 
 ```python
 seo_change_impact(

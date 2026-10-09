@@ -2,7 +2,7 @@
 title: "Historique des versions"
 description: "Résumé français des versions de Search Console MCP et lien vers l’historique canonique."
 lang: fr
-lastUpdated: 2026-10-08
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/changelog/
 ---
 
@@ -13,7 +13,11 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 - `seo_change_impact` associe un événement déclaré à des fenêtres Google descriptives, avec couverture conservée, sans persistance ni effet causal identifié (#23).
 - `editorial_audit` accepte des brouillons plain/Markdown bornés avec langue FR/EN explicite, contenu protégé et emplacements Unicode (#24).
 - `rewrite_fidelity_check` signale les changements mécaniques de littéraux et qualificatifs à relire ; même sans alerte, la fidélité sémantique reste non évaluée (#20).
-- Le checkout contient 87 outils ; la version publiée 1.3.1 conserve 85 outils. Les [workflows éditoriaux](/fr/docs/editorial-workflows/) et [audits bornés](/fr/docs/audit-workflows/) précisent les limites.
+- `search_weekday_reference` compare des périodes Google égales, disjointes et alignées sur les jours de semaine, jusqu’à J-3 en date Pacifique, avec demande de données finales. Une couverture incomplète rend la référence indisponible ; elle ne mesure ni effet annuel ni causalité.
+- `crawl_import_preview` lit en mémoire un JSON SiteOne fourni par l’appelant, sous limites fixes, sans fichier, réseau, secret ou jointure GSC. Les scores proviennent du crawler.
+- `search_change_breakdown` ajoute une empreinte déterministe de provenance sans stockage, accepte une seule dimension et peut borner le JSON UTF-8 complet, métadonnées comprises. La CLI conserve le JSON retourné après dépassement ; un plafond insuffisant pour l’enveloppe minimale échoue explicitement sans JSON.
+- `ai_overviews_impact` présente des apparences de recherche Web génériques, sans preuve d’exposition IA. Les rôles et playbooks Claude conservent les inconnues ; 12 tests passent dans un hôte contrôlé, sans validation de l’exécution Claude native. La CI de PR réservée au propriétaire a été validée localement, sans exécution distante vérifiée.
+- Le checkout contient 89 outils ; les versions publiées 1.3.0 et 1.3.1 conservent 85 outils. Les [workflows éditoriaux](/fr/docs/editorial-workflows/) et [audits bornés](/fr/docs/audit-workflows/) précisent les limites.
 
 ## 1.3.1 (2026-10-08)
 

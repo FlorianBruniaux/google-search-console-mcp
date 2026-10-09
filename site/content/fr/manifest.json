@@ -7,7 +7,7 @@
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "428108c7c9850724af03fe96df7c2c60d80fb24ffb9fa78ae05b5d75d64a0898"
+      "sourceHash": "295a1fc81937284fbf0afcee1dc3f0bef1bf52f2530143cd3bad962c4528e7f7"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "d3bb171e0255120f038960077b5e94f8135c5eaa5d5092b78ee53eef318c75f6"
+      "sourceHash": "56480ab054bfb4cd17397fcb2fb0c44a461a62fad3d0a1ffa2136cac36d9afc0"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "0635ecc80e1b0fab2778fe6f790deef8ea76da2d4cd897f5461d86b55fe34a52"
+      "sourceHash": "c49fd152aa9a6f2cf72033db15f932169728bda64e652cb387aafc658ba69e8e"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -83,7 +83,7 @@
     },
     "docs/audit-workflows.md": {
       "source": "docs/audit-workflows.md",
-      "sourceHash": "cc9c82084b8fc358e2168152913c8b9df5fadd6dda08648aa3d09deb9d392acd"
+      "sourceHash": "7f0d6337078ef11f1e45c3a0ed3527c388fec5b1e89ac065cbfbef2dabcd7a32"
     },
     "docs/editorial-workflows.md": {
       "source": "docs/editorial-workflows.md",

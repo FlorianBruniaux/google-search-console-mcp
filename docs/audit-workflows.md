@@ -2,6 +2,16 @@
 
 `search_change_breakdown` and `link_targets_audit` are included in `gsc-mcp-tools==1.3.0`, which exposes 85 tools. Follow the [installation instructions](installation.md) to use them. Examples below are synthetic explanatory fragments, not live Google or network runs.
 
+The AI-appearance correction, report contract/budget and two new tools below are unreleased source changes. Published release 1.3.1 retains 85 tools; this checkout has 89. Install the source checkout to use these changes.
+
+## Search appearances do not identify AI exposure
+
+`ai_overviews_impact(site, days=28, limit=100)` keeps its public name but reads generic Web `searchAppearance` rows. It requests that dimension alone, as documented by Google; it does not return a query-level AI exposure comparison. Raw returned appearance values are observations, not an identification rule for AI Overviews.
+
+`source_scope` is `web_search_appearance`; `ai_exposure.status` is `unavailable` and `ai_exposure.verification` is `unverified`. Success distinguishes observed and empty appearances. HTTP 400 retains the legacy error alias while identifying an invalid or unsupported request; HTTP 403 identifies access denial. Neither empty data nor these errors establishes AI presence or absence. Values requested with `dataState=all` can change during finalization. No causal click-loss estimate is produced.
+
+See Google's [search-appearance request guidelines](https://developers.google.com/webmaster-tools/v1/how-tos/all-your-data#getting_search_appearance_data) and [AI-feature measurement limits](https://developers.google.com/search/docs/appearance/ai-features#measuring-the-performance-of-your-site). Tests use synthetic provider responses; they do not verify a live property's capabilities.
+
 ## Compare explicit Google windows
 
 Use `search_change_breakdown` after identifying a traffic-change window. It requires the exact GSC property and ordered, nonoverlapping, equal-length inclusive dates. Google is the only provider for this tool.
@@ -53,6 +63,38 @@ This is a fragment: complete metric rows also contain impressions, CTR, position
 
 A page view can return byPage aggregation while totals use byProperty. Matched page deltas can remain comparable, but reconciliation becomes unavailable when aggregations differ or are unknown. `observed_sums`, `matched_delta` and signed reconciliation residuals describe retrieved rows only. Overcoverage is flagged. Page, query, country and device describe overlapping traffic and cannot be added together. Neither a contribution nor a residual establishes the cause of the change.
 
+## Report evidence and response budget (unreleased)
+
+The source checkout adds `report_contract` to `search_change_breakdown`. It separates observed metric pointers (`facts`), calculated deltas and CTR (`calculations`), and absent evidence (`unavailable`). `hypotheses` is empty. Each finding has an identifier scoped to the exact GSC property, dimension, key and rule version. The snapshot fingerprint hashes the report and all retrieved sanitized observations, including rows hidden by the display limit. It does not store a snapshot or provide a retrieval handle.
+
+`output_max_bytes=None` retains the full report. Set a positive integer, for example `output_max_bytes=50000` or CLI `--output-max-bytes 50000`, to bound the UTF-8 JSON envelope, including `_meta`. Budgeted CLI output preserves that envelope even without `--meta`; the final CLI newline and MCP transport wrapper are outside the count. Inspect `response_budget.status` and `serialized_bytes`.
+
+If rows do not fit, the response contains `RESPONSE_BUDGET_EXCEEDED`, omits displayed rows and findings with explicit counts and unavailable-value reasons, and preserves source errors, coverage and summaries. If even that envelope cannot fit, the call raises `ResponseBudgetExceeded` with the minimum required byte count and source errors. It never returns clipped JSON. No automatic detail fetch, requery or durable storage is available.
+
+## Compare disjoint periods with the same weekdays (unreleased)
+
+```python
+search_weekday_reference(
+    site="sc-domain:example.com", days=28, end_date="2026-09-30",
+    dimensions=["query"], filters=None, search_type="web",
+    aggregation_type="auto", row_limit=1000, max_requests=20, limit=50,
+)
+```
+
+This source-only wrapper makes one `search_change_breakdown` call with `data_state="final"`. Its default end date is three days before the current date in `America/Los_Angeles`. An explicit end date must respect that policy. The earlier window shifts by `7 * ceil(days / 7)` days: equal-length periods remain disjoint and start on the same weekday, including nonmultiples of seven. The child tool's physical-request budget still applies.
+
+`weekday_reference` retains the effective dates, shift, lag policy, upstream metadata and coverage reasons. Missing dates or incompatible/unknown aggregates leave its delta null and status `unavailable`. A three-day lag and a final-data request do not certify provider completeness. An observed reference describes clicks and impressions; it does not establish annual seasonality, a search-system incident or a causal explanation. This wrapper has no response-byte-budget parameter.
+
+## Preview a SiteOne export in memory (unreleased)
+
+```python
+crawl_import_preview(report_json='{"results":[]}', producer="siteone")
+```
+
+Provide the export as a JSON string. This source-only adapter does not read a path, launch a crawler, fetch a URL, install software, persist evidence or join GSC data. It supports the pinned SiteOne JSON exporter schema; tests use exporter-shaped fixtures, not a real crawl export. Inputs are capped at 2 MiB UTF-8, 5,000 rows and depth 20; previews retain at most 50 accepted rows and bounded error/rejection samples.
+
+The result preserves producer declarations, raw URL identities and source-byte/configuration hashes. Selection and execution timezone stay unknown when unverified. Rejected or omitted records retain counts and reasons. Imported strings are data, never instructions. Extra values and unsupported configuration are withheld; raw input never enters `_meta.params`. Credential-bearing URLs are rejected rather than echoed. Imported quality scores remain third-party heuristics with `ranking_signal=false`. An empty export does not prove that a page is absent, healthy or unindexed.
+
 ## Observe one page's link destinations
 
 Use `link_targets_audit(url, max_targets=30, max_requests=60)` for public HTTP(S) pages. Google credentials are not required. It fetches one source page, parses anchors and observes distinct internal destinations without recursively crawling them.
@@ -90,7 +132,7 @@ An HTTP failure is evidence to inspect and fix the affected link. It does not es
 
 ## Follow a declared page change (unreleased)
 
-`seo_change_impact` is available in the 87-tool source checkout; published release 1.3.1 retains 85 tools. Install the checkout for this call. This explanatory example uses a caller-declared event, not an observed deployment or live follow-up:
+`seo_change_impact` is available in the 89-tool source checkout; published release 1.3.1 retains 85 tools. Install the checkout for this call. This explanatory example uses a caller-declared event, not an observed deployment or live follow-up:
 
 ```python
 seo_change_impact(

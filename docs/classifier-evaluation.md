@@ -210,3 +210,28 @@ The query corpus gates query intent/grouping in #4/#5. It does not validate thes
 | Instruction detection and readiness | Separate page-level positive/benign corpora and task labels. Query or editorial labels cannot validate injection detection or citation probability. |
 
 Freeze related page, document and revision families within one split for each track. Record authorization, anonymization, provenance, disagreements and numerical targets before tuning. Keep task reports separate so an aggregate cannot conceal a weak task. Model integration remains optional.
+
+## Audit evidence tracks: preparation for #6
+
+The following protocols prepare #38/#39/#40/#41/#45/#46. They do not add new tasks to `scripts/eval_classifier.py`, supply human labels or approve a release. Use a separate adapter and report for each task once its authorized corpus and frozen targets exist.
+
+| Track | Case coverage | Review question | Measures to freeze before tuning |
+| --- | --- | --- | --- |
+| Traffic diagnosis | Reporting lag, missing rows, observed zero, historical spikes, seasonal references, collection incidents and caller-declared changes | Which claim is supported by this packet, which is a hypothesis, and which requires abstention? Do not invent the true cause. | Unsupported-claim rate, evidence preservation, justified abstention and support by case family |
+| Harmful competition | Legitimate category/product results, distinct intent/market, navigational queries, migration and material URL alternation | Does the supplied evidence justify further review or a conditional change? Shared queries alone do not justify consolidation. | False consolidation proposals, missed review candidates, unknown-intent handling and family support |
+| Main-content extraction | Authorized FR/EN article, product, local-service, forum and JS-shell pages with independently marked template/content boundaries | Which source spans belong in the task's content sample? The candidate extractor cannot supply its own labels. | Included template spans, omitted useful spans, unsupported inputs and downstream warning changes |
+| Report fidelity | Multi-property packets, incompatible windows, partial providers, unknown indexing, contradictory observations and bounded output | Does each report claim retain the correct source and uncertainty? Model agreement does not supply a human label. | Source/window mismatches, unavailable-to-zero coercions, unsupported claims, and omissions disclosed by count/reason |
+
+### Packet and review protocol
+
+1. Freeze a case packet with its exact tool/request versions, effective site/property, requested and observed dates, source observations, missing/error states, collection scope and source authorization reference. Preserve the original packet hash outside any derived report. Remove private identifying content before committing a packet.
+2. Record the track, language and a family/split assignment. Keep the same property/event/page and related revisions in one family so nearby observations do not leak into held-out evaluation. A human reviewer must check this assignment; declaring a family is not proof of isolation.
+3. For each report claim, ask a human annotator to identify supporting observation references and classify it as supported, unsupported or unresolved from the supplied packet. A second human reviewer records disagreements and their resolution. Record observations separately from the unknown underlying cause.
+4. Freeze the approved packet bytes, label definitions, task-specific numerical targets and reviewer approval reference before tuning. Missing targets or reviewed labels keep the quality gate pending; synthetic expected outputs remain implementation checks.
+5. Give the report author the observations without held-out labels. An evaluator joins the report and independent judgments. Report counts and undefined denominators explicitly; no single combined score may hide a weak track.
+
+### Controlled implementation cases
+
+The first implementation checks can use synthetic packets: generic search-appearance rows with no verified AI identification; a traffic-concentration alert with no manual-action observation; a legitimate multi-URL query with unknown intent; and a missing inspection alongside measured zero clicks. Their expected boundary is that these observations cannot become an AI-loss estimate, penalty claim, unconditional merge, or unindexed verdict respectively.
+
+These are proposed case families, not collected human examples or executed agent trials. Routing/BM25 scores, mocked-client tests and a model's self-check do not establish report accuracy. Preparing this protocol leaves #6 open for authorized task-specific data, independent reviewed labels and pre-tuning targets.

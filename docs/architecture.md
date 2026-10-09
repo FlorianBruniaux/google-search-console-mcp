@@ -4,7 +4,7 @@ Release 1.3.0 includes `search_change_breakdown` (Google-only explicit period co
 
 ## Overview
 
-gsc-mcp is a FastMCP server exposing 87 source tools over the Model Context Protocol by default. Each tool is a plain Python function returning a JSON string. The CLI derives its full command surface from `registry.TOOLS`. Since version 1.3.1, the server selects MCP families at startup with `GSC_MCP_TOOL_FAMILIES`, exposing all by default and retaining `core`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
+gsc-mcp is a FastMCP server exposing 89 source tools over the Model Context Protocol by default. Each tool is a plain Python function returning a JSON string. The CLI derives its full command surface from `registry.TOOLS`. Since version 1.3.1, the server selects MCP families at startup with `GSC_MCP_TOOL_FAMILIES`, exposing all by default and retaining `core`; an import-time assertion keeps that registry aligned with `properties._ALL_TOOLS`.
 
 ## File structure
 
@@ -12,8 +12,9 @@ gsc-mcp is a FastMCP server exposing 87 source tools over the Model Context Prot
 src/gsc_mcp/
 ├── server.py          # Entry point. Registers startup-selected functions from registry.TOOLS
 ├── tool_selection.py  # MCP startup family selection since 1.3.1
-├── registry.py        # Single source of truth for the 87 source MCP and CLI tools
+├── registry.py        # Single source of truth for the 89 source MCP and CLI tools
 ├── cli.py             # Flag-only CLI generated from registry function signatures
+├── reporting.py       # Bounded search report output and snapshot provenance
 ├── auth.py            # Google service helpers, GA4 property resolver, Bing env key reader
 ├── constants.py       # Scopes, quota limits, CTR benchmarks by SERP position
 ├── meta.py            # with_meta(data, tool, params): wraps every tool output
@@ -27,6 +28,8 @@ src/gsc_mcp/
     ├── properties.py  # 3 capability and GSC property tools
     ├── analytics.py   # 10 GSC analytics tools + shared fetch/date helpers
     ├── search_breakdown.py # Explicit Google periods and independent dimension views
+    ├── traffic_reference.py # Disjoint same-weekday Google reference
+    ├── crawl_import.py      # Caller-supplied bounded SiteOne JSON preview
     ├── seo.py         # 8 SEO analyses; 3 support Bing and 4 refuse unsupported Bing contracts
     ├── inspection.py  # inspect_url, batch_url_inspection, check_indexing_issues
     ├── indexing.py    # submit_url, submit_batch, indexnow_submit
@@ -244,4 +247,10 @@ The tool makes no Google API calls and requires no auth. `httpx` is used for the
 
 ### Unreleased source follow-up and draft checks
 
-The source registry contains 87 tools, adding `seo_change_impact` and `rewrite_fidelity_check` to the 85-tool release 1.3.1 surface. `change_impact.py` retains caller events and reuses `search_change_breakdown` coverage without persisting events or attributing causality. IANA zones use system data or the packaged `tzdata` fallback. `editorial_drafts.py` adapts bounded caller text/Markdown into the existing editorial rule core; it performs no fetch, execution or file read. `rewrite.py` compares protected literals and qualifiers with local lexical anchors; semantic dimensions remain unassessed. Read [bounded audit workflows](audit-workflows.md) and [editorial workflows](editorial-workflows.md) for signatures and limits.
+The source registry contains 89 tools, adding `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` and `crawl_import_preview` to the 85-tool release 1.3.1 surface. Releases 1.3.0 and 1.3.1 each contain 85 tools. `change_impact.py` retains caller events and reuses `search_change_breakdown` coverage without persisting events or attributing causality. IANA zones use system data or the packaged `tzdata` fallback.
+
+`editorial_drafts.py` adapts bounded caller text/Markdown into the existing editorial rule core; it performs no fetch, execution or file read. `rewrite.py` compares protected literals and qualifiers with local lexical anchors; semantic dimensions remain unassessed.
+
+`reporting.py` attaches a deterministic snapshot fingerprint to `search_change_breakdown` without storing a report. Its optional byte budget covers the complete UTF-8 JSON envelope and metadata; the CLI preserves returned budget JSON; a ceiling too small for the minimum envelope fails explicitly without JSON. One requested dimension is valid.
+
+`traffic_reference.py` shifts equal windows by a whole number of weeks to keep matching weekdays and no overlap, with a final-data request ending no later than Pacific today minus three days. It does not establish annual or causal effects. `crawl_import.py` previews caller-provided SiteOne JSON in memory under fixed bounds, without crawling, files, network access, credentials or a GSC join. See [bounded audit workflows](audit-workflows.md) and [editorial workflows](editorial-workflows.md) for signatures and limits.

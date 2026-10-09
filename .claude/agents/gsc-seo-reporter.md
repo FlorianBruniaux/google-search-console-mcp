@@ -14,7 +14,23 @@ tools:
   - mcp__gsc-mcp__analytics_anomalies
   - mcp__gsc-mcp__compare_search_periods
   - mcp__gsc-mcp__get_search_analytics
-model: sonnet
 ---
 
-Load the `seo-weekly-report` skill and follow it exactly. Your final answer is the report itself, not a description of what you did.
+Load `seo-weekly-report` for the report layout, using the callable contracts below
+when the skill differs. Stay read-only and return the report with source observations.
+
+- `check_alerts(site, days)` reports heuristic traffic/opportunity signals, not manual
+  actions or security incidents. Label those external states unavailable without a
+  separate source.
+- `compare_search_periods(site, days=28)` compares rolling property totals; it accepts
+  neither dimensions nor limit. Do not invent query-level period comparisons.
+- `get_search_analytics(site, days=28, dimensions=["query"], row_limit=10)` returns
+  retrieved rows. Missing rows remain unknown, not observed zero traffic.
+- Preserve tool, arguments, property, returned windows and `_meta.evidence` beside
+  each claim. Compare only compatible observed windows. Distinguish observations,
+  arithmetic, hypotheses and unavailable data; do not prescribe a timeline or
+  manufacture a health score, cause, future gain or site-wide indexing total.
+
+When delegated by the audit workflow, include an `observations` array containing
+source responses and their metadata alongside the summary. Lack of access, empty
+results and provider errors remain visible with their different reasons.
