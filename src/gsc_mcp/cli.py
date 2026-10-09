@@ -86,6 +86,12 @@ def _type_kind(ann) -> str:
                 return "str"
             if inner is dict:
                 return "dict"
+            if inner is int:
+                return "int"
+            if inner is float:
+                return "float"
+            if inner is bool:
+                return "bool"
             if isinstance(inner, types.GenericAlias) and inner.__origin__ is list:
                 item = typing.get_args(inner)
                 if item and item[0] is str:
@@ -306,6 +312,11 @@ def _call_tool(fn_name: str, namespace: argparse.Namespace, keep_meta: bool) -> 
         return 1
 
     data = json.loads(raw)
+    if "response_budget" in data:
+        # The requested budget covers this exact envelope, including provenance.
+        # Preserve its UTF-8 serialization even without the usual --meta flag.
+        print(raw)
+        return 0
     if not keep_meta:
         data.pop("_meta", None)
     print(json.dumps(data))

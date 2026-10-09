@@ -432,6 +432,18 @@ SUCCESS_SHAPES["search_change_breakdown"] = {
                              "reconciliation": {"comparable": True, "reason": None, "overcoverage": False, "baseline_residual": _BREAKDOWN_COUNTS,
                                                 "comparison_residual": _BREAKDOWN_COUNTS, "total_delta_minus_matched_delta": _BREAKDOWN_COUNTS}}}}
 
+SUCCESS_SHAPES["search_change_breakdown"].update({
+    "report_contract": {"snapshot_id": "snapshot:fixture", "rule_version": "v1",
+                        "findings": [{"finding_id": "finding:fixture", "facts": ["/clicks"], "calculations": ["/ctr"],
+                                      "unavailable": ["/position"], "hypotheses": []}],
+                        "verification": {"causal_effect": "not_identified", "complete_source_coverage": "not_guaranteed",
+                                         "probabilistic_precision": "unavailable"}},
+    "response_budget": {"max_bytes": 10000, "serialized_bytes": 2000, "full_response_bytes": 3000, "status": "exceeded",
+                        "omitted_rows": {"query": {"matched": 2}}, "omitted_findings": 2,
+                        "omitted_unavailable_metrics": {"query": {"baseline:clicks:missing_provider_value": 1}}},
+    "error": {"code": "RESPONSE_BUDGET_EXCEEDED"},
+})
+
 SUCCESS_SHAPES["seo_change_impact"] = {
     "event": {"provenance": "caller_declared"}, "page_mapping": {"provenance": "caller_declared"},
     "windows": {"weekday_aligned": False},
@@ -779,3 +791,22 @@ def test_editorial_evidence_keeps_rule_warnings_counts_and_unassessed_states_sep
         assert_basis(records, "/findings", None, "unavailable")
         assert_basis(records, "/findings_truncated", None, "unavailable")
         assert_basis(records, "/http_status", "measured", "observed")
+
+
+def test_search_breakdown_report_identity_and_unverified_boundary_provenance():
+    data = {'report_contract': {'snapshot_id': 'snapshot:abc', 'rule_version': 'v1',
+            'findings': [{'finding_id': 'finding:abc', 'facts': ['/clicks'], 'calculations': ['/ctr'],
+                          'unavailable': ['/position'], 'hypotheses': []}],
+            'verification': {'causal_effect': 'not_identified', 'complete_source_coverage': 'not_guaranteed',
+                             'probabilistic_precision': 'unavailable'}},
+            'response_budget': {'max_bytes': 10000, 'serialized_bytes': 2000, 'status': 'exceeded',
+                                'omitted_rows': {'query': {'matched': 2}}, 'omitted_findings': 2,
+                                'omitted_unavailable_metrics': {'query': {'baseline:clicks:missing_provider_value': 1}}}}
+    records = fields('search_change_breakdown', data)
+    assert_basis(records, '/report_contract/snapshot_id', 'derived', 'calculated')
+    assert_basis(records, '/report_contract/findings/0/finding_id', 'derived', 'calculated')
+    assert_basis(records, '/report_contract/verification/causal_effect', None, 'unavailable')
+    assert_basis(records, '/report_contract/verification/probabilistic_precision', None, 'unavailable')
+    assert_basis(records, '/response_budget/serialized_bytes', 'derived', 'calculated')
+    assert_basis(records, '/response_budget/omitted_rows/query/matched', 'derived', 'calculated')
+    assert_basis(records, '/response_budget/omitted_unavailable_metrics/query/baseline:clicks:missing_provider_value', 'derived', 'calculated')

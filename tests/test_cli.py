@@ -493,3 +493,33 @@ def test_link_targets_dispatch_runs_real_tool_with_integer_budgets(monkeypatch, 
     assert output["_meta"]["params"]["max_requests"] == 2
     assert sent == ["https://example.com/", "https://example.com/missing"]
     assert output["_meta"]["evidence"]["fields"]["/targets/0/status_code"]["basis"] == "measured"
+
+@pytest.mark.parametrize('keep_meta', [False, True])
+def test_budgeted_search_cli_preserves_full_utf8_envelope(monkeypatch, capsys, keep_meta):
+    """Re-escaping Unicode or stripping provenance invalidates the byte contract."""
+    from types import SimpleNamespace
+    from gsc_mcp.tools import search_breakdown
+
+    def query(siteUrl, body):
+        keys = ([body['startDate']] if body.get('dimensions') == ['date'] else
+                ['界' * 500] if body.get('dimensions') else [])
+        return SimpleNamespace(execute=lambda: {
+            'rows': [{'keys': keys, 'clicks': 1, 'impressions': 10, 'position': 2}],
+            'responseAggregationType': 'byProperty',
+        })
+
+    monkeypatch.setattr(search_breakdown, 'get_searchconsole_service',
+                        lambda: SimpleNamespace(searchanalytics=lambda: SimpleNamespace(query=query)))
+    argv = ['search-change-breakdown', '--site', 'sc-domain:example.com',
+            '--baseline-start', '2026-01-01', '--baseline-end', '2026-01-01',
+            '--comparison-start', '2026-01-08', '--comparison-end', '2026-01-08',
+            '--dimensions', '["query"]', '--output-max-bytes', '50000']
+    if keep_meta:
+        argv.append('--meta')
+    assert main(argv) == 0
+    serialized = capsys.readouterr().out.removesuffix('\n')
+    out = json.loads(serialized)
+    assert len(serialized.encode('utf-8')) <= 50000
+    assert out['response_budget']['serialized_bytes'] == len(serialized.encode('utf-8'))
+    assert out['_meta']['sources']['google']['site'] == 'sc-domain:example.com'
+    assert out['breakdowns']['query']['matched'][0]['key'] == '界' * 500

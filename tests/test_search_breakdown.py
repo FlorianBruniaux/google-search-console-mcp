@@ -304,3 +304,116 @@ def test_fetch_counts_evidence_describes_calculation_not_heuristic(run):
     assert fields['/breakdowns/query/baseline_coverage/rows_returned']['basis'] == 'derived'
     assert fields['/breakdowns/query/baseline_coverage/pages_fetched']['basis'] == 'derived'
     assert fields['/request_budget/exhausted']['basis'] == 'rule'
+
+
+def test_report_finding_identity_is_stable_but_observation_snapshot_changes(run):
+    before, _ = run()
+    changed, _ = run(lambda body: response([row('drop', 999, 2000)]))
+    first = next(f for f in before['report_contract']['findings'] if f['target']['key'] == 'drop')
+    second = next(f for f in changed['report_contract']['findings'] if f['target']['key'] == 'drop')
+    assert first['finding_id'] == second['finding_id']
+    assert before['report_contract']['snapshot_id'] != changed['report_contract']['snapshot_id']
+    repeated, _ = run()
+    assert repeated['report_contract']['snapshot_id'] == before['report_contract']['snapshot_id']
+    other_site, _ = run(site='sc-domain:other.example')
+    other = next(f for f in other_site['report_contract']['findings'] if f['target']['key'] == 'drop')
+    assert other['finding_id'] != first['finding_id']
+
+
+def test_report_separates_observations_calculations_and_unverified_hypotheses(run):
+    out, _ = run()
+    report = out['report_contract']
+    finding = next(f for f in report['findings'] if f['target']['key'] == 'drop')
+    prefix = '/breakdowns/query/matched/0'
+    assert finding['facts'] == [prefix + '/' + period + '/' + metric
+                                for period in ('baseline', 'comparison') for metric in ('clicks', 'impressions', 'position')]
+    assert finding['calculations'] == [prefix + '/baseline/ctr', prefix + '/comparison/ctr',
+                                       prefix + '/delta/clicks', prefix + '/delta/impressions',
+                                       prefix + '/delta/ctr_percentage_points', prefix + '/delta/position']
+    assert finding['unavailable'] == []
+    assert finding['hypotheses'] == []
+    assert report['verification'] == {'causal_effect': 'not_identified', 'complete_source_coverage': 'not_guaranteed',
+                                      'probabilistic_precision': 'unavailable'}
+    assert report['scope']['property'] == 'sc-domain:Example.COM'
+    assert report['scope']['periods']['baseline']['requested_start'] == '2026-01-01'
+    assert report['scope']['periods']['baseline']['timezone'] == 'America/Los_Angeles'
+    assert report['scope']['source']['search_type'] == 'web'
+
+
+def test_snapshot_includes_retrieved_rows_hidden_by_legacy_display_limit(run):
+    def answer(body):
+        if body.get('dimensions') == ['query']:
+            return response([row('a', 9 if body['startDate'] == '2026-01-01' else 1), row('z', position=3)])
+        return response([])
+    before, _ = run(answer, limit=1)
+    def changed(body):
+        result = answer(body)
+        if body.get('dimensions') == ['query']:
+            result['rows'][1]['position'] = 4
+        return result
+    after, _ = run(changed, limit=1)
+    assert before['breakdowns'] == after['breakdowns']
+    assert before['report_contract']['snapshot_id'] != after['report_contract']['snapshot_id']
+
+
+def test_response_budget_counts_full_utf8_envelope_and_preserves_provider_errors(run):
+    def answer(body):
+        if not body.get('dimensions') and body['startDate'] == '2026-01-01':
+            raise RuntimeError('provider failed')
+        if body.get('dimensions') == ['date']:
+            return response([row(body['startDate'])])
+        return response([row('été-' + '界' * 300), row('tail')])
+    full, calls = run(answer, output_max_bytes=200000)
+    full_bytes = len(json.dumps(full, ensure_ascii=False, allow_nan=False).encode('utf-8'))
+    assert full['response_budget']['serialized_bytes'] == full_bytes
+    assert full['response_budget']['status'] == 'within_budget'
+    assert full_bytes > len(json.dumps(full, ensure_ascii=False, allow_nan=False))
+    assert len(calls) == 6
+    # A cap under the complete payload permits only the explicit omission envelope.
+    capped, capped_calls = run(answer, output_max_bytes=full_bytes - 1000)
+    assert capped['error']['code'] == 'RESPONSE_BUDGET_EXCEEDED'
+    assert capped['response_budget']['status'] == 'exceeded'
+    assert capped['response_budget']['omitted_rows']['query']['matched'] == 2
+    assert capped['breakdowns']['query']['matched'] == []
+    assert capped['baseline_totals']['baseline']['fetch_error'] == 'RuntimeError'
+    assert capped['baseline_totals']['baseline']['availability'] == 'unavailable'
+    assert capped['periods'] == full['periods']
+    assert capped['breakdowns']['query']['baseline_coverage'] == full['breakdowns']['query']['baseline_coverage']
+    assert capped['_meta']['sources'] == {'google': {'site': 'sc-domain:Example.COM'}}
+    assert capped['response_budget']['serialized_bytes'] == len(json.dumps(capped, ensure_ascii=False, allow_nan=False).encode('utf-8'))
+    assert capped['response_budget']['serialized_bytes'] <= full_bytes - 1000
+    assert len(capped_calls) == 6
+    assert 'detail_handle' not in capped
+
+
+def test_tiny_response_budget_fails_explicitly_instead_of_dropping_source_errors(run):
+    from gsc_mcp.reporting import ResponseBudgetExceeded
+    with pytest.raises(ResponseBudgetExceeded) as caught:
+        run(output_max_bytes=1)
+    assert caught.value.max_bytes == 1
+    assert caught.value.full_response_bytes > caught.value.minimum_response_bytes > 1
+    assert caught.value.minimum_response['site'] == 'sc-domain:Example.COM'
+    assert caught.value.minimum_response['_meta']['sources']['google']['site'] == 'sc-domain:Example.COM'
+
+
+@pytest.mark.parametrize('budget', [True, 0, -1, 2.5, '10'])
+def test_invalid_response_budget_is_rejected_before_credentials(monkeypatch, budget):
+    from gsc_mcp.tools import search_breakdown
+    monkeypatch.setattr(search_breakdown, 'get_searchconsole_service', lambda: pytest.fail('must validate first'))
+    with pytest.raises(ValueError):
+        search_breakdown.search_change_breakdown('site', '2026-01-01', '2026-01-01', '2026-02-01', '2026-02-01',
+                                                dimensions=['query'], output_max_bytes=budget)
+
+
+def test_finding_references_distinguish_missing_metrics_from_observations(run):
+    out, _ = run(lambda body: response([{'keys': ['unknown'], 'clicks': True, 'impressions': 0}]))
+    finding = out['report_contract']['findings'][0]
+    assert finding['facts'] == ['/breakdowns/query/matched/0/baseline/impressions',
+                                '/breakdowns/query/matched/0/comparison/impressions']
+    assert '/breakdowns/query/matched/0/baseline/clicks' in finding['unavailable']
+    assert '/breakdowns/query/matched/0/baseline/ctr' in finding['unavailable']
+    assert '/breakdowns/query/matched/0/delta/clicks' in finding['unavailable']
+    records = out['_meta']['evidence']['fields']
+    assert all(records[pointer]['basis'] == 'measured' for pointer in finding['facts'])
+    assert all(records[pointer]['basis'] == 'derived' for pointer in finding['calculations'])
+    assert all(records[pointer]['basis'] is None for pointer in finding['unavailable'])
