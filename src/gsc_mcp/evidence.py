@@ -265,6 +265,8 @@ _add("schema_validate", "rule", "Known SiteGround resource path plus human-verif
 _add("schema_validate", "measured", "Received HTTP response code only, not requested-page accessibility", "/http_status")
 _add("content_quality", "rule", "Fixed phrase-list filler, regex entity/number density proxy, local weighting .35/.35/.20/.10 and clipping; thin<300 tokens else good>=60; not measured quality or AI authorship", "/filler_score", "/information_density", "/overall_quality", "/flags", "/verdict")
 _add("content_quality", "derived", "round(100*distinct repeated bigrams/distinct bigrams), short-text fallback zero; quality interpretation remains heuristic", "/repetition_score")
+_add('content_quality', 'rule', 'Explicit extraction profile and unknown human-labelled recall; no default adoption or quality guarantee', '/extraction')
+_add('content_quality', 'derived', 'SHA256 of decoded HTML UTF-8 supplied to the extractor, not original network bytes', '/extraction/decoded_html_sha256')
 _add("editorial_audit", "rule", "Versioned FR/EN house-style patterns; warnings need editorial judgment, never establish AI authorship or search impact", "/verdict", "/assessment", "/findings", "/findings/*/rule_id", "/findings/*/requires_context_review")
 _add("editorial_audit", "derived", "Counts and truncation over eligible parsed HTML or supported draft segments and local pattern matches only", "/metrics/*", "/findings_truncated")
 _add("editorial_audit", "measured", "Received HTTP response code only, not rendered page visibility", "/http_status")
@@ -484,7 +486,7 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
         if key == "category" and (value == "unknown" or not any(
                 _inspection_substantive(parent.get(k)) for k in (*_INSPECTION, "google_canonical", "user_canonical"))):
             return None, "Local category fallback has no substantive provider input"
-    elif key == "verdict" and value in {"error", "fetch_error", "ssrf_blocked", "missing_key", "unsupported", "not_enough_data", "no_baseline", "no_data"}:
+    elif key == "verdict" and value in {"error", "fetch_error", "extraction_unavailable", "ssrf_blocked", "missing_key", "unsupported", "not_enough_data", "no_baseline", "no_data"}:
         return None, "Unavailable, unsupported or tool error result; original verdict retained"
     if tool in {"search_change_breakdown", "search_weekday_reference"} and ((key == "availability" and value != "observed") or (key == "incompleteness_status" and value == "unknown")):
         return None, "Provider observation/coverage unavailable or unknown; no successful measurement inferred"

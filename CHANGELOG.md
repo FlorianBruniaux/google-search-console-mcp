@@ -4,6 +4,8 @@
 
 <!-- unreleased-updated: 2026-10-09 -->
 
+- Add an experimental optional Trafilatura precision profile to `content_quality`, with source/version/options/hash, independent calls and unavailable extraction without placeholder scores (#41). The default visible-text profile remains unchanged.
+
 - Add `indexing_evidence_matrix`: bounded supplied per-URL observations, source-referenced contradictions and literal canonical chains; no acquisition, current indexing boolean or rendering inference (#44). Source catalogue: 96 tools.
 
 - Add `crawl_diff` for two exact site-owned snapshots: bounded inventory membership and compatible observed field differences, unknown deletion/indexing, duplicate-key abstention and optional named-field CI rules (#48). Source catalogue: 95 tools.

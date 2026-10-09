@@ -160,7 +160,7 @@ def _bigram_repetition(tokens: list[str]) -> float:
     return repeated / max(1, len(counts))
 
 
-def content_quality(url: str) -> str:
+def content_quality(url: str, extractor: str = 'visible') -> str:
     """Analyse page content quality against Google QRG signals (E-E-A-T heuristics).
 
     Fetches the URL, extracts visible text, then scores against thin content,
@@ -168,20 +168,38 @@ def content_quality(url: str) -> str:
     and bigram repetition. No Google API calls. No authentication required.
 
     Filler phrase list adapted from claude-seo (agricidaniel, MIT).
-    Verdicts: good | needs_work | thin_content | fetch_error.
+    Default visible extraction preserves existing scores. Optional
+    trafilatura-precision requires the content extra and is experimental:
+    no comments, tables included, no global deduplication or second fetch.
+    Failed/no-main-text optional extraction yields no quality scores. These
+    scores remain local heuristics, not expert quality or authorship verdicts.
+    Verdicts: good | needs_work | thin_content | fetch_error | extraction_unavailable.
     """
+    from gsc_mcp.content_extraction import PROFILES, extract_html
+    from datetime import datetime, timezone
+    if extractor not in PROFILES:
+        raise ValueError(f'extractor must be one of {PROFILES}')
+    params = {"url": url, "extractor": extractor}
     try:
         html, _status = safe_fetch_html(url)
     except (URLSafetyError, httpx.HTTPError) as exc:
         return json.dumps(with_meta(
             {"url": url, "error": str(exc), "verdict": "fetch_error"},
             tool="content_quality",
-            params={"url": url},
+            params=params,
         ))
 
-    extractor = _TextExtractor()
-    extractor.feed(html)
-    text = extractor.text
+    received_at = datetime.now(timezone.utc).isoformat()
+    extracted = extract_html(html, url, extractor)
+    extracted['fetch_completed_at'] = received_at
+    extracted['http_status'] = _status
+    text = extracted.pop('text')
+    if extractor != 'visible' and (text is None or not 200 <= _status <= 299):
+        if not 200 <= _status <= 299:
+            extracted['status'] = 'http_unavailable'
+        return json.dumps(with_meta({"url": url, "verdict": "extraction_unavailable",
+            "extraction": extracted}, tool="content_quality", params=params))
+    text = text or ''
 
     tokens = [t.lower() for t in _TOKEN_RE.findall(text)]
     n_tokens = len(tokens)
@@ -237,9 +255,10 @@ def content_quality(url: str) -> str:
             "overall_quality": overall,
             "flags": flags,
             "verdict": verdict,
+            "extraction": extracted,
         },
         tool="content_quality",
-        params={"url": url},
+        params=params,
     ))
 
 

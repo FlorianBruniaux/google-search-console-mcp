@@ -470,7 +470,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | Editorial | `editorial_audit` | FR/EN house-style warnings, localized excerpts and faithful rewrite guidance; caller plain/Markdown drafts since 1.4.0 with native source spans and bounded parsing; no AI-authorship score |
 | Editorial | `rewrite_fidelity_check` | Since 1.4.0: protected literals and qualifier review candidates; semantic fidelity and factual truth remain unassessed |
 | Follow-up | `seo_change_impact` | Since 1.4.0: declared event and descriptive Google before/after evidence; no persistence or causal effect |
-| Content | `content_quality` | Fetch a URL and score visible text against E-E-A-T heuristics: filler phrases, information density, repetition, thin content |
+| Content | `content_quality` | Fetch a URL for local filler, density, repetition and thin-content heuristics; [optional main-content profile](docs/content-extraction.md) requires independent evaluation |
 | Content | `hreflang_audit` | Fetch a URL and validate its hreflang implementation: x-default, ISO 639-1 codes, region codes, self-ref, protocol consistency |
 | Content | `page_technical_audit` | Fetch a URL and audit meta tags (title, description, canonical, robots), viewport, HTML lang, security headers, robots.txt Googlebot access |
 | Content | `preload_audit` | Audit Speculation Rules, bfcache eligibility, and LCP preload signals: inline speculationrules blocks, Speculation-Rules header, link preload tags, deprecated prerender, cache-control blockers |

@@ -10,6 +10,8 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## À publier
 
+- Ajouter un profil Trafilatura optionnel à `content_quality`, avec provenance, version, paramètres et hash ; appels indépendants, échec d’extraction indisponible sans score de substitution (#41). Le profil visible par défaut reste inchangé.
+
 - Ajouter `indexing_evidence_matrix` : observations fournies par URL, contradictions sourcées et chaînes canoniques littérales bornées ; aucune acquisition ni inférence d’indexation actuelle ou de rendu (#44). Catalogue source : 96 outils.
 
 - Ajouter `crawl_diff` pour deux snapshots de même propriété : différences bornées d’inventaire et de champs compatibles, indexation/suppression inconnues, refus des clés ambiguës et politique CI sur champs nommés (#48). Catalogue source : 95 outils.

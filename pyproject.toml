@@ -54,6 +54,7 @@ gsc-mcp-tools = "gsc_mcp.server:main"
 gsc-cli = "gsc_mcp.cli:main"
 
 [project.optional-dependencies]
+content = ["trafilatura>=2.3.1,<2.4"]
 dev = [
     "pytest>=8.0.0",
     "pytest-mock>=3.12.0",
