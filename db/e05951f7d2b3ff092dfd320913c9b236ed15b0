@@ -1,0 +1,46 @@
+tests/fixtures/siteone/SOURCE.md
+  s_05ea773ff72f20::t_4211808103f565 1-9
+tests/test_crawl_import.py
+  s_05ea773ff72f20::t_2e220fce883d6f 4,164-181
+  s_312dceb5d1c7f5::t_2212ba5e4624f2 182-183
+src/gsc_mcp/tools/crawl_import.py
+  s_05ea773ff72f20::t_4211808103f565 76,78,85-88,91,112
+CHANGELOG.md
+  s_05ea773ff72f20::t_cd940776cda9d3 7-8
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_4c298fa25a8713 119
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_bd64c5250d4a09 112-113
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_6bffbf3d4d3ee4 13-14
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_0598e3388d24bb 70,86
+tests/fixtures/siteone/LICENSE
+  s_05ea773ff72f20::t_7a217cfba01374 1-21
+tests/fixtures/siteone/public-export-subset.json
+  s_05ea773ff72f20::t_d5e47ec67e39e0 1-776
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dbe05951f7d2b3ff092dfd320913c9b236ed15b0",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_312dceb5d1c7f5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10705-778c-7a00-bd10-95a2f8d1b51e",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
