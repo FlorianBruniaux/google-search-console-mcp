@@ -36,7 +36,7 @@ def _inventory(names: str, applicability: str, reason: str) -> None:
 _inventory("""
 search_change_breakdown seo_change_impact rewrite_fidelity_check inspect_url batch_url_inspection check_indexing_issues analytics_anomalies
 quick_wins traffic_drops seo_striking_distance seo_cannibalization seo_lost_queries
-check_alerts parasite_risk prune_candidates traffic_health_check page_analysis
+check_alerts parasite_risk prune_candidates traffic_health_check page_analysis ai_overviews_impact
 content_brief page_health_score compare_search_engines crux_page_vitals crux_history
 crux_lcp_subparts pagespeed_audit schema_validate content_quality editorial_audit hreflang_audit
 page_technical_audit preload_audit heading_audit ai_visibility_audit gbp_deprecation_lint
@@ -52,7 +52,7 @@ bing_url_submit bing_urls_submit_batch bing_feed_submit bing_feed_remove indexno
 _inventory("""
 get_capabilities list_properties get_site_details get_search_analytics get_performance_overview
 compare_search_periods get_search_by_page_query get_advanced_search_analytics discover_performance
-news_performance search_type_breakdown ai_overviews_impact list_sitemaps sitemaps_get
+news_performance search_type_breakdown list_sitemaps sitemaps_get
 ga4_organic_landing_pages ga4_traffic_sources ga4_page_performance ga4_realtime ga4_user_behavior
 ga4_conversion_funnel bing_sites_list bing_crawl_stats bing_crawl_settings_get bing_url_traffic
 bing_url_submission_quota bing_link_counts bing_url_links
@@ -63,6 +63,13 @@ def _add(tool: str, basis: str | None, scope: str, *paths: str) -> None:
     for path in paths:
         _PATHS[tool].append((path, basis, scope))
 
+
+# Generic appearance discovery never identifies AI exposure or causal effect.
+_add("ai_overviews_impact", "measured", "Google returned generic Web search-appearance label/metric for the requested window; not an AI-specific observation",
+     "/rows/*/searchAppearance", "/rows/*/clicks", "/rows/*/impressions", "/rows/*/ctr", "/rows/*/position", "/http_status")
+_add("ai_overviews_impact", "derived", "Count of displayed generic appearance rows after impression sorting and limit; not a count of AI-exposed queries", "/count")
+_add("ai_overviews_impact", "rule", "Local generic source-result classification: observed/empty response, invalid or unsupported request (400), access denied (403); no property AI capability inference", "/source_status", "/error_meaning")
+_add("ai_overviews_impact", None, "AI exposure has no verified provider appearance mapping or live observation; generic traffic cannot identify AI presence, absence or causal effect", "/ai_exposure/status", "/ai_exposure/verification")
 
 # Search breakdown: collections describe selection only; metrics are explicit leaves.
 for prefix in ("/baseline_totals/*/metrics", "/breakdowns/*/matched/*/baseline",
@@ -312,6 +319,8 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
     null_is_rule = tool == "schema_validate" and key == "deprecated_rich_result"
     if value is None and not null_is_rule:
         return None, "Required evidence/value is null; original value retained"
+    if tool == "ai_overviews_impact" and path[0] == "rows" and key in {"clicks", "impressions", "ctr", "position"} and value == 0:
+        return None, "Legacy parser zero may be a provider zero or a missing metric default; provider origin is unavailable"
     if tool == "traffic_drops" and path[0] == "drops" and key in {"diagnosis", "diagnosis_status", "diagnosis_candidates"}:
         if parent.get("diagnosis") == "unknown" or parent.get("diagnosis_status") == "insufficient_evidence":
             return None, "Observed metric pair supports no diagnostic candidate; unknown is unavailable, not a successful cause attribution"

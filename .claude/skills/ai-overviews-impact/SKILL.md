@@ -1,32 +1,66 @@
 ---
 name: ai-overviews-impact
-description: Measure how Google AI Overviews are cannibalizing organic CTR. Use when
-  asked about AI Overview impact, SGE cannibalization, or why CTR is dropping despite
-  stable rankings. Aussi déclenché en français par "les AI Overviews me piquent des
-  clics", "l'IA de Google me vole du trafic", "mon CTR baisse alors que je suis
-  toujours premier", "je perds des clics sans perdre de positions", "les réponses
-  IA de Google", "aperçus IA".
+description: Assess evidence limits for Google AI Overview exposure and investigate
+  descriptive CTR changes without attributing lost clicks to AI. Use for AI Overview
+  impact, SGE cannibalization, or declining CTR despite stable rankings. Aussi déclenché
+  par "les AI Overviews me piquent des clics", "mon CTR baisse alors que je suis
+  toujours premier", "les réponses IA de Google" ou "aperçus IA".
 ---
 
-# AI Overviews Impact Analysis
+# AI Overview evidence review
 
-Measure how Google's AI Overviews are affecting organic click-through rates on the property.
+Report generic Search Console observations separately from unavailable AI exposure
+and unidentified causal impact. A declining CTR with stable position does not
+identify AI Overviews as its cause.
 
 ## Steps
 
-1. Call `list_properties` to confirm the exact `site_url`.
-2. Call `ai_overviews_impact` to get the dedicated report on queries where AI Overviews appear and their CTR compared to queries without.
-3. Call `compare_search_periods` for the last 90 days vs. the prior 90 days, using `dimensions=query` and `limit=100`.
-4. From step 3, isolate queries where position held steady or improved but CTR declined by more than 15%. These are the primary AI Overview candidates.
-5. Sort those queries by impressions descending and take the top 20.
+1. Call `list_properties` and record the exact `site_url`. Done when the property
+   identity is established or the access failure is reported.
+2. Call `ai_overviews_impact`. Despite its legacy name, it now requests only
+   `searchAppearance`, the documented discovery dimension. It returns generic Web
+   appearance rows sorted by impressions, not query-level AI measurements. Preserve
+   `source_scope`, `source_status`, `ai_exposure`, `evidence_limits` and field-level
+   `_meta.evidence`. Done when observed generic appearances, empty generic data,
+   invalid/unsupported request (400), or access denial (403) is reported distinctly.
+   The legacy `AI_OVERVIEWS_NOT_AVAILABLE` error alias does not establish property
+   capability, AI presence or AI absence.
+3. Call `compare_search_periods(site, days=90)` for consecutive property-level
+   windows. This tool accepts `site` and `days`; it does not accept query dimensions
+   or a query limit. Report returned dates, clicks, impressions and descriptive
+   deltas. Calculate period CTR only for present counts and positive impressions.
+   Done when the observed window comparison or missing data is reported without
+   assigning the change to AI.
+4. If independent query-level or SERP observations are supplied, retain their
+   dates, query, locale, device, method and coverage. Stable-position CTR declines
+   are descriptive observations. An observed AI result at one time establishes
+   neither exposure throughout the window nor its causal effect. Done when each
+   additional observation has a source and an explicit limit, or is unavailable.
 
-## Output format
+## Output
 
-**AI Overview impact summary**: total queries affected, estimated clicks lost vs. 90 days ago, overall CTR delta.
+- Generic search appearances: returned label, clicks, impressions, CTR and position,
+  with source scope, date window and coverage limits. A label that looks like
+  `AI_OVERVIEW` is not authenticated by its spelling or a synthetic test fixture.
+- Property comparison: returned windows and descriptive click/impression deltas;
+  calculated CTR when its denominator is usable.
+- AI exposure: unavailable and unverified for this tool. Do not report AI-exposed
+  query counts, queries safe from AI, AI-attributed lost clicks or a causal effect.
+- Next evidence needed: specify the missing observation that would support a
+  narrower conclusion. Do not recommend changing content, schema or query strategy
+  on the assumption that a CTR decline proves AI cannibalization.
 
-**Most impacted queries table**: Query | Position | Impressions | CTR now | CTR 90d ago | CTR delta | Est. clicks lost
+## Provider boundary
 
-**Strategic recommendations**:
-- Which query types are most cannibalized (informational vs. navigational vs. transactional)
-- Whether to optimize for AI Overview inclusion (structured answers, schema markup) or shift focus to transactional intents where AI Overviews are less prevalent
-- Queries safe from AI Overviews that are worth reinforcing
+Google includes AI feature traffic in the overall Web performance report. Its API
+instructions require `searchAppearance` alone for discovery, then an observed
+appearance value as a filter for any separate query/page breakdown. This workflow
+performs discovery only and contains no verified AI-specific appearance mapping.
+Documentation support and a live provider observation are both required before
+introducing such a mapping. No authenticated provider request was made to validate
+AI exposure in this implementation.
+
+Sources checked on 2026-10-09:
+[Google AI features and reporting](https://developers.google.com/search/docs/appearance/ai-features#measuring-the-performance-of-your-site),
+[Google search appearance retrieval](https://developers.google.com/webmaster-tools/v1/how-tos/all-your-data#getting_search_appearance_data),
+[Search Analytics API reference](https://developers.google.com/webmaster-tools/v1/searchanalytics/query).

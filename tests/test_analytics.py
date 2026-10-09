@@ -435,11 +435,11 @@ def _make_http_error(status: int) -> HttpError:
 
 
 def test_ai_overviews_impact_success_sorted_by_impressions(mock_gsc_service):
-    """Successful call returns rows sorted by impressions desc and count matches slice."""
+    """Mocked generic appearances return rows sorted by impressions desc and count matches slice."""
     rows = [
-        {"keys": ["best query", "AI_OVERVIEW"], "clicks": 10, "impressions": 500, "ctr": 0.02, "position": 1.5},
-        {"keys": ["second query", "AI_OVERVIEW"], "clicks": 5, "impressions": 1000, "ctr": 0.005, "position": 2.0},
-        {"keys": ["third query", "AI_OVERVIEW"], "clicks": 1, "impressions": 100, "ctr": 0.01, "position": 3.0},
+        {"keys": ["TEST_APPEARANCE_A"], "clicks": 10, "impressions": 500, "ctr": 0.02, "position": 1.5},
+        {"keys": ["TEST_APPEARANCE_B"], "clicks": 5, "impressions": 1000, "ctr": 0.005, "position": 2.0},
+        {"keys": ["TEST_APPEARANCE_C"], "clicks": 1, "impressions": 100, "ctr": 0.01, "position": 3.0},
     ]
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.return_value = {"rows": rows}
     with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
@@ -450,7 +450,7 @@ def test_ai_overviews_impact_success_sorted_by_impressions(mock_gsc_service):
 
 
 def test_ai_overviews_impact_http_error_400_returns_structured_error(mock_gsc_service):
-    """HttpError(400) must return AI_OVERVIEWS_NOT_AVAILABLE without raising."""
+    """400 preserves the legacy error alias for an invalid/unsupported request."""
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(400)
     with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(ai_overviews_impact(SITE))
@@ -459,7 +459,7 @@ def test_ai_overviews_impact_http_error_400_returns_structured_error(mock_gsc_se
 
 
 def test_ai_overviews_impact_http_error_403_returns_structured_error(mock_gsc_service):
-    """HttpError(403) must return AI_OVERVIEWS_NOT_AVAILABLE without raising."""
+    """403 preserves the legacy error alias for denied access, not AI absence."""
     mock_gsc_service.searchanalytics.return_value.query.return_value.execute.side_effect = _make_http_error(403)
     with patch("gsc_mcp.tools.analytics.get_searchconsole_service", return_value=mock_gsc_service):
         result = json.loads(ai_overviews_impact(SITE))

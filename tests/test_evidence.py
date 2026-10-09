@@ -444,6 +444,13 @@ SUCCESS_SHAPES["seo_change_impact"] = {
     "attribution": {"causal_effect": None, "status": "not_identified"},
     "search_evidence": copy.deepcopy(SUCCESS_SHAPES["search_change_breakdown"]),
 }
+# Synthetic provider-shaped labels exercise provenance, not live AI support.
+SUCCESS_SHAPES["ai_overviews_impact"] = {
+    "source_status": "observed", "count": 1,
+    "rows": [{"searchAppearance": "TEST_APPEARANCE", "clicks": 1, "impressions": 10,
+              "ctr": .1, "position": 1.0}],
+    "ai_exposure": {"status": "unavailable", "verification": "unverified"},
+}
 SUCCESS_SHAPES["rewrite_fidelity_check"] = {
     "verdict": "compared", "assessment": "mechanical_comparison_only",
     "findings": [{"category": "number", "operation": "changed", "context_review_required": True}],
@@ -455,6 +462,9 @@ SUCCESS_SHAPES["rewrite_fidelity_check"] = {
 # Null search_evidence is a distinct actual output branch, rather than a success
 # shape with contradictory provider data. The real-call tests exercise both.
 DEGRADED_SHAPES = {
+    "ai_overviews_impact": {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "http_status": 403,
+                            "source_status": "access_denied", "error_meaning": "access_denied",
+                            "ai_exposure": {"status": "unavailable", "verification": "unverified"}},
     "seo_change_impact": {"comparison": {"status": "unavailable", "reasons": ["insufficient_post_change_data"],
                                         "before": None, "after": None,
                                         "descriptive_delta": {"clicks": None, "impressions": None, "ctr_percentage_points": None}},
@@ -655,6 +665,7 @@ def test_all_applicable_tools_and_declarations_have_exercised_success_or_degrade
 # dictionaries and output assignments are included; generated JSON-LD and
 # operational statuses are reviewed exclusions rather than blanket observations.
 _REVIEWED_SIGNALS = {
+    "analytics.ai_overviews_impact": "status",
     "analytics.analytics_anomalies": "z_score",
     "bing_webmaster._feed_row": "status",
     "bing_webmaster._mutation_response": "status",
