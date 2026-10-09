@@ -534,6 +534,25 @@ DEGRADED_SHAPES = {
                           "search_evidence": None},
 }
 
+for snapshot_tool in ('crawl_snapshot_import', 'crawl_snapshot_read', 'crawl_snapshot_delete', 'crawl_snapshot_join'):
+    SUCCESS_SHAPES[snapshot_tool] = {
+        'status': 'observed', 'storage_policy': {'retention': 'explicit'}, 'imported_at': '2026-10-09T00:00:00Z',
+        'snapshot': {'schema': 'gsc-crawl-snapshot-v1', 'snapshot_id': 'fixture', 'owner': {'site': 'sc-domain:example.com'},
+            'adapter': 'siteone-json-v1', 'normalization': 'raw', 'untrusted_content': {'authority': 'data_only'},
+            'source_scores': {'basis': 'third_party_heuristic'}, 'source': {'version': '2', 'executed_at_timezone': 'unknown'},
+            'scope': {'initial_url': 'https://example.com/', 'options': {}, 'selection': 'unknown'},
+            'source_stats': {}, 'source_errors': [], 'source_notices': [], 'coverage': {'accepted_rows': 1},
+            'rows_retained': 1, 'scope_excluded_rows': 0, 'duplicate_url_rows': 0, 'rejected_rows': [], 'rejected_messages': {},
+            'unsupported_fields': {}, 'indexing_status': 'unavailable', 'missing_metadata': []},
+        'rows': [{'raw_url': 'https://example.com/', 'crawl': {'status': '200'},
+            'search': {'status': 'matched', 'metrics': {'clicks': 0}, 'source_pointer': '/rows/0'},
+            'links': {'status': 'candidate_record', 'records': [], 'site_wide_orphan_status': 'unavailable'},
+            'indexing_status': 'unavailable'}], 'pagination': {'total': 1}, 'deleted_records': 1,
+        'search_source': {'completeness': 'unknown'}, 'link_source': {'collected_at': None},
+        'untrusted_content': {'authority': 'data_only'},
+    }
+    DEGRADED_SHAPES[snapshot_tool] = {'status': 'unavailable', 'error': 'snapshot_not_found'}
+
 SUCCESS_SHAPES['crawl_log_audit'] = {
     'status': 'observed', 'site': 'sc-domain:example.com', 'profile': 'combined',
     'coverage': {'consumed_bytes': 100, 'lines_considered': 1, 'parsed_lines': 1, 'invalid_lines': 0,
@@ -744,6 +763,11 @@ def test_all_applicable_tools_and_declarations_have_exercised_success_or_degrade
 # dictionaries and output assignments are included; generated JSON-LD and
 # operational statuses are reviewed exclusions rather than blanket observations.
 _REVIEWED_SIGNALS = {
+    'crawl_snapshots.crawl_snapshot_import': 'status',
+    'crawl_snapshots.crawl_snapshot_read': 'status',
+    'crawl_snapshots.crawl_snapshot_delete': 'status',
+    'crawl_snapshots.crawl_snapshot_join': 'status',
+    'crawl_snapshots._link_input': 'category',
     'crawl_logs._google_ranges': 'status',
     'crawl_logs.crawl_log_audit': 'status',
     "analytics._parse_appearance_row": "unavailable_metrics",

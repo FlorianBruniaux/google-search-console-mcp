@@ -14,7 +14,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tools](https://img.shields.io/badge/MCP%20tools-90%20source-5c4ee5.svg)](#tools-90)
+[![Tools](https://img.shields.io/badge/MCP%20tools-94%20source-5c4ee5.svg)](#tools-94)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
 [![Tests](https://img.shields.io/badge/tests-1782%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
@@ -39,7 +39,7 @@ Search Console MCP is the open-source connection between your data and your AI a
   <a href="#what-you-get">What you get</a> &middot;
   <a href="#choose-your-starting-point">Use cases</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
-  <a href="#tools-90">Tools</a> &middot;
+  <a href="#tools-94">Tools</a> &middot;
   <a href="#evidence-and-safety">Data limits &amp; safety</a>
 </p>
 
@@ -295,7 +295,7 @@ The Indexing API default quota is 200 requests per day per GCP project. The tool
 
 Google Search Console and Bing Webmaster Tools show how people find your pages in search. Optional GA4 data adds what those visitors do on your site; CrUX and public-page audits help identify performance, content and technical issues. Your assistant can use these sources together to decide which pages need attention.
 
-Version 1.4.0 exposes 89 FastMCP tools. Source changes add `crawl_log_audit`, bringing the checkout to 90. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
+Version 1.4.0 exposes 89 FastMCP tools. Source changes add `crawl_log_audit` and four local snapshot commands, bringing the checkout to 94. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
 
 > [!IMPORTANT]
 > `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
@@ -327,7 +327,7 @@ The server also handles Google and Bing API mechanics: isolated credentials, bou
 ```mermaid
 flowchart TD
     C[Claude, Codex<br/>or another MCP client] --> S[FastMCP server]
-    S --> R[Shared source registry<br/>90 tools]
+    S --> R[Shared source registry<br/>94 tools]
     R --> A[Read and analysis tools]
     R --> W[Guarded write tools]
     A --> G[Google APIs<br/>GSC, GA4, CrUX]
@@ -397,15 +397,18 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 </details>
 
 <a id="tools-89"></a>
+<a id="tools-90"></a>
 
-## Tools (90)
+## Tools (94)
 
 The source checkout includes the bounded [local crawl-log audit](docs/crawl-log-audit.md). Its [validation record](docs/validation/2026-10-09-crawl-logs.md) distinguishes declared bots and current registry membership from historical identity.
+
+The [versioned crawl inventory contract](docs/crawl-snapshots.md) adds optional site-owned local storage, bounded detail pages, exact-URL reconciliation and explicit cleanup. Imported metadata and scores are not independently verified provider evidence.
 
 Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Version 1.3.1 retains 85 tools and adds optional MCP discovery selection, CLI JSON string lists, and the SEO/Bing feedback fixes described in the [changelog](CHANGELOG.md#131---2026-10-08). Version 1.4.0 has 89 tools, adding declared-change follow-up, draft/rewrite checks, weekday-reference and caller-supplied crawl previews described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
-<summary>Show all 90 source tools</summary>
+<summary>Show all 94 source tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
@@ -456,6 +459,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | CrUX | `crux_history` | Historical Core Web Vitals trend (weekly data points) for a URL |
 | Technical | `schema_validate` | Fetch any public URL and validate its JSON-LD schemas; suggests missing schemas by URL pattern |
 | Technical | `crawl_log_audit` | Source after 1.4.0: bounded local common/combined logs, masked paths/IPs, declared bots and optional current Google IP membership; no indexing inference |
+| Local inventories | `crawl_snapshot_import` / `crawl_snapshot_read` / `crawl_snapshot_join` / `crawl_snapshot_delete` | Optional site-owned SiteOne storage, bounded details, exact-URL reconciliation and explicit cleanup |
 | Technical | `crawl_import_preview` | Since 1.4.0: preview bounded caller-supplied SiteOne JSON in memory; no crawl, file/network access, secrets or GSC join |
 | Technical | `schema_generate` | Generate a Schema.org JSON-LD block for Reservation, OrderAction, DiscussionForumPosting, or ProfilePage |
 | Drift | `drift_baseline` | Capture a baseline snapshot of a page (title, H1-H3, schema, canonical, CWV) stored locally in SQLite |
@@ -579,7 +583,7 @@ Exit codes: `0` success, `1` Google API error, `2` credential/config error or in
 
 ## Agents and shared SEO skills
 
-The repository ships 13 Claude Code agents, 14 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. A read-only evidence reviewer keeps its findings beside the unapproved draft; three additional specialist agents cover Python implementation, pytest and security review. The [controlled workflow pilot](docs/validation/2026-10-09-agent-boundaries.md) records its property, selected URLs and bounded host-agent attempts. Native Claude/Codex execution and provider request budgets remain unverified.
+The repository ships 13 Claude Code agents, 15 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. A read-only evidence reviewer keeps its findings beside the unapproved draft; three additional specialist agents cover Python implementation, pytest and security review. The [controlled workflow pilot](docs/validation/2026-10-09-agent-boundaries.md) records its property, selected URLs and bounded host-agent attempts. Native Claude/Codex execution and provider request budgets remain unverified.
 
 ### Agents
 
@@ -624,6 +628,7 @@ SEO skills have one canonical source in `.agents/skills/`, discovered by Codex a
 | `internal-linking-audit` | `/internal-linking-audit` | Link placement by page zone, anchors and footer-only targets |
 | `link-equity-map` | `/link-equity-map` | Site-wide link flow crossed with Search Console positions |
 | `onpage-audit` | `/onpage-audit` | One-page audit combining technical, content, link, schema and search data |
+| `crawl-import` | `/crawl-import` | Versioned SiteOne inventories, exact-URL joins and explicit local retention |
 | `crawl-log-audit` | `/crawl-log-audit` | Bounded local server access logs, HTTP status and declared bot evidence |
 | `python-clean-code` | `/python-clean-code` | Review a module for clean code violations before PR |
 | `add-tool` | `/add-tool` | Step-by-step workflow to add a new MCP tool |
@@ -656,7 +661,7 @@ SEO skills have one canonical source in `.agents/skills/`, discovered by Codex a
 The `docs/machine-readable/` directory contains structured architecture docs designed to give any AI agent (Claude, Cursor, Copilot...) an accurate picture of the project without reading the full codebase:
 
 - [Editorial audit and rewrite profile](docs/editorial-audit.md): scoped FR/EN warnings and instructions for preserving meaning during rewrites.
-- `llms.txt`: quick reference covering all 90 source tools, module map, security rules, test patterns, and a decision tree for common tasks
+- `llms.txt`: quick reference covering all 94 source tools, module map, security rules, test patterns, and a decision tree for common tasks
 - `adr-index.yaml`: 16 Architecture Decision Records reconstructed from git history
 - `code-map.yaml`: full module/test/dependency map
 - `constraints.yaml`: forbidden patterns (no stdlib XML on external input, no pickle for tokens, no unvalidated URLs in sitemap fetch...) and required patterns

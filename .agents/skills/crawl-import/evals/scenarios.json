@@ -1,0 +1,19 @@
+{
+  "target": "crawl-import", "type": "command", "skill": "crawl-import",
+  "positive": [
+    "Import my local SiteOne JSON crawl export as a versioned snapshot",
+    "Importe cet export SiteOne de crawl dans un inventaire local versionné",
+    "Preview a SiteOne crawler export before storing its inventory",
+    "Lis les URL d’un snapshot local importé du crawler SiteOne",
+    "Paginate all URLs in my persisted SiteOne crawl inventory",
+    "Join imported SiteOne snapshot URLs to GSC page rows without normalization",
+    "Réconcilie mon inventaire importé SiteOne avec des résultats GSC par page",
+    "Delete one site-owned imported crawl snapshot with explicit confirmation"
+  ],
+  "negative": [
+    "Parse a local Apache combined access log for Googlebot requests",
+    "Inspect Google's indexing state of this URL",
+    "Analyse une chute de clics dans Search Console",
+    "Generate a new XML sitemap for my site"
+  ]
+}

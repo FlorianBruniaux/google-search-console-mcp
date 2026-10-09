@@ -185,3 +185,8 @@ The tool reuses `search_change_breakdown` with identical filters and finalized-d
 ## Local server logs (source after 1.4.0)
 
 `crawl_log_audit(log_path, site)` streams one caller-selected Apache common/combined file. Default output masks readable paths, queries, client IPs, users, referrers and raw lines. Check parsing coverage, consumed-byte hash, UTC observation window and limit hits. Declared bot labels and optional current Google address-range membership never establish historical identity or indexing. No inventory joins occur. See the [local log contract and CLI example](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-log-audit.md).
+
+
+## Local crawl snapshots
+
+Use `crawl_snapshot_import` with default preview before choosing `persist=True`. Retain the exact owner and snapshot ID. `crawl_snapshot_read` paginates all supported in-scope rows; `crawl_snapshot_join` accepts bounded caller-supplied GSC page/link-map reports. Raw URL keys and unknowns remain explicit. Retention is local and explicit; no crawler or upload runs. See the [versioned inventory and cleanup contract](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-snapshots.md).

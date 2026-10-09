@@ -384,6 +384,26 @@ _add("crawl_import_preview", "rule", "Local adapter/schema gate, supported input
 _add("crawl_import_preview", None, "Producer selection or execution timezone is not independently known from this import",
      "/scope/selection", "/source/executed_at_timezone", "/missing_metadata")
 
+for _snapshot_tool in ("crawl_snapshot_import", "crawl_snapshot_read", "crawl_snapshot_delete", "crawl_snapshot_join"):
+    _inventory(_snapshot_tool, "fields", "Site-owned local inventory operations; imported observations are untrusted and not provider indexing evidence")
+    _add(_snapshot_tool, "rule", "Local immutable schema, declared ownership, quota/retention policy or operation status; no SEO verdict",
+         "/status", "/storage_policy", "/snapshot/schema", "/snapshot/owner", "/snapshot/adapter", "/snapshot/normalization", "/snapshot/untrusted_content", "/snapshot/source_scores")
+    _add(_snapshot_tool, "measured", "Read from the supplied producer export or local import record, not independently checked site state",
+         "/snapshot/source", "/snapshot/scope/options", "/snapshot/scope/initial_url", "/snapshot/source_stats", "/snapshot/source_errors", "/snapshot/source_notices", "/rows", "/imported_at")
+    _add(_snapshot_tool, "derived", "Bounded local hash, row/rejection/omission accounting or pagination",
+         "/snapshot/snapshot_id", "/snapshot/coverage", "/snapshot/rows_retained", "/snapshot/scope_excluded_rows", "/snapshot/duplicate_url_rows", "/snapshot/rejected_rows", "/snapshot/rejected_messages", "/snapshot/unsupported_fields", "/pagination", "/deleted_records")
+    _add(_snapshot_tool, None, "Missing provider indexing or producer time/selection remains unavailable; operation failures are not empty data",
+         "/error", "/snapshot/indexing_status", "/snapshot/source/executed_at_timezone", "/snapshot/scope/selection", "/snapshot/missing_metadata")
+
+_add("crawl_snapshot_join", "rule", "Bounded exact-string reconciliation over caller-supplied metadata; link records retain producer path aggregation, never a site-wide verdict",
+     "/search_source", "/link_source", "/untrusted_content", "/rows/*/search/status", "/rows/*/links/status", "/rows/*/links/records")
+_add("crawl_snapshot_join", "measured", "Metrics read from supplied page-only rows, not authenticated provider access; explicit zero and null retained",
+     "/rows/*/search/metrics", "/rows/*/crawl")
+_add("crawl_snapshot_join", "derived", "Pointer to one exact matching supplied page row; duplicate raw keys are ambiguous",
+     "/rows/*/search/source_pointer")
+_add("crawl_snapshot_join", None, "No supplied indexing observation or site-wide link inventory; selection and coverage remain unverified",
+     "/rows/*/indexing_status", "/rows/*/links/site_wide_orphan_status")
+
 
 def _expand(value, parts: list[str], path: tuple[str, ...] = (), parent=None):
     if not parts:
@@ -407,6 +427,8 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
     null_is_rule = tool == "schema_validate" and key == "deprecated_rich_result"
     if value is None and not null_is_rule:
         return None, "Required evidence/value is null; original value retained"
+    if tool.startswith('crawl_snapshot_') and path == ('status',) and value in {'unavailable', 'rejected'}:
+        return None, 'Local inventory lookup/import unavailable; no empty, complete or healthy site observation inferred'
     if tool == 'crawl_log_audit' and data.get('status') == 'unavailable' and path[0] in {'status', 'coverage'}:
         return None, 'Local log assessment unavailable; count placeholders do not establish an empty or healthy log'
     if tool == "ai_overviews_impact" and path[0] == "rows" and key in {"clicks", "impressions", "ctr", "position"} and value == 0 and data.get('metric_origin') != 'explicit_provider_fields':
