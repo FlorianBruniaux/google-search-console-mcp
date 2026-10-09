@@ -5,7 +5,12 @@
 - Add `seo_change_impact` for caller-declared page events and descriptive Google before/after comparisons (#23), reusing coverage from `search_change_breakdown`; no event persistence or causal attribution.
 - Extend `editorial_audit` to caller plain-text/Markdown drafts (#24), with explicit FR/EN, bounded subset coverage, protected content and Unicode source spans.
 - Add `rewrite_fidelity_check` for mechanical protected-literal and qualifier review candidates (#20); zero findings leaves semantic fidelity, factual truth, scope and causality unassessed.
-- Source inventory increases from 85 to 87 tools. Published release 1.3.1 remains the separate 85-tool surface. Add bilingual [editorial workflows](docs/editorial-workflows.md) and extend [bounded audit workflows](docs/audit-workflows.md).
+- Add `search_weekday_reference` for a prior disjoint Google window with the same weekdays. It requests final data and ends no later than Pacific today minus three days; incomplete coverage makes the reference unavailable. The comparison is neither annual nor causal.
+- Add `crawl_import_preview` for bounded, caller-supplied SiteOne JSON. It parses in memory without files, network access, credentials or a GSC join; crawler scores remain third-party heuristics.
+- `search_change_breakdown` now records a deterministic snapshot fingerprint for exact provenance without storing the source report. Optional `output_max_bytes` limits the complete UTF-8 JSON envelope, including metadata; an oversized response reports omissions or an explicit budget error. The CLI preserves returned budget JSON on its own output line; a ceiling too small for the minimum error envelope fails explicitly without JSON. A single requested dimension is valid.
+- `ai_overviews_impact` reports generic Web search appearances only; they do not establish AI exposure. Correct the Claude audit roles and playbooks to preserve unknown metrics and inspect returned tool contracts. A controlled-host workflow check passes 12 tests; native Claude runtime and model behavior remain unverified.
+- Add owner-only PR CI checks for the Python suite, build and wheel smoke. Local workflow validation does not establish remote CI execution.
+- Source inventory increases from 85 to 89 tools. Published releases 1.3.0 and 1.3.1 remain separate 85-tool surfaces. Add bilingual [editorial workflows](docs/editorial-workflows.md) and extend [bounded audit workflows](docs/audit-workflows.md).
 
 ## [1.3.1] - 2026-10-08
 

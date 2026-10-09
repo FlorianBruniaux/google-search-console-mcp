@@ -42,9 +42,9 @@ pytest tests/ -k "test_submit_batch" -v
 
 ## Architecture
 
-**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 83 tools by iterating `registry.TOOLS`. The count is derived from the registry, not maintained in server or CLI help text.
+**Entry point**: `src/gsc_mcp/server.py` creates a `FastMCP("gsc-mcp")` instance and registers all 89 source tools by iterating `registry.TOOLS`. The count is derived from the registry, not maintained in server or CLI help text.
 
-**Registry** (`src/gsc_mcp/registry.py`): imports all 83 tool functions and exposes `TOOLS: dict[str, Callable[..., str]]`. An `assert` at import time verifies `set(TOOLS) == set(_ALL_TOOLS)` from `properties.py`, so any mismatch fails loudly at startup. The current surface adds 19 Bing tools and `compare_search_engines` to the existing catalogue.
+**Registry** (`src/gsc_mcp/registry.py`): imports all 89 source tool functions and exposes `TOOLS: dict[str, Callable[..., str]]`. An `assert` at import time verifies `set(TOOLS) == set(_ALL_TOOLS)` from `properties.py`, so any mismatch fails loudly at startup. The current surface adds 19 Bing tools and `compare_search_engines` to the existing catalogue.
 
 **CLI** (`src/gsc_mcp/cli.py`): shell frontend that generates all subcommands and count labels from `TOOLS` by introspection. All-flags (no positionals). `list[dict]` params take a JSON string. Sets `GSC_NO_BROWSER=1` at startup to prevent accidental OAuth browser popups.
 
@@ -52,6 +52,10 @@ pytest tests/ -k "test_submit_batch" -v
 
 **Tools** (`src/gsc_mcp/tools/`): Modules, each owns a logical domain:
 - `analytics.py`: 10 GSC search analytics tools
+- `search_breakdown.py`: explicit equal Google windows with bounded independent dimensions and optional complete UTF-8 JSON budget
+- `traffic_reference.py`: prior disjoint same-weekday Google comparison, ending no later than Pacific today minus three days; descriptive only
+- `crawl_import.py`: bounded caller-supplied SiteOne JSON preview in memory, without network or GSC join
+- `reporting.py`: deterministic search-report fingerprint and response budget, without storing the report
 - `seo.py`: 8 SEO intelligence tools; quick wins, striking distance and pruning accept Bing
 - `inspection.py`: URL inspection + batch + issue categorization
 - `indexing.py`: Google Indexing API plus IndexNow (`submit_url`, `submit_batch`, `indexnow_submit`)

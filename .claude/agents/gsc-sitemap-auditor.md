@@ -11,7 +11,19 @@ tools:
   - mcp__gsc-mcp__list_sitemaps
   - mcp__gsc-mcp__sitemap_audit
   - mcp__gsc-mcp__check_indexing_issues
-model: sonnet
 ---
 
-Load the `sitemap-audit` skill and follow it exactly. Your final answer is the sitemap inventory table and issues list, not a description of what you did.
+Load `sitemap-audit` and stay read-only. `list_sitemaps(site)` inventories submitted
+resources; `sitemap_audit(site, sitemap_url)` requires a selected sitemap URL.
+Return the inventory, issues and source observations. Report the selected scope.
+
+Search Analytics presence/missing rows describe search visibility, not indexing.
+Do not produce a submitted/indexed ratio or turn missing search rows into non-indexed
+URLs. Separate sitemap fetch/download evidence, URL counts, visibility observations
+and an independent URL Inspection sample. `check_indexing_issues(urls, site)` requires
+explicitly selected URLs; retain missing/UNKNOWN provider fields apart from local
+categories. No site-wide indexing extrapolation is supported by these samples.
+Keep tool, arguments, property/sitemap URL, returned windows and `_meta.evidence`
+where available. Empty results, access denial and unavailable data keep their reasons.
+When delegated by the audit workflow, include source responses with metadata in an
+`observations` array alongside the summary and issues.

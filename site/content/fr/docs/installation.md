@@ -2,13 +2,13 @@
 title: "Installation et configuration des clients MCP"
 description: "Installer Search Console MCP une seule fois, le relier à un client et éviter les processus dupliqués."
 lang: fr
-lastUpdated: 2026-10-08
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/installation/
 ---
 
 ## Installation recommandée
 
-La version 1.3.1 expose 85 outils.
+La version publiée 1.3.1 expose 85 outils. Le checkout source en contient 89, dont quatre ajouts non publiés.
 
 Pour un essai ponctuel :
 

@@ -41,3 +41,7 @@ Permissions are limited to `contents: read`; checkout sets `persist-credentials:
 The workflow is statically valid locally. Remote GitHub Actions execution, actor-gate evaluation on real events, Python 3.11 runner behavior and branch-protection configuration are **UNKNOWN** here. This audit did not configure or assert active branch protection. Owner gating intentionally skips other PRs; those skipped jobs are not evidence that their code was tested. A manual dispatch runs its selected branch revision and is not automatically a required PR merge check.
 
 The full baseline suite was captured before other workers' production-code changes. The new workflow and concurrent documentation edits do not demonstrate Google API behavior, live deployment, indexing, analytics outcomes or causal SEO impact.
+
+## Integration follow-up
+
+U04 adds controlled-host workflow tests that require Node. The final workflow explicitly installs Node 22 so these tests run rather than skip on a runner without Node. The historical baseline above predates these tests. Final integrated results are recorded in [first delivery set validation](2026-10-09-first-delivery-set.md).
