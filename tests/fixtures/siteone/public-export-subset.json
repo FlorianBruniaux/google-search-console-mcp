@@ -1,0 +1,776 @@
+{
+  "results": [
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 50961,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 60465,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/overview/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 54792,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/key-features/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.033,
+      "extras": [],
+      "size": 43381,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/ease-of-use/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.138,
+      "extras": [],
+      "size": 3605887,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/siteone-crawler-app-demo.gif"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 52620,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/offline-website-generator/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 31582,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/_astro/siteone-crawler-mascot.CPk15tXh_HGMwJ.webp"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.055,
+      "extras": [],
+      "size": 109656,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/configuration/command-line-options/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.073,
+      "extras": [],
+      "size": 61848,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/getting-started/basic-usage/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.04,
+      "extras": [],
+      "size": 54226,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/contact-and-community/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.354,
+      "extras": [],
+      "size": 8701267,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/siteone-crawler-command-line-demo-full.gif"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.056,
+      "extras": [],
+      "size": 673,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/_astro/siteone-crawler-logo-dark.DaIuiR1U.svg"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 673,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/favicon.svg"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 56366,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/security-analysis/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 2690,
+      "status": "200",
+      "type": 2,
+      "url": "https://crawler.siteone.io/_astro/Search.astro_astro_type_script_index_0_lang.DMZ5WJ-J.js"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 3554,
+      "status": "200",
+      "type": 3,
+      "url": "https://crawler.siteone.io/_astro/print.DNXP8c50.css"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 61764,
+      "status": "200",
+      "type": 3,
+      "url": "https://crawler.siteone.io/_astro/index.BRwACyc2.css"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 44537,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/dev-devops-assistant/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 51420,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/redirect-and-404-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 58940,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/performance-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 44922,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/seo-and-opengraph-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 51612,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/installation-and-requirements/desktop-application/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 81246,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/configuration/examples/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.049,
+      "extras": [],
+      "size": 1333725,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/siteone-crawler-command-line-demo-w960.avif"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 53521,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/website-to-markdown-converter/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.024,
+      "extras": [],
+      "size": 605564,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/siteone-crawler-app-demo.avif"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 68186,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/installation-and-requirements/ready-to-use-packages/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 57907,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/installation-and-requirements/system-requirements/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 53752,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/ideas-and-roadmap/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 74321,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/technical-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 53689,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/audit-report/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.047,
+      "extras": [],
+      "size": 2165,
+      "status": "200",
+      "type": 2,
+      "url": "https://crawler.siteone.io/_astro/page.7qqag-5g.js"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.15,
+      "extras": [],
+      "size": 4134394,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/siteone-crawler-command-line-demo-w960.gif"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 72133,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/installation-and-requirements/manual-installation/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 43295,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/heading-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 152,
+      "status": "200",
+      "type": 7,
+      "url": "https://crawler.siteone.io/robots.txt"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 50887,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/accessibility-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 59500,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/online-html-report-upload/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 45363,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/deep-website-crawling/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 53489,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/getting-started/quick-start-guide/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.007,
+      "extras": [],
+      "size": 114569,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/advanced-topics/extending/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 47494,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/stress-testing/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 1673,
+      "status": "200",
+      "type": 2,
+      "url": "https://crawler.siteone.io/_astro/TableOfContents.astro_astro_type_script_index_0_lang.CKWWgpjV.js"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 57380,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/dns-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 64607,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/performance-metrics/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 72648,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/advanced-topics/troubleshooting/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 65733,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/faq/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 55178,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/content-type-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 45600,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/improvement-meter/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 59838,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/source-domains-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.006,
+      "extras": [],
+      "size": 65679,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/advanced-topics/crawler-behavior/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 667,
+      "status": "200",
+      "type": 2,
+      "url": "https://crawler.siteone.io/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C181hMzK.js"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 45737,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/mailer/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 46601,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/exports-and-reports/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 51057,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/motivation/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 52033,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/best-practices-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.007,
+      "extras": [],
+      "size": 72685,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/getting-started/advanced-usage/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 44108,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/availability/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 47561,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/thanks/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 46558,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/sitemap-generator/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 63763,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/caching-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 69474,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/headers-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 60076,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/features/ssl-tls-analysis/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 78066,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/advanced-topics/contribution-and-development/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 41701,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/introduction/support-us/"
+    },
+    {
+      "cacheLifetime": 3600,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.005,
+      "extras": [],
+      "size": 58031,
+      "status": "200",
+      "type": 1,
+      "url": "https://crawler.siteone.io/advanced-topics/caching/"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.004,
+      "extras": [],
+      "size": 15632,
+      "status": "200",
+      "type": 3,
+      "url": "https://crawler.siteone.io/_astro/ec.5wl1j.css"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 2416,
+      "status": "200",
+      "type": 2,
+      "url": "https://crawler.siteone.io/_astro/ec.8zarh.js"
+    },
+    {
+      "cacheLifetime": null,
+      "cacheTypeFlags": 4,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 788,
+      "status": "429",
+      "type": 1,
+      "url": "https://crawler.siteone.io/_astro/desktop-app-release-assets.DBTr-vv8_Z2rPu7O.webp"
+    },
+    {
+      "cacheLifetime": 31536000,
+      "cacheTypeFlags": 31,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 17372,
+      "status": "200",
+      "type": 4,
+      "url": "https://crawler.siteone.io/_astro/ready-to-use-packages.BYCPharn_Z1ivwN5.webp"
+    },
+    {
+      "cacheLifetime": null,
+      "cacheTypeFlags": 4,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 788,
+      "status": "429",
+      "type": 1,
+      "url": "https://crawler.siteone.io/docs/features/best-practices-analysis"
+    },
+    {
+      "cacheLifetime": null,
+      "cacheTypeFlags": 4,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 780,
+      "status": "404",
+      "type": 1,
+      "url": "https://crawler.siteone.io/docs/features/content-type-analysis"
+    },
+    {
+      "cacheLifetime": null,
+      "cacheTypeFlags": 4,
+      "elapsedTime": 0.003,
+      "extras": [],
+      "size": 788,
+      "status": "429",
+      "type": 1,
+      "url": "https://crawler.siteone.io/docs/features/technical-analysis"
+    }
+  ],
+  "stats": {
+    "countByStatus": {
+      "200": 69,
+      "404": 1,
+      "429": 3
+    },
+    "totalExecutionTime": 9.241,
+    "totalRequestsTimes": 1.308,
+    "totalRequestsTimesAvg": 0.018,
+    "totalRequestsTimesMax": 0.354,
+    "totalRequestsTimesMin": 0.003,
+    "totalSize": 21514206,
+    "totalSizeFormatted": "21 MB",
+    "totalUrls": 73
+  },
+  "crawler": {
+    "name": "SiteOne Crawler",
+    "version": "2.0.0.20260316",
+    "executedAt": "2026-03-16 14:55:13",
+    "finalUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/26.0.0.0 Safari/537.36 siteone-crawler/2.0.0.20260316"
+  },
+  "options": {
+    "url": "https://crawler.siteone.io/",
+    "maxDepth": 0,
+    "singlePage": false,
+    "maxVisitedUrls": 10000,
+    "ignoreRobotsTxt": false
+  },
+  "tables": {
+    "certificate-info": {
+      "rows": [
+        {
+          "info": "RAW certificate output",
+          "value": "Certificate:\n    Data:\n        Version: 3 (0x2)\n        Serial Number:\n            3a:5e:e1:92:b3:18:b1:0c:8a:ff:d6:d6\n        Signature Algorithm: sha256WithRSAEncryption\n        Issuer: C = BE, O = GlobalSign nv-sa, CN = GlobalSign GCC R6 AlphaSSL CA 2025\n        Validity\n            Not Before: Feb  9 15:43:30 2026 GMT\n            Not After : Mar 13 15:43:29 2027 GMT\n        Subject: CN = *.siteone.io\n        Subject Public Key Info:\n            Public Key Algorithm: id-ecPublicKey\n                Public-Key: (256 bit)\n                pub:\n                    04:6f:74:08:f9:5a:a7:0c:ff:69:30:7f:15:12:90:\n                    9e:91:8e:80:3e:12:2b:cf:26:69:03:42:42:88:bc:\n                    b5:3d:4d:73:76:90:bb:39:30:cd:fd:82:79:c3:88:\n                    1f:d9:40:06:74:04:37:a5:48:86:2b:d7:ef:cb:b6:\n                    f1:9f:39:7f:9a\n                ASN1 OID: prime256v1\n                NIST CURVE: P-256\n        X509v3 extensions:\n            X509v3 Key Usage: critical\n                Digital Signature\n            X509v3 Basic Constraints: critical\n                CA:FALSE\n            Authority Information Access: \n                CA Issuers - URI:http://secure.globalsign.com/cacert/gsgccr6alphasslca2025.crt\n                OCSP - URI:http://ocsp.globalsign.com/gsgccr6alphasslca2025\n            X509v3 Certificate Policies: \n                Policy: 2.23.140.1.2.1\n                Policy: 1.3.6.1.4.1.4146.10.1.3\n                  CPS: https://www.globalsign.com/repository/\n            X509v3 CRL Distribution Points: \n                Full Name:\n                  URI:http://crl.globalsign.com/gsgccr6alphasslca2025.crl\n            X509v3 Subject Alternative Name: \n                DNS:*.siteone.io, DNS:siteone.io\n            X509v3 Extended Key Usage: \n                TLS Web Server Authentication, TLS Web Client Authentication\n            X509v3 Authority Key Identifier: \n                C5:B4:93:8F:6F:2B:DC:1E:48:BF:B7:10:30:85:CE:D1:B2:BB:48:2D\n            X509v3 Subject Key Identifier: \n                C7:E1:4D:93:BD:A2:18:AA:F4:FF:3B:F0:8D:7F:7F:8D:2E:C0:2F:C4\n            CT Precertificate SCTs: \n                Signed Certificate Timestamp:\n                    Version   : v1 (0x0)\n                    Log ID    : 1C:9F:68:2C:E9:FA:F0:45:69:50:F8:1B:96:8A:87:DD:\n                                DB:32:10:D8:4C:E6:C8:B2:E3:82:52:4A:C4:CF:59:9F\n                    Timestamp : Feb  9 15:43:33.998 2026 GMT\n                    Extensions: none\n                    Signature : ecdsa-with-SHA256\n                                30:45:02:21:00:B9:2C:BE:99:33:6A:9A:E2:6B:0F:45:\n                                21:1D:61:57:A1:44:E0:2F:1A:97:8F:6E:B2:20:90:EA:\n                                29:C6:8E:2B:B0:02:20:68:88:48:D5:DB:91:05:B6:BD:\n                                C3:8A:BB:B4:4B:06:AF:86:6A:C0:14:47:9C:F4:49:51:\n                                04:A0:7E:C7:24:43:84\n                Signed Certificate Timestamp:\n                    Version   : v1 (0x0)\n                    Log ID    : 8E:CA:47:0B:AC:DE:6A:F3:A2:06:B0:A4:7A:84:B7:46:\n                                FE:1F:C6:BF:95:3E:25:E6:9B:4E:E4:02:48:F3:C6:E8\n                    Timestamp : Feb  9 15:43:33.773 2026 GMT\n                    Extensions: 00:00:05:00:02:87:F7:42\n                    Signature : ecdsa-with-SHA256\n                                30:46:02:21:00:F8:9D:85:F9:39:A8:45:BA:B7:E5:66:\n                                0E:F4:30:96:25:E1:DC:68:8A:27:FD:50:09:CB:B1:E8:\n                                7B:62:AC:81:43:02:21:00:D0:8C:58:9B:E9:33:B2:69:\n                                98:2F:67:63:92:09:A8:BA:28:86:91:1D:B8:1A:AA:76:\n                                24:11:25:57:95:AC:E4:6C\n                Signed Certificate Timestamp:\n                    Version   : v1 (0x0)\n                    Log ID    : 4C:63:DC:98:E5:9C:1D:AB:88:F6:1E:8A:3D:DE:AE:8F:\n                                AB:44:A3:37:7B:5F:9B:94:C3:FB:A1:9C:FC:C1:BE:26\n                    Timestamp : Feb  9 15:43:33.289 2026 GMT\n                    Extensions: none\n                    Signature : ecdsa-with-SHA256\n                                30:44:02:20:69:87:55:72:C8:42:25:16:96:0D:84:9F:\n                                59:E8:76:38:6C:4E:F3:7B:B3:F9:A6:B9:01:13:C6:61:\n                                85:D3:2F:E8:02:20:0A:AE:F2:AE:5E:AA:7D:A9:92:96:\n                                06:DE:1A:A5:39:26:CE:EB:74:F9:C5:12:7F:DC:9F:5B:\n                                A9:AD:4A:0C:33:81\n    Signature Algorithm: sha256WithRSAEncryption\n    Signature Value:\n        54:38:06:65:1b:89:af:97:d5:b5:ab:88:03:49:99:7c:0f:fa:\n        99:d2:cf:6d:01:a3:eb:67:9f:f6:d2:0f:f2:18:41:4f:78:93:\n        6a:b8:c8:65:4c:09:b4:30:fb:51:45:4e:26:a2:0c:cf:d9:71:\n        e4:5c:ab:29:20:87:ad:87:49:03:22:28:0b:aa:67:89:0a:99:\n        e1:05:27:ae:c2:80:7d:d1:5e:16:95:a6:9c:3e:d3:4c:4f:d0:\n        70:4a:a4:d6:b5:a4:7f:ba:be:d1:91:37:d3:41:63:c7:7d:34:\n        de:d8:a1:12:1d:af:0b:2d:c3:49:be:6b:7c:46:cc:b2:f1:5d:\n        e3:f8:d2:ed:0e:49:bf:50:e7:c8:c8:06:4b:2f:8f:ea:d4:f7:\n        1b:42:10:b1:c6:d7:74:42:01:6e:57:ec:46:b9:73:e7:72:4d:\n        f9:66:a9:e3:2a:2e:f1:75:7c:34:19:e0:4d:83:8d:e2:df:a6:\n        49:54:84:3a:70:f0:55:ea:94:de:8c:4f:e7:cc:27:1d:2a:39:\n        dd:45:ed:a7:67:f9:fe:42:d1:8e:dd:99:67:41:1a:13:e8:0f:\n        be:66:ec:28:51:44:6f:f9:4b:81:45:5f:20:99:98:a2:88:40:\n        64:e7:86:dd:4f:56:91:5e:d3:b7:91:69:e7:d2:7c:16:53:e8:\n        91:24:48:5b\n"
+        },
+        {
+          "info": "RAW protocols output",
+          "value": "\n=== ssl2 ===\ns_client: Unknown option: -ssl2\ns_client: Use -help for summary.\n\n=== ssl3 ===\ns_client: Unknown option: -ssl3\ns_client: Use -help for summary.\n\n=== tls1 ===\n40A73279927E0000:error:0A00042E:SSL routines:ssl3_read_bytes:tlsv1 alert protocol version:ssl/record/rec_layer_s3.c:1605:SSL alert number 70\nCONNECTED(00000003)\n---\nno peer certificate available\n---\nNo client certificate CA names sent\n---\nSSL handshake has read 7 bytes and written 131 bytes\nVerification: OK\n---\nNew, (NONE), Cipher is (NONE)\nSecure Renegotiation IS NOT supported\nCompression: NONE\nExpansion: NONE\nNo ALPN negotiated\nSSL-Session:\n    Protocol  : TLSv1\n    Cipher    : 0000\n    Session-ID: \n    Session-ID-ctx: \n    Master-Key: \n    PSK identity: None\n    PSK identity hint: None\n    SRP username: None\n    Start Time: 1773672922\n    Timeout   : 7200 (sec)\n    Verify return code: 0 (ok)\n    Extended master secret: no\n---\n\n=== tls1_1 ===\n4097DCBCC9700000:error:0A00042E:SSL routines:ssl3_read_bytes:tlsv1 alert protocol version:ssl/record/rec_layer_s3.c:1605:SSL alert number 70\nCONNECTED(00000003)\n---\nno peer certificate available\n---\nNo client certificate CA names sent\n---\nSSL handshake has read 7 bytes and written 131 bytes\nVerification: OK\n---\nNew, (NONE), Cipher is (NONE)\nSecure Renegotiation IS NOT supported\nCompression: NONE\nExpansion: NONE\nNo ALPN negotiated\nSSL-Session:\n    Protocol  : TLSv1.1\n    Cipher    : 0000\n    Session-ID: \n    Session-ID-ctx: \n    Master-Key: \n    PSK identity: None\n    PSK identity hint: None\n    SRP username: None\n    Start Time: 1773672922\n    Timeout   : 7200 (sec)\n    Verify return code: 0 (ok)\n    Extended master secret: no\n---\n\n=== tls1_2 ===\ndepth=2 OU = GlobalSign Root CA - R6, O = GlobalSign, CN = GlobalSign\nverify return:1\ndepth=1 C = BE, O = GlobalSign nv-sa, CN = GlobalSign GCC R6 AlphaSSL CA 2025\nverify return:1\ndepth=0 CN = *.siteone.io\nverify return:1\nCONNECTED(00000003)\n---\nCertificate chain\n 0 s:CN = *.siteone.io\n   i:C = BE, O = GlobalSign nv-sa, CN = GlobalSign GCC R6 AlphaSSL CA 2025\n   a:PKEY: id-ecPublicKey, 256 (bit); sigalg: RSA-SHA256\n   v:NotBefore: Feb  9 15:43:30 2026 GMT; NotAfter: Mar 13 15:43:29 2027 GMT\n 1 s:C = BE, O = GlobalSign nv-sa, CN = GlobalSign GCC R6 AlphaSSL CA 2025\n   i:OU = GlobalSign Root CA - R6, O = GlobalSign, CN = GlobalSign\n   a:PKEY: rsaEncryption, 2048 (bit); sigalg: RSA-SHA256\n   v:NotBefore: May 21 02:36:52 2025 GMT; NotAfter: May 21 00:00:00 2027 GMT\n---\nServer certificate\n-----BEGIN CERTIFICATE-----\nMIIFlDCCBHygAwIBAgIMOl7hkrMYsQyK/9bWMA0GCSqGSIb3DQEBCwUAMFUxCzAJ\nBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSswKQYDVQQDEyJH\nbG9iYWxTaWduIEdDQyBSNiBBbHBoYVNTTCBDQSAyMDI1MB4XDTI2MDIwOTE1NDMz\nMFoXDTI3MDMxMzE1NDMyOVowFzEVMBMGA1UEAwwMKi5zaXRlb25lLmlvMFkwEwYH\nKoZIzj0CAQYIKoZIzj0DAQcDQgAEb3QI+VqnDP9pMH8VEpCekY6APhIrzyZpA0JC\niLy1PU1zdpC7OTDN/YJ5w4gf2UAGdAQ3pUiGK9fvy7bxnzl/mqOCA2swggNnMA4G\nA1UdDwEB/wQEAwIHgDAMBgNVHRMBAf8EAjAAMIGZBggrBgEFBQcBAQSBjDCBiTBJ\nBggrBgEFBQcwAoY9aHR0cDovL3NlY3VyZS5nbG9iYWxzaWduLmNvbS9jYWNlcnQv\nZ3NnY2NyNmFscGhhc3NsY2EyMDI1LmNydDA8BggrBgEFBQcwAYYwaHR0cDovL29j\nc3AuZ2xvYmFsc2lnbi5jb20vZ3NnY2NyNmFscGhhc3NsY2EyMDI1MFcGA1UdIARQ\nME4wCAYGZ4EMAQIBMEIGCisGAQQBoDIKAQMwNDAyBggrBgEFBQcCARYmaHR0cHM6\nLy93d3cuZ2xvYmFsc2lnbi5jb20vcmVwb3NpdG9yeS8wRAYDVR0fBD0wOzA5oDeg\nNYYzaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2YWxwaGFzc2xjYTIw\nMjUuY3JsMCMGA1UdEQQcMBqCDCouc2l0ZW9uZS5pb4IKc2l0ZW9uZS5pbzAdBgNV\nHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwHwYDVR0jBBgwFoAUxbSTj28r3B5I\nv7cQMIXO0bK7SC0wHQYDVR0OBBYEFMfhTZO9ohiq9P878I1/f40uwC/EMIIBhgYK\nKwYBBAHWeQIEAgSCAXYEggFyAXAAdgAcn2gs6frwRWlQ+BuWiofd2zIQ2EzmyLLj\nglJKxM9ZnwAAAZxDEohuAAAEAwBHMEUCIQC5LL6ZM2qa4msPRSEdYVehROAvGpeP\nbrIgkOopxo4rsAIgaIhI1duRBba9w4q7tEsGr4ZqwBRHnPRJUQSgfsckQ4QAfwCO\nykcLrN5q86IGsKR6hLdG/h/Gv5U+JeabTuQCSPPG6AAAAZxDEoeNAAgAAAUAAof3\nQgQDAEgwRgIhAPidhfk5qEW6t+VmDvQwliXh3GiKJ/1QCcux6HtirIFDAiEA0IxY\nm+kzsmmYL2djkgmouiiGkR24Gqp2JBElV5Ws5GwAdQBMY9yY5Zwdq4j2Hoo93q6P\nq0SjN3tfm5TD+6Gc/MG+JgAAAZxDEoWpAAAEAwBGMEQCIGmHVXLIQiUWlg2En1no\ndjhsTvN7s/mmuQETxmGF0y/oAiAKrvKuXqp9qZKWBt4apTkmzut0+cUSf9yfW6mt\nSgwzgTANBgkqhkiG9w0BAQsFAAOCAQEAVDgGZRuJr5fVtauIA0mZfA/6mdLPbQGj\n62ef9tIP8hhBT3iTarjIZUwJtDD7UUVOJqIMz9lx5FyrKSCHrYdJAyIoC6pniQqZ\n4QUnrsKAfdFeFpWmnD7TTE/QcEqk1rWkf7q+0ZE300Fjx3003tihEh2vCy3DSb5r\nfEbMsvFd4/jS7Q5Jv1DnyMgGSy+P6tT3G0IQscbXdEIBblfsRrlz53JN+Wap4you\n8XV8NBngTYON4t+mSVSEOnDwVeqU3oxP58wnHSo53UXtp2f5/kLRjt2ZZ0EaE+gP\nvmbsKFFEb/lLgUVfIJmYoohAZOeG3U9WkV7Tt5Fp59J8FlPokSRIWw==\n-----END CERTIFICATE-----\nsubject=CN = *.siteone.io\nissuer=C = BE, O = GlobalSign nv-sa, CN = GlobalSign GCC R6 AlphaSSL CA 2025\n---\nNo client certificate CA names sent\nPeer signing digest: SHA256\nPeer signature type: ECDSA\nServer Temp Key: X25519, 253 bits\n---\nSSL handshake has read 3352 bytes and written 308 bytes\nVerification: OK\n---\nNew, TLSv1.2, Cipher is ECDHE-ECDSA-AES256-GCM-SHA384\nServer public key is 256 bit\nSecure Renegotiation IS supported\nCompression: NONE\nExpansion: NONE\nNo ALPN negotiated\nSSL-Session:\n    Protocol  : TLSv1.2\n    Cipher    : ECDHE-ECDSA-AES256-GCM-SHA384\n    Session-ID: 19B120BD7161E7019CEDF16CB4797E62F7446CD3EDEFFEDB608BF413921B4A7B\n    Session-ID-ctx: \n    Master-Key: 328F39D262554060A1EA39DF60ADF39266874AD839492BC4015B4C5549D01B077F950819D7E595B0A467ED00490F61A9\n    PSK identity: None\n    PSK identity hint: None\n    SRP username: None\n    TLS session ticket lifetime hint: 600 (seconds)\n    TLS session ticket:\n    0000 - 1b c2 18 67 f0 52 b2 61-ea 4f a2 db 95 f6 e4 91   ...g.R.a.O......\n    0010 - dd ec bc 83 82 0a 46 a5-6d a2 2c 4b bf 49 90 5c   ......F.m.,K.I.\\\n    0020 - 3c 3a b5 c6 01 db a3 31-24 02 83 c6 7e b1 94 91   <:.....1$...~...\n    0030 - 35 94 26 12 fc 24 bb 55-74 0e b9 cd a8 9d 55 8c   5.&..$.Ut.....U.\n    0040 - ac 2b d1 28 f3 4d 5f c3-f9 84 a5 24 99 ce 1f 32   .+.(.M_....$...2\n    0050 - 25 bb 63 49 33 55 3b 5e-74 fd 4e 76 f7 94 e8 52   %.cI3U;^t.Nv...R\n    0060 - f5 a1 ad 53 04 2e 13 c0-60 4d 6e fb 70 e4 a0 07   ...S....`Mn.p...\n    0070 - 4e 16 ab 18 f1 9e 43 92-9f a5 0c ad c8 6c 42 50   N.....C......lBP\n    0080 - da 1f cf a5 47 e2 38 3a-03 3f d6 a9 5b d5 e0 79   ....G.8:.?..[..y\n    0090 - 7e 49 1f 9c 5c 9d b0 f9-70 63 ff 19 9e 05 ff 35   ~I..\\...pc.....5\n    00a0 - 6b a4 e0 88 60 92 65 cf-88 19 db 4f d8 92 10 5f   k...`.e....O..._\n    00b0 - f9 e0 3b d7 d1 c0 91 9d-ee 4e f9 31 1d a2 cd 0b   ..;......N.1....\n    00c0 - a2 dd ab 49 63 e5 38 40-a0 00 72 54 fe f3 e8 c8   ...Ic.8@..rT....\n\n    Start Time: 1773672922\n    Timeout   : 7200 (sec)\n    Verify return code: 0 (ok)\n    Extended master secret: yes\n---\nDONE\n\n=== tls1_3 ===\n401761A9FC7D0000:error:0A00042E:SSL routines:ssl3_read_bytes:tlsv1 alert protocol version:ssl/record/rec_layer_s3.c:1605:SSL alert number 70\nCONNECTED(00000003)\n---\nno peer certificate available\n---\nNo client certificate CA names sent\n---\nSSL handshake has read 7 bytes and written 252 bytes\nVerification: OK\n---\nNew, (NONE), Cipher is (NONE)\nSecure Renegotiation IS NOT supported\nCompression: NONE\nExpansion: NONE\nNo ALPN negotiated\nEarly data was not sent\nVerify return code: 0 (ok)\n---\n"
+        }
+      ]
+    }
+  }
+}

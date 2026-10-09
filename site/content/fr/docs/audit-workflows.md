@@ -109,6 +109,8 @@ Un `traffic_health_check` séparé peut comparer clics GSC et sessions GA4 avec 
 
 ## Prévisualiser un export SiteOne en mémoire (depuis 1.4.0)
 
+Le correctif source après 1.4.0 accepte les longues chaînes des annexes exclues de la sortie, sans relever le plafond de 4096 caractères des champs utilisés ni les limites globales d’octets, profondeur, UTF-8 et nombres finis. Une fixture reprend les 73 lignes de l’export public SiteOne à la révision `f3d967b190a77ff5f816b7ddab74c1a778d9dbaf` ; aucun crawler n’est exécuté et l’état actuel du site n’est pas vérifié.
+
 ```python
 crawl_import_preview(report_json='{"results":[]}', producer="siteone")
 ```

@@ -73,19 +73,22 @@ def _check_nesting(raw: str) -> None:
             depth -= 1
 
 
-def _check_values(value: object) -> None:
+def _check_values(value: object, bounded_strings: bool = True, is_root: bool = False) -> None:
     if isinstance(value, str):
-        if len(value) > _LIMITS["string_chars"] or any(0xD800 <= ord(c) <= 0xDFFF for c in value):
+        if (bounded_strings and len(value) > _LIMITS["string_chars"]) or any(0xD800 <= ord(c) <= 0xDFFF for c in value):
             raise _Rejected("scalar_limit")
     elif isinstance(value, float) and not math.isfinite(value):
         raise _Rejected("invalid_json")
     elif isinstance(value, dict):
         for key, child in value.items():
             _check_values(key)
-            _check_values(child)
+            # Unsupported top-level annexes are withheld, never projected into
+            # observations. The whole-document byte/depth/numeric/UTF8 limits
+            # still apply; long public certificates need not reject every row.
+            _check_values(child, bounded_strings=bounded_strings and (not is_root or key in _TOP_FIELDS))
     elif isinstance(value, list):
         for child in value:
-            _check_values(child)
+            _check_values(child, bounded_strings=bounded_strings)
 
 
 def _parse(raw: str) -> tuple[dict[str, object], bytes]:
@@ -106,7 +109,7 @@ def _parse(raw: str) -> tuple[dict[str, object], bytes]:
         if isinstance(error, _Rejected):
             raise
         raise _Rejected("invalid_json") from None
-    _check_values(document)
+    _check_values(document, is_root=True)
     if not isinstance(document, dict) or not isinstance(document.get("results"), list):
         raise _Rejected("unsupported_schema")
     if {"private_key", "private_key_id", "client_secret", "refresh_token"} & document.keys():
