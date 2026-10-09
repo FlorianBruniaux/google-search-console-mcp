@@ -2,7 +2,7 @@
 title: "Scénarios guidés"
 description: "Choisir un workflow prêt à utiliser pour les audits, le trafic, l’indexation et le contenu."
 lang: fr
-lastUpdated: 2026-10-07
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/examples/
 ---
 
@@ -17,6 +17,8 @@ Chaque scénario commence en lecture seule. Remplacez `yourdomain.com` par la pr
 - [Investigation d’une chute de trafic](/fr/docs/examples/traffic-drop/)
 - [Problèmes d’indexation](/fr/docs/examples/indexing-issues/)
 - [Brief de contenu](/fr/docs/examples/content-brief/)
+
+La version 1.4.0 compte 89 outils. Les [prompts de test, référence hebdomadaire, suivi de modification et import de crawl](/fr/docs/prompts/) complètent les scénarios ci-dessus. Les [workflows éditoriaux](/fr/docs/editorial-workflows/) et [audits bornés](/fr/docs/audit-workflows/) donnent leurs limites.
 
 Lisez aussi les [limites de preuve et règles de sécurité](/fr/docs/evidence-and-safety/).
 

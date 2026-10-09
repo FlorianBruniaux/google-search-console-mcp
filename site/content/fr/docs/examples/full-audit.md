@@ -2,7 +2,7 @@
 title: "Audit SEO complet"
 description: "Exécuter un audit multi-source structuré avec des limites de preuve explicites."
 lang: fr
-lastUpdated: 2026-10-06
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/examples/full-audit/
 ---
 
@@ -24,6 +24,10 @@ Le rapport doit conserver la source et la fenêtre avec chaque chiffre.
 
 [Lire la version anglaise canonique](/docs/examples/full-audit/).
 
-## Destinations HTTP dans le code source
+## Destinations HTTP (depuis 1.3.0)
 
 `link_targets_audit(url, max_targets=30, max_requests=60)` observe les destinations internes d’une page affectée et conserve ses ancres. Les GET source et redirections partagent le budget. Un 404 reçu est observé ; timeout ou refus laisse le statut terminal indisponible. Consultez les [audits à périmètre borné](/fr/docs/audit-workflows/) pour interpréter une couverture partielle.
+
+## Suivis facultatifs en 1.4.0
+
+Utilisez `search_weekday_reference` pour comparer des fenêtres Google disjointes sur les mêmes jours de semaine. Si un brouillon ou une révision est fourni, `editorial_audit` et `rewrite_fidelity_check` signalent des candidats de relecture mécanique bornée. Appelez `seo_change_impact` après la déclaration d’un événement réel sur une page et la confirmation des fenêtres avant/après égales. Prévisualisez un export SiteOne JSON fourni avec `crawl_import_preview`, sans inventer d’export ni traiter ses scores comme des preuves de classement. Copiez les [prompts 1.4.0](/fr/docs/prompts/) et conservez les états indisponibles et limites de couverture.

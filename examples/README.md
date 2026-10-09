@@ -1,6 +1,6 @@
 # Example Prompts
 
-Scenario-based conversation starters for the published 81-tool registry. Each file covers one use case with a progression from a first question to a deeper investigation.
+Scenario-based conversation starters for the published 89-tool registry in release 1.4.0. Each file covers one use case with a progression from a first question to a deeper investigation.
 
 Start with the first prompt in any file and replace `yourdomain.com` with your property or verified-site URL. Configure the required providers with the [installation guide](../docs/installation.md), [Google setup](../docs/google-setup.md) or [Bing setup](../docs/bing-setup.md).
 
@@ -18,6 +18,8 @@ For a measured example, read the [Claude Code Ultimate Guide run](cc-guide-live-
 | [traffic-drop.md](traffic-drop.md) | Google | Investigate a traffic drop across exact adjacent periods | Intermediate |
 | [indexing-issues.md](indexing-issues.md) | Google | Inspect indexing evidence and eligible submissions | Intermediate |
 | [content-brief.md](content-brief.md) | Google, optional GA4 and CrUX | Build a brief from observed search data | Intermediate |
+
+For the new tools, copy the [1.4.0 smoke test, weekday reference, declared-change and crawl-preview prompts](../docs/starter-prompt.md#test-140-without-provider-access). Read [draft/rewrite workflows](../docs/editorial-workflows.md) and [bounded audit workflows](../docs/audit-workflows.md) for their coverage limits.
 
 ## How to use these
 

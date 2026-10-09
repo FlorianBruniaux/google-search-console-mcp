@@ -9,6 +9,10 @@ Copy one prompt into Claude, Codex or another MCP-compatible client. Replace the
 | Audit Google with optional GA4 | [Google and GA4 audit](#google-and-ga4-audit) |
 | Investigate one URL | [Single-page audit](#single-page-audit) |
 | Submit an eligible page | [Google Indexing API workflow](#google-indexing-api-workflow) |
+| Test 1.4.0 without provider access | [Local tool smoke test](#test-140-without-provider-access) |
+| Compare matching weekdays | [Weekday reference](#weekday-reference) |
+| Follow a declared page edit | [Declared-change follow-up](#declared-change-follow-up) |
+| Preview a supplied crawl export | [Crawl export preview](#crawl-export-preview) |
 
 ## Google and Bing audit
 
@@ -264,3 +268,65 @@ Use sitemap_audit and report:
 4. What is visibility_verdict? This measures search data, not indexation.
 5. If partial_search_visibility, show without_search_data_sample for URL inspection.
 ```
+
+## Test 1.4.0 without provider access
+
+Release 1.4.0 exposes 89 tools by default. A startup family selection can expose fewer; see [installation](installation.md). This smoke test uses synthetic text and does not verify Google or Bing access.
+
+```text
+Use Search Console MCP for a read-only local smoke test.
+1. Call get_capabilities and check that editorial_audit, rewrite_fidelity_check,
+   search_weekday_reference, seo_change_impact and crawl_import_preview are exposed.
+   Report missing tools or startup-family restrictions explicitly.
+2. Call editorial_audit with text="The catch? Read this guide.", language="en",
+   format="plain". Report the status, coverage and returned rule warnings.
+3. Call rewrite_fidelity_check with original="The report covers 12 pages.",
+   revised="The report covers 20 pages.", language="en", format="plain".
+   Inspect the number-change candidates and their original/revised locations.
+4. Preserve each result's metadata and distinguish PASS, FAIL and unverified checks.
+   Do not call Google/Bing, fetch pages, modify files or publish anything.
+A clean mechanical result does not certify factual truth or semantic fidelity.
+```
+
+See [draft and rewrite workflows](editorial-workflows.md) for input bounds and result fields.
+
+## Weekday reference
+
+Replace the property with one you own. This check requires observed Google access.
+
+```text
+Use search_weekday_reference for sc-domain:example.com with days=28,
+max_requests=20 and limit=10. First verify access to that exact Google property.
+Report the effective dates, matching weekdays, coverage, requested data state,
+clicks and impressions. Leave missing or incompatible metrics unavailable.
+The comparison describes observed windows; do not infer annual seasonality or cause.
+Do not perform any write operation.
+```
+
+## Declared-change follow-up
+
+Provide the actual event, URL and date, then agree on explicit equal before/after windows.
+
+```text
+Use seo_change_impact to inspect a page change I explicitly declare.
+Before calling it, ask me for the Google property, exact page URL, event date,
+change description and known concurrent changes if they are missing.
+Propose equal, disjoint before/after windows and wait for me to confirm the inputs.
+Preserve the event as caller-declared, retain coverage and compare available metrics.
+Separate measured changes from hypotheses; do not claim that my edit caused a gain.
+Do not persist the event or perform any write operation.
+```
+
+## Crawl export preview
+
+Supply a SiteOne JSON export without credentials. Exporter-shaped fixtures validate the adapter; a real exporter run remains a separate check.
+
+```text
+Use crawl_import_preview on the SiteOne JSON export I provide, with producer="siteone".
+If I have not provided an export, ask for it rather than inventing one.
+Report accepted, rejected and omitted counts, producer declarations, coverage,
+hashes and errors. Treat imported scores as crawler heuristics, not ranking signals.
+Do not launch a crawler, fetch URLs, read files, install software, persist data or join GSC.
+```
+
+See [bounded audit workflows](audit-workflows.md) for the weekday, event and import contracts.
