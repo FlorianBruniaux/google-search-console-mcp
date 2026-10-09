@@ -1,0 +1,149 @@
+site/tests/dist-discovery.test.mjs
+  s_05ea773ff72f20::t_11b7a05e850927 6,10,31-39,47
+.agents/skills/ai-overviews-impact/SKILL.md
+  s_05ea773ff72f20::t_bcaad19c3a1dab 1-70
+.agents/skills/ai-overviews-impact/evals/calls.json
+  s_05ea773ff72f20::t_b0b1b9e301e43e 1-16
+.agents/skills/ai-overviews-impact/evals/scenarios.json
+  s_05ea773ff72f20::t_32c87d8f8eb66f 1-21
+.agents/skills/cannibalization-check/SKILL.md
+  s_05ea773ff72f20::t_01c72348e9af48 1-24
+.agents/skills/cannibalization-check/evals/calls.json
+  s_05ea773ff72f20::t_6c2377a34dacbc 1-27
+.agents/skills/cannibalization-check/evals/scenarios.json
+  s_05ea773ff72f20::t_c89c4e0853e69b 1-21
+.agents/skills/content-opportunities/SKILL.md
+  s_05ea773ff72f20::t_99523f27a78710 1-23
+.agents/skills/content-opportunities/evals/calls.json
+  s_05ea773ff72f20::t_96fba8f1db1a0b 1-21
+.agents/skills/content-opportunities/evals/scenarios.json
+  s_05ea773ff72f20::t_78e68869cea9dc 1-21
+.agents/skills/heading-audit/SKILL.md
+  s_05ea773ff72f20::t_ccd0ccec733a1a 1-27
+.agents/skills/heading-audit/evals/calls.json
+  s_05ea773ff72f20::t_167b9b5b66ffb8 1-14
+.agents/skills/heading-audit/evals/scenarios.json
+  s_05ea773ff72f20::t_fea4350ed5bbde 1-32
+.agents/skills/indexing-audit/evals/calls.json
+  s_05ea773ff72f20::t_711ad105bb2457 1-21
+.agents/skills/internal-linking-audit/SKILL.md
+  s_05ea773ff72f20::t_89bb711606945d 1-23
+.agents/skills/internal-linking-audit/evals/calls.json
+  s_05ea773ff72f20::t_de110ba45e9fd6 1-13
+.agents/skills/internal-linking-audit/evals/scenarios.json
+  s_05ea773ff72f20::t_5615ab93264d7d 1-26
+.agents/skills/link-equity-map/SKILL.md
+  s_05ea773ff72f20::t_ae4b42f59c719c 1-23
+.agents/skills/link-equity-map/evals/calls.json
+  s_05ea773ff72f20::t_b75fd8579fd1e2 1-17
+.agents/skills/link-equity-map/evals/scenarios.json
+  s_05ea773ff72f20::t_308a155839aa1b 1-23
+.agents/skills/onpage-audit/SKILL.md
+  s_05ea773ff72f20::t_25a7682da8f393 1-23
+.agents/skills/onpage-audit/evals/calls.json
+  s_05ea773ff72f20::t_aed482b54d1707 1-34
+.agents/skills/onpage-audit/evals/scenarios.json
+  s_05ea773ff72f20::t_cfab234dbf97fc 1-25
+.agents/skills/page-deep-dive/SKILL.md
+  s_05ea773ff72f20::t_901e6917792b27 1-29
+.agents/skills/page-deep-dive/evals/calls.json
+  s_05ea773ff72f20::t_d7ab093a08f6e6 1-36
+.agents/skills/page-deep-dive/evals/scenarios.json
+  s_05ea773ff72f20::t_f5e802be2d831a 1-21
+.agents/skills/schema-audit/SKILL.md
+  s_05ea773ff72f20::t_54f798d70c8f3c 1-22
+.agents/skills/schema-audit/evals/calls.json
+  s_05ea773ff72f20::t_58f7d6f7fb3000 1-16
+.agents/skills/schema-audit/evals/scenarios.json
+  s_05ea773ff72f20::t_c2f575cb559ff5 1-19
+.agents/skills/seo-weekly-report/SKILL.md
+  s_05ea773ff72f20::t_3777cd9baacd53 1-28
+.agents/skills/seo-weekly-report/evals/calls.json
+  s_05ea773ff72f20::t_016a7c986cfcba 1-41
+.agents/skills/seo-weekly-report/evals/scenarios.json
+  s_05ea773ff72f20::t_e8199a805d89da 1-21
+.agents/skills/sitemap-audit/evals/calls.json
+  s_05ea773ff72f20::t_a1254b1291945a 1-22
+.agents/skills/traffic-drop-diagnosis/SKILL.md
+  s_05ea773ff72f20::t_c8e4a6a9c77043 1-27
+.agents/skills/traffic-drop-diagnosis/evals/calls.json
+  s_05ea773ff72f20::t_2edefd1cff500b 1-35
+.agents/skills/traffic-drop-diagnosis/evals/scenarios.json
+  s_05ea773ff72f20::t_0e924bddfe36f3 1-21
+.claude/routing-corpus/ai-overviews-impact/scenarios.json
+  s_05ea773ff72f20::t_802d6cb3cf2a65 1
+.claude/routing-corpus/cannibalization-check/scenarios.json
+  s_05ea773ff72f20::t_959480918cba9d 1
+.claude/routing-corpus/content-opportunities/scenarios.json
+  s_05ea773ff72f20::t_6d1f8bee68b9f6 1
+.claude/routing-corpus/heading-audit/scenarios.json
+  s_05ea773ff72f20::t_f13a1d8e1afd53 1
+.claude/routing-corpus/internal-linking-audit/scenarios.json
+  s_05ea773ff72f20::t_40dabda8b3e9fa 1
+.claude/routing-corpus/link-equity-map/scenarios.json
+  s_05ea773ff72f20::t_959f2b702a5c59 1
+.claude/routing-corpus/onpage-audit/scenarios.json
+  s_05ea773ff72f20::t_7db3be01b608ed 1
+.claude/routing-corpus/page-deep-dive/scenarios.json
+  s_05ea773ff72f20::t_a4df1e1e97aa71 1
+.claude/routing-corpus/schema-audit/scenarios.json
+  s_05ea773ff72f20::t_d1f6f7cc24a720 1
+.claude/routing-corpus/seo-weekly-report/scenarios.json
+  s_05ea773ff72f20::t_003f8aecabd186 1
+.claude/routing-corpus/traffic-drop-diagnosis/scenarios.json
+  s_05ea773ff72f20::t_b72ebcef135f3d 1
+.claude/skills/ai-overviews-impact/SKILL.md
+  s_05ea773ff72f20::t_f6fb26a403b54c 1
+.claude/skills/cannibalization-check/SKILL.md
+  s_05ea773ff72f20::t_601f460c37602a 1
+.claude/skills/content-opportunities/SKILL.md
+  s_05ea773ff72f20::t_77ae75ba299f3c 1
+.claude/skills/heading-audit/SKILL.md
+  s_05ea773ff72f20::t_ec211ef57364c5 1
+.claude/skills/internal-linking-audit/SKILL.md
+  s_05ea773ff72f20::t_bf5b15bfb8e4b2 1
+.claude/skills/link-equity-map/SKILL.md
+  s_05ea773ff72f20::t_838ebe26df8999 1
+.claude/skills/onpage-audit/SKILL.md
+  s_05ea773ff72f20::t_e79a0d3177b76b 1
+.claude/skills/page-deep-dive/SKILL.md
+  s_05ea773ff72f20::t_f4be18425676d2 1
+.claude/skills/schema-audit/SKILL.md
+  s_05ea773ff72f20::t_1da77c7e6e8bb1 1
+.claude/skills/seo-weekly-report/SKILL.md
+  s_05ea773ff72f20::t_eb83545d1bb032 1
+.claude/skills/traffic-drop-diagnosis/SKILL.md
+  s_05ea773ff72f20::t_8a077ba14c3702 1
+CHANGELOG.md
+  s_05ea773ff72f20::t_46faaa23e58f8e 5-9
+README.md
+  s_05ea773ff72f20::t_d4b8d536f64772 575,577,588,591-592,602,611,614-615
+docs/validation/2026-10-09-shared-playbooks.md
+  s_05ea773ff72f20::t_2829b8f056d122 1-23
+docs/validation/README.md
+  s_05ea773ff72f20::t_646a67aa3864de 12-13
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_f7ef6a863f3bbc 11-15
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_c71595e4278926 70
+scripts/routing-eval.js
+  s_05ea773ff72f20::t_db7ae2572e469f 45-56,61,68,166,216-217
+tests/test_shared_playbooks.py
+  s_05ea773ff72f20::t_e58563f98a540e 1-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9ba82cf2553ecfcab182535ceb48c69785921e1c",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
