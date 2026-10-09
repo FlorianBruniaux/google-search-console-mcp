@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import importlib
+import inspect
 import json
 import os
 import sys
@@ -41,6 +42,22 @@ def build_payload(pyproject_path: Path, source_root: Path) -> dict[str, Any]:
     if not isinstance(urls, dict):
         raise ValueError("project.urls.Repository must be a non-empty string")
 
+    tools = load_registry(source_root)
+    from gsc_mcp.tool_selection import _MODULE_FAMILIES
+    catalogue = []
+    for name, fn in sorted(tools.items()):
+        implementation = inspect.unwrap(fn)
+        source = inspect.getsourcefile(implementation)
+        if source is None:
+            raise ValueError(f"No source for tool {name}")
+        catalogue.append({
+            "name": name,
+            "family": _MODULE_FAMILIES[fn.__module__.rsplit('.', 1)[-1]],
+            "description": (inspect.getdoc(fn) or name).split("\n\n", 1)[0].replace("\n", " "),
+            "signature": str(inspect.signature(fn)),
+            "source": "src/" + Path(source).resolve().relative_to(source_root.resolve()).as_posix(),
+            "line": inspect.getsourcelines(implementation)[1],
+        })
     return {
         "package": require_string(project, "name", "project.name"),
         "pythonRequires": require_string(
@@ -49,7 +66,8 @@ def build_payload(pyproject_path: Path, source_root: Path) -> dict[str, Any]:
         "repository": require_string(
             urls, "Repository", "project.urls.Repository"
         ),
-        "toolCount": len(load_registry(source_root)),
+        "toolCount": len(tools),
+        "tools": catalogue,
         "version": require_string(project, "version", "project.version"),
     }
 

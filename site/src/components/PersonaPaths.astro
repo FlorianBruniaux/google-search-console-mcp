@@ -1,0 +1,21 @@
+---
+import { getProfiles } from '../data/journeys'
+import type { Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const fr = locale === 'fr'
+---
+<section id="personas" class="section-tinted" aria-labelledby="personas-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="kicker">{fr ? 'Votre parcours' : 'Your path'}</p>
+      <h2 id="personas-title">{fr ? 'Partez de votre métier et de votre objectif.' : 'Start with your role and your goal.'}</h2>
+      <p>{fr ? 'Chaque parcours propose un démarrage guidé et les détails des contrôles. Votre niveau SEO ne détermine pas votre aisance avec MCP.' : 'Each path includes guided setup and detailed checks. SEO experience and familiarity with MCP are separate.'}</p>
+    </div>
+    <div class="persona-grid">
+      {getProfiles(locale).map((profile) => <a class="persona-card" href={profile.href}>
+        <h3>{profile.label}</h3><p>{profile.intro}</p><span class="text-link">{fr ? 'Ouvrir ce parcours' : 'Open this path'} →</span>
+      </a>)}
+    </div>
+  </div>
+</section>

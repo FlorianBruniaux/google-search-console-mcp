@@ -1,0 +1,28 @@
+---
+import { getSiteLinks, type Locale } from '../data/content'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const fr = locale === 'fr'
+const links = getSiteLinks(locale)
+const checks = fr ? [
+  ['analytics', 'Performances et variations', 'Clics, impressions, CTR, positions et contributions des pages ou requêtes sur des fenêtres Google comparables.'],
+  ['inspection', 'Indexation et sitemaps', 'États URL Inspection Google et URL déclarées dans les sitemaps. Les signaux de visibilité restent distincts de l’indexation.'],
+  ['content', 'Technique des pages', 'Canonical, robots, métadonnées, titres, hreflang et contrôles de données structurées sur le HTML récupéré.'],
+  ['links', 'Maillage et destinations', 'Zones de liens, pages sous-liées dans l’échantillon, erreurs HTTP et redirections des destinations.'],
+  ['ga4', 'Après le clic', 'Sessions, engagement et événements GA4 si configuré. Les clics GSC et sessions GA4 restent des mesures différentes.'],
+  ['editorial', 'Contenus et réécritures', 'Règles éditoriales FR/EN sur une page ou un brouillon, puis comparaison mécanique des éléments protégés.'],
+] : [
+  ['analytics', 'Performance and changes', 'Clicks, impressions, CTR, positions and page or query contributions across comparable Google windows.'],
+  ['inspection', 'Indexing and sitemaps', 'Google URL Inspection states and sitemap-declared URLs. Search visibility remains separate from indexing state.'],
+  ['content', 'Page technical checks', 'Canonical, robots, metadata, headings, hreflang and structured-data checks on fetched HTML.'],
+  ['links', 'Internal links and destinations', 'Link zones, underlinked candidates within the sample, HTTP errors and destination redirects.'],
+  ['ga4', 'After the click', 'GA4 sessions, engagement and events when configured. GSC clicks and GA4 sessions remain different measurements.'],
+  ['editorial', 'Content and rewrites', 'FR/EN editorial rules on a page or draft, then mechanical comparisons of protected elements.'],
+]
+---
+<section id="audit-checks" aria-labelledby="audit-checks-title">
+  <div class="container">
+    <div class="section-heading"><p class="kicker">{fr ? 'Le périmètre de l’audit' : 'Audit scope'}</p><h2 id="audit-checks-title">{fr ? 'Ce que votre assistant peut vérifier.' : 'What your assistant can check.'}</h2><p>{fr ? 'Votre demande détermine les contrôles exécutés. Chaque résultat garde ses sources et ses limites ; les données manquantes sont signalées.' : 'Your request determines which checks run. Results retain their sources and boundaries; missing data is reported.'}</p></div>
+    <div class="audit-check-grid">{checks.map(([family, title, description]) => <article><h3>{title}</h3><p>{description}</p><a class="text-link" href={`${links.tools}#family-${family}`}>{fr ? 'Voir les outils et leurs limites' : 'See tools and their limits'} →</a></article>)}</div>
+  </div>
+</section>
