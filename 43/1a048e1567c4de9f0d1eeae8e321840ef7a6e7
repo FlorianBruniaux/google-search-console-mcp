@@ -1,0 +1,78 @@
+src/gsc_mcp/tools/crawl_snapshots.py
+  s_05ea773ff72f20::t_03816f001983bb 1-345
+.agents/skills/crawl-import/SKILL.md
+  s_05ea773ff72f20::t_3b1b9bd14aef97 1-18
+docs/crawl-snapshots.md
+  s_05ea773ff72f20::t_3b1b9bd14aef97 1-35
+tests/test_crawl_snapshots.py
+  s_05ea773ff72f20::t_52805d8b0180f2 1-198
+  s_05ea773ff72f20::t_63166a1e8b7409 199-204
+docs/validation/2026-10-09-crawl-snapshots.md
+  s_05ea773ff72f20::t_d45bc07d9150ea 1-11
+.agents/skills/crawl-import/evals/calls.json
+  s_05ea773ff72f20::t_3b1b9bd14aef97 1-11
+.agents/skills/crawl-import/evals/scenarios.json
+  s_05ea773ff72f20::t_3b1b9bd14aef97 1-19
+src/gsc_mcp/evidence.py
+  s_05ea773ff72f20::t_f85cf4fdb14c50 387-406,430-431
+README.md
+  s_05ea773ff72f20::t_851440acf86ae4 17,42,298,330,400,402,406-407,411,462,586,631,664
+.claude/routing-corpus/crawl-import/scenarios.json
+  s_05ea773ff72f20::t_1d3697d85304f9 1
+.claude/skills/crawl-import/SKILL.md
+  s_05ea773ff72f20::t_ee18e778e2aa2b 1
+CHANGELOG.md
+  s_05ea773ff72f20::t_568a0196200c88 7-8
+CLAUDE.md
+  s_05ea773ff72f20::t_69799c9c21174b 45,47,131,134
+docs/architecture.md
+  s_05ea773ff72f20::t_ae8f39ebe1196f 7,15
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_7cabbb71706b1e 188-192
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_827533734979c5 7,16,374
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_0dc8a6fa2fd393 15
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_32fae4e355df48 187-191
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_e6e7ae887bc407 13-14
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_b3fa2511f81227 62,70,86
+src/gsc_mcp/registry.py
+  s_05ea773ff72f20::t_4c320b54332ce2 110,126-129
+src/gsc_mcp/tool_selection.py
+  s_893b7c0845ee29::t_29354c760b4ad5 10
+src/gsc_mcp/tools/crawl_import.py
+  s_893b7c0845ee29::t_1b500984a05824 322,334
+src/gsc_mcp/tools/properties.py
+  s_05ea773ff72f20::t_9d8c4a23b0969b 18-21
+tests/test_evidence.py
+  s_05ea773ff72f20::t_68242f2f757df9 537-555,766-770
+tests/test_registry.py
+  s_05ea773ff72f20::t_c45638fb19cded 46-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "431a048e1567c4de9f0d1eeae8e321840ef7a6e7",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_893b7c0845ee29": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12224-f935-73f0-a13d-83384f452e69",
+        "model": "unknown"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
