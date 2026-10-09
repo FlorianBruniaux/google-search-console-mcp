@@ -194,3 +194,5 @@ Use `crawl_snapshot_import` with default preview before choosing `persist=True`.
 `crawl_diff` compares two stored inventories without crawling. Keep both source envelopes, compatibility reasons and omitted changes; absent inventory URLs do not prove deletion. Optional field policies remain bounded to matched retained rows.
 
 `indexing_evidence_matrix` reconciles an explicit URL sample with supplied inspection/HTML/search/inventory/log observations and an optional stored snapshot. Source origin/times remain caller-supplied, contradictions stay visible, and current indexing is unknown. See the [matrix contract](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/indexing-evidence-matrix.md).
+
+The [optional main-content extraction profile](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/content-extraction.md) evaluates already-acquired HTML without replacing the default extractor. Missing or failed extraction is unavailable; human-labelled recall and adoption remain gated.

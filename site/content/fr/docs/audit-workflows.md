@@ -193,3 +193,5 @@ Commencez par `crawl_snapshot_import` en mode aperçu avant de choisir `persist=
 `crawl_diff` compare deux inventaires stockés sans crawl. Conservez les deux sources, les raisons de compatibilité et les changements omis ; une URL absente ne prouve pas sa suppression. Les politiques par champ restent limitées aux lignes communes retenues.
 
 `indexing_evidence_matrix` rapproche un échantillon explicite d’URLs avec des observations fournies d’inspection, HTML, GSC, inventaire et logs, et un snapshot optionnel. Origine/dates restent déclarées, contradictions visibles et indexation actuelle inconnue. Consultez le [contrat de la matrice](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/indexing-evidence-matrix.md).
+
+Le [profil optionnel d’extraction du contenu principal](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/content-extraction.md) analyse le HTML déjà récupéré. Il conserve le profil par défaut ; une extraction absente ou échouée reste indisponible. La qualité et l’adoption exigent des annotations humaines.
