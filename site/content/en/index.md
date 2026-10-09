@@ -46,4 +46,4 @@ Read the [architecture](/docs/architecture/), review the [changelog](/docs/chang
 
 For explicit Google comparison windows and bounded destination HTTP checks, use [bounded audit workflows](/docs/audit-workflows/). These tools were added in release 1.3.0. Version 1.3.1 retains the 85-tool registry and adds [startup family selection](/docs/installation/), CLI JSON string lists and SEO/Bing feedback fixes.
 
-Version 1.4.0 exposes 89 tools, adding declared-change follow-up, draft/rewrite checks, weekday reference and crawl import preview. Read [editorial workflows](/docs/editorial-workflows/) for the draft and mechanical comparison boundaries.
+Version 1.5.0 exposes 96 tools, including bounded local logs, stored crawl observations, inventory differences and an indexing evidence matrix. Main-content extraction is optional and richer traffic references remain descriptive. Read [editorial workflows](/docs/editorial-workflows/) for the draft and mechanical comparison boundaries.

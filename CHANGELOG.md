@@ -2,17 +2,21 @@
 
 ## [Unreleased]
 
-<!-- unreleased-updated: 2026-10-09 -->
+## [1.5.0] - 2026-10-09
+
+Seven new tools bring the registry to 96. Local imports and reconciliations preserve unknown indexing, missing values, exact source identity and bounded coverage. No new default provider access or external write is enabled.
+
+Merged feature PRs: #61 (persona navigation/catalogue), #65 (traffic references), #67 (local logs), #68 (crawl snapshots/joins), #69 (crawl differences), #70 (indexing matrix), #71 (optional extraction). Correctness and workflow changes: #62, #63, #64, #66.
 
 - Add an experimental optional Trafilatura precision profile to `content_quality`, with source/version/options/hash, independent calls and unavailable extraction without placeholder scores (#41). The default visible-text profile remains unchanged.
 
-- Add `indexing_evidence_matrix`: bounded supplied per-URL observations, source-referenced contradictions and literal canonical chains; no acquisition, current indexing boolean or rendering inference (#44). Source catalogue: 96 tools.
+- Add `indexing_evidence_matrix`: bounded supplied per-URL observations, source-referenced contradictions and literal canonical chains; no acquisition, current indexing boolean or rendering inference (#44).
 
-- Add `crawl_diff` for two exact site-owned snapshots: bounded inventory membership and compatible observed field differences, unknown deletion/indexing, duplicate-key abstention and optional named-field CI rules (#48). Source catalogue: 95 tools.
+- Add `crawl_diff` for two exact site-owned snapshots: bounded inventory membership and compatible observed field differences, unknown deletion/indexing, duplicate-key abstention and optional named-field CI rules (#48).
 
-- Add versioned site-owned crawl snapshots: optional private local storage, quota/idempotency checks, paginated full inventories, explicit cleanup and bounded exact-URL GSC/link-map reconciliation (#42). The source registry contains 94 tools; supplied metadata does not authenticate provider origin.
+- Add versioned site-owned crawl snapshots: optional private local storage, quota/idempotency checks, paginated full inventories, explicit cleanup and bounded exact-URL GSC/link-map reconciliation (#42). Supplied metadata does not authenticate provider origin.
 
-- Add `crawl_log_audit` and a shared read-only log skill: bounded local common/combined parsing, masked sensitive fields, explicit coverage and optional current Google IP-range membership (#43). The source registry now contains 90 tools; historical identity and indexing remain unverified.
+- Add `crawl_log_audit` and a shared read-only log skill: bounded local common/combined parsing, masked sensitive fields, explicit coverage and optional current Google IP-range membership (#43). Historical identity and indexing remain unverified.
 
 - Accept long strings in withheld SiteOne top-level annexes while retaining supported-field and global input limits. Add a licensed public-export fixture and replay all 73 rows (#42 compatibility).
 
@@ -23,8 +27,8 @@
 - Preserve explicit zero versus unavailable appearance metrics, requested dates and source identity; distinguish malformed/partial responses without inferring AI exposure (#37).
 - Scope report finding identities to source options and rule version v2; retain observations, missing criteria and verification steps under the existing whole-response byte budget (#40).
 
-- Add four bilingual persona paths and a generated 89-tool website catalogue, with audit checks and source-linked examples.
-- Share the 13 SEO playbooks between Claude and Codex from `.agents/skills/`; correct unsupported calls, penalty/AI-loss attribution, schema eligibility claims and unmeasured ranking gains. Add repository discovery, signature and BM25 calibration checks (#38).
+- Add four bilingual persona paths and a generated tool catalogue, with audit checks and source-linked examples.
+- Share the 15 SEO playbooks between Claude and Codex from `.agents/skills/`; correct unsupported calls, penalty/AI-loss attribution, schema eligibility claims and unmeasured ranking gains. Add repository discovery, signature and BM25 calibration checks (#38).
 
 ## [1.4.0] - 2026-10-09
 

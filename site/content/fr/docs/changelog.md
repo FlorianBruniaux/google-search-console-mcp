@@ -8,17 +8,19 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
-## À publier
+## Version 1.5.0, 9 octobre 2026
+
+Le registre contient 96 outils, soit sept ajouts. Les imports et rapprochements locaux conservent les sources, les données manquantes et les limites d’observation.
 
 - Ajouter un profil Trafilatura optionnel à `content_quality`, avec provenance, version, paramètres et hash ; appels indépendants, échec d’extraction indisponible sans score de substitution (#41). Le profil visible par défaut reste inchangé.
 
-- Ajouter `indexing_evidence_matrix` : observations fournies par URL, contradictions sourcées et chaînes canoniques littérales bornées ; aucune acquisition ni inférence d’indexation actuelle ou de rendu (#44). Catalogue source : 96 outils.
+- Ajouter `indexing_evidence_matrix` : observations fournies par URL, contradictions sourcées et chaînes canoniques littérales bornées ; aucune acquisition ni inférence d’indexation actuelle ou de rendu (#44).
 
-- Ajouter `crawl_diff` pour deux snapshots de même propriété : différences bornées d’inventaire et de champs compatibles, indexation/suppression inconnues, refus des clés ambiguës et politique CI sur champs nommés (#48). Catalogue source : 95 outils.
+- Ajouter `crawl_diff` pour deux snapshots de même propriété : différences bornées d’inventaire et de champs compatibles, indexation/suppression inconnues, refus des clés ambiguës et politique CI sur champs nommés (#48).
 
-- Ajouter des snapshots de crawl versionnés : stockage local privé optionnel, quotas et idempotence, inventaire paginé, purge explicite et rapprochement borné avec des rapports GSC/link map fournis (#42). Le registre source contient 94 outils ; les métadonnées fournies ne prouvent pas l’origine fournisseur.
+- Ajouter des snapshots de crawl versionnés : stockage local privé optionnel, quotas et idempotence, inventaire paginé, purge explicite et rapprochement borné avec des rapports GSC/link map fournis (#42). Les métadonnées fournies ne prouvent pas l’origine fournisseur.
 
-- Ajouter `crawl_log_audit` et son guide partagé : lecture locale bornée, champs sensibles masqués, couverture explicite et vérification optionnelle des plages IP Google actuelles (#43). Le registre source contient 90 outils ; identité historique et indexation restent non vérifiées.
+- Ajouter `crawl_log_audit` et son guide partagé : lecture locale bornée, champs sensibles masqués, couverture explicite et vérification optionnelle des plages IP Google actuelles (#43). Identité historique et indexation restent non vérifiées.
 
 - Accepter les longues chaînes des annexes SiteOne exclues de la sortie, sans modifier les limites des champs utilisés ni les limites globales. Ajouter une fixture d’export public avec licence et rejouer ses 73 lignes (#42, compatibilité).
 

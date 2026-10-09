@@ -105,3 +105,48 @@ ne conserve pas les données et ne joins pas GSC.
 ```
 
 Les [audits bornés](/fr/docs/audit-workflows/) détaillent les contrats des fenêtres, événements et imports.
+
+## Tester les preuves locales en 1.5.0
+
+La version 1.5.0 expose 96 outils par défaut. Les familles sélectionnées peuvent réduire ce nombre. Ce test utilise une URL synthétique, sans accès fournisseur.
+
+```text
+Teste Search Console MCP 1.5.0 en lecture seule.
+Vérifie les capacités pour crawl_log_audit, crawl_snapshot_import/read/delete/join,
+crawl_diff et indexing_evidence_matrix. Signale les restrictions de familles.
+Appelle indexing_evidence_matrix avec site="sc-domain:example.com",
+urls=["https://example.com/"], reports_json="[]".
+Vérifie que sans inspection ni rendu, les états restent inconnus/indisponibles,
+et que provider_requests vaut zéro. Conserve les métadonnées.
+Ne récupère aucune page, ne contacte pas Google/Bing, ne lis aucun log,
+ne crée aucun snapshot et n’effectue aucune écriture.
+Ce cas synthétique vérifie le contrat, pas l’indexation réelle ni les accès.
+```
+
+## Rapprocher les observations d’indexation fournies
+
+```text
+Utilise indexing_evidence_matrix sur les URLs et rapports existants que je fournis.
+Demande la propriété exacte et les rapports s’ils manquent. Conserve les sources,
+dates et métadonnées déclarées sans les présenter comme authentifiées.
+Sépare inspection, HTML, visibilité et inventaires sitemap/métier déclarés.
+Montre les contradictions sourcées et les données manquantes. Les chemins de logs
+sans paramètres sont seulement des candidats de rapprochement.
+Ne récupère pas les données à nouveau, ne conclus pas sur l’indexation/rendu actuels
+et n’extrapole pas cet échantillon à tout le site.
+```
+
+## Évaluer un snapshot de crawl sans l’enregistrer
+
+```text
+Sur l’export SiteOne JSON autorisé que je fournis, appelle crawl_snapshot_import
+avec la propriété exacte, producer="siteone" et persist=false. Présente hash,
+version, lignes acceptées/exclues/dupliquées et limites de sélection/collecte.
+Ne conserve rien, ne lance aucun crawler et n’installe rien. Si j’autorise ensuite
+le stockage, conserve le snapshot_id avec sa propriété exacte.
+Pour deux snapshots existants que je sélectionne, utilise crawl_diff.
+Une absence d’inventaire ne prouve ni suppression ni désindexation.
+Les champs manquants ou incompatibles restent indisponibles.
+```
+
+Les contrats des [snapshots](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-snapshots.md) et de la [matrice d’indexation](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/indexing-evidence-matrix.md) précisent les sources, identités et limites.

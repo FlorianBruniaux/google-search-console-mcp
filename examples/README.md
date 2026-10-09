@@ -1,6 +1,6 @@
 # Example Prompts
 
-Scenario-based conversation starters for the published 89-tool registry in release 1.4.0. Each file covers one use case with a progression from a first question to a deeper investigation.
+Scenario-based conversation starters for the 96-tool registry in release 1.5.0. Each file covers one use case with a progression from a first question to a deeper investigation.
 
 Start with the first prompt in any file and replace `yourdomain.com` with your property or verified-site URL. Configure the required providers with the [installation guide](../docs/installation.md), [Google setup](../docs/google-setup.md) or [Bing setup](../docs/bing-setup.md).
 
@@ -28,3 +28,5 @@ Copy a prompt into Claude, Codex or another MCP-compatible client. Each file con
 The prompts work as-is. You don't need to know which API tool runs behind each question.
 
 Read-only analysis does not authorize a write. Before a sitemap, URL, feed or IndexNow mutation, the assistant must name the exact tool and target, report the number of affected items, and wait for explicit confirmation. An accepted submission proves neither crawl nor indexation.
+
+The [1.5.0 local smoke test, indexing matrix and crawl snapshot prompts](../docs/starter-prompt.md#test-150-local-evidence-tools) cover the new local evidence tools without requiring provider access.
