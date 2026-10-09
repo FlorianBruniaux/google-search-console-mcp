@@ -14,6 +14,8 @@ Review a bounded public page using fetched structure, local rules and optional p
 3. If available, resolve site using `list_properties()`, then call `content_brief(site, page_url=url, days=90)` and `crux_page_vitals(url)`. Keep optional GA4/CrUX failures and source windows. Done when unavailable metrics remain visible.
 4. Before proposing deletion, noindex or consolidation, separately obtain 90-day page traffic and `inspect_url(url, site)`, and review intent/business purpose. Missing traffic/indexing blocks the recommendation. Traffic success does not refute a directly observed technical failure. Done when evidence supports a conditional change or a read-only next check.
 
+5. If the caller already has two imported snapshot handles, optionally use `crawl_diff(site, baseline_id, comparison_id)` as a read-only check. Retain source configuration/version, sample omissions and unknown collection order. A URL absent from the second inventory is not a deleted or unindexed page; unavailable fields and ambiguous raw keys block comparisons. Done when before/after findings are bounded by their actual inventories.
+
 ## Output
 
 Scope, failed checks and provider windows; observed elements; local rule flags; contextual review questions; draft fixes with evidence and verification. Expected ranking gains are unknown. No external write is authorized by this workflow.
