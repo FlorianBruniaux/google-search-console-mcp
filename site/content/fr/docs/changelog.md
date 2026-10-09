@@ -10,6 +10,8 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## À publier
 
+- Aligner les outils autorisés des agents avec les guides partagés ; borner les tentatives d’agents et les octets de sources transmis à la synthèse, vérifier la propriété des URLs et conserver les branches ignorées (#39, pilote). Les budgets fournisseurs et l’exécution native restent non vérifiés.
+
 - Conserver les zéros explicites et les métriques d’apparence indisponibles, les dates demandées et la propriété source ; distinguer les réponses partielles ou malformées sans inférer une exposition IA (#37).
 - Les identifiants des constats incluent les options source et la version de règle v2 ; observations, critères manquants et vérification restent explicites dans le budget d’octets du rapport complet (#40).
 

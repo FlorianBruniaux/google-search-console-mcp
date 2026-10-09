@@ -10,6 +10,7 @@ tools:
   - mcp__gsc-mcp__list_properties
   - mcp__gsc-mcp__list_sitemaps
   - mcp__gsc-mcp__sitemap_audit
+  - mcp__gsc-mcp__batch_url_inspection
   - mcp__gsc-mcp__check_indexing_issues
 ---
 

@@ -4,6 +4,8 @@
 
 <!-- unreleased-updated: 2026-10-09 -->
 
+- Align SEO role allowlists with the shared skills; bound host-agent attempts and synthesis input bytes, validate property-selected URLs, preserve skipped branches and share discovery observations (#39 pilot). Native host/provider request budgets remain unverified.
+
 - Preserve explicit zero versus unavailable appearance metrics, requested dates and source identity; distinguish malformed/partial responses without inferring AI exposure (#37).
 - Scope report finding identities to source options and rule version v2; retain observations, missing criteria and verification steps under the existing whole-response byte budget (#40).
 

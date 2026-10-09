@@ -574,7 +574,7 @@ Exit codes: `0` success, `1` Google API error, `2` credential/config error or in
 
 ## Agents and shared SEO skills
 
-The repository ships 12 Claude Code agents, 13 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. Three additional specialist agents cover Python implementation, pytest and security review.
+The repository ships 13 Claude Code agents, 13 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. A read-only evidence reviewer keeps its findings beside the unapproved draft; three additional specialist agents cover Python implementation, pytest and security review. The [controlled workflow pilot](docs/validation/2026-10-09-agent-boundaries.md) records its property, selected URLs and bounded host-agent attempts. Native Claude/Codex execution and provider request budgets remain unverified.
 
 ### Agents
 
