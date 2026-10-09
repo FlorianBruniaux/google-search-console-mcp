@@ -13,6 +13,7 @@ _ALL_TOOLS = [
     "compare_search_periods",
     "search_change_breakdown",
     "search_weekday_reference",
+    "crawl_import_preview",
     "seo_change_impact",
     "get_search_by_page_query",
     "get_advanced_search_analytics",

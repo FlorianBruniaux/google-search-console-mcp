@@ -483,6 +483,22 @@ SUCCESS_SHAPES["search_weekday_reference"] = {
         "causal_interpretation": False},
 }
 
+SUCCESS_SHAPES["crawl_import_preview"] = {
+    "status": "preview", "adapter": "siteone-json-v1", "snapshot_id": "synthetic-hash",
+    "source": {"declared_name": "SiteOne", "version": "fixture", "executed_at": "2026-01-01",
+               "sha256": "synthetic-hash", "bytes": 10, "config_sha256": "synthetic-config", "executed_at_timezone": "unknown"},
+    "scope": {"initial_url": "https://example.com/", "options": {"maxDepth": 1}, "selection": "unknown"},
+    "counts": {"input_rows": 1}, "rows": [{"raw_url": "https://example.com/", "status": "200",
+        "elapsedTime": 1, "size": 10, "type": "html", "cacheTypeFlags": 0, "cacheLifetime": 0,
+        "row_index": 0, "extras_field_count": 1}], "source_stats": {"totalUrls": 1},
+    "source_errors": ["producer-reported failure"], "source_notices": ["producer notice"],
+    "unsupported_fields": {"count": 1, "omitted": 0}, "errors": [{"code": "fixture"}],
+    "rejected_messages": {"counts": {"error": 1, "notice": 0}, "sample": [{"reason": "credential_url"}], "omitted": 0},
+    "rejected_rows": [{"reason": "invalid_row_schema"}], "limits": {"input_bytes": 2097152},
+    "source_scores": {"value": {"overall": {"score": 5}, "categories": [{"score": 5}]}, "ranking_signal": False},
+    "untrusted_content": {"authority": "data_only"}, "missing_metadata": [],
+}
+
 DEGRADED_SHAPES = {
     "ai_overviews_impact": {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "http_status": 403,
                             "source_status": "access_denied", "error_meaning": "access_denied",
@@ -687,6 +703,8 @@ def test_all_applicable_tools_and_declarations_have_exercised_success_or_degrade
 # dictionaries and output assignments are included; generated JSON-LD and
 # operational statuses are reviewed exclusions rather than blanket observations.
 _REVIEWED_SIGNALS = {
+    "crawl_import._preview": "status",
+    "crawl_import.crawl_import_preview": "status",
     "traffic_reference.search_weekday_reference": "status",
     "analytics.ai_overviews_impact": "status",
     "analytics.analytics_anomalies": "z_score",
@@ -821,3 +839,11 @@ def test_search_breakdown_report_identity_and_unverified_boundary_provenance():
     assert_basis(records, '/response_budget/serialized_bytes', 'derived', 'calculated')
     assert_basis(records, '/response_budget/omitted_rows/query/matched', 'derived', 'calculated')
     assert_basis(records, '/response_budget/omitted_unavailable_metrics/query/baseline:clicks:missing_provider_value', 'derived', 'calculated')
+
+
+def test_crawl_import_unknown_field_accounting_has_real_output_provenance():
+    from gsc_mcp.tools.crawl_import import crawl_import_preview
+    data = json.loads(crawl_import_preview(json.dumps({"results": [], "extra-field": 1})))
+    records = data["_meta"]["evidence"]["fields"]
+    assert_basis(records, "/unsupported_fields/count", "derived", "calculated")
+    assert_basis(records, "/unsupported_fields/omitted", "derived", "calculated")

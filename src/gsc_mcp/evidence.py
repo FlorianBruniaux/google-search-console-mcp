@@ -323,6 +323,24 @@ _add("search_weekday_reference", "rule", "Local coverage/source compatibility ga
      "/weekday_reference/method", "/weekday_reference/timezone", "/weekday_reference/causal_interpretation")
 
 
+_inventory("crawl_import_preview", "fields", "Imported producer observations plus local input validation; not independently measured website or indexing")
+_add("crawl_import_preview", "measured", "Observed in the caller-supplied SiteOne report; collector accuracy and website state were not independently verified",
+     "/source/declared_name", "/source/version", "/source/executed_at", "/scope/initial_url", "/scope/options/*",
+     "/rows/*/raw_url", "/rows/*/status", "/rows/*/elapsedTime", "/rows/*/size", "/rows/*/type",
+     "/rows/*/cacheTypeFlags", "/rows/*/cacheLifetime", "/source_stats/*", "/source_errors/*", "/source_notices/*")
+_add("crawl_import_preview", "derived", "Local hash, input/sample counts or withheld-field accounting; counts describe only this supplied export",
+     "/source/sha256", "/source/bytes", "/source/config_sha256", "/snapshot_id", "/counts/*",
+     "/rows/*/row_index", "/rows/*/extras_field_count", "/unsupported_fields/count", "/unsupported_fields/omitted",
+     "/rejected_messages/counts/*", "/rejected_messages/omitted")
+_add("crawl_import_preview", "rule", "Local adapter/schema gate, supported input limits or imported third-party rule score; not measured ranking impact",
+     "/status", "/adapter", "/errors/*/code", "/rejected_rows/*/reason", "/limits/*",
+     "/rejected_messages/sample/*/reason",
+     "/source_scores/value/overall/score", "/source_scores/value/categories/*/score", "/source_scores/ranking_signal",
+     "/untrusted_content/authority")
+_add("crawl_import_preview", None, "Producer selection or execution timezone is not independently known from this import",
+     "/scope/selection", "/source/executed_at_timezone", "/missing_metadata")
+
+
 def _expand(value, parts: list[str], path: tuple[str, ...] = (), parent=None):
     if not parts:
         yield path, value, parent
@@ -377,6 +395,8 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
         return None, "Provider observation/coverage unavailable or unknown; no successful measurement inferred"
     if tool == "search_weekday_reference" and path == ("weekday_reference", "status") and value != "observed":
         return None, "Required reference coverage or compatible aggregate is unavailable; no seasonal conclusion established"
+    if tool == "crawl_import_preview" and path == ("status",) and value == "rejected":
+        return None, "Rejected input supplies no supported crawl observation; validation failure is not an empty or healthy crawl"
     if tool == "seo_change_impact" and path == ("comparison", "status") and value != "observed":
         return None, "The required before/after observations are unavailable or incompatible"
     if tool == "rewrite_fidelity_check" and data.get("assessment") == "not_assessed" and path[0] in {"verdict", "assessment", "findings", "counts", "findings_truncated", "analysis_truncated"}:
