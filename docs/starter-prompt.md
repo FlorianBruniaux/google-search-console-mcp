@@ -10,6 +10,7 @@ Copy one prompt into Claude, Codex or another MCP-compatible client. Replace the
 | Investigate one URL | [Single-page audit](#single-page-audit) |
 | Submit an eligible page | [Google Indexing API workflow](#google-indexing-api-workflow) |
 | Test 1.4.0 without provider access | [Local tool smoke test](#test-140-without-provider-access) |
+| Test 1.5.0 local evidence tools | [Local evidence smoke test](#test-150-local-evidence-tools) |
 | Compare matching weekdays | [Weekday reference](#weekday-reference) |
 | Follow a declared page edit | [Declared-change follow-up](#declared-change-follow-up) |
 | Preview a supplied crawl export | [Crawl export preview](#crawl-export-preview) |
@@ -330,3 +331,45 @@ Do not launch a crawler, fetch URLs, read files, install software, persist data 
 ```
 
 See [bounded audit workflows](audit-workflows.md) for the weekday, event and import contracts.
+
+## Test 1.5.0 local evidence tools
+
+Release 1.5.0 exposes 96 tools by default; startup family selection may expose fewer. This uses a synthetic URL and makes no provider request.
+
+```text
+Run a read-only smoke test of Search Console MCP 1.5.0.
+Check capabilities for crawl_log_audit, crawl_snapshot_import, crawl_snapshot_read,
+crawl_snapshot_delete, crawl_snapshot_join, crawl_diff and indexing_evidence_matrix.
+State any startup-family restriction. Call indexing_evidence_matrix with
+site="sc-domain:example.com", urls=["https://example.com/"], reports_json="[]".
+Verify that missing inspection and rendering remain unavailable/unknown and
+provider_requests is zero. Preserve the result metadata.
+Do not fetch pages, contact Google/Bing, read local logs, create snapshots or write.
+This synthetic case checks the contract, not real indexing or provider access.
+```
+
+## Reconcile supplied indexing observations
+
+```text
+Use indexing_evidence_matrix on the explicit URLs and existing reports I supply.
+Ask for the exact property and reports if missing. Preserve original response
+metadata and dates; do not claim the supplied metadata authenticates its origin.
+Keep inspection, HTML, search visibility and declared sitemap/business membership
+separate. Show source-referenced contradictions and missing cells. A log path
+match strips queries and is only a candidate association. Do not fetch again,
+infer current indexing/rendering or extrapolate this sample to the whole site.
+```
+
+## Evaluate a crawl snapshot without saving it
+
+```text
+On the authorized SiteOne JSON export I supply, call crawl_snapshot_import with
+the exact property, producer="siteone" and persist=false. Show source hash,
+version, accepted/excluded/duplicate rows and unknown collection/selection fields.
+Do not persist, launch a crawler or install software. If I separately authorize
+persistence, keep the returned snapshot_id with its exact owning property.
+For two existing snapshots I select, use crawl_diff; absence from one inventory
+is not deletion or deindexing. Missing/incompatible fields remain unavailable.
+```
+
+The local [snapshot contract](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-snapshots.md) and [indexing matrix](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/indexing-evidence-matrix.md) document identity, provenance and bounds.

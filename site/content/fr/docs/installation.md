@@ -8,7 +8,7 @@ canonicalEnglish: /docs/installation/
 
 ## Installation recommandée
 
-La version 1.4.0 expose 89 outils, dont quatre ajouts par rapport à 1.3.1.
+La version 1.5.0 expose 96 outils, dont sept ajouts par rapport à 1.4.0.
 
 Pour un essai ponctuel :
 
@@ -25,7 +25,7 @@ uv tool install gsc-mcp-tools
 Pour reproduire exactement cette version :
 
 ```bash
-uv tool install --force gsc-mcp-tools==1.4.0
+uv tool install --force gsc-mcp-tools==1.5.0
 ```
 
 Une installation épinglée reste épinglée. Réinstallez sans contrainte de version avant d’utiliser `uv tool upgrade`, ou installez explicitement la prochaine version avec `--force`.

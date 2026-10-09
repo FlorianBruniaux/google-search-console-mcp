@@ -3,11 +3,11 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "37189e924fbe204c3d06cbdc9783bbe4b4030a1036c74afea5a0c283c328e570"
+      "sourceHash": "cc3cdc41a64305c28cea57135a4520429d203d7650194ceee2a299f7ed4b7334"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "472c572aa2ae62008bc8d877fbae4acd98372ea8e6efee9e030ac942ea56a518"
+      "sourceHash": "ac395c13b71fd4c419946aacc106db9e84039880d3fb5ede82e2a6874ad79fb5"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -19,11 +19,11 @@
     },
     "docs/prompts.md": {
       "source": "docs/starter-prompt.md",
-      "sourceHash": "a0d9e5c16a5e6c06760aff4b74586fa0e3e09817916709bd029c43b520dd417c"
+      "sourceHash": "0b58a7c4eacee9610a9cc72eead6cc1190bc9117c5ad22d434bceca5c5477407"
     },
     "docs/examples/index.md": {
       "source": "examples/README.md",
-      "sourceHash": "36c844e6655dfe993aaed84ab1b148290abbe8e608258111be0f20c1eadf1297"
+      "sourceHash": "405b32d8d7253c2a339d653f9424aa20748701360dde668958f7737aace337d6"
     },
     "docs/examples/quick-audit.md": {
       "source": "examples/quick-audit.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "0cbcd71168f3a63cc93ae360408f6d582c39c9e96b6ea7ce9fa4145dcd563b09"
+      "sourceHash": "9affec7c3c827ee86f2300b1b68d1068c7bc33cc1230ff2ee8bea63edb5fdc1e"
     },
     "docs/license.md": {
       "source": "LICENSE",

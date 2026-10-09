@@ -23,3 +23,5 @@ La version 1.4.0 compte 89 outils. Les [prompts de test, référence hebdomadair
 Lisez aussi les [limites de preuve et règles de sécurité](/fr/docs/evidence-and-safety/).
 
 [Lire la version anglaise canonique](/docs/examples/).
+
+La version 1.5.0 contient 96 outils. Les [prompts pour la matrice et les snapshots](/fr/docs/prompts/#tester-les-preuves-locales-en-150) décrivent les nouveaux contrôles locaux sans accès fournisseur.

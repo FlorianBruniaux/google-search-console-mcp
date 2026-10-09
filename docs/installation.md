@@ -1,6 +1,6 @@
 # Installation and MCP client setup
 
-This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 89-tool registry in release 1.4.0. Python 3.11 or newer is required.
+This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 96-tool registry in release 1.5.0. Python 3.11 or newer is required.
 
 ## Choose an installation mode
 
@@ -23,7 +23,7 @@ command -v gsc-mcp-tools
 gsc-cli list
 ```
 
-`gsc-cli list` should print 89 commands for release `1.4.0`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
+`gsc-cli list` should print 96 commands for release `1.5.0`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
 
 Upgrade later with:
 
@@ -36,7 +36,7 @@ An installation created with `gsc-mcp-tools==1.3.1` stays pinned. Reinstall with
 To reproduce this release exactly:
 
 ```bash
-uv tool install --force gsc-mcp-tools==1.4.0
+uv tool install --force gsc-mcp-tools==1.5.0
 ```
 
 ## Alternative installations
