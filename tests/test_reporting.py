@@ -64,3 +64,34 @@ def test_property_case_and_url_prefix_are_part_of_semantic_finding_identity(inpu
     changed[0]['site'] = 'https://example.com/exact/case/'
     second = json.loads(serialize_search_report(*changed))['report_contract']
     assert first['findings'][0]['finding_id'] != second['findings'][0]['finding_id']
+
+
+@pytest.mark.parametrize('key,value', [('engine', 'bing'), ('search_type', 'image'),
+                                      ('aggregation_type', 'byPage'), ('data_state', 'all'),
+                                      ('filters', [{'dimension': 'country', 'operator': 'equals', 'expression': 'fra'}])])
+def test_finding_identity_keeps_distinct_source_scopes_separate(inputs, key, value):
+    first = json.loads(serialize_search_report(*inputs))['report_contract']
+    changed = copy.deepcopy(inputs)
+    changed[0][key] = value
+    second = json.loads(serialize_search_report(*changed))['report_contract']
+    assert first['findings'][0]['finding_id'] != second['findings'][0]['finding_id']
+
+
+def test_repeated_findings_keep_identity_and_source_references(inputs):
+    first = json.loads(serialize_search_report(*inputs))['report_contract']
+    second = json.loads(serialize_search_report(*copy.deepcopy(inputs)))['report_contract']
+    assert first == second
+    finding = first['findings'][0]
+    assert finding['kind'] == 'observation' and finding['fix_candidates'] == []
+    assert finding['missing_criteria'] and finding['verification_step']
+    assert finding['source_ref'] == '/report_contract/scope'
+
+
+def test_and_filter_order_does_not_change_finding_identity_but_raw_scope_is_kept(inputs):
+    inputs[0]['filters'] = [{'dimension': 'country', 'operator': 'equals', 'expression': 'fra'},
+                            {'dimension': 'device', 'operator': 'equals', 'expression': 'mobile'}]
+    first = json.loads(serialize_search_report(*inputs))['report_contract']
+    inputs[0]['filters'].reverse()
+    second = json.loads(serialize_search_report(*inputs))['report_contract']
+    assert first['findings'][0]['finding_id'] == second['findings'][0]['finding_id']
+    assert second['scope']['source']['filters'] == inputs[0]['filters']
