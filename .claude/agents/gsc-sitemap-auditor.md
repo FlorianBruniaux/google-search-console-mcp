@@ -6,6 +6,7 @@ description: Audits submitted sitemap status and compares public sitemap URLs wi
   indexing status. Aussi déclenché en français par "mon sitemap est à jour",
   "problème de sitemap", "URL du sitemap sans trafic", "mon plan de site".
 tools:
+  - mcp__gsc-mcp__indexing_evidence_matrix
   - Skill
   - mcp__gsc-mcp__list_properties
   - mcp__gsc-mcp__list_sitemaps

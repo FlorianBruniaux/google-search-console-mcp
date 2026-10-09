@@ -15,6 +15,13 @@
     "check_indexing_issues": [
       "site",
       "urls"
+    ],
+    "indexing_evidence_matrix": [
+      "site",
+      "urls",
+      "reports_json",
+      "snapshot_id",
+      "max_reports"
     ]
   },
   "validation_scope": "declared workflow arguments, not native agent execution"

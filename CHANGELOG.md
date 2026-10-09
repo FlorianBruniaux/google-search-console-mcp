@@ -4,6 +4,8 @@
 
 <!-- unreleased-updated: 2026-10-09 -->
 
+- Add `indexing_evidence_matrix`: bounded supplied per-URL observations, source-referenced contradictions and literal canonical chains; no acquisition, current indexing boolean or rendering inference (#44). Source catalogue: 96 tools.
+
 - Add `crawl_diff` for two exact site-owned snapshots: bounded inventory membership and compatible observed field differences, unknown deletion/indexing, duplicate-key abstention and optional named-field CI rules (#48). Source catalogue: 95 tools.
 
 - Add versioned site-owned crawl snapshots: optional private local storage, quota/idempotency checks, paginated full inventories, explicit cleanup and bounded exact-URL GSC/link-map reconciliation (#42). The source registry contains 94 tools; supplied metadata does not authenticate provider origin.

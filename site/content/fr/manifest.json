@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "5397946eb20a650618d857f68051303a1750e062e4760db19243d9d84895ad36"
+      "sourceHash": "5c856c663b2667847e1b5eca71a36ec2b2e2c7a2dd8723951febd4c3c7734d6e"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "b0aead04c5c37c7c713f85d9c5d3cc9a8e19bbb8002ebc6d59a2038393ad8b9d"
+      "sourceHash": "db9631bf88dd71aaa6f3653803b160625a60a98d88db9e0b94ebdbab5fb1ceaa"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -83,7 +83,7 @@
     },
     "docs/audit-workflows.md": {
       "source": "docs/audit-workflows.md",
-      "sourceHash": "d12f51061ab1c3911d0f75fd91a8e63ee2c8cfae46c30113a12344015b8bf0b8"
+      "sourceHash": "fb3824d77de2ad6b0883e36fc1c48ec3474e220328001f4a1bab7e03b4a70128"
     },
     "docs/editorial-workflows.md": {
       "source": "docs/editorial-workflows.md",

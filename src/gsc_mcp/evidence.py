@@ -414,6 +414,17 @@ _add('crawl_diff', 'measured', 'Raw URL and old/new values from supplied produce
 _add('crawl_diff', None, 'No provider indexing, deletion, ranking-impact or authenticated collection-order evidence supplied',
      '/site_deletion_status', '/indexing_status', '/ranking_impact', '/error', '/comparability/collection_order')
 
+_inventory('indexing_evidence_matrix', 'fields', 'Bounded supplied observations and source-referenced contradictions; no authenticated current indexing verdict')
+_add('indexing_evidence_matrix', 'rule', 'Explicit selected sample, caller provenance and local reconciliation/omission policy; no whole-property inference',
+     '/status', '/site', '/sample_scope', '/sources', '/untrusted_content', '/rows/*/raw_url', '/rows/*/contradictions',
+     '/rows/*/inspection', '/rows/*/html', '/rows/*/search', '/rows/*/sitemap', '/rows/*/business', '/rows/*/crawl', '/rows/*/logs')
+_add('indexing_evidence_matrix', 'derived', 'Local retained source/sample/cell counts; tool makes no provider request',
+     '/coverage', '/rows/*/omitted_cells', '/rows/*/canonical_chain')
+_add('indexing_evidence_matrix', 'measured', 'Values read from supplied observations; source origin and collection time not authenticated',
+     '/rows/*/inspection/*/value', '/rows/*/html/*/value', '/rows/*/search/*/value', '/rows/*/crawl/*/value', '/rows/*/logs/*/value')
+_add('indexing_evidence_matrix', None, 'HTML/crawl/log/search observations do not establish authenticated current indexation or rendered evidence',
+     '/rows/*/current_indexing_status', '/rows/*/rendering_status', '/rows/*/canonical_chain/google_selection_status', '/error')
+
 
 def _expand(value, parts: list[str], path: tuple[str, ...] = (), parent=None):
     if not parts:
@@ -441,6 +452,10 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
         return None, 'Local inventory lookup/import unavailable; no empty, complete or healthy site observation inferred'
     if tool == 'crawl_diff' and path == ('status',) and value == 'unavailable':
         return None, 'At least one requested snapshot unavailable; no successful comparison inferred'
+    if tool == 'indexing_evidence_matrix' and path == ('status',) and value in {'unavailable', 'rejected'}:
+        return None, 'Required input or source unavailable; no successful observation matrix inferred'
+    if tool == 'indexing_evidence_matrix' and key == 'value' and isinstance(parent, dict) and parent.get('availability') == 'unavailable':
+        return None, 'Supplied record lacks substantive observation evidence; unknown raw fields retained'
     if tool == 'crawl_log_audit' and data.get('status') == 'unavailable' and path[0] in {'status', 'coverage'}:
         return None, 'Local log assessment unavailable; count placeholders do not establish an empty or healthy log'
     if tool == "ai_overviews_impact" and path[0] == "rows" and key in {"clicks", "impressions", "ctr", "position"} and value == 0 and data.get('metric_origin') != 'explicit_provider_fields':
