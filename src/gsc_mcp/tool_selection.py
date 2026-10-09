@@ -4,8 +4,8 @@ from collections.abc import Callable, Mapping
 
 ENV = 'GSC_MCP_TOOL_FAMILIES'
 _MODULE_FAMILIES = {
-    'traffic_reference': 'analytics',
     'properties': 'core', 'analytics': 'analytics', 'search_breakdown': 'analytics',
+    'traffic_reference': 'analytics', 'crawl_import': 'technical',
     'seo': 'seo', 'change_impact': 'seo', 'inspection': 'inspection',
     'indexing': 'indexing', 'sitemaps': 'sitemaps', 'ga4': 'ga4',
     'cross': 'cross', 'search_compare': 'cross', 'crux': 'crux',
