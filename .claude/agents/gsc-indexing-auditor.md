@@ -7,6 +7,7 @@ description: Inspects URL indexing status for a bounded, explicitly selected sam
   pas dans Google", "Google ne crawle pas mon site", "combien de pages indexées",
   "découverte mais non indexée", "explorée mais non indexée", "audit d'indexation".
 tools:
+  - mcp__gsc-mcp__indexing_evidence_matrix
   - Skill
   - mcp__gsc-mcp__list_properties
   - mcp__gsc-mcp__check_indexing_issues

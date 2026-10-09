@@ -561,6 +561,14 @@ SUCCESS_SHAPES['crawl_diff'] = {'status': 'observed', 'site': 'sc-domain:example
         'before': '200', 'after': '404', 'baseline_snapshot_id': 'a', 'comparison_snapshot_id': 'b', 'before_row_index': 0, 'after_row_index': 0}]}
 DEGRADED_SHAPES['crawl_diff'] = {'status': 'unavailable', 'error': 'snapshot_not_found'}
 
+SUCCESS_SHAPES['indexing_evidence_matrix'] = {'status': 'observed', 'site': 'sc-domain:example.com',
+    'sample_scope': 'selected URLs', 'sources': [], 'untrusted_content': {}, 'coverage': {},
+    'rows': [{'raw_url': 'https://example.com/', 'contradictions': [], 'omitted_cells': 0,
+        'inspection': [{'value': {'verdict': 'PASS'}}], 'html': [{'value': {'status_code': 200}}],
+        'search': [{'value': {'clicks': 0}}], 'sitemap': [], 'business': [], 'crawl': [{'value': {'status': '200'}}],
+        'logs': [{'value': {'requests': 2}}], 'canonical_chain': {'google_selection_status': 'unavailable'}, 'current_indexing_status': 'unknown', 'rendering_status': 'unavailable'}]}
+DEGRADED_SHAPES['indexing_evidence_matrix'] = {'status': 'unavailable', 'error': 'snapshot_not_found'}
+
 SUCCESS_SHAPES['crawl_log_audit'] = {
     'status': 'observed', 'site': 'sc-domain:example.com', 'profile': 'combined',
     'coverage': {'consumed_bytes': 100, 'lines_considered': 1, 'parsed_lines': 1, 'invalid_lines': 0,
@@ -777,6 +785,7 @@ _REVIEWED_SIGNALS = {
     'crawl_snapshots.crawl_snapshot_join': 'status',
     'crawl_snapshots._link_input': 'category',
     'crawl_snapshots.crawl_diff': 'status',
+    'indexing_matrix.indexing_evidence_matrix': 'status',
     'crawl_logs._google_ranges': 'status',
     'crawl_logs.crawl_log_audit': 'status',
     "analytics._parse_appearance_row": "unavailable_metrics",

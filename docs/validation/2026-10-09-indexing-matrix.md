@@ -1,0 +1,9 @@
+# Indexing observation matrix validation, 2026-10-09
+
+`indexing_evidence_matrix` reconciles an explicit sample of at most 50 exact raw URLs with supplied reports and an optional existing local crawl snapshot. It performs no acquisition. Source origin and collection times are caller-declared and unverified. Inspection, HTML, GSC visibility, declared inventories and log path candidates remain separate; missing evidence never becomes an indexing boolean.
+
+Local Python validation passes 1,944 tests. Matrix fixtures cover zero and absent search rows, unknown inspection fields, older inspection versus noindex, conflicting canonical declarations, sitemap membership, soft-404, redirects, failed fetches, collection-time validation, foreign sources, URL/input/cell caps, canonical cycles and the five-hop limit. HTML-only and log observations leave rendering unavailable and current indexing unknown. These are supplied fixtures, not live Google checks or authenticated historical bot identities.
+
+Repository BM25 passes 252 scenarios across 15 targets on both hosts. Indexing routing F1 is 0.72, sitemap 0.72 and log 0.62. Native host behavior and expert SEO accuracy remain unverified. Documentation passes 6 tests, translations pass, Astro has zero diagnostics and builds 61 pages, and built-distribution checks pass 29 tests. Chromium/macOS passes 111 browser tests with the inspected source catalogue count of 96. PyPI remains at 1.4.0 until the release is published.
+
+Normalized sitemap summaries are deliberately not treated as exact raw XML inventories. Explicit caller inventories disclose unknown completeness. Log paths discard queries and are candidate associations only. Contradictions refer to retained source IDs without choosing a preferred observation. Omitted cells and out-of-sample canonical targets are explicit. No redirect, robots, canonical, deletion or URL-removal action is performed.

@@ -20,6 +20,7 @@ _ALL_TOOLS = [
     "crawl_snapshot_delete",
     "crawl_snapshot_join",
     "crawl_diff",
+    "indexing_evidence_matrix",
     "seo_change_impact",
     "get_search_by_page_query",
     "get_advanced_search_analytics",
