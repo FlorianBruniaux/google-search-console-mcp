@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "seo_cannibalization": [
+      "site",
+      "days"
+    ],
+    "get_search_analytics": [
+      "site",
+      "days",
+      "dimensions",
+      "row_limit"
+    ],
+    "get_advanced_search_analytics": [
+      "site",
+      "dimensions",
+      "date_range_days",
+      "row_limit"
+    ],
+    "inspect_url": [
+      "url",
+      "site"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

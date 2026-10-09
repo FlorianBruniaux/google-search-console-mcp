@@ -8,6 +8,11 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
+## À publier
+
+- Quatre parcours bilingues par profil et un catalogue des 89 outils généré depuis le registre, avec périmètres de contrôle et exemples sourcés.
+- Les 13 playbooks SEO partagent leur source dans `.agents/skills/` entre Claude et Codex. Correction des appels non pris en charge et des affirmations non étayées sur les pénalités, pertes IA, résultats enrichis et gains de positions. Vérification des projections, signatures et scénarios BM25 du dépôt (#38).
+
 ## 1.4.0 (2026-10-09)
 
 - Ajout de plans du site HTML et de pages de nouveautés datées dans les deux langues, accessibles depuis le bandeau d’accueil, la navigation et les pieds de page. Les nouveautés reprennent l’historique et distinguent le code source des versions publiées sur PyPI.

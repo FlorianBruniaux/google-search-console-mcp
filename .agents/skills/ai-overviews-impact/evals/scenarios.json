@@ -1,0 +1,21 @@
+{
+  "target": "ai-overviews-impact",
+  "type": "command",
+  "skill": "ai-overviews-impact",
+  "positive": [
+    "Les AI Overviews me prennent-ils des clics ?",
+    "Investigate AI Overview impact without attributing CTR losses",
+    "Mon CTR baisse malgré une position stable, est-ce les réponses IA Google ?",
+    "Assess available evidence for Google AI search exposure",
+    "Que mesure réellement ai_overviews_impact dans Search Console ?",
+    "Can these generic search appearances prove AI Overview exposure?",
+    "Compare search CTR changes and state which AI evidence is missing",
+    "Vérifie les limites de preuve pour les aperçus IA de Google"
+  ],
+  "negative": [
+    "Update my Python dependencies and deploy the application",
+    "Écris un message commercial sans analyser de données SEO",
+    "Mes clics Google ont chuté depuis lundi, aide-moi à examiner la baisse",
+    "Diagnose this sudden Google search traffic drop using comparable periods"
+  ]
+}

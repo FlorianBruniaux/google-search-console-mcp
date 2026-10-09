@@ -1,0 +1,21 @@
+{
+  "target": "cannibalization-check",
+  "type": "command",
+  "skill": "cannibalization-check",
+  "positive": [
+    "Analyse la cannibalisation SEO entre ces deux pages pour une même requête",
+    "Vérifie la cannibalisation de mots-clés avant de fusionner ces URL",
+    "Mes pages se font concurrence : audit de cannibalisation SEO",
+    "Cannibalisation Google : ces pages concurrentes ont-elles la même intention ?",
+    "Audit keyword cannibalization between these competing pages",
+    "Review keyword cannibalization before consolidating these URLs",
+    "Investigate same-intent keyword cannibalization in Google results",
+    "Check whether competing pages create harmful keyword cannibalization"
+  ],
+  "negative": [
+    "Update my Python dependencies and deploy the application",
+    "Écris un message commercial sans analyser de données SEO",
+    "Mes clics Google ont chuté depuis lundi, aide-moi à examiner la baisse",
+    "Diagnose this sudden Google search traffic drop using comparable periods"
+  ]
+}

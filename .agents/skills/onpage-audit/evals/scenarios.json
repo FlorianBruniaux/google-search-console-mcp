@@ -1,0 +1,25 @@
+{
+  "target": "onpage-audit",
+  "type": "command",
+  "positive": [
+    "Audit on-page complet de cette URL : titres, balises, liens et schémas",
+    "Fais l’audit on-page de cette page avec cinq contrôles HTML",
+    "Audit on-page de cette URL, combine titres, contenu et liens",
+    "Liste les corrections de l’audit on-page complet de cette page",
+    "Run an on-page audit combining headings, links and schema",
+    "Complete on-page HTML audit for this URL",
+    "Audit one page with the on-page heading, link and technical checks",
+    "Review on-page HTML findings and conditional fixes for this URL"
+  ],
+  "negative": [
+    "audit de sécurité complet sur ce module",
+    "audit complet avant de passer en prod",
+    "audit des balises hn de cette url",
+    "audit du maillage interne de cette page",
+    "internal link placement on this url",
+    "juste mes balises h1",
+    "audit seo de tout mon site",
+    "pourquoi mon trafic a chuté",
+    "quelles pages optimiser en priorité"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "quick_wins": [
+      "site",
+      "days"
+    ],
+    "seo_striking_distance": [
+      "site",
+      "days"
+    ],
+    "get_advanced_search_analytics": [
+      "site",
+      "dimensions",
+      "date_range_days",
+      "row_limit"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

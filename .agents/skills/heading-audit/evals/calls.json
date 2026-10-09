@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "calls": {
+    "heading_audit": [
+      "url"
+    ],
+    "content_brief": [
+      "site",
+      "page_url",
+      "days"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "link_equity_map": [
+      "site",
+      "days",
+      "max_pages"
+    ],
+    "content_brief": [
+      "site",
+      "page_url",
+      "days"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

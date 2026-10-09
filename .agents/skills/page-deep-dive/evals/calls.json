@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "inspect_url": [
+      "url",
+      "site"
+    ],
+    "page_technical_audit": [
+      "url"
+    ],
+    "content_brief": [
+      "site",
+      "page_url",
+      "days"
+    ],
+    "crux_page_vitals": [
+      "url"
+    ],
+    "page_health_score": [
+      "site",
+      "url"
+    ],
+    "page_analysis": [
+      "site",
+      "days",
+      "limit"
+    ],
+    "get_search_by_page_query": [
+      "site",
+      "days",
+      "row_limit"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}

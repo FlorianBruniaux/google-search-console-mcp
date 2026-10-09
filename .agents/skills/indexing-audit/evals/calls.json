@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "calls": {
+    "list_properties": [],
+    "get_search_analytics": [
+      "site",
+      "days",
+      "dimensions",
+      "row_limit"
+    ],
+    "batch_url_inspection": [
+      "site",
+      "urls"
+    ],
+    "check_indexing_issues": [
+      "site",
+      "urls"
+    ]
+  },
+  "validation_scope": "declared workflow arguments, not native agent execution"
+}
