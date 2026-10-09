@@ -54,3 +54,22 @@ def test_reviewed_boundaries_for_penalty_ai_loss_and_consolidation():
     assert 'unavailable and unverified' in ai
     assert 'intent UNKNOWN' in overlap and '90-day' in overlap
     assert 'Do not execute any write or destructive action' in overlap
+
+
+@pytest.mark.parametrize('role,skill', [
+    ('gsc-content-optimizer', 'content-opportunities'),
+    ('gsc-schema-auditor', 'schema-audit'),
+    ('gsc-page-analyst', 'page-deep-dive'),
+    ('gsc-seo-reporter', 'seo-weekly-report'),
+    ('gsc-sitemap-auditor', 'sitemap-audit'),
+    ('gsc-indexing-auditor', 'indexing-audit'),
+    ('gsc-traffic-doctor', 'traffic-drop-diagnosis'),
+    ('gsc-cannibalization-checker', 'cannibalization-check'),
+    ('gsc-ai-overviews-analyst', 'ai-overviews-impact'),
+])
+def test_role_allowlist_covers_its_reviewed_skill_calls(role, skill):
+    text = (ROOT / '.claude/agents' / f'{role}.md').read_text()
+    frontmatter = text.split('---', 2)[1]
+    calls = json.loads((ROOT / '.agents/skills' / skill / 'evals/calls.json').read_text())['calls']
+    for name in calls:
+        assert f'mcp__gsc-mcp__{name}\n' in frontmatter, (role, name)

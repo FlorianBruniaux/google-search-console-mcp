@@ -42,7 +42,7 @@ async function agent(prompt, options) {
     if (config.failLabel === options.label) throw new Error('optional provider unavailable');
     if (config.nullLabel === options.label) return null;
     let value;
-    if (options.label === 'discovery') value = {siteUrl:'sc-domain:example.com', isAccessible: config.accessible === undefined ? true : config.accessible, topUrls:Array.from({length:20}, (_,i)=>'https://example.com/p'+i), observations:[sourceObservation]};
+    if (options.label === 'discovery') value = {siteUrl:config.discoverySite ?? config.args.siteUrl, isAccessible: config.accessible === undefined ? true : config.accessible, topUrls:config.topUrls ?? Array.from({length:20}, (_,i)=>'https://example.com/p'+i), observations:[sourceObservation]};
     else if (/^page-\d+$/.test(options.label)) value = {url:'https://example.com/p'+(Number(options.label.slice(5))-1), healthScore:config.score ?? null, isIndexed:config.indexed ?? null, observations:[sourceObservation], topQueries:[]};
     else if (options.label === 'synthesis') value = 'DRAFT: indexing UNKNOWN; AI exposure unavailable';
     else if (options.label === 'evidence-review') value = {status:'reviewed', findings:[{type:'unsupported_claim', claim:'impact', source_refs:['/pageAnalysis/0/observations/0'], correction:'unavailable'}]};
@@ -137,3 +137,49 @@ def test_invalid_bounds_fail_before_agent_calls(arguments):
     data = run_workflow(args=arguments)
     assert "error" in data
     assert data["calls"] == []
+
+
+@pytest.mark.parametrize('url', ['https://other.test/', 'https://user:pass@example.com/', 'file:///tmp/page', 'http://example.com:bad/'])
+def test_discovery_urls_outside_selected_property_fail_before_page_calls(url):
+    data = run_workflow(topUrls=[url])
+    assert 'selected URL' in data['error']
+    assert len(data['calls']) == 1
+
+
+def test_discovery_cannot_switch_properties():
+    data = run_workflow(discoverySite='sc-domain:other.test')
+    assert 'property mismatch' in data['error']
+    assert len(data['calls']) == 1
+
+
+def test_no_page_url_skips_navigation_branches_before_host_calls():
+    data = run_workflow(topUrls=[])
+    assert 'error' not in data
+    labels = {call['options']['label'] for call in data['calls']}
+    assert not labels.intersection({'lighthouse', 'perf-trace', 'security-audit', 'geo-opportunities'})
+    source = observations_from(data, 'evidence-review')
+    assert source['frontendUX'][0]['reason'] == 'no_selected_http_url'
+    assert source['run_contract']['selected_urls'] == []
+
+
+def test_agent_budget_includes_failed_calls_and_blocks_further_dispatch():
+    data = run_workflow(args={'siteUrl': 'sc-domain:example.com', 'maxPages': 2,
+                              'maxConcurrentAgents': 2, 'maxAgentCalls': 3}, failLabel='seo-reporter')
+    assert len(data['calls']) == 3
+    assert 'agent_call_budget_exhausted' in data['error']
+
+
+def test_source_size_budget_fails_before_synthesis_without_silent_truncation():
+    data = run_workflow(args={'siteUrl': 'sc-domain:example.com', 'maxSourceBytes': 128})
+    assert 'source_observation_budget_exceeded' in data['error']
+    assert not any(call['options']['label'] == 'synthesis' for call in data['calls'])
+
+
+def test_run_envelope_does_not_claim_provider_budget_or_native_host_execution():
+    data = run_workflow(args={'siteUrl': 'sc-domain:example.com', 'runId': 'fixture-run', 'maxPages': 1})
+    contract = observations_from(data, 'evidence-review')['run_contract']
+    assert contract['run_id'] == 'fixture-run'
+    assert contract['property'] == 'sc-domain:example.com'
+    assert contract['provider_request_budget_status'] == 'unverified'
+    assert contract['native_host_status'] == 'unverified'
+    assert contract['agent_calls_attempted'] > 0

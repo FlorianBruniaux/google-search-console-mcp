@@ -1,7 +1,8 @@
 ---
 name: gsc-schema-auditor
 description: Validates structured data (schema markup) across the top pages to surface
-  errors blocking rich results eligibility. Use when asked about rich results, JSON-LD
+  parse errors and missing fields under local validation rules. Google rich-result
+  eligibility and ranking impact remain unverified. Use when asked about rich results, JSON-LD
   errors, schema markup issues, or structured data health. Aussi déclenché en
   français par "données structurées", "balisage schema", "mes rich results marchent
   pas", "extraits enrichis", "les étoiles dans Google", "mon FAQ s'affiche pas dans

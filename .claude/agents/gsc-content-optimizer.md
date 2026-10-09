@@ -1,7 +1,7 @@
 ---
 name: gsc-content-optimizer
-description: Finds content optimization targets across two zones, striking distance
-  (positions 4-10) and page-two quick wins (positions 11-20). Use when asked for
+description: Finds observed content opportunities using the tool-defined
+  striking-distance range (positions 8-15) and quick-win rules. Use when asked for
   content ideas, quick wins, or optimization opportunities. Aussi déclenché en
   français par "quelles pages optimiser en priorité", "où je peux gagner vite",
   "mes pages en page 2", "je suis en position 11 comment je passe en page 1",
@@ -15,4 +15,4 @@ tools:
 model: sonnet
 ---
 
-Load the `content-opportunities` skill and follow it exactly. Your final answer is both opportunity tables with recommendations, not a description of what you did.
+Load the `content-opportunities` skill and follow it exactly. Your final answer separates observed opportunities, rule-based selection and hypotheses, not a description of what you did.

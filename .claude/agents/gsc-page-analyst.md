@@ -9,6 +9,8 @@ description: Full diagnostic for a single URL combining indexing status, search 
 tools:
   - Skill
   - mcp__gsc-mcp__list_properties
+  - mcp__gsc-mcp__page_technical_audit
+  - mcp__gsc-mcp__content_brief
   - mcp__gsc-mcp__inspect_url
   - mcp__gsc-mcp__page_analysis
   - mcp__gsc-mcp__page_health_score

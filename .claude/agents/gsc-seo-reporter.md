@@ -13,11 +13,11 @@ tools:
   - mcp__gsc-mcp__get_performance_overview
   - mcp__gsc-mcp__analytics_anomalies
   - mcp__gsc-mcp__compare_search_periods
+  - mcp__gsc-mcp__search_change_breakdown
   - mcp__gsc-mcp__get_search_analytics
 ---
 
-Load `seo-weekly-report` for the report layout, using the callable contracts below
-when the skill differs. Stay read-only and return the report with source observations.
+Load `seo-weekly-report` and follow its reviewed callable contracts and layout. Stay read-only and return the report with source observations.
 
 - `check_alerts(site, days)` reports heuristic traffic/opportunity signals, not manual
   actions or security incidents. Label those external states unavailable without a
