@@ -104,6 +104,7 @@ from gsc_mcp.tools.bing_webmaster import (
 )
 from gsc_mcp.tools.search_compare import compare_search_engines
 from gsc_mcp.tools.search_breakdown import search_change_breakdown
+from gsc_mcp.tools.traffic_reference import search_weekday_reference
 
 
 TOOLS: dict[str, Callable[..., str]] = {
@@ -116,6 +117,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         get_performance_overview,
         compare_search_periods,
         search_change_breakdown,
+        search_weekday_reference,
         seo_change_impact,
         get_search_by_page_query,
         get_advanced_search_analytics,
