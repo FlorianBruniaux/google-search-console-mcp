@@ -2,11 +2,11 @@
 title: "Relire les brouillons et révisions"
 description: "Auditer un brouillon FR/EN et comparer mécaniquement une révision avec son original."
 lang: fr
-lastUpdated: 2026-10-08
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/editorial-workflows/
 ---
 
-Les entrées brouillon de `editorial_audit` et le nouvel outil `rewrite_fidelity_check` sont des fonctionnalités source non publiées. Le checkout expose 87 outils ; la version publiée 1.3.1 en conserve 85 et permet l’audit éditorial par URL. Suivez l’[installation](/fr/docs/installation/) pour utiliser le checkout. Ces exemples sont explicatifs, sans requête réelle ni publication.
+La version 1.4.0 inclut les entrées brouillon de `editorial_audit` et `rewrite_fidelity_check` dans son registre de 89 outils. Suivez l’[installation](/fr/docs/installation/) pour installer ou mettre à jour le paquet. Ces exemples sont explicatifs, sans requête réelle ni publication.
 
 ## Auditer un brouillon avant publication
 

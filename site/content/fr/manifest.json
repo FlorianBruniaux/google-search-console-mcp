@@ -3,11 +3,11 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "d79a3520f001da4f966156d04c984f296020b9cb4c4a516539941ebb6d1e4e30"
+      "sourceHash": "37189e924fbe204c3d06cbdc9783bbe4b4030a1036c74afea5a0c283c328e570"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "295a1fc81937284fbf0afcee1dc3f0bef1bf52f2530143cd3bad962c4528e7f7"
+      "sourceHash": "472c572aa2ae62008bc8d877fbae4acd98372ea8e6efee9e030ac942ea56a518"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -47,7 +47,7 @@
     },
     "docs/examples/traffic-drop.md": {
       "source": "examples/traffic-drop.md",
-      "sourceHash": "af7ca5233ef0fd460cb8796574aa2dcc1c61f2d95e1be44ecfcbab806b05d90c"
+      "sourceHash": "42dc4dbbd15e5d540422d241af4e0c884d17dac8a1bf755116e256a9ba6dbe71"
     },
     "docs/examples/indexing-issues.md": {
       "source": "examples/indexing-issues.md",
@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "56480ab054bfb4cd17397fcb2fb0c44a461a62fad3d0a1ffa2136cac36d9afc0"
+      "sourceHash": "5702c2eaf5be4151c59807c1297fc17075d5da2cb423106956d2ed946f223449"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "8b75949ab88c27a3ad2a6e0ce58671bc3003e999a50c6001437e8fbf0d88f414"
+      "sourceHash": "c64912dec1311bb6fe78146c6204743d078fbc01f3bcf9ec5f05cce48ab562ac"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -79,15 +79,15 @@
     },
     "docs/editorial-audit.md": {
       "source": "docs/editorial-audit.md",
-      "sourceHash": "614b6b5f32bae1b82fdb89897205be4c2d88cca6a518862fadd6b71f93e6aab8"
+      "sourceHash": "20821b752f2656c661e47fb3e3614903b67b8e7e227832e5ba4b52293d01c406"
     },
     "docs/audit-workflows.md": {
       "source": "docs/audit-workflows.md",
-      "sourceHash": "7f0d6337078ef11f1e45c3a0ed3527c388fec5b1e89ac065cbfbef2dabcd7a32"
+      "sourceHash": "63de045d85db294b9c8ed8b8f173d7bfb980e83633f5fb35b8899bc859ba70d2"
     },
     "docs/editorial-workflows.md": {
       "source": "docs/editorial-workflows.md",
-      "sourceHash": "e2cd79c7e85a9648f6ffb4f3ee4719dca18e8cd53f61cec591f073345472d44d"
+      "sourceHash": "a88087dfc03c5961ba001c7909cac6bbed53fea617c9678f60f1c216a5c6cc77"
     }
   }
 }

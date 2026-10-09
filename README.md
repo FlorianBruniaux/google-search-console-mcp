@@ -92,7 +92,7 @@ Replace the example site in the prompt with your own. Every copied prompt explic
 
 | Goal | Command or guide | Result |
 | --- | --- | --- |
-| Run the published package | `uvx gsc-mcp-tools` | Starts all 85 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
+| Run the published package | `uvx gsc-mcp-tools` | Starts all 89 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
 | Install for Codex or Claude Desktop | [Installation guide](https://search-console.bruniaux.com/docs/installation/) | Persistent executable, upgrades, client configuration and verification |
 | Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
 | Configure Google access | [Google setup guide](https://search-console.bruniaux.com/docs/google-setup/) | Service Account or OAuth access to the selected properties |
@@ -108,7 +108,7 @@ Replace the example site in the prompt with your own. Every copied prompt explic
 
 ### Published package
 
-Use the published package for the complete 85-tool registry, including Bing:
+Use the published package for the complete 89-tool registry, including Bing:
 
 ```bash
 uvx gsc-mcp-tools
@@ -128,7 +128,7 @@ Upgrade that installation when a new release is available:
 uv tool upgrade gsc-mcp-tools
 ```
 
-To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.3.1`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
+To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.4.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
 
 Release `1.2.0` was built and published by [GitHub Actions](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml) through [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/). The workflow checks that the tag matches `pyproject.toml`, runs the full test suite, validates and smoke-tests the built wheel, then publishes that same artifact with a short-lived OIDC credential. See the [GitHub release](https://github.com/FlorianBruniaux/google-search-console-mcp/releases/tag/v1.2.0) and [PyPI files](https://pypi.org/project/gsc-mcp-tools/1.2.0/#files).
 
@@ -187,7 +187,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Remove credentials for tool families you do not use, then restart Claude Desktop. Saving the file does not restart the MCP process.
 
-For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. The source checkout exposes 89 tools, including unreleased `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference`, `crawl_import_preview` and draft inputs for `editorial_audit`. Releases 1.3.0 and 1.3.1 contain 85 tools; version 1.2.0 contains 81.
+For local development, set `command` to the checkout's absolute executable path, for example `/absolute/path/to/google-search-console-mcp/.venv/bin/gsc-mcp`. Version 1.4.0 exposes 89 tools, including `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference`, `crawl_import_preview` and draft inputs for `editorial_audit`. Releases 1.3.0 and 1.3.1 contain 85 tools; version 1.2.0 contains 81.
 
 </details>
 
@@ -225,7 +225,7 @@ Do not add a global single-instance lock to a stdio server. Each client owns a s
 
 ### Select MCP tool families (since 1.3.1)
 
-Since version 1.3.1, set `GSC_MCP_TOOL_FAMILIES=analytics,seo,sitemaps,links` in the MCP server environment to expose these families plus `core`. The default exposes all 85 tools. Restart the server or client after changing the selection; `gsc-cli list` keeps the full catalogue. Selection does not grant provider access or write permission. See the [tool-family configuration](docs/installation.md#select-mcp-tool-families-since-131) for all family names and startup validation. Version 1.3.0 predates this setting.
+Since version 1.3.1, set `GSC_MCP_TOOL_FAMILIES=analytics,seo,sitemaps,links` in the MCP server environment to expose these families plus `core`. The default exposes all 89 tools in version 1.4.0. Restart the server or client after changing the selection; `gsc-cli list` keeps the full catalogue. Selection does not grant provider access or write permission. See the [tool-family configuration](docs/installation.md#select-mcp-tool-families-since-131) for all family names and startup validation. Version 1.3.0 predates this setting.
 
 ### Bing Webmaster API key
 
@@ -295,7 +295,7 @@ The Indexing API default quota is 200 requests per day per GCP project. The tool
 
 Google Search Console and Bing Webmaster Tools show how people find your pages in search. Optional GA4 data adds what those visitors do on your site; CrUX and public-page audits help identify performance, content and technical issues. Your assistant can use these sources together to decide which pages need attention.
 
-Version 1.3.1 exposes 85 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
+Version 1.4.0 exposes 89 FastMCP tools. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
 
 > [!IMPORTANT]
 > `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
@@ -398,7 +398,7 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 ## Tools (89)
 
-Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Version 1.3.1 retains 85 tools and adds optional MCP discovery selection, CLI JSON string lists, and the SEO/Bing feedback fixes described in the [changelog](CHANGELOG.md#131---2026-10-08). The source checkout has 89 tools, including unreleased weekday-reference and caller-supplied crawl-preview checks described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
+Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Version 1.3.1 retains 85 tools and adds optional MCP discovery selection, CLI JSON string lists, and the SEO/Bing feedback fixes described in the [changelog](CHANGELOG.md#131---2026-10-08). Version 1.4.0 has 89 tools, adding declared-change follow-up, draft/rewrite checks, weekday-reference and caller-supplied crawl previews described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
 <summary>Show all 89 source tools</summary>
@@ -411,7 +411,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | Analytics | `get_search_analytics` | Query search performance data |
 | Analytics | `get_performance_overview` | Aggregate totals + top queries |
 | Analytics | `search_change_breakdown` | Compare explicit equal Google windows with independent bounded page/query/country/device views, coverage and residuals |
-| Analytics | `search_weekday_reference` | Unreleased: disjoint equal Google windows on the same weekdays, ending no later than Pacific today minus three days; descriptive, not annual or causal |
+| Analytics | `search_weekday_reference` | Since 1.4.0: disjoint equal Google windows on the same weekdays, ending no later than Pacific today minus three days; descriptive, not annual or causal |
 | Analytics | `compare_search_periods` | Compare two consecutive periods |
 | Analytics | `get_search_by_page_query` | Performance broken down by page and query |
 | Analytics | `get_advanced_search_analytics` | Flexible query with custom dimensions and filters |
@@ -451,14 +451,14 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | CrUX | `crux_page_vitals` | Real-user Core Web Vitals (LCP, INP, CLS, FCP, TTFB) for a URL from the Chrome UX Report API |
 | CrUX | `crux_history` | Historical Core Web Vitals trend (weekly data points) for a URL |
 | Technical | `schema_validate` | Fetch any public URL and validate its JSON-LD schemas; suggests missing schemas by URL pattern |
-| Technical | `crawl_import_preview` | Unreleased: preview bounded caller-supplied SiteOne JSON in memory; no crawl, file/network access, secrets or GSC join |
+| Technical | `crawl_import_preview` | Since 1.4.0: preview bounded caller-supplied SiteOne JSON in memory; no crawl, file/network access, secrets or GSC join |
 | Technical | `schema_generate` | Generate a Schema.org JSON-LD block for Reservation, OrderAction, DiscussionForumPosting, or ProfilePage |
 | Drift | `drift_baseline` | Capture a baseline snapshot of a page (title, H1-H3, schema, canonical, CWV) stored locally in SQLite |
 | Drift | `drift_compare` | Diff a live fetch against the stored baseline and apply 17 rules (8 CRITICAL, 6 WARNING, 3 INFO) |
 | Drift | `drift_history` | List previous comparison runs for a URL with triggered findings per run |
-| Editorial | `editorial_audit` | FR/EN house-style warnings, localized excerpts and faithful rewrite guidance; unreleased caller plain/Markdown drafts with native source spans and bounded parsing; no AI-authorship score |
-| Editorial | `rewrite_fidelity_check` | Unreleased: protected literals and qualifier review candidates; semantic fidelity and factual truth remain unassessed |
-| Follow-up | `seo_change_impact` | Unreleased: declared event and descriptive Google before/after evidence; no persistence or causal effect |
+| Editorial | `editorial_audit` | FR/EN house-style warnings, localized excerpts and faithful rewrite guidance; caller plain/Markdown drafts since 1.4.0 with native source spans and bounded parsing; no AI-authorship score |
+| Editorial | `rewrite_fidelity_check` | Since 1.4.0: protected literals and qualifier review candidates; semantic fidelity and factual truth remain unassessed |
+| Follow-up | `seo_change_impact` | Since 1.4.0: declared event and descriptive Google before/after evidence; no persistence or causal effect |
 | Content | `content_quality` | Fetch a URL and score visible text against E-E-A-T heuristics: filler phrases, information density, repetition, thin content |
 | Content | `hreflang_audit` | Fetch a URL and validate its hreflang implementation: x-default, ISO 639-1 codes, region codes, self-ref, protocol consistency |
 | Content | `page_technical_audit` | Fetch a URL and audit meta tags (title, description, canonical, robots), viewport, HTML lang, security headers, robots.txt Googlebot access |
@@ -499,7 +499,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Releases 1.3.0 and 1.3.1 have 85 commands; the source checkout exposes 89, adding unreleased `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` and `crawl_import_preview`. Draft inputs extend `editorial_audit` without adding a command. Version 1.2.0 has 81 commands. MCP family selection does not restrict CLI commands.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Version 1.4.0 has 89 commands, up from 85 in releases 1.3.0 and 1.3.1, adding `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` and `crawl_import_preview`. Draft inputs extend `editorial_audit` without adding a command. Version 1.2.0 has 81 commands. MCP family selection does not restrict CLI commands.
 
 ```bash
 # List the commands in the installed build

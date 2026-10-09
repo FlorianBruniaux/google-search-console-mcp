@@ -128,10 +128,10 @@ For GA4 tools that filter by hostname/country, use `_build_dimension_filter(host
 
 ## CLI (gsc-cli)
 
-`gsc-cli` exposes all 83 tools as shell commands, auto-generated from `registry.TOOLS`. No manual CLI registration or count update is needed.
+`gsc-cli` exposes all 89 tools as shell commands, auto-generated from `registry.TOOLS`. No manual CLI registration or count update is needed.
 
 ```bash
-# List all 83 source commands
+# List all 89 source commands
 gsc-cli list
 
 # Run any tool (all parameters are flags, no positional args)

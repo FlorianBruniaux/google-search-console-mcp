@@ -26,7 +26,9 @@ for (const prefix of ['', 'fr/']) {
     const html = await readPage(`${prefix}updates/`)
     const home = await readPage(prefix)
     assert.match(html, /<time datetime="2026-10-09"/)
-    assert.match(html, prefix ? /Non publié/ : /Unreleased/)
+    assert.match(html, /v1\.4\.0/)
+    assert.match(html, prefix ? /Cette version est disponible sur PyPI/ : /This version is available on PyPI/)
+    assert.doesNotMatch(html, /On main · not released on PyPI|Sur main · non publié sur PyPI/)
     assert.match(html, /1\.3\.1/)
     assert.match(html, /2026-10-08/)
     assert.match(html, /search_weekday_reference/)
@@ -34,6 +36,7 @@ for (const prefix of ['', 'fr/']) {
     assert.ok(home.includes(`href="/${prefix}updates/"`))
     assert.ok(home.includes(`href="/${prefix}sitemap/"`))
     assert.match(home, /<time datetime="2026-10-09"/)
+    assert.match(home, /v1\.4\.0/)
     assert.ok(html.includes(`href="/${prefix}#install"`), 'Shared header must link to the home installation section')
     const other = prefix ? '' : 'fr/'
     assert.ok(html.includes(`href="/${other}updates/"`), 'Language switch must preserve the page')

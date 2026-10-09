@@ -60,9 +60,9 @@ Le client lance normalement un processus serveur enfant par session active. Évi
 
 `search_change_breakdown` compare des fenêtres Google explicites de même durée ; `link_targets_audit` observe les destinations internes publiques dans un budget partagé avec la source. Les [audits à périmètre borné](/fr/docs/audit-workflows/) détaillent leurs paramètres, résultats et limites.
 
-## Suivi et brouillons source non publiés
+## Suivi et brouillons (depuis 1.4.0)
 
-Le registre source contient 89 outils : `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` et `crawl_import_preview` s’ajoutent aux 85 outils de la version publiée 1.3.1. Les versions 1.3.0 et 1.3.1 conservent chacune 85 outils. `change_impact.py` conserve les événements déclarés et réutilise la couverture de `search_change_breakdown`, sans persistance ni attribution causale.
+La version 1.4.0 contient 89 outils : `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` et `crawl_import_preview` s’ajoutent aux 85 outils de la version publiée 1.3.1. Les versions 1.3.0 et 1.3.1 conservent chacune 85 outils. `change_impact.py` conserve les événements déclarés et réutilise la couverture de `search_change_breakdown`, sans persistance ni attribution causale.
 
 Les fuseaux IANA utilisent la base système ou le secours `tzdata` fourni. `editorial_drafts.py` adapte le texte/Markdown borné au cœur de règles existant, sans récupération réseau, exécution ni lecture de fichier. `rewrite.py` compare littéraux protégés et qualificatifs avec des ancres lexicales locales ; les dimensions sémantiques restent non évaluées.
 

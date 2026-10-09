@@ -50,7 +50,9 @@ const historyHeadings = headings.filter((heading) => heading.depth === 2)
       </section>)}</div>
     </> : <>
       <div class="update-summary"><p><time datetime={latest.date}>{formatUpdateDate(latest.date, locale)}</time> · {latest.published ? `v${latest.version}` : fr ? 'Sur main · non publié sur PyPI' : 'On main · not released on PyPI'}</p>
-        <p>{fr ? 'Les changements non publiés sont disponibles dans le code source. uvx installe une version publiée sur PyPI.' : 'Unreleased changes are available in the source code. uvx installs a version published on PyPI.'} <a href={links.pypi}>PyPI ↗</a></p>
+        <p>{latest.published
+          ? fr ? 'Cette version est disponible sur PyPI. Consultez le guide d’installation pour mettre à jour votre serveur.' : 'This version is available on PyPI. Follow the installation guide to upgrade your server.'
+          : fr ? 'Les changements non publiés sont disponibles dans le code source. uvx installe une version publiée sur PyPI.' : 'Unreleased changes are available in the source code. uvx installs a version published on PyPI.'} <a href={links.install}>{fr ? 'Guide d’installation' : 'Installation guide'}</a> · <a href={links.pypi}>PyPI ↗</a></p>
       </div>
       <nav class="release-index" aria-label={fr ? 'Aller à une version' : 'Jump to a release'}>
         {historyHeadings.slice(0, 5).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}

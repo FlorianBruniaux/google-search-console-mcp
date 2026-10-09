@@ -2,7 +2,7 @@
 title: "Documentation Search Console MCP"
 description: "Installer Search Console MCP, connecter Google et Bing, lancer des audits bornés et interpréter les preuves."
 lang: fr
-lastUpdated: 2026-10-08
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/
 ---
 
@@ -54,4 +54,4 @@ Consultez l’[architecture](/fr/docs/architecture/), le [résumé des versions]
 
 Pour comparer des fenêtres Google explicites et vérifier des destinations HTTP, consultez les [audits à périmètre borné](/fr/docs/audit-workflows/). Ces outils ont été ajoutés dans la version 1.3.0. La version 1.3.1 conserve le registre de 85 outils et ajoute la [sélection des familles au démarrage](/fr/docs/installation/), les listes JSON dans la CLI et les correctifs SEO/Bing.
 
-Le checkout source ajoute le suivi de changements déclarés et les contrôles de brouillons/révisions non publiés, pour un registre de 87 outils. Consultez les [workflows éditoriaux](/fr/docs/editorial-workflows/) pour les limites des brouillons et comparaisons mécaniques.
+La version 1.4.0 expose 89 outils et ajoute le suivi de changements déclarés, les contrôles de brouillons/révisions, la référence hebdomadaire et la prévisualisation d’exports de crawl. Consultez les [workflows éditoriaux](/fr/docs/editorial-workflows/) pour les limites des brouillons et comparaisons mécaniques.

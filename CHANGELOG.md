@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-<!-- unreleased-updated: 2026-10-09 -->
+## [1.4.0] - 2026-10-09
 
 - Add bilingual HTML sitemaps and dated updates pages, linked from the homepage banner, navigation and footers. Updates reuse the changelog and distinguish source changes from published PyPI versions.
 - Add `seo_change_impact` for caller-declared page events and descriptive Google before/after comparisons (#23), reusing coverage from `search_change_breakdown`; no event persistence or causal attribution.
@@ -12,8 +12,8 @@
 - Add `crawl_import_preview` for bounded, caller-supplied SiteOne JSON. It parses in memory without files, network access, credentials or a GSC join; crawler scores remain third-party heuristics.
 - `search_change_breakdown` now records a deterministic snapshot fingerprint for exact provenance without storing the source report. Optional `output_max_bytes` limits the complete UTF-8 JSON envelope, including metadata; an oversized response reports omissions or an explicit budget error. The CLI preserves returned budget JSON on its own output line; a ceiling too small for the minimum error envelope fails explicitly without JSON. A single requested dimension is valid.
 - `ai_overviews_impact` reports generic Web search appearances only; they do not establish AI exposure. Correct the Claude audit roles and playbooks to preserve unknown metrics and inspect returned tool contracts. A controlled-host workflow check passes 12 tests; native Claude runtime and model behavior remain unverified.
-- Add owner-only PR CI checks for the Python suite, build and wheel smoke. Local workflow validation does not establish remote CI execution.
-- Source inventory increases from 85 to 89 tools. Published releases 1.3.0 and 1.3.1 remain separate 85-tool surfaces. Add bilingual [editorial workflows](docs/editorial-workflows.md) and extend [bounded audit workflows](docs/audit-workflows.md).
+- Add owner-only PR CI checks for the Python suite, build and wheel smoke. The publication workflow reruns tests and validates the built wheel before uploading it.
+- Release 1.4.0 contains 89 tools, up from 85 in releases 1.3.0 and 1.3.1. Add bilingual [editorial workflows](docs/editorial-workflows.md) and extend [bounded audit workflows](docs/audit-workflows.md).
 
 ## [1.3.1] - 2026-10-08
 

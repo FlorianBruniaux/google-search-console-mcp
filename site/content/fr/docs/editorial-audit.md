@@ -2,7 +2,7 @@
 title: "Audit éditorial et réécriture fidèle"
 description: "Relire les alertes de style françaises et anglaises sans déduire une origine IA ni modifier les faits."
 lang: fr
-lastUpdated: 2026-10-08
+lastUpdated: 2026-10-09
 canonicalEnglish: /docs/editorial-audit/
 ---
 
@@ -97,4 +97,4 @@ publish the page.
 
 L’outil `content_quality` conserve son résultat séparé et sa formule historique. Les alertes éditoriales ne sont pas intégrées à ce score. Consultez les [preuves et limites du contenu récupéré](/fr/docs/evidence-and-safety/) pour interpréter les bases des résultats.
 
-Les entrées source non publiées acceptent aussi des brouillons fournis. Consultez les [workflows éditoriaux](/fr/docs/editorial-workflows/) pour la couverture plain/Markdown, les emplacements natifs et la comparaison mécanique original/révision. Les appels URL ci-dessus conservent leur contrat.
+Depuis la version 1.4.0, `editorial_audit` accepte aussi des brouillons fournis. Consultez les [workflows éditoriaux](/fr/docs/editorial-workflows/) pour la couverture plain/Markdown, les emplacements natifs et la comparaison mécanique original/révision. Les appels URL ci-dessus conservent leur contrat.
