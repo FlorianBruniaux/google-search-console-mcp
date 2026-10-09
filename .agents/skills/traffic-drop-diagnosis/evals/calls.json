@@ -29,6 +29,17 @@
       "comparison_start",
       "comparison_end",
       "dimensions"
+    ],
+    "search_weekday_reference": [
+      "site",
+      "days",
+      "dimensions",
+      "reference_strategy",
+      "max_requests"
+    ],
+    "traffic_health_check": [
+      "site",
+      "days"
     ]
   },
   "validation_scope": "declared workflow arguments, not native agent execution"

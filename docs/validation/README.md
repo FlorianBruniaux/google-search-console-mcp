@@ -15,3 +15,5 @@ These records describe local checks and their limits. They do not establish live
 - [Appearance and report integrity, 2026-10-09](2026-10-09-appearance-report-integrity.md): masked/missing metrics, source identity and report semantic identities with explicit budget failure.
 
 - [Agent boundaries, 2026-10-09](2026-10-09-agent-boundaries.md): role allowlists, property-selected URLs, host-attempt/source-byte limits and the remaining native/provider gates.
+
+- [Traffic references, 2026-10-09](2026-10-09-traffic-references.md): annual/robust calendar arithmetic, aggregate request budgets, contradictory references and caller-declared context.

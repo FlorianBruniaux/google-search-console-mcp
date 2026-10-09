@@ -41,6 +41,8 @@ def run(monkeypatch):
 
         monkeypatch.setattr(search_breakdown, 'get_searchconsole_service',
                             lambda: SimpleNamespace(searchanalytics=lambda: SimpleNamespace(query=query)))
+        monkeypatch.setattr(traffic_reference, 'get_searchconsole_service',
+                            lambda: SimpleNamespace(searchanalytics=lambda: SimpleNamespace(query=query)), raising=False)
         options = dict(site='sc-domain:Example.COM', days=28, end_date='2026-01-31', dimensions=['query'])
         options.update(kwargs)
         return json.loads(traffic_reference.search_weekday_reference(**options)), calls
@@ -167,3 +169,125 @@ def test_incomplete_final_data_marker_is_not_treated_as_a_finalized_reference(ru
     assert out['weekday_reference']['status'] == 'unavailable'
     assert out['weekday_reference']['delta'] is None
     assert out['periods']['baseline']['first_incomplete_date'] == '2026-01-03'
+
+
+@pytest.mark.parametrize('end,days,baseline_end', [('2024-02-29', 7, '2023-02-28'), ('2025-03-09', 7, '2024-03-09')])
+def test_annual_reference_discloses_calendar_and_weekday_alignment(run, end, days, baseline_end):
+    out, calls = run(reference_strategy='year_on_year', days=days, end_date=end)
+    reference = out['weekday_reference']
+    assert reference['method'] == 'prior_year_calendar_end_equal_length'
+    assert out['periods']['baseline']['requested_end'] == baseline_end
+    assert reference['alignment']['weekday_aligned'] is False
+    assert reference['alignment']['leap_day_clamped'] is (end == '2024-02-29')
+    assert len(calls) == 6
+
+
+def test_rolling_reference_uses_observed_daily_medians_and_preserves_zeros(run):
+    def answer(body):
+        if body.get('dimensions') == ['date']:
+            start, end = date.fromisoformat(body['startDate']), date.fromisoformat(body['endDate'])
+            return response([row((start+timedelta(days=i)).isoformat(), 0, 10) for i in range((end-start).days+1)])
+        return response([row(None if not body.get('dimensions') else 'segment', 80, 800)])
+    out, calls = run(answer, reference_strategy='rolling_daily')
+    robust = out['robust_reference']
+    assert robust['status'] == 'observed'
+    assert robust['expected_counts']['clicks'] == 0
+    assert robust['delta']['clicks'] == 80
+    assert robust['support_by_weekday']['0']['clicks']['days'] == 8
+    assert len(calls) == out['request_budget']['requests_made'] == 7
+
+
+def test_missing_rolling_history_is_not_zero_filled(run):
+    def answer(body):
+        if body.get('dimensions') == ['date']:
+            return response([])
+        return response([row(None if not body.get('dimensions') else 'segment', 80, 800)])
+    out, _ = run(answer, reference_strategy='rolling_daily')
+    assert out['robust_reference']['status'] == 'unavailable'
+    assert out['robust_reference']['delta'] is None
+    assert out['robust_reference']['omitted_days'] == 56
+
+
+def test_all_references_share_one_total_request_cap_and_conflicting_signs_are_mixed(run):
+    out, calls = run(reference_strategy='all', max_requests=20)
+    assert len(calls) <= 20
+    assert out['request_budget']['requests_made'] == len(calls)
+    assert out['assessment'] == 'mixed'
+    assert out['causal_interpretation'] is False
+    assert set(out['references']) == {'weekday', 'year_on_year', 'rolling_daily'}
+
+
+@pytest.mark.parametrize('options', [
+    {'reference_strategy':'unknown'}, {'reference_strategy':'all', 'max_requests':10},
+    {'reference_strategy':'year_on_year', 'days':366, 'end_date':'2026-01-31'},
+    {'reference_strategy':'rolling_daily', 'history_days':6},
+    {'reference_strategy':'rolling_daily', 'min_support':True},
+    {'context_json':json.dumps({'version':1,'site':'sc-domain:other.test'})},
+])
+def test_new_preflight_validation_precedes_provider_calls(run, options):
+    with pytest.raises(ValueError):
+        run(lambda body: pytest.fail('invalid preflight reached Google'), **options)
+
+
+def test_context_staleness_and_timing_never_confirm_collection_health_or_cause(run):
+    context = {'version':1, 'site':'sc-domain:Example.COM', 'retrieved_at':'2026-09-01T00:00:00Z',
+               'collection_incidents':[{'id':'incident', 'provider':'google', 'report_type':'search_analytics',
+                   'start':'2026-01-01', 'end':'2026-01-31', 'source_url':'https://status.search.google.com/',
+                   'uncertainty':'scope_unverified'}], 'business_events':[]}
+    out, _ = run(context_json=json.dumps(context))
+    preflight = out['context_preflight']
+    assert preflight['collection_registry_status'] == 'stale_caller_declared'
+    assert preflight['collection_health'] == 'unknown'
+    assert preflight['records'][0]['date_overlap'] is True
+    assert preflight['records'][0]['causal_interpretation'] is False
+
+
+def test_absent_incident_registry_is_unknown_not_all_clear(run):
+    out, _ = run()
+    assert out['context_preflight']['collection_registry_status'] == 'unavailable'
+    assert out['context_preflight']['collection_health'] == 'unknown'
+
+
+def test_weekday_default_does_not_require_an_unused_history_window(run):
+    out, _ = run(days=1, end_date='0001-01-10')
+    assert out['periods']['baseline']['requested_end'] == '0001-01-03'
+
+
+def test_one_historical_spike_does_not_move_the_daily_median(run):
+    def answer(body):
+        if body.get('dimensions') == ['date']:
+            start, end = date.fromisoformat(body['startDate']), date.fromisoformat(body['endDate'])
+            return response([row((start+timedelta(days=i)).isoformat(), 9999 if i == 0 else 1, 10)
+                             for i in range((end-start).days+1)])
+        return response([row(None if not body.get('dimensions') else 'segment', 80, 800)])
+    out, _ = run(answer, reference_strategy='rolling_daily')
+    assert out['robust_reference']['expected_counts']['clicks'] == 28
+    fields = out['_meta']['evidence']['fields']
+    assert fields['/robust_reference/expected_counts/clicks']['basis'] == 'derived'
+
+
+def test_history_failure_uses_one_attempt_and_keeps_error_reason(run):
+    def answer(body):
+        if body['startDate'] == '2025-11-09':
+            raise TimeoutError('private provider message')
+        if body.get('dimensions') == ['date']:
+            start = date.fromisoformat(body['startDate'])
+            return response([row((start+timedelta(days=i)).isoformat()) for i in range(28)])
+        return response([row(None if not body.get('dimensions') else 'segment', 80, 800)])
+    out, calls = run(answer, reference_strategy='rolling_daily')
+    assert len(calls) == 7
+    assert out['robust_reference']['fetch_error'] == 'TimeoutError'
+    assert out['robust_reference']['delta'] is None
+    assert 'private provider message' not in json.dumps(out)
+
+
+def test_absent_annual_dates_leave_multireference_assessment_undetermined(run):
+    def answer(body):
+        if body.get('dimensions') == ['date']:
+            start, end = date.fromisoformat(body['startDate']), date.fromisoformat(body['endDate'])
+            return response([] if body['endDate'] == '2025-01-31' else
+                            [row((start+timedelta(days=i)).isoformat()) for i in range((end-start).days+1)])
+        return response([row(None if not body.get('dimensions') else 'segment', 80, 800)])
+    out, _ = run(answer, reference_strategy='all', max_requests=20)
+    assert out['assessment'] == 'undetermined'
+    assert out['references']['year_on_year']['weekday_reference']['delta'] is None

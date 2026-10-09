@@ -87,6 +87,29 @@ This wrapper makes one `search_change_breakdown` call with `data_state="final"`.
 
 `weekday_reference` retains the effective dates, shift, lag policy, upstream metadata and coverage reasons. Missing dates or incompatible/unknown aggregates leave its delta null and status `unavailable`. A three-day lag and a final-data request do not certify provider completeness. An observed reference describes clicks and impressions; it does not establish annual seasonality, a search-system incident or a causal explanation. This wrapper has no response-byte-budget parameter.
 
+## Annual, robust and combined references (source changes after 1.4.0)
+
+The historical tool name remains `search_weekday_reference`. Its default `reference_strategy="weekday"` retains the previous behavior. Choose `year_on_year`, `rolling_daily` or `all` explicitly.
+
+```python
+search_weekday_reference(
+    site="sc-domain:example.com", days=28, end_date="2026-09-30",
+    dimensions=["query", "page", "country", "device"],
+    reference_strategy="all", max_requests=40,
+    history_days=56, min_support=6,
+)
+```
+
+Annual windows end on the same prior-year calendar date, clamping February 29 to February 28, and retain the same length. Alignment discloses weekday mismatch; overlapping annual windows are refused. Missing prior-year observations remain unavailable.
+
+Rolling history adds one date query for 42..364 prior days. For each comparison weekday, multiply its occurrences by the median of observed historical counts on that weekday, then sum weekdays. The default requires six valid observations per represented weekday and metric. The result retains support, medians, median absolute deviations, omitted dates and the requested history window. Missing rows are not zero-filled. This is a descriptive reference, not a significance test or causal estimate.
+
+`all` divides the single physical-attempt budget across three child reports and the extra history query, with no retries. Four dimensions need at least 37 attempts; 40 is a bounded example. Different delta signs return `mixed`; an unavailable reference returns `undetermined`. Each child retains its source options, requested/observed windows and evidence; its existing fingerprint covers that child breakdown, not the added historical query or caller context. The combined wrapper still has no byte-budget parameter.
+
+Optional `context_json` has exactly `version: 1`, `site`, a timezone-aware `retrieved_at`, `collection_incidents` and/or `business_events`. Each collection incident has `id`, `provider`, `report_type`, `start`, `end`, `source_url` and `uncertainty`. A business event uses `id`, `kind`, `start`, `end` and `uncertainty`. Dates use YYYY-MM-DD; source URLs have no credentials/query; the input is at most 32768 UTF-8 bytes and 50 records per family. Retrieval older than seven days is marked stale. These are caller declarations: authority and relevance are not independently verified, overlap establishes only timing, and collection health stays unknown. No incident registry is fetched.
+
+Use a separate `traffic_health_check` for GSC/GA4 collection triage. Keep its resolved source IDs, units, dates, timezone and availability gates. Clicks and sessions are different measurements, and an unavailable comparison cannot become a tracking diagnosis. Expert diagnostic quality awaits #6 human evaluation.
+
 ## Preview a SiteOne export in memory (since 1.4.0)
 
 ```python

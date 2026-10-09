@@ -411,7 +411,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 | Analytics | `get_search_analytics` | Query search performance data |
 | Analytics | `get_performance_overview` | Aggregate totals + top queries |
 | Analytics | `search_change_breakdown` | Compare explicit equal Google windows with independent bounded page/query/country/device views, coverage and residuals |
-| Analytics | `search_weekday_reference` | Since 1.4.0: disjoint equal Google windows on the same weekdays, ending no later than Pacific today minus three days; descriptive, not annual or causal |
+| Analytics | `search_weekday_reference` | Default since 1.4.0: disjoint Google windows aligned by weekday and ending by Pacific J-3. Source changes add optional annual/robust references and mixed/undetermined results; descriptive, no causal attribution |
 | Analytics | `compare_search_periods` | Compare two consecutive periods |
 | Analytics | `get_search_by_page_query` | Performance broken down by page and query |
 | Analytics | `get_advanced_search_analytics` | Flexible query with custom dimensions and filters |

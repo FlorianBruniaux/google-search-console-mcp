@@ -93,6 +93,20 @@ Cet outil source appelle une fois `search_change_breakdown` avec `data_state="fi
 
 `weekday_reference` conserve dates effectives, décalage, délai, métadonnées de l’appel enfant et raisons de couverture. Des dates absentes ou des agrégats incompatibles/inconnus laissent le delta nul et le statut `unavailable`. Une demande final avec trois jours de délai ne certifie pas la complétude fournisseur. La référence observée décrit clics et impressions, sans prouver une saisonnalité annuelle, un incident du moteur ni une cause. Cet outil n’a pas de paramètre de budget de sortie en octets.
 
+## Références annuelles, robustes et combinées (source après 1.4.0)
+
+`search_weekday_reference` conserve son nom et son comportement par défaut (`reference_strategy="weekday"`). Les options explicites `year_on_year`, `rolling_daily` et `all` ajoutent d’autres références. Exemple : `site="sc-domain:example.com", days=28, dimensions=["query", "page", "country", "device"], reference_strategy="all", max_requests=40, history_days=56, min_support=6`.
+
+La référence annuelle conserve la durée et la date de fin de l’année précédente ; le 29 février devient le 28 février. Le décalage des jours de semaine est signalé. Les périodes qui se recouvrent sont refusées et l’historique absent reste indisponible.
+
+La référence robuste ajoute une requête quotidienne sur 42 à 364 jours antérieurs. Pour chaque jour de semaine de la période actuelle, elle multiplie son nombre d’occurrences par la médiane des comptes historiques observés, puis additionne ces valeurs. Six observations valides par jour de semaine et métrique sont exigées par défaut. Support, médianes, écarts absolus médians, dates absentes et fenêtre historique restent visibles. Aucun jour absent ne devient zéro ; le résultat n’est ni un test de significativité ni un effet causal.
+
+`all` partage un seul budget de tentatives physiques entre trois rapports et la requête historique supplémentaire, sans nouvelle tentative automatique. Quatre dimensions demandent au moins 37 tentatives ; 40 est un exemple borné. Des signes contradictoires donnent `mixed`, une référence indisponible donne `undetermined`. Chaque rapport enfant conserve ses sources et dates ; son empreinte couvre le breakdown enfant, pas la requête historique ajoutée ni le contexte déclaré. Aucun budget de sortie en octets n’est ajouté à ce wrapper.
+
+`context_json` est un registre déclaré : `version: 1`, propriété `site` exacte, `retrieved_at` ISO avec fuseau, listes `collection_incidents` et/ou `business_events`. Chaque incident porte `id`, `provider`, `report_type`, `start`, `end`, `source_url`, `uncertainty` ; un événement métier porte `id`, `kind`, `start`, `end`, `uncertainty`. Dates YYYY-MM-DD, URL HTTP sans identifiants ni query, plafond de 32768 octets et 50 éléments par famille. Une collecte vieille de plus de sept jours est périmée. Autorité et pertinence restent non vérifiées ; un chevauchement de dates ne confirme aucune cause et la santé de collecte reste inconnue. Aucun registre externe n’est interrogé.
+
+Un `traffic_health_check` séparé peut comparer clics GSC et sessions GA4 avec ses propres sources, unités, dates, fuseaux et contrôles de compatibilité. Un ratio ne confirme pas un problème de tracking. La qualité diagnostique reste à évaluer humainement sous #6.
+
 ## Prévisualiser un export SiteOne en mémoire (depuis 1.4.0)
 
 ```python
