@@ -404,6 +404,16 @@ _add("crawl_snapshot_join", "derived", "Pointer to one exact matching supplied p
 _add("crawl_snapshot_join", None, "No supplied indexing observation or site-wide link inventory; selection and coverage remain unverified",
      "/rows/*/indexing_status", "/rows/*/links/site_wide_orphan_status")
 
+_inventory('crawl_diff', 'fields', 'Exact imported inventory membership and compatible reported-field differences, never deletion or indexing')
+_add('crawl_diff', 'rule', 'Local compatibility and identity policy over two caller-owned inventories; no whole-site or causal conclusion',
+     '/status', '/site', '/baseline', '/comparison', '/comparability', '/policy', '/limit', '/unsupported_fields', '/storage_policy', '/untrusted_content', '/changes/*/kind', '/changes/*/field')
+_add('crawl_diff', 'derived', 'Exact set/field differences and bounded omission counts over retained rows',
+     '/counts', '/changes/*/baseline_snapshot_id', '/changes/*/comparison_snapshot_id', '/changes/*/before_row_index', '/changes/*/after_row_index', '/coverage')
+_add('crawl_diff', 'measured', 'Raw URL and old/new values from supplied producer observations; not independently measured current site state',
+     '/changes/*/raw_url', '/changes/*/before', '/changes/*/after')
+_add('crawl_diff', None, 'No provider indexing, deletion, ranking-impact or authenticated collection-order evidence supplied',
+     '/site_deletion_status', '/indexing_status', '/ranking_impact', '/error', '/comparability/collection_order')
+
 
 def _expand(value, parts: list[str], path: tuple[str, ...] = (), parent=None):
     if not parts:
@@ -429,6 +439,8 @@ def _resolve(tool: str, path: tuple[str, ...], value, parent, data: dict, basis,
         return None, "Required evidence/value is null; original value retained"
     if tool.startswith('crawl_snapshot_') and path == ('status',) and value in {'unavailable', 'rejected'}:
         return None, 'Local inventory lookup/import unavailable; no empty, complete or healthy site observation inferred'
+    if tool == 'crawl_diff' and path == ('status',) and value == 'unavailable':
+        return None, 'At least one requested snapshot unavailable; no successful comparison inferred'
     if tool == 'crawl_log_audit' and data.get('status') == 'unavailable' and path[0] in {'status', 'coverage'}:
         return None, 'Local log assessment unavailable; count placeholders do not establish an empty or healthy log'
     if tool == "ai_overviews_impact" and path[0] == "rows" and key in {"clicks", "impressions", "ctr", "position"} and value == 0 and data.get('metric_origin') != 'explicit_provider_fields':

@@ -190,3 +190,5 @@ The tool reuses `search_change_breakdown` with identical filters and finalized-d
 ## Local crawl snapshots
 
 Use `crawl_snapshot_import` with default preview before choosing `persist=True`. Retain the exact owner and snapshot ID. `crawl_snapshot_read` paginates all supported in-scope rows; `crawl_snapshot_join` accepts bounded caller-supplied GSC page/link-map reports. Raw URL keys and unknowns remain explicit. Retention is local and explicit; no crawler or upload runs. See the [versioned inventory and cleanup contract](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-snapshots.md).
+
+`crawl_diff` compares two stored inventories without crawling. Keep both source envelopes, compatibility reasons and omitted changes; absent inventory URLs do not prove deletion. Optional field policies remain bounded to matched retained rows.

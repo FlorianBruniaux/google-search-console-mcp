@@ -553,6 +553,14 @@ for snapshot_tool in ('crawl_snapshot_import', 'crawl_snapshot_read', 'crawl_sna
     }
     DEGRADED_SHAPES[snapshot_tool] = {'status': 'unavailable', 'error': 'snapshot_not_found'}
 
+SUCCESS_SHAPES['crawl_diff'] = {'status': 'observed', 'site': 'sc-domain:example.com',
+    'baseline': {}, 'comparison': {}, 'comparability': {'collection_order': 'unverified'}, 'policy': {'status': 'undetermined'},
+    'limit': 1, 'unsupported_fields': [], 'storage_policy': {}, 'untrusted_content': {},
+    'counts': {}, 'coverage': {}, 'site_deletion_status': 'unavailable', 'indexing_status': 'unavailable', 'ranking_impact': 'unavailable',
+    'changes': [{'kind': 'observed_field_difference', 'raw_url': 'https://example.com/', 'field': 'status',
+        'before': '200', 'after': '404', 'baseline_snapshot_id': 'a', 'comparison_snapshot_id': 'b', 'before_row_index': 0, 'after_row_index': 0}]}
+DEGRADED_SHAPES['crawl_diff'] = {'status': 'unavailable', 'error': 'snapshot_not_found'}
+
 SUCCESS_SHAPES['crawl_log_audit'] = {
     'status': 'observed', 'site': 'sc-domain:example.com', 'profile': 'combined',
     'coverage': {'consumed_bytes': 100, 'lines_considered': 1, 'parsed_lines': 1, 'invalid_lines': 0,
@@ -768,6 +776,7 @@ _REVIEWED_SIGNALS = {
     'crawl_snapshots.crawl_snapshot_delete': 'status',
     'crawl_snapshots.crawl_snapshot_join': 'status',
     'crawl_snapshots._link_input': 'category',
+    'crawl_snapshots.crawl_diff': 'status',
     'crawl_logs._google_ranges': 'status',
     'crawl_logs.crawl_log_audit': 'status',
     "analytics._parse_appearance_row": "unavailable_metrics",

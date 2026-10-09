@@ -10,6 +10,8 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## À publier
 
+- Ajouter `crawl_diff` pour deux snapshots de même propriété : différences bornées d’inventaire et de champs compatibles, indexation/suppression inconnues, refus des clés ambiguës et politique CI sur champs nommés (#48). Catalogue source : 95 outils.
+
 - Ajouter des snapshots de crawl versionnés : stockage local privé optionnel, quotas et idempotence, inventaire paginé, purge explicite et rapprochement borné avec des rapports GSC/link map fournis (#42). Le registre source contient 94 outils ; les métadonnées fournies ne prouvent pas l’origine fournisseur.
 
 - Ajouter `crawl_log_audit` et son guide partagé : lecture locale bornée, champs sensibles masqués, couverture explicite et vérification optionnelle des plages IP Google actuelles (#43). Le registre source contient 90 outils ; identité historique et indexation restent non vérifiées.

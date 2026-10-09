@@ -33,3 +33,11 @@ In an MCP client, supply your authorized export as `report_json` and the exact p
 For CLI imports, `report_json` is the JSON string, not a filename. Existing `crawl_import_preview` remains an in-memory first check with at most 50 displayed rows. There is no implicit disk read of a caller-supplied path.
 
 Unlighthouse is unsupported until an actual versioned export is reviewed. No lab metrics stand in for missing field metrics or INP. The licensed public SiteOne fixture validates export compatibility, not a fresh crawl or site correctness.
+
+## Before/after inventories
+
+`crawl_diff(site, baseline_id, comparison_id, limit=50, policy_fields=None)` reads two existing site-owned snapshots. It compares exact unique raw URL keys. Membership additions/absences concern only those observed inventories; duplicates are ambiguous. Matching producer version, adapter and configuration hashes are required for shared-row field differences. Collection order remains unverified because source timestamps do not establish authenticated timezone/order.
+
+Supported fields are reported status, size, elapsedTime, type, cacheTypeFlags and cacheLifetime. Missing/null or invalid HTTP status/negative size cannot become measured zero/empty. Canonical, robots, noindex, title, headings, content fingerprint and internal links are unsupported in this adapter. All displayed differences keep both snapshot IDs and original row indices; omitted differences are counted.
+
+Optional `policy_fields` names supported fields to check on matched retained unique URL rows. Its result is a local field-change rule, not a ranking-regression verdict or site-wide pass. Incompatible methods, ambiguous URLs, unavailable selected fields or no matched rows produce `undetermined`. No policy changes the site or deletes data.

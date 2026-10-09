@@ -1,11 +1,52 @@
 {
   "calls": {
-    "crawl_import_preview": ["report_json", "producer"],
-    "crawl_snapshot_import": ["report_json", "site", "producer", "persist"],
-    "crawl_snapshot_read": ["site", "snapshot_id", "offset", "limit"],
-    "crawl_snapshot_join": ["site", "snapshot_id", "search_report_json", "link_report_json", "offset", "limit"],
-    "crawl_snapshot_delete": ["site", "snapshot_id", "confirm"],
-    "get_search_analytics": ["site", "days", "dimensions", "row_limit"],
-    "link_equity_map": ["site", "days", "max_pages", "delay_seconds"]
+    "crawl_import_preview": [
+      "report_json",
+      "producer"
+    ],
+    "crawl_snapshot_import": [
+      "report_json",
+      "site",
+      "producer",
+      "persist"
+    ],
+    "crawl_snapshot_read": [
+      "site",
+      "snapshot_id",
+      "offset",
+      "limit"
+    ],
+    "crawl_snapshot_join": [
+      "site",
+      "snapshot_id",
+      "search_report_json",
+      "link_report_json",
+      "offset",
+      "limit"
+    ],
+    "crawl_snapshot_delete": [
+      "site",
+      "snapshot_id",
+      "confirm"
+    ],
+    "get_search_analytics": [
+      "site",
+      "days",
+      "dimensions",
+      "row_limit"
+    ],
+    "link_equity_map": [
+      "site",
+      "days",
+      "max_pages",
+      "delay_seconds"
+    ],
+    "crawl_diff": [
+      "site",
+      "baseline_id",
+      "comparison_id",
+      "limit",
+      "policy_fields"
+    ]
   }
 }

@@ -28,6 +28,13 @@
     ],
     "crux_page_vitals": [
       "url"
+    ],
+    "crawl_diff": [
+      "site",
+      "baseline_id",
+      "comparison_id",
+      "limit",
+      "policy_fields"
     ]
   },
   "validation_scope": "declared workflow arguments, not native agent execution"

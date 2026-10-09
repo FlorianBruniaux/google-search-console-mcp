@@ -107,7 +107,7 @@ from gsc_mcp.tools.search_breakdown import search_change_breakdown
 from gsc_mcp.tools.traffic_reference import search_weekday_reference
 from gsc_mcp.tools.crawl_import import crawl_import_preview
 from gsc_mcp.tools.crawl_logs import crawl_log_audit
-from gsc_mcp.tools.crawl_snapshots import crawl_snapshot_import, crawl_snapshot_read, crawl_snapshot_delete, crawl_snapshot_join
+from gsc_mcp.tools.crawl_snapshots import crawl_snapshot_import, crawl_snapshot_read, crawl_snapshot_delete, crawl_snapshot_join, crawl_diff
 
 
 TOOLS: dict[str, Callable[..., str]] = {
@@ -127,6 +127,7 @@ TOOLS: dict[str, Callable[..., str]] = {
         crawl_snapshot_read,
         crawl_snapshot_delete,
         crawl_snapshot_join,
+        crawl_diff,
         seo_change_impact,
         get_search_by_page_query,
         get_advanced_search_analytics,

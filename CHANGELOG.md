@@ -4,6 +4,8 @@
 
 <!-- unreleased-updated: 2026-10-09 -->
 
+- Add `crawl_diff` for two exact site-owned snapshots: bounded inventory membership and compatible observed field differences, unknown deletion/indexing, duplicate-key abstention and optional named-field CI rules (#48). Source catalogue: 95 tools.
+
 - Add versioned site-owned crawl snapshots: optional private local storage, quota/idempotency checks, paginated full inventories, explicit cleanup and bounded exact-URL GSC/link-map reconciliation (#42). The source registry contains 94 tools; supplied metadata does not authenticate provider origin.
 
 - Add `crawl_log_audit` and a shared read-only log skill: bounded local common/combined parsing, masked sensitive fields, explicit coverage and optional current Google IP-range membership (#43). The source registry now contains 90 tools; historical identity and indexing remain unverified.

@@ -11,7 +11,8 @@ Use for a caller-selected, authorized SiteOne JSON report. `technical` is the op
 2. Store only when the caller wants a local inventory: `crawl_snapshot_import` with `persist=True`. Keep `snapshot_id` and exact owner together. Explain count/byte quotas and explicit retention. Do not silently change the owner or canonicalize URLs.
 3. Use `crawl_snapshot_read` with explicit offset and a small limit. Preserve duplicates, excluded rows, summary omissions and original URL identity. A partial inventory is not a site-wide count.
 4. Optionally obtain a page-only `get_search_analytics` result, or a bounded `link_equity_map` result, and pass it as a supplied report to `crawl_snapshot_join`. Preserve each requested window and source hash. Input `_meta` consistency does not authenticate its origin. Link metrics retain their path-only aggregation. Missing rows never mean unindexed, deleted or site-wide orphaned.
-5. For local cleanup, explain `crawl_snapshot_delete` and require explicit `confirm=True` for that site/ID. Never delete the original export, silently evict data or execute provider writes.
+5. With two existing site-owned handles, use `crawl_diff` to compare raw inventories and compatible reported fields. Report additions/absences as inventory membership only; retain producer/version/options, collection-order unknowns and duplicate-key abstention. Missing canonical/title/noindex fields stay unsupported.
+6. For local cleanup, explain `crawl_snapshot_delete` and require explicit `confirm=True` for that site/ID. Never delete the original export, silently evict data or execute provider writes.
 
 Done when the report cites the snapshot, exact site, source/version/options, declared collection time, known validation coverage, pagination and unknowns; zero and unavailable remain distinct. No ranking impact, source completeness or indexing is inferred.
 

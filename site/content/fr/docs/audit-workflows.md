@@ -189,3 +189,5 @@ L’outil réutilise `search_change_breakdown` avec des filtres identiques et de
 ## Snapshots locaux de crawl
 
 Commencez par `crawl_snapshot_import` en mode aperçu avant de choisir `persist=True`. Gardez la propriété exacte et le snapshot ID. `crawl_snapshot_read` pagine les lignes compatibles ; `crawl_snapshot_join` accepte des rapports GSC par page et link map fournis, sous limites. Les URL brutes et inconnues restent explicites. La rétention est locale et la purge explicite ; aucun crawl ni upload n’est lancé. Consultez le [contrat d’inventaire versionné et de purge](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/crawl-snapshots.md).
+
+`crawl_diff` compare deux inventaires stockés sans crawl. Conservez les deux sources, les raisons de compatibilité et les changements omis ; une URL absente ne prouve pas sa suppression. Les politiques par champ restent limitées aux lignes communes retenues.
