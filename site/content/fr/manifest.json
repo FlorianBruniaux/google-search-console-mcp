@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "f3d3afe35ab26ac7c22051f7d491d8e9111880e6121e37f880f4c7ba0676fcd1"
+      "sourceHash": "0e81871a46743b2242242a14b669e47c05fe311fb7245d876d22d0c4b1b16a45"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -83,7 +83,7 @@
     },
     "docs/audit-workflows.md": {
       "source": "docs/audit-workflows.md",
-      "sourceHash": "5047e6d376a796542209f0737e16a5d11a5524ed437dcacd1c1515f3785dd398"
+      "sourceHash": "690d51dac6f170353d17cb8ebb973241c175479c06e762b2606fd17d27e546ae"
     },
     "docs/editorial-workflows.md": {
       "source": "docs/editorial-workflows.md",

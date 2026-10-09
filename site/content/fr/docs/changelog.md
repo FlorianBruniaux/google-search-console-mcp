@@ -10,6 +10,8 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## À publier
 
+- Accepter les longues chaînes des annexes SiteOne exclues de la sortie, sans modifier les limites des champs utilisés ni les limites globales. Ajouter une fixture d’export public avec licence et rejouer ses 73 lignes (#42, compatibilité).
+
 - Étendre les références de trafic avec historique annuel, médianes quotidiennes, résultats mixtes/indéterminés et contexte métier/incidents déclaré (#46), sous un budget global de tentatives. Le comportement par défaut reste identique, sans attribution causale.
 
 - Aligner les outils autorisés des agents avec les guides partagés ; borner les tentatives d’agents et les octets de sources transmis à la synthèse, vérifier la propriété des URLs et conserver les branches ignorées (#39, pilote). Les budgets fournisseurs et l’exécution native restent non vérifiés.

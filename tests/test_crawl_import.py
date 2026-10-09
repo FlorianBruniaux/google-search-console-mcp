@@ -1,6 +1,7 @@
 """Synthetic fixtures follow SiteOne's pinned exporter, not a live crawler run."""
 import importlib
 import json
+from pathlib import Path
 
 import pytest
 
@@ -158,6 +159,26 @@ def test_quoted_brackets_do_not_trigger_nesting_limit():
 def test_scalar_limit_rejects_input_before_preview():
     result = preview(report([row(status="x" * 4097)]))
     assert result["errors"][0]["code"] == "scalar_limit"
+
+
+def test_public_siteone_export_subset_preserves_all_73_rows_with_annex_tables_withheld():
+    raw = (Path(__file__).parent / 'fixtures/siteone/public-export-subset.json').read_text()
+    result = preview(raw)
+    assert result['status'] == 'preview'
+    assert result['counts']['accepted_rows'] == 73
+    assert result['counts']['preview_rows'] == 50
+    assert result['counts']['omitted_accepted_rows'] == 23
+    assert result['source']['version'] == '2.0.0.20260316'
+    assert 'BEGIN CERTIFICATE' not in json.dumps(result)
+    assert any(field['field'] == 'tables' for field in result['unsupported_fields']['sample'])
+
+
+def test_withheld_annex_remains_subject_to_global_numeric_and_utf8_validation():
+    assert preview(report(tables={'value': float('inf')}))['status'] == 'rejected'
+    assert preview(report(tables={'value': '\ud800'}))['status'] == 'rejected'
+    result = preview(report(tables={'value': 'SECRET' * 2000}))
+    assert result['status'] == 'preview'
+    assert 'SECRET' not in json.dumps(result)
 
 
 def test_duplicate_rows_preserve_membership_without_join_or_normalization():
