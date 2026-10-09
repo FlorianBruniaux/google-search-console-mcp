@@ -297,37 +297,43 @@ def search_type_breakdown(site: str, url: str | None = None, days: int = 28) -> 
 
 
 def ai_overviews_impact(site: str, days: int = 28, limit: int = 100) -> str:
-    """Get queries where AI Overview appearance data is available.
+    """Discover generic Web search appearances; AI exposure remains unverified.
 
-    Uses the searchAppearance dimension with dataState=all to capture AI Overview
-    impressions. Returns an error dict when the property does not support this
-    dimension (HTTP 400/403) instead of raising.
+    The legacy name does not identify AI Overview queries or causal impact. Fetches
+    searchAppearance alone, preserves returned metrics, and sorts by impressions.
+    The window covers `days` days ending 3 days ago; dataState=all may be incomplete.
+    HTTP 400 means invalid/unsupported request; 403 means access denied. Neither
+    establishes whether this property appears in AI Overviews.
     """
     start, end = _date_range(days)
     svc = get_searchconsole_service()
-    body = {
-        "startDate": start,
-        "endDate": end,
-        "dimensions": ["query", "searchAppearance"],
-        "type": "web",
-        "dataState": "all",
+    body = {"startDate": start, "endDate": end, "dimensions": ["searchAppearance"],
+            "type": "web", "dataState": "all"}
+    data = {
+        "source_scope": "web_search_appearance",
+        "ai_exposure": {"status": "unavailable", "verification": "unverified"},
+        "evidence_limits": [
+            "Returned rows describe generic Web search appearances, not AI exposure by query.",
+            "No returned appearance label has a verified AI Overview mapping in this tool.",
+            "Neither generic rows nor an empty result establish AI presence, absence or causal impact.",
+            "No AI-attributed lost-click estimate or causal effect is identified.",
+            "Search Console returns bounded top rows; dataState=all may include incomplete data.",
+        ],
     }
     try:
         rows = _fetch_rows(svc, site, body)
     except HttpError as e:
-        if e.resp.status in (400, 403):
-            return json.dumps(with_meta(
-                {"error": "AI_OVERVIEWS_NOT_AVAILABLE", "reason": str(e)},
-                tool="ai_overviews_impact",
-                params={"site": site, "days": days, "limit": limit},
-            ))
-        raise
-    rows.sort(key=lambda r: r.get("impressions", 0), reverse=True)
-    return json.dumps(with_meta(
-        {"site": site, "days": days, "count": len(rows[:limit]), "rows": rows[:limit]},
-        tool="ai_overviews_impact",
-        params={"site": site, "days": days, "limit": limit},
-    ))
+        if e.resp.status not in (400, 403):
+            raise
+        status = "invalid_or_unsupported_request" if e.resp.status == 400 else "access_denied"
+        data.update({"error": "AI_OVERVIEWS_NOT_AVAILABLE", "reason": str(e),
+                     "http_status": e.resp.status, "source_status": status, "error_meaning": status})
+    else:
+        rows.sort(key=lambda row: row.get("impressions", 0), reverse=True)
+        data.update({"site": site, "days": days, "count": len(rows[:limit]), "rows": rows[:limit],
+                     "source_status": "observed" if rows else "empty"})
+    return json.dumps(with_meta(data, tool="ai_overviews_impact",
+                               params={"site": site, "days": days, "limit": limit}))
 
 
 def get_advanced_search_analytics(
