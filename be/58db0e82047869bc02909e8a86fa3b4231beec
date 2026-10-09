@@ -1,0 +1,68 @@
+site/src/components/DiscoveryPage.astro
+  s_05ea773ff72f20::t_0d752a45550bee 53-54
+  s_05ea773ff72f20::t_cc25f0a617fb4a 55
+site/tests/dist-discovery.test.mjs
+  s_05ea773ff72f20::t_0d752a45550bee 29-31,39
+CHANGELOG.md
+  s_05ea773ff72f20::t_1d4089899de248 5,15-16
+CLAUDE.md
+  s_05ea773ff72f20::t_9366da415ec241 131,134
+README.md
+  s_05ea773ff72f20::t_feb2c2e2d2908a 95,111,131,190,228,298,401,414,454,459-461,502
+docs/architecture.md
+  s_05ea773ff72f20::t_d51766de40b009 248,250
+docs/audit-workflows.md
+  s_05ea773ff72f20::t_f8a51ed02a8863 5,66,68,74,84,88,94,133,135
+docs/editorial-audit.md
+  s_05ea773ff72f20::t_547b2eaee08f6e 94
+docs/editorial-workflows.md
+  s_05ea773ff72f20::t_c694d356c0da7b 3
+docs/installation.md
+  s_05ea773ff72f20::t_bfc3c2664dec17 3,26,39
+docs/machine-readable/code-map.yaml
+  s_05ea773ff72f20::t_4d2bb2198ca1c1 5,18
+docs/machine-readable/llms.txt
+  s_05ea773ff72f20::t_f9463351f02b96 10,366,372
+examples/traffic-drop.md
+  s_05ea773ff72f20::t_2672035a5d4f9f 15
+pyproject.toml
+  s_05ea773ff72f20::t_f4b40f22e6dc4e 7
+site/content/en/index.md
+  s_05ea773ff72f20::t_ac81c5c1cbca9c 49
+site/content/fr/docs/architecture.md
+  s_05ea773ff72f20::t_5af615697324f0 63,65
+site/content/fr/docs/audit-workflows.md
+  s_05ea773ff72f20::t_3715adc20a4f6c 11,72,80,94,139,141
+site/content/fr/docs/changelog.md
+  s_05ea773ff72f20::t_baf876a738ecca 11,20-21
+site/content/fr/docs/editorial-audit.md
+  s_05ea773ff72f20::t_140fc010f6bdd2 5,100
+site/content/fr/docs/editorial-workflows.md
+  s_05ea773ff72f20::t_e23c451e81c99d 5,9
+site/content/fr/docs/examples/traffic-drop.md
+  s_05ea773ff72f20::t_3861865edee297 5,24
+site/content/fr/docs/index.md
+  s_05ea773ff72f20::t_21a6225dc1381b 5,57
+site/content/fr/docs/installation.md
+  s_05ea773ff72f20::t_cbf2e9ba59e155 11,28
+site/content/fr/manifest.json
+  s_05ea773ff72f20::t_7ad1ff4176ea5b 6,10,50,62,70,82,86,90
+uv.lock
+  s_05ea773ff72f20::t_b2328560a0ae89 476
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "be58db0e82047869bc02909e8a86fa3b4231beec",
+  "prompts": {},
+  "sessions": {
+    "s_05ea773ff72f20": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a116be-a2cd-75a1-a076-6afacdef72a0",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
