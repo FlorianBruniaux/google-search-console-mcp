@@ -1,6 +1,34 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
+for (const prefix of ['', '/fr']) {
+  for (const route of ['sitemap', 'updates']) {
+    for (const width of [390, 1440]) {
+      for (const theme of ['light', 'dark']) {
+        test(`discovery ${prefix || 'en'} ${route} ${width}px ${theme} is readable and navigable`, async ({ page }) => {
+          await page.setViewportSize({ width, height: 1000 })
+          await page.addInitScript((value) => localStorage.setItem('theme', value), theme)
+          await page.goto(`${prefix}/${route}/`)
+          await expect(page.locator('main h1')).toHaveCount(1)
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+          await expect(page.locator('.header-install')).toHaveAttribute('href', `${prefix}/#install`)
+          const otherPrefix = prefix ? '' : '/fr'
+          await expect(page.locator('.header-actions a[hreflang]')).toHaveAttribute('href', `${otherPrefix}/${route}/`)
+          const results = await new AxeBuilder({ page }).analyze()
+          expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
+          await page.screenshot({ path: `/private/tmp/gsc-discovery-${prefix ? 'fr' : 'en'}-${route}-${width}-${theme}.png`, fullPage: route === 'sitemap' })
+          await page.locator(`.site-footer a[href="${prefix}/sitemap/"]`).click()
+          await expect(page).toHaveURL(`${prefix}/sitemap/`)
+          await page.locator(`main a[href="${prefix}/docs/installation/"]`).click()
+          await expect(page).toHaveURL(`${prefix}/docs/installation/`)
+          await page.locator(`.docs-discovery-links a[href="${prefix}/updates/"]`).click()
+          await expect(page).toHaveURL(`${prefix}/updates/`)
+        })
+      }
+    }
+  }
+}
+
 for (const locale of [{ path: '/', report: '/docs/examples/cc-guide-live-audit/' }, { path: '/fr/', report: '/fr/docs/examples/cc-guide-live-audit/' }]) {
   test(`opens the real SEO case and downloads its recorded evidence on ${locale.path}`, async ({ page }) => {
     await page.goto(`${locale.path}#real-example`)

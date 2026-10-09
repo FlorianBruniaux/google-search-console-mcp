@@ -1,8 +1,19 @@
 ---
 import DefaultFooter from '@astrojs/starlight/components/Footer.astro'
+const prefix = Astro.url.pathname.startsWith('/fr/') ? '/fr' : ''
+const fr = Boolean(prefix)
 ---
 
 <DefaultFooter />
+<nav class="docs-discovery-links" aria-label={fr ? 'Explorer le site' : 'Explore the site'}>
+  <a href={`${prefix}/sitemap/`}>{fr ? 'Plan du site' : 'Sitemap'}</a>
+  <a href={`${prefix}/updates/`}>{fr ? 'Nouveautés' : 'What’s new'}</a>
+</nav>
+
+<style>
+  .docs-discovery-links { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1rem; }
+  .docs-discovery-links a { display: inline-flex; align-items: center; min-height: 44px; }
+</style>
 
 <script is:inline>
   const makeCodeBlocksKeyboardReachable = () => {

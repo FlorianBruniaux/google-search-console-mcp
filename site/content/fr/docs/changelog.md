@@ -10,6 +10,7 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## Non publié
 
+- Ajout de plans du site HTML et de pages de nouveautés datées dans les deux langues, accessibles depuis le bandeau d’accueil, la navigation et les pieds de page. Les nouveautés reprennent l’historique et distinguent le code source des versions publiées sur PyPI.
 - `seo_change_impact` associe un événement déclaré à des fenêtres Google descriptives, avec couverture conservée, sans persistance ni effet causal identifié (#23).
 - `editorial_audit` accepte des brouillons plain/Markdown bornés avec langue FR/EN explicite, contenu protégé et emplacements Unicode (#24).
 - `rewrite_fidelity_check` signale les changements mécaniques de littéraux et qualificatifs à relire ; même sans alerte, la fidélité sémantique reste non évaluée (#20).

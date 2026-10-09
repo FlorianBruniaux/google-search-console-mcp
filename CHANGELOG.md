@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+<!-- unreleased-updated: 2026-10-09 -->
+
+- Add bilingual HTML sitemaps and dated updates pages, linked from the homepage banner, navigation and footers. Updates reuse the changelog and distinguish source changes from published PyPI versions.
 - Add `seo_change_impact` for caller-declared page events and descriptive Google before/after comparisons (#23), reusing coverage from `search_change_breakdown`; no event persistence or causal attribution.
 - Extend `editorial_audit` to caller plain-text/Markdown drafts (#24), with explicit FR/EN, bounded subset coverage, protected content and Unicode source spans.
 - Add `rewrite_fidelity_check` for mechanical protected-literal and qualifier review candidates (#20); zero findings leaves semantic fidelity, factual truth, scope and causality unassessed.

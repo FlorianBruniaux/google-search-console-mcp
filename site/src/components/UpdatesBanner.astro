@@ -1,0 +1,19 @@
+---
+import { getEntry } from 'astro:content'
+import { getSiteLinks, type Locale } from '../data/content'
+import { latestUpdate, formatUpdateDate } from '../data/updates.mjs'
+interface Props { locale: Locale }
+const { locale } = Astro.props
+const links = getSiteLinks(locale)
+const changelog = await getEntry('docs', 'docs/changelog')
+if (!changelog?.body) throw new Error('Missing canonical changelog')
+const latest = latestUpdate(changelog.body)
+const label = locale === 'fr' ? 'Nouveautés' : 'What’s new'
+const status = latest.published ? `v${latest.version}` : locale === 'fr' ? 'Sur main · non publié' : 'On main · unreleased'
+---
+<aside class="updates-banner" aria-label={label}>
+  <div class="container updates-banner-inner">
+    <a href={links.updates}><strong>{label}</strong><span>{locale === 'fr' ? 'Outils, correctifs et guides ajoutés' : 'New tools, fixes and guides'}</span><span aria-hidden="true">→</span></a>
+    <p><time datetime={latest.date}>{formatUpdateDate(latest.date, locale)}</time><span>{status}</span></p>
+  </div>
+</aside>

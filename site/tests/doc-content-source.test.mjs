@@ -5,9 +5,19 @@ import { join, resolve } from 'node:path'
 import test from 'node:test'
 
 import { assertReviewedPublicEvidence, prepareDocumentation, publishedEvidence, publishedPages } from '../scripts/prepare-doc-content.mjs'
+import { latestUpdate, formatUpdateDate } from '../src/data/updates.mjs'
 
 const siteRoot = resolve(import.meta.dirname, '..')
 const generatedRoot = join(siteRoot, 'src/content/docs')
+
+test('update banner follows dated source changes and falls back to the latest published release', () => {
+  assert.deepEqual(latestUpdate('## [Unreleased]\n\n<!-- unreleased-updated: 2026-10-09 -->\n\n- A source change.\n\n## [1.3.1] - 2026-10-08\n\n- A release.'), { date: '2026-10-09', version: null, published: false })
+  assert.deepEqual(latestUpdate('## [Unreleased]\n\n<!-- unreleased-updated: 2026-10-09 -->\n\n## [1.4.0] - 2026-10-12\n\n- A release.'), { date: '2026-10-12', version: '1.4.0', published: true })
+  assert.throws(() => latestUpdate('## [Unreleased]\n\n- Undated changes.\n\n## [1.3.1] - 2026-10-08'), /requires a valid/)
+  assert.throws(() => latestUpdate('## [Unreleased]\n\n<!-- unreleased-updated: 2026-02-30 -->\n\n- Wrong date.'), /requires a valid/)
+  assert.equal(formatUpdateDate('2026-10-09', 'fr'), '9 octobre 2026')
+  assert.equal(formatUpdateDate('2026-10-09', 'en'), '9 October 2026')
+})
 
 test('blocks unreviewed data additions to the public MCP snapshot before publication', async () => {
   const [sourcePath, , approvedDigest] = publishedEvidence[0]

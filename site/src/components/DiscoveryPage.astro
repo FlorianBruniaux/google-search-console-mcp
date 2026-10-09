@@ -1,0 +1,64 @@
+---
+import { getCollection, getEntry, render } from 'astro:content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import SiteHeader from './SiteHeader.astro'
+import SiteFooter from './SiteFooter.astro'
+import { getSiteLinks, type Locale } from '../data/content'
+import { latestUpdate, formatUpdateDate } from '../data/updates.mjs'
+
+interface Props { locale: Locale; page: 'sitemap' | 'updates' }
+const { locale, page } = Astro.props
+const fr = locale === 'fr'
+const links = getSiteLinks(locale)
+const title = page === 'sitemap' ? fr ? 'Plan du site' : 'Sitemap' : fr ? 'Nouveautés' : 'What’s new'
+const description = page === 'sitemap'
+  ? fr ? 'Trouvez une page, un guide ou un scénario d’audit.' : 'Find a page, setup guide or audit workflow.'
+  : fr ? 'Les ajouts et correctifs de Search Console MCP, avec leurs dates et leur statut de publication.' : 'Search Console MCP additions and fixes, with dates and release status.'
+const alternatePaths = { en: `/${page}/`, fr: `/fr/${page}/` }
+const namespace = fr ? 'fr/docs' : 'docs'
+const docs = (await getCollection('docs')).filter((entry) => entry.id === namespace || entry.id.startsWith(`${namespace}/`))
+const groups = [
+  { title: fr ? 'Démarrer' : 'Get started', ids: ['', 'installation', 'google-setup', 'bing-setup'] },
+  { title: fr ? 'Auditer et améliorer' : 'Audit and improve', ids: ['prompts', 'audit-workflows', 'editorial-workflows', 'editorial-audit'] },
+  { title: fr ? 'Scénarios et exemples' : 'Workflows and examples', ids: docs.map((entry) => entry.id.slice(namespace.length + 1)).filter((id) => id === 'examples' || id.startsWith('examples/')) },
+  { title: fr ? 'Comprendre le projet' : 'Understand the project', ids: ['architecture', 'evidence-and-safety', 'changelog', 'license'] },
+]
+const canonical = await getEntry('docs', 'docs/changelog')
+const history = await getEntry('docs', `${namespace}/changelog`)
+if (!canonical?.body || !history) throw new Error('Missing changelog')
+const latest = latestUpdate(canonical.body)
+const { Content, headings } = await render(history)
+const historyHeadings = headings.filter((heading) => heading.depth === 2)
+---
+<BaseLayout title={`${title} · Search Console MCP`} {description} lang={locale} {alternatePaths}>
+  <SiteHeader {locale} {alternatePaths} />
+  <main id="main-content" class="discovery-page container" tabindex="-1">
+    <nav class="discovery-breadcrumb" aria-label={fr ? 'Fil d’Ariane' : 'Breadcrumb'}><a href={links.home}>{fr ? 'Accueil' : 'Home'}</a><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav>
+    <div class="discovery-heading"><p class="kicker">Search Console MCP</p><h1>{title}</h1><p>{description}</p></div>
+    {page === 'sitemap' ? <>
+      <section class="sitemap-group" aria-labelledby="site-pages"><h2 id="site-pages">{fr ? 'Le site' : 'Website'}</h2><ul>
+        <li><a href={links.home}>{fr ? 'Accueil et présentation' : 'Home and overview'}</a></li>
+        <li><a href={links.updates}>{fr ? 'Nouveautés et versions' : 'Updates and releases'}</a></li>
+        <li><a href={links.sitemap}>{title}</a></li>
+      </ul></section>
+      <div class="sitemap-grid">{groups.map((group, index) => <section class="sitemap-group" aria-labelledby={`sitemap-group-${index}`}>
+        <h2 id={`sitemap-group-${index}`}>{group.title}</h2><ul>{group.ids.map((id) => {
+          const entry = docs.find((doc) => doc.id === `${namespace}${id ? `/${id}` : ''}`)
+          if (!entry) throw new Error(`Missing public documentation page: ${namespace}/${id}`)
+          return <li><a href={`/${entry.id}/`}>{entry.data.title}</a></li>
+        })}</ul>
+      </section>)}</div>
+    </> : <>
+      <div class="update-summary"><p><time datetime={latest.date}>{formatUpdateDate(latest.date, locale)}</time> · {latest.published ? `v${latest.version}` : fr ? 'Sur main · non publié sur PyPI' : 'On main · not released on PyPI'}</p>
+        <p>{fr ? 'Les changements non publiés sont disponibles dans le code source. uvx installe une version publiée sur PyPI.' : 'Unreleased changes are available in the source code. uvx installs a version published on PyPI.'} <a href={links.pypi}>PyPI ↗</a></p>
+      </div>
+      <nav class="release-index" aria-label={fr ? 'Aller à une version' : 'Jump to a release'}>
+        {historyHeadings.slice(0, 5).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}
+        {historyHeadings.length > 5 && <details class="older-releases"><summary>{fr ? 'Versions précédentes' : 'Earlier releases'}</summary><div>{historyHeadings.slice(5).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}</div></details>}
+      </nav>
+      <article class="update-history" aria-label={fr ? 'Historique des changements' : 'Change history'}><Content /></article>
+      <p class="history-source"><a href={links.changelog}>{fr ? 'Ouvrir l’historique dans la documentation' : 'Open the history in the documentation'}</a></p>
+    </>}
+  </main>
+  <SiteFooter {locale} />
+</BaseLayout>

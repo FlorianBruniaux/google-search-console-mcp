@@ -9,11 +9,11 @@ const links = getSiteLinks(locale)
 const footerGroups = [
   {
     label: content.groups.navigate,
-    links: content.nav,
+    links: [...content.nav.map(([label, href]) => [label, Astro.url.pathname === links.home ? href : `${links.home}${href}`] as const), [locale === 'fr' ? 'Plan du site' : 'Sitemap', links.sitemap]],
   },
   {
     label: content.groups.product,
-    links: content.product.map((label, index) => [label, [links.docs, links.repository, links.pypi, links.install, links.changelog, links.license][index]]),
+    links: [...content.product.map((label, index) => [label, [links.docs, links.repository, links.pypi, links.install, links.changelog, links.license][index]]), [locale === 'fr' ? 'Nouveautés' : 'What’s new', links.updates]],
   },
   {
     label: content.groups.ecosystem,

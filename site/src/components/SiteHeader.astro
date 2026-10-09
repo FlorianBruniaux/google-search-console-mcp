@@ -2,11 +2,13 @@
 import { getNavigationSections } from '../data/navigation'
 import { getSiteLinks, landingContent, type Locale } from '../data/content'
 
-interface Props { locale: Locale }
-const { locale } = Astro.props
+interface Props { locale: Locale; alternatePaths?: Record<Locale, string> }
+const { locale, alternatePaths } = Astro.props
 const content = landingContent[locale].header
 const links = getSiteLinks(locale)
 const navigationSections = getNavigationSections(locale)
+const hrefFor = (href: string) => href.startsWith('#') && Astro.url.pathname !== links.home ? `${links.home}${href}` : href
+const otherLocale = locale === 'fr' ? 'en' : 'fr'
 ---
 
 <a class="skip-link" href="#main-content">{content.skip}</a>
@@ -39,7 +41,7 @@ const navigationSections = getNavigationSections(locale)
                 <div class="nav-panel-heading">
                   <h2 id={`nav-title-${section.id}`}>{section.label}</h2>
                   <p>{section.description}</p>
-                  <a href={section.overview.href} target={section.overview.external ? '_blank' : undefined} rel={section.overview.external ? 'noopener noreferrer' : undefined}>
+                  <a href={hrefFor(section.overview.href)} target={section.overview.external ? '_blank' : undefined} rel={section.overview.external ? 'noopener noreferrer' : undefined}>
                     {section.overview.label}
                     <svg class="nav-overview-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
                       <path d="M3 8h10m-4-4 4 4-4 4" />
@@ -54,7 +56,7 @@ const navigationSections = getNavigationSections(locale)
                       <ul>
                         {group.links.map((link) => (
                           <li>
-                            <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
+                            <a href={hrefFor(link.href)} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
                               <strong>{link.label}</strong>
                               <span>{link.description}</span>
                               {link.external && <span class="sr-only"> ({content.external})</span>}
@@ -70,9 +72,9 @@ const navigationSections = getNavigationSections(locale)
           ))}
         </div>
         <div class="header-actions">
-          <a class="header-install" href="#install">{content.install}</a>
+          <a class="header-install" href={hrefFor('#install')}>{content.install}</a>
           <a href={links.docs}>{content.docs}</a>
-          <a href={links.otherHome} lang={content.languageCode} hreflang={content.languageCode}>{content.language}</a>
+          <a href={alternatePaths?.[otherLocale] ?? links.otherHome} lang={content.languageCode} hreflang={content.languageCode}>{content.language}</a>
           <a href={links.repository} target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> ({content.external})</span></a>
           <button class="theme-toggle" type="button" data-theme-toggle data-theme-dark-label={content.themeDark} data-theme-light-label={content.themeLight} aria-label={content.themeDark}>
             <span aria-hidden="true" data-theme-icon>◐</span>

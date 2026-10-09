@@ -14,6 +14,7 @@ import EvidenceSafety from './EvidenceSafety.astro'
 import Faq from './Faq.astro'
 import FinalInstall from './FinalInstall.astro'
 import SiteFooter from './SiteFooter.astro'
+import UpdatesBanner from './UpdatesBanner.astro'
 
 interface Props { locale: Locale }
 const { locale } = Astro.props
@@ -42,6 +43,7 @@ const faqJsonLd = {
   jsonLd={[softwareJsonLd, faqJsonLd]}
 >
   <SiteHeader {locale} />
+  <UpdatesBanner {locale} />
   <main id="main-content" tabindex="-1">
     <Hero {locale} toolCount={product.toolCount} />
     <SeoOutcomes {locale} />

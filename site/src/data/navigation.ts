@@ -51,7 +51,8 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
         { label: 'Projet', links: [
           { href: links.repository, label: 'GitHub', description: 'Code source, issues et historique des contributions.', external: true },
           { href: links.pypi, label: 'PyPI', description: 'Package publié et métadonnées de version.', external: true },
-          { href: links.changelog, label: 'Historique', description: 'Évolutions version par version.' },
+          { href: links.updates, label: 'Nouveautés', description: 'Ajouts et correctifs datés, avec leur statut de publication.' },
+          { href: links.sitemap, label: 'Plan du site', description: 'Toutes les pages regroupées par usage.' },
           { href: links.architecture, label: 'Architecture', description: 'Limites du serveur et structure des moteurs.' },
         ] },
         { label: 'Confiance et documentation', links: [
@@ -103,7 +104,8 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
         { label: 'Project', links: [
           { href: links.repository, label: 'GitHub', description: 'Source, issues and contribution history.', external: true },
           { href: links.pypi, label: 'PyPI', description: 'Published package and version metadata.', external: true },
-          { href: links.changelog, label: 'Changelog', description: 'Release-by-release product changes.' },
+          { href: links.updates, label: 'What’s new', description: 'Dated additions and fixes with their release status.' },
+          { href: links.sitemap, label: 'Sitemap', description: 'Every page, grouped by use.' },
           { href: links.architecture, label: 'Architecture', description: 'Server boundaries and provider structure.' },
         ] },
         { label: 'Trust & documentation', links: [

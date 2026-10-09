@@ -34,6 +34,8 @@ Search Console MCP is the open-source connection between your data and your AI a
   <a href="https://search-console.bruniaux.com/">Website</a> &middot;
   <a href="https://search-console.bruniaux.com/docs/">Documentation</a> &middot;
   <a href="https://search-console.bruniaux.com/fr/docs/">Documentation FR</a> &middot;
+  <a href="https://search-console.bruniaux.com/sitemap/">Sitemap</a> &middot;
+  <a href="https://search-console.bruniaux.com/updates/">What’s new</a> &middot;
   <a href="#what-you-get">What you get</a> &middot;
   <a href="#choose-your-starting-point">Use cases</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
@@ -639,6 +641,7 @@ Skills live in `.claude/skills/` and are invokable directly via slash command. T
 | Review local audit validation and its evidence limits | [Audit validation records](docs/validation/README.md) |
 | Review product designs and implementation plans | [Product design records](docs/superpowers/README.md) |
 | Track releases and current changes | [Changelog](CHANGELOG.md) |
+| Navigate the public site and review dated updates | [HTML sitemap](https://search-console.bruniaux.com/sitemap/), [what’s new](https://search-console.bruniaux.com/updates/) and [website maintenance](site/README.md) |
 | Give the repository to an AI assistant | [Machine-readable project index](docs/machine-readable/llms.txt) |
 
 <details>
