@@ -2,7 +2,7 @@
 title: "Audits natifs depuis un checkout source"
 description: "Exécuter le workflow natif non publié avec des sources explicites, des budgets de tentatives et des limites de preuves."
 lang: fr
-lastUpdated: 2026-10-10
+lastUpdated: 2026-10-11
 canonicalEnglish: /docs/bounded-native-audit/
 ---
 
@@ -13,6 +13,8 @@ Ces changements source ne sont pas publiés. Utilisez un checkout qui les contie
 Les [exécutions hors ligne enregistrées](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) du 10 octobre 2026 ont chacune utilisé 4 tentatives natives, 2 appels locaux aux outils et 0 tentative fournisseur, sous des identifiants séparés pour Codex et Claude. Ces observations historiques ne décrivent pas une acquisition actuelle auprès de fournisseurs authentifiés. Les [contrôles de ressources ultérieurs](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) testent séparément des enfants locaux sans effet métier et le comparateur d’extraction hors ligne.
 
 ## Checkout source et prérequis
+
+Le [pilote GSC authentifié](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-live-gsc-readiness.md), enregistré séparément, décrit l’acquisition Google réelle et les revues natives de projections privées identiques, avec couverture partielle et limite de budget fournisseur. Le [suivi C1](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-11-claude-c1-followup.md) décrit huit cas contrôlés de playbook interactif réussissant uniquement leurs critères figés sur les comptes manquants. Il utilise des réponses MCP rejouées, sans nouvelle acquisition fournisseur. Ces parcours de validation restent distincts ; aucun n’approuve l’exactitude du rapport entier ni sa qualité SEO évaluée par des humains, et #39 reste ouverte.
 
 Utilisez Python 3.11 ou ultérieur depuis la racine du dépôt. Sous Linux ou macOS, préparez un environnement source :
 

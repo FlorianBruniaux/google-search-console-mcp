@@ -8,6 +8,8 @@ The [recorded offline runs](https://github.com/FlorianBruniaux/google-search-con
 
 ## Source checkout and prerequisites
 
+The separate [authenticated GSC pilot](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-live-gsc-readiness.md) records real Google acquisition and native reviews of identical private projections, including partial coverage and a provider-budget limit. The [C1 follow-up](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-11-claude-c1-followup.md) records eight controlled interactive-playbook cases passing only their frozen missing-count criteria. It uses MCP replay without new provider acquisition. These are distinct validation paths; neither approves whole-report accuracy or human SEO quality, and #39 remains open.
+
 Use Python 3.11 or later from the repository root. On Linux or macOS, prepare a source environment:
 
 ```sh

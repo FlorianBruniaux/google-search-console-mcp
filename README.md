@@ -95,6 +95,7 @@ Replace the example site in the prompt with your own. Every copied prompt explic
 | Run the published package | `uvx gsc-mcp-tools` | Starts all 96 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
 | Install for Codex or Claude Desktop | [Installation guide](https://search-console.bruniaux.com/docs/installation/) | Persistent executable, upgrades, client configuration and verification |
 | Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
+| Run the unreleased bounded audit | [Source workflow installation](docs/installation.md#run-unreleased-source-workflows) | Checkout environment, explicit request plan and optional native report generation |
 | Configure Google access | [Google setup guide](https://search-console.bruniaux.com/docs/google-setup/) | Service Account or OAuth access to the selected properties |
 | Configure Bing access | [Bing setup guide](https://search-console.bruniaux.com/docs/bing-setup/) | One account-level key for the verified sites visible to that account |
 | Run a first audit | [Starter prompts](https://search-console.bruniaux.com/docs/prompts/) | Full audit, health check, page inspection or GA4 analysis prompt |
@@ -699,6 +700,8 @@ gsc-cli list
 
 The final command reads the shared registry and lists the 96 commands available in this checkout. Use this installation when developing or testing unreleased changes; the native audit and evaluation scripts add no public MCP tool or CLI command.
 
+For client executable paths and the distinction between repository skills, Claude Desktop and native source-review profiles, follow the [source workflow installation instructions](docs/installation.md#run-unreleased-source-workflows). These additions require the checkout; the published 1.5.0 package remains separate.
+
 <details>
 <summary>Run the test suite from the source checkout</summary>
 
@@ -709,7 +712,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-The [10 October 2026 validation record](docs/validation/2026-10-10-delegated-evaluation-native-limits.md) reports 2,048 Python tests passing with the optional content package installed. It separately records local package checks and controlled subprocess/extraction observations. This is the recorded dev/content run, not a base-package test count. Provider calls use mocks; controlled inputs do not establish live provider access or expert SEO accuracy.
+The [C1 follow-up consolidated on 11 October 2026](docs/validation/2026-10-11-claude-c1-followup.md) records 2,081 Python tests passing with the optional content package installed, plus 113 local browser tests. This is the recorded dev/content run, not a base-package test count. Provider calls use mocks; controlled inputs do not establish live provider access or expert SEO accuracy. Earlier subprocess and extraction checks retain their own [10 October validation record](docs/validation/2026-10-10-delegated-evaluation-native-limits.md).
 
 </details>
 

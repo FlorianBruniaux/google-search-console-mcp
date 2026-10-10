@@ -84,6 +84,28 @@ Use this mode only when developing or testing changes that are not yet published
 
 </details>
 
+## Run unreleased source workflows
+
+The published `gsc-mcp-tools==1.5.0` package exposes 96 tools. The optional bounded native audit and its evaluation scripts require the current source checkout; upgrading that published package does not install these unreleased additions.
+
+For the source workflow without development dependencies:
+
+```bash
+git clone https://github.com/FlorianBruniaux/google-search-console-mcp.git
+cd google-search-console-mcp
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+command -v gsc-mcp-tools
+python scripts/run_bounded_audit.py --help
+```
+
+If an MCP client should use this checkout, configure the absolute `.venv/bin/gsc-mcp-tools` path and restart its server. Keep one active server definition per client. Development dependencies and `pytest` are optional for running the source workflow; use the development installation above to contribute.
+
+The [bounded native audit guide](bounded-native-audit.md) covers the explicit property, read-only request plan, private output directory and attempt budgets. Acquisition alone does not launch a model. Native report generation additionally requires an authenticated Codex or Claude Code CLI and an explicitly chosen supported model. Google-only runs do not require Bing or GA4 credentials.
+
+The repository's interactive SEO playbooks have canonical files in `.agents/skills/`, projected into `.claude/skills/` for Claude Code. Open the checkout as the workspace in Codex or Claude Code to use these repository skills. Installing the Python package or configuring Claude Desktop as an MCP client does not install those workspace skills. The native source runner uses separate source-review profiles and does not execute the interactive playbooks. The [validation index](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/README.md) distinguishes authenticated acquisition, controlled client trials and remaining human-quality checks.
+
 ## Select MCP tool families (since 1.3.1)
 
 Since version 1.3.1, `GSC_MCP_TOOL_FAMILIES` accepts a comma-separated family list. Release 1.3.0 predates this setting and exposes the full catalogue.
