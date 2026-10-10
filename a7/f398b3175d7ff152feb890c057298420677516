@@ -1,0 +1,23 @@
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_5a2b5862734c50 50
+docs/remaining-work-action-plan-2026-10-10.md
+  s_60d4a01bc3ed2e::t_5a2b5862734c50 134
+docs/validation/2026-10-10-backlog-execution.md
+  s_60d4a01bc3ed2e::t_5a2b5862734c50 9,33,45,52-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a7f398b3175d7ff152feb890c057298420677516",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
