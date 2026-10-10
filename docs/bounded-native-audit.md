@@ -1,6 +1,6 @@
 # Bounded native audit, source prototype
 
-This optional source workflow acquires an explicit read-only request plan once, then gives immutable observations to a native report author and a separate reviewer invocation. It does not implement the former JavaScript Workflow host or every specialist role. Expert report quality remains gated by human cases in #6.
+This optional source workflow acquires an explicit read-only request plan once, then gives immutable observations to selected source-only specialists, a report author and a separate reviewer invocation. Both native CLI hosts use the same packaged role contracts. It does not implement the former JavaScript Workflow host, interactive skill routing or ancillary HTML/CrUX acquisition. Expert report quality remains gated by human cases in #6.
 
 The source changes are unreleased. Use a checkout containing them and its Python environment; installing the published 1.5.0 wheel alone does not supply this workflow. Default MCP discovery remains unchanged at 96 tools. The query prototypes add no MCP tool.
 
@@ -16,6 +16,7 @@ Create a private existing directory for the caller-owned ledger and reports. The
   "ledger_path": "/absolute/private-directory/run.sqlite",
   "max_provider_attempts": 20,
   "max_tool_calls": 20,
+  "max_native_calls": 6,
   "allowed_tools": ["get_capabilities", "get_search_analytics", "indexing_evidence_matrix"]
 }
 ```
@@ -47,9 +48,45 @@ This command acquires the declared plan, without a model invocation by default. 
 
 Add `--host codex --model gpt-6.1-sol` to the command. That host/model combination completed the synthetic offline source run on 10 October 2026. The adapter uses high reasoning, ephemeral sessions, an empty temporary working directory, ignored Codex user configuration, read-only sandbox and disabled web search. It instructs the model to use the packet only; the Codex sandbox still permits read-only commands. This is not a general denial of every possible tool invocation.
 
-`--host claude --model <caller-supported-Claude-model>` uses high effort, no built-in tools and an empty strict MCP configuration. The installed Claude CLI completed the same offline-source draft/reviewer path on 10 October 2026 using its supported `opus` alias and high effort. This observes that packet path, not diagnostic accuracy, authenticated SEO acquisition or specialist dispatch. Supply a model supported by that native host, not a Codex alias; the `opus` alias can resolve differently after a host update.
+`--host claude --model <caller-supported-Claude-model>` uses high effort, no built-in tools and an empty strict MCP configuration. The installed Claude CLI completed the offline-source draft/reviewer path on 10 October 2026 using its supported `opus` alias and high effort. This observes that packet path, not diagnostic accuracy or authenticated SEO acquisition. Supply a model supported by that native host, not a Codex alias; the `opus` alias can resolve differently after a host update.
 
-There are at most two native invocations: author, then a fresh reviewer with sources and draft. Host errors retain acquired observations and mark native execution unavailable. Supported facts require a pointer into acquired observations; a draft reference alone cannot establish support. The structural validator checks claim shape and source boundaries, not whether a claim is semantically supported. Human labels are not provided to either model. Native model calls are separate from provider-attempt accounting; no measured cost or diagnostic accuracy is claimed.
+Without specialists the path attempts an author and then a fresh reviewer. The optional `max_native_calls` configuration bounds native reservations per run, from 1 to 64, default 2. Every invocation reserves before launch, including failures; reopening a run continues that count. This ceiling applies to this orchestrated path, not unrelated CLI sessions. It counts attempts, not tokens, billed cost or duration. Adding the setting to an existing immutable configuration requires a new run ID. Earlier prototype invocations before this counter existed are not reconstructed.
+
+Host errors retain acquired observations and mark the affected branch unavailable. Supported facts require a pointer into acquired observations; a draft or specialist reference alone cannot establish support. The structural validator checks claim shape and source boundaries, not whether a claim is semantically supported. Human labels are not provided to the models. Native model calls are separate from provider-attempt accounting; no measured cost or diagnostic accuracy is claimed.
+
+## Optional source-only specialists
+
+Repeat `--specialist` to choose roles explicitly, and optionally set `--max-native-concurrency 2`. The concurrency bound accepts 1..4, defaults to 1 and applies within this pipeline; synthesis and review remain sequential. Every role uses the explicit caller model and high reasoning/effort. No host-specific model alias is copied into another host's configuration.
+
+```sh
+python scripts/run_bounded_audit.py --config /absolute/config.json \
+  --requests /absolute/requests.json --output /absolute/new-report.json \
+  --host codex --model gpt-6.1-sol \
+  --specialist gsc-indexing-auditor --specialist gsc-sitemap-auditor \
+  --max-native-concurrency 2
+```
+
+The nine projections in `src/gsc_mcp/native_roles.py` correspond to the repository's SEO role names:
+
+| Role | Supplied sources used; retained boundary |
+|---|---|
+| `gsc-seo-reporter` | Performance, period comparisons, alerts; no invented health score or penalty |
+| `gsc-traffic-doctor` | Dated comparisons, traffic candidates and daily references; causes remain hypotheses |
+| `gsc-ai-overviews-analyst` | Generic search observations; AI exposure and causal loss remain unavailable without a source |
+| `gsc-indexing-auditor` | Selected inspections and evidence matrices; unknown verdicts and sample limits remain explicit |
+| `gsc-sitemap-auditor` | Submitted sitemap inventory and separate URL inspections; no submitted/indexed ratio |
+| `gsc-schema-auditor` | Supplied schema validation; this acquisition allowlist excludes its ancillary HTML tool, so the current CLI marks it unavailable |
+| `gsc-cannibalization-checker` | Query/page overlap and inspections; overlap alone does not justify consolidation |
+| `gsc-content-optimizer` | Rule-selected opportunities and retrieved queries; no promised ranking gain |
+| `gsc-page-analyst` | Supplied page performance and inspections; missing HTML/schema/rendering/vitals remain unavailable |
+
+These are deliberately narrower source-review contracts than the interactive roles in `.claude/agents/`. They do not load or execute the playbooks or enable the roles' MCP tools. Selection never adds acquisition requests. A specialist receives a fresh decoded copy of the original observations, with matching usable observation indices declared in `role_scope`; reference validation rejects pointers into other observations and whole-collection pointers. Original indices remain stable. This is a reference boundary, not semantic proof or a confidentiality filter: the original packet is visible to the selected model.
+
+Missing sources, failed sources, model failures and exhausted budgets have separate unavailable reasons beside successful branches. Specialists leave two currently available slots for synthesis/review. Another process sharing the run can consume those slots; the durable ceiling still refuses dispatch before excess attempts. Restarted processes may acquire again under the provider budget, because observations are cached only within one acquisition session.
+
+The final packet retains `specialists`, `draft`, `review`, explicit native host/model/effort/concurrency, and cumulative counts. `partial; semantic_quality_unverified` means at least one selected branch was unavailable; returned review is not approval of a site change. An unavailable schema branch does not establish valid schema. Two generated reports agreeing does not replace independent human evaluation.
+
+Each retained generated report is limited to 128,000 UTF-8 JSON bytes. With nine distinct roles plus author/reviewer, retained report bodies cannot exceed 1,408,000 bytes in aggregate. Oversized reports become an unavailable branch before aggregation, without trimming source evidence. Synthesis/review input still has the 2 MB packet ceiling; if the original sources plus generated material exceed it, that branch is unavailable and observations remain retained. Malformed claim types or a malformed Claude response envelope likewise fail only their branch.
 
 Input and returned reports are byte-limited, but native process log/output files are only inspected after execution. This prototype does not enforce a disk-write ceiling while the child runs; its timeout bounds process duration. No resource-exhaustion case was reproduced during review.
 

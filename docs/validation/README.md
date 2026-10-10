@@ -2,6 +2,8 @@
 
 These records describe local checks and their limits. They do not establish live-provider accuracy, a published package or human SEO quality.
 
+- [Native source-only specialists, 2026-10-10](2026-10-10-native-specialists.md): shared role projections, persistent model-attempt ceilings, explicit unavailable branches and actual native Codex/Claude source cases.
+
 - [Backlog execution, 2026-10-10](2026-10-10-backlog-execution.md): null comparison metrics, optional native packet audits and durable provider budgets, report evaluation, offline rule prototypes and remaining input gates. See [bounded native source workflow](../bounded-native-audit.md) for runnable instructions.
 
 - [CI and baseline, 2026-10-09](2026-10-09-ci-baseline.md): isolated dependency environment, local suite/build checks and the proposed nonpublishing CI workflow; remote execution remains separate.
