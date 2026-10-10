@@ -2,7 +2,7 @@
 title: "Installation et configuration des clients MCP"
 description: "Installer Search Console MCP une seule fois, le relier à un client et éviter les processus dupliqués."
 lang: fr
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-11
 canonicalEnglish: /docs/installation/
 ---
 
@@ -41,6 +41,28 @@ Vérifiez ensuite que le binaire est disponible :
 ```bash
 gsc-cli --help
 ```
+
+## Exécuter les workflows source non publiés
+
+Le paquet publié `gsc-mcp-tools==1.5.0` expose 96 outils et nécessite Python 3.11 ou ultérieur. L’audit natif borné et ses scripts d’évaluation nécessitent le checkout source actuel ; mettre à jour ce paquet publié n’installe pas ces ajouts non publiés.
+
+Pour préparer le workflow source sans dépendances de développement :
+
+```bash
+git clone https://github.com/FlorianBruniaux/google-search-console-mcp.git
+cd google-search-console-mcp
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+command -v gsc-mcp-tools
+python scripts/run_bounded_audit.py --help
+```
+
+Si un client MCP doit utiliser ce checkout, configurez le chemin absolu `.venv/bin/gsc-mcp-tools`, puis redémarrez son serveur. Gardez une seule définition active par client. Pour contribuer et lancer les tests, installez les dépendances de développement avec `python -m pip install -e ".[dev]"`, puis lancez `pytest -q`.
+
+Le [guide de l’audit natif borné](/fr/docs/bounded-native-audit/) décrit la propriété explicite, les requêtes en lecture seule, le dossier de sortie privé et les budgets de tentatives. L’acquisition seule ne lance aucun modèle. La génération native de rapports nécessite aussi un client CLI Codex ou Claude Code authentifié et un modèle pris en charge, choisi explicitement. Un run Google seul ne nécessite ni identifiants Bing ni identifiants GA4.
+
+Les playbooks SEO interactifs du dépôt ont leurs fichiers canoniques dans `.agents/skills/`, projetés dans `.claude/skills/` pour Claude Code. Ouvrez le checkout comme espace de travail dans Codex ou Claude Code pour utiliser ces skills. Installer le paquet Python ou configurer Claude Desktop comme client MCP n’installe pas ces skills de dépôt. Le runner natif emploie des profils séparés de revue des sources, sans exécuter les playbooks interactifs. L’[index de validation](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/README.md) distingue acquisition authentifiée, essais contrôlés des clients et contrôles humains restant à réaliser.
 
 ## Éviter les processus dupliqués
 

@@ -7,7 +7,7 @@
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "ac395c13b71fd4c419946aacc106db9e84039880d3fb5ede82e2a6874ad79fb5"
+      "sourceHash": "92cb82a716b6570ac3714b0704511217b9a8615af2133ffe649cab785e89873a"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "d2ac5e715cb924f46fbeba83a76e2f2f3fe555468d116c93236f0891e1905d4b"
+      "sourceHash": "43a7529aa3826acb9a72e0f265f3d7d424e8483fcc9c902b428fdf8f4e6341e5"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -91,7 +91,7 @@
     },
     "docs/bounded-native-audit.md": {
       "source": "docs/bounded-native-audit.md",
-      "sourceHash": "ba14923465a9ac0722f017f38fba95da86cd9ab77d93afba1e892fe75bd5914c"
+      "sourceHash": "c7919cf52e8250400a06f00f5cdd7f2d01ab45045a703886eec2bbe4bf53d16d"
     },
     "docs/content-extraction.md": {
       "source": "docs/content-extraction.md",

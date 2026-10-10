@@ -17,6 +17,8 @@
 - Clarify shared traffic and AI-appearance playbooks: configured date cutoffs do not measure publication lag, and appearance ratios need compatible source coverage before becoming period shares. Explicit native-client MCP replay trials retain one Claude traffic overclaim after retests; five synthetic reviewer claims are classified correctly by both hosts. These results do not close #39 or establish human quality (#6).
 - Add an insufficient-evidence branch to the traffic playbook before ranking causes: preserve missing click counts and explicitly unavailable comparisons without reconstructing diagnostic proxies. Keep compatible observed-count arithmetic and independent metrics available. The [follow-up consolidated on 2026-10-11](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-11-claude-c1-followup.md) distinguishes the adversarial C1 payload, producer-generated simulations and oversized-response delivery failures; eight retained cases pass only the frozen C1 criteria (#39).
 
+- Document source-workflow installation separately from the published 1.5.0 package, including absolute client executable paths, repository skill discovery and optional native prerequisites. Refresh English/French installation pages, validation links and README test evidence on 2026-10-11; no new PyPI release (#39).
+
 ## [1.5.0] - 2026-10-09
 
 Seven new tools bring the registry to 96. Local imports and reconciliations preserve unknown indexing, missing values, exact source identity and bounded coverage. No new default provider access or external write is enabled.

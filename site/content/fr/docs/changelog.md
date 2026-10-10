@@ -2,7 +2,7 @@
 title: "Historique des versions"
 description: "Résumé français des versions de Search Console MCP et lien vers l’historique canonique."
 lang: fr
-lastUpdated: 2026-10-10
+lastUpdated: 2026-10-11
 canonicalEnglish: /docs/changelog/
 ---
 
@@ -10,7 +10,7 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 
 ## Non publié
 
-Modifications des sources du 10 octobre 2026.
+Modifications des sources du 10 octobre 2026 ; documentation actualisée le 11 octobre 2026.
 
 - La comparaison Google/Bing renvoie `null` pour les métriques des requêtes/pages absentes, conserve les comptes nuls réellement observés et laisse le CTR indisponible sans impressions (#74).
 - Le code source ajoute une session optionnelle d’acquisition en lecture seule avec budgets persistants de tentatives, propriétés exactes, observations immuables de session et surface MCP réduite au démarrage. Les adaptateurs natifs consomment les paquets acquis ; les clients Claude/Codex installés ont chacun terminé des cas hors ligne et une revue sur une projection de données GSC réelles. Les playbooks interactifs complets et la qualité humaine restent à valider (#38/#39/#6/#77). Le paquet publié 1.5.0 ne contient pas encore ces changements.
@@ -24,6 +24,8 @@ Modifications des sources du 10 octobre 2026.
 - Refuser les références natives au contexte temporaire `role_scope`, absent du paquet final. Consigner le pilote GSC authentifié et ses étapes interactives/humaines restantes, sans publier les observations privées (#39).
 - Clarifier les playbooks trafic et apparences IA : le délai de date configuré n’est pas un retard de publication mesuré, et une part de période exige des sources compatibles. Les essais clients avec MCP de replay conservent une suraffirmation Claude sur le trafic manquant après retest ; chaque reviewer classe correctement cinq claims synthétiques. #39 et la qualité humaine #6 restent ouverts.
 - Ajouter une branche « preuves insuffisantes » au playbook trafic avant de classer les causes : conserver les clics manquants et les comparaisons explicitement indisponibles, sans reconstituer de proxy diagnostique. Les calculs sur comptes observés compatibles et les autres métriques restent permis. Le bilan consolidé le 2026-10-11 distingue le payload adversarial C1, les simulations produites par le vrai code et les échecs de livraison dus à la taille des réponses ; huit cellules retenues passent uniquement les critères C1 figés (#39).
+
+- Documenter séparément l’installation du workflow source et du paquet publié 1.5.0 : chemins absolus des exécutables clients, découverte des skills de dépôt et prérequis natifs optionnels. Actualiser les pages d’installation FR/EN, les liens de validation et les résultats de tests du README le 2026-10-11 ; aucune nouvelle release PyPI (#39).
 
 ## Version 1.5.0, 9 octobre 2026
 

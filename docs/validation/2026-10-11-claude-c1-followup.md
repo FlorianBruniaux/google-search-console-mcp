@@ -2,7 +2,9 @@
 
 Essais commencés le 10 octobre 2026, bilan consolidé le 11 octobre. Les huit cellules retenues passent les critères C1 figés : quatre cas dans Claude et Codex. Ce verdict porte sur les clics indisponibles, leur réemploi diagnostique et le contrôle positif ; il ne qualifie pas les rapports entiers d'exacts. La qualité humaine reste `UNKNOWN`.
 
-Ce suivi prolonge les [essais clients précédents](2026-10-10-interactive-playbook-trials.md) de [#39](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/39). #81 est fusionnée sur `main` au commit `0021bb490e685e34ead4c25d1cf66b33a577d46e`. Sa CI a réussi sur le commit source `a621a4f908aaf96e9943d9e9fb29048edcb1f618` ; le site public a ensuite servi le SHA du merge et le run de déploiement `38088641614`. Le nouveau candidat décrit ici reste distinct de ce déploiement.
+Ce suivi prolonge les [essais clients précédents](2026-10-10-interactive-playbook-trials.md) de [#39](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/39). #81 est fusionnée sur `main` au commit `0021bb490e685e34ead4c25d1cf66b33a577d46e`. Sa CI a réussi sur le commit source `a621a4f908aaf96e9943d9e9fb29048edcb1f618` ; le site public a ensuite servi le SHA du merge et le run de déploiement `38088641614`.
+
+Le correctif décrit ici est intégré par [#82](https://github.com/FlorianBruniaux/google-search-console-mcp/pull/82), fusionnée sur `main` au commit `338f5a1947cdebff01f68b4de54631e63d75f404`. Sa [CI manuelle](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/runs/38090426423) a réussi sur le commit source exact `144f7b49566d2ba9debaab06a048aa8c05ae06d9` : 2 081 tests Python, distributions et roue installée vérifiées, 97 tests navigateur en CI. Cette fusion n’établit pas à elle seule le déploiement public de ces changements.
 
 ## Défaut et périmètre réel
 
