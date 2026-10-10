@@ -2,7 +2,7 @@
 title: "Historique des versions"
 description: "Résumé français des versions de Search Console MCP et lien vers l’historique canonique."
 lang: fr
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-10
 canonicalEnglish: /docs/changelog/
 ---
 
@@ -13,8 +13,12 @@ Cette page résume les changements utiles aux utilisateurs. L’[historique angl
 Modifications des sources du 10 octobre 2026.
 
 - La comparaison Google/Bing renvoie `null` pour les métriques des requêtes/pages absentes, conserve les comptes nuls réellement observés et laisse le CTR indisponible sans impressions (#74).
-- Le code source ajoute un parcours d’audit natif optionnel, une acquisition en lecture seule avec budget partagé et un évaluateur de rapports. Les prototypes FR/EN d’intention et de variantes restent hors du catalogue MCP, dans l’attente de validations humaines. Le paquet publié 1.5.0 ne contient pas encore ces changements.
+- Le code source ajoute une session optionnelle d’acquisition en lecture seule avec budgets persistants de tentatives, propriétés exactes, observations immuables de session et surface MCP réduite au démarrage. Les adaptateurs natifs consomment les paquets acquis ; les clients Claude/Codex installés ont chacun terminé un cas avec sources hors ligne. Fournisseurs réels, playbooks interactifs complets et qualité humaine restent à valider (#38/#39/#6/#77). Le paquet publié 1.5.0 ne contient pas encore ces changements.
+- Ajouter un évaluateur hors ligne d’affirmations de rapport et des références expérimentales FR/EN par règles, hors du registre public. Les fixtures synthétiques n’approuvent ni publication d’un classifieur ni adoption d’un extracteur (#6/#4/#5).
 - Le lanceur natif ajoute neuf profils SEO de revue des sources, communs aux deux clients, avec sélection explicite, concurrence bornée et compteur persistant d’appels aux modèles. Les branches sans source ou en échec restent indisponibles. Les conclusions sourcées renvoient aux observations originales. L’exécution des playbooks interactifs, les acquisitions HTML/CrUX et la qualité évaluée par des humains restent des étapes distinctes (#38/#39/#6).
+- Borner stdout/stderr natifs pendant l’exécution à 2 000 000 octets par flux, sans journal disque ; installer un plafond par fichier ordinaire conservant les limites héritées plus faibles et arrêter les descendants ordinaires du groupe à la fin, au dépassement ou au délai. Linux/macOS uniquement ; les écritures d’état du client partagent ce plafond, qui n’est ni un quota disque agrégé ni une limite mémoire (#78).
+- Ajouter une fiche de collecte d’évaluations humaines et refuser les déclarations annotateur/relecteur égales pour les requêtes et paires. Des identifiants différents ne prouvent ni indépendance humaine, ni autorisation, ni approbation avant réglage (#6/#78).
+- Ajouter une comparaison hors ligne d’extraction avec hashes vérifiés, fragments d’inclusion/omission annotés, observations de ressources bornées et corpus synthétique. La qualité de publication reste `UNKNOWN` ; les avertissements métier ne sont pas mesurés et aucun changement de profil par défaut n’est approuvé (#41/#78). Consulter le [compte rendu de validation déléguée](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md).
 
 ## Version 1.5.0, 9 octobre 2026
 

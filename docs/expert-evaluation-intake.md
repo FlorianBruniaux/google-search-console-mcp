@@ -1,5 +1,7 @@
 # Human evaluation intake for issue #6
 
+This contributor worksheet and its linked evaluators describe unreleased repository work. The scripts require a [source checkout](bounded-native-audit.md#source-checkout-and-prerequisites); the published 1.5.0 wheel alone does not provide them. The default public catalogue remains 96 tools. The [native audit guide](bounded-native-audit.md) covers execution and its resource boundaries separately from human quality review.
+
 The next input is an authorized, independently reviewed human batch with frozen task-specific targets. This worksheet assigns that work without supplying labels, thresholds or approvals. The existing evaluators run offline; another harness or a paid model backend is not required to start collection.
 
 ## Choose the task and matching interface

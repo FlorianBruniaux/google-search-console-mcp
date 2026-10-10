@@ -2,7 +2,7 @@
 title: "Documentation Search Console MCP"
 description: "Installer Search Console MCP, connecter Google et Bing, lancer des audits bornés et interpréter les preuves."
 lang: fr
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-10
 canonicalEnglish: /docs/
 ---
 
@@ -55,3 +55,9 @@ Consultez l’[architecture](/fr/docs/architecture/), le [résumé des versions]
 Pour comparer des fenêtres Google explicites et vérifier des destinations HTTP, consultez les [audits à périmètre borné](/fr/docs/audit-workflows/). Ces outils ont été ajoutés dans la version 1.3.0. La version 1.3.1 conserve le registre de 85 outils et ajoute la [sélection des familles au démarrage](/fr/docs/installation/), les listes JSON dans la CLI et les correctifs SEO/Bing.
 
 La version 1.5.0 expose 96 outils : logs locaux, snapshots de crawl, différences d’inventaire et matrice d’indexation sourcée. L’extraction principale reste optionnelle et les références de trafic descriptives. Consultez les [workflows éditoriaux](/fr/docs/editorial-workflows/) pour les limites des brouillons et comparaisons mécaniques.
+
+## Workflows source et évaluation indépendante
+
+L’[audit natif borné](/fr/docs/bounded-native-audit/) exécute un plan d’acquisition explicite avec neuf profils de revue des sources sélectionnables, des budgets persistants de tentatives et des limites de sortie par invocation. Il nécessite un checkout du dépôt ; le wheel publié 1.5.0 ne contient pas ce lanceur non publié. Les exécutions hors ligne des clients ne prouvent ni l’acquisition auprès de fournisseurs authentifiés ni la qualité experte des rapports.
+
+Utilisez la [collecte d’évaluations humaines](/fr/docs/expert-evaluation-intake/) pour obtenir des annotations indépendantes autorisées et figer les cibles. L’[évaluation des requêtes et paires](/fr/docs/classifier-evaluation/) et la [comparaison locale d’extraction](/fr/docs/content-extraction/) portent sur des entrées et métriques distinctes. Le profil d’extraction optionnel est publié dans la version 1.5.0 ; son comparateur local n’est pas publié. Un succès synthétique n’approuve pas une version et ne modifie pas le catalogue de 96 outils par défaut.

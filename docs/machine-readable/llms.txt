@@ -8,6 +8,7 @@ Python MCP server exposing 96 source Google Search Console / Bing Webmaster / GA
 Package: gsc-mcp-tools on PyPI. Entrypoints: gsc-mcp and gsc-mcp-tools (both → gsc_mcp.server:main).
 Framework: FastMCP. Python 3.11+. MIT license.
 Release 1.4.0 contains 89 tools, adding seo_change_impact, rewrite_fidelity_check, search_weekday_reference and crawl_import_preview to the 85-tool registry of 1.3.1. Draft inputs extend editorial_audit.
+Published version remains 1.5.0 with 96 tools. Current audit/native/query modules and offline evaluation additions are unreleased source features, not supplied by that published wheel.
 Setup guides: docs/installation.md, docs/google-setup.md, docs/bing-setup.md.
 Prompt library: docs/starter-prompt.md and examples/.
 
@@ -291,7 +292,7 @@ TOOLS:
 
 ## Test Patterns
 
-SETUP: pytest tests/ : 1782 tests on the combined source checkout; provider calls are mocked, not live validation.
+SETUP: pytest tests/ : the dated dev/content run passed 2048 Python tests; this is not a base-package count. See docs/validation/2026-10-10-delegated-evaluation-native-limits.md. Provider calls are mocked; local executable/HTML checks do not prove authenticated acquisition or human quality.
   pytest tests/test_analytics.py -v
   pytest tests/ -k "test_submit_batch" -v
 
@@ -374,3 +375,17 @@ RELEASE 1.4.0: 89 tools; releases 1.3.0 and 1.3.1 contain 85.
 RELEASE 1.5.0: crawl_logs.py adds crawl_log_audit(log_path, site, profile="combined"). Read-only bounded local common/combined logs, explicit timezone offsets, masked IPs/paths/queries, optional one-fetch current Google range membership. Historical identity and indexing remain unverified. No DNS, persistence, uploads or joins. The source registry has 96 tools.
 
 RELEASE 1.5.0: 96 tools. New: crawl_log_audit, crawl_snapshot_import/read/delete/join, crawl_diff, indexing_evidence_matrix. Versioned caller-owned bounded local snapshots, explicit write/cleanup choices, exact raw URL GSC joins, disclosed path-aggregated link evidence, source-referenced contradictions and unknown current indexing/rendering. Optional content_quality extractor="trafilatura-precision" requires the content extra; default extraction unchanged. Richer weekday/year_on_year/rolling_daily references are descriptive and retain observed-window coverage. See docs/crawl-snapshots.md, docs/indexing-evidence-matrix.md, docs/content-extraction.md. No native-agent or human accuracy proof.
+
+CURRENT TRAFFIC REFERENCE INTERFACE (the RELEASE 1.4.0 entry above records its original signature):
+  search_weekday_reference(site, days=28, end_date=None, dimensions=None, filters=None, search_type="web", aggregation_type="auto", row_limit=1000, max_requests=20, limit=50, reference_strategy="weekday", history_days=56, min_support=6, context_json=None).
+  reference_strategy accepts weekday, year_on_year, rolling_daily or all. Default weekday windows are equal/disjoint and shifted by whole weeks; annual windows disclose leap-day clamping and weekday mismatch. Rolling history adds a bounded date query and same-weekday daily medians without zero-filling absent days; all shares max_requests across the three references and exposes mixed/undetermined signs. Ends respect Pacific today minus three days, which does not guarantee finalized observations. Option/window/timezone mismatches, missing date coverage, unavailable counts and insufficient rolling support preserve unavailable results. context_json is a bounded version=1 caller-declared ledger, not independently verified incident evidence. References remain descriptive and cannot establish causality.
+
+UNRELEASED SOURCE AUDIT AND EVALUATION:
+  audit_runtime.py: explicit property-scoped read-only AuditSession; SQLite reserves provider, tool and native attempts under immutable run configuration. Failures/reopens consume the same ceiling. Session-local immutable caching does not persist observations across processes. Counts are not tokens, billed cost or global host limits.
+  native_roles.py + native_audit.py: nine narrower source-review profiles shared by Claude/Codex; explicit selection, pipeline concurrency 1..4, then sequential author and fresh reviewer. Original observation references retain their scope. Interactive skills/legacy Workflow and ancillary HTML/CrUX acquisition are not implemented by these profiles; structural validation does not establish semantic truth.
+  native_process.py: Linux/macOS isolated launcher; stdout/stderr capped live at 2,000,000 bytes each, bounded stdout retained, stderr discarded without disk logs. RLIMIT_FSIZE caps each regular file at no more than 2,000,000 bytes and preserves lower inherited soft/hard limits. Host state is affected; no aggregate disk quota, host memory limit or hostile-code sandbox. Ordinary process-group members are killed on completion/overflow/timeout and the direct child is reaped; deliberately detached groups are outside the guarantee.
+  scripts/run_bounded_audit.py: runnable explicit plan with optional native profiles. Both installed hosts completed recorded offline source cases; current output-limit tests used harmless local executables. No authenticated live-provider, full interactive-playbook or expert accuracy claim. Guide: docs/bounded-native-audit.md. Records: docs/validation/2026-10-10-native-specialists.md and docs/validation/2026-10-10-delegated-evaluation-native-limits.md.
+  scripts/eval_classifier.py + query_rules.py + scripts/query_rules_baseline.py: independent offline intent/pair predictions and experimental rules outside registry.TOOLS. Equal declared annotator/reviewer identifiers fail validation; different strings do not authenticate humans, consent or pre-tuning chronology. Guide: docs/classifier-evaluation.md; required human inputs: docs/expert-evaluation-intake.md.
+  scripts/eval_audit_reports.py: supplied claim labels for traffic_diagnosis, harmful_competition and report_fidelity; label-free observation preparation, accuracy/coverage and unsupported-as-supported counts. It does not parse free reports, prove causes or implement numerical release thresholds; release_gate is unavailable.
+  scripts/eval_content_extraction.py: bounded manifest and hash-checked local HTML for both extraction profiles; independently declared inclusion/omission snippets, family-disjoint splits and scoped wall-time/traced-Python-allocation observations. Metrics cover labeled snippets, not whole-content precision/recall, RSS or native allocation. release_quality stays UNKNOWN, synthetic_release_eligible is false and downstream_warnings is not_measured. Guide: docs/content-extraction.md.
+  Remaining task-specific authorized data, independent human labels and frozen numerical targets: docs/remaining-work-action-plan-2026-10-10.md. No public registry addition, default extractor change, paid model promotion or PyPI upload follows from these source features.

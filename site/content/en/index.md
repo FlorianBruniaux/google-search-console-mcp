@@ -47,3 +47,9 @@ Read the [architecture](/docs/architecture/), review the [changelog](/docs/chang
 For explicit Google comparison windows and bounded destination HTTP checks, use [bounded audit workflows](/docs/audit-workflows/). These tools were added in release 1.3.0. Version 1.3.1 retains the 85-tool registry and adds [startup family selection](/docs/installation/), CLI JSON string lists and SEO/Bing feedback fixes.
 
 Version 1.5.0 exposes 96 tools, including bounded local logs, stored crawl observations, inventory differences and an indexing evidence matrix. Main-content extraction is optional and richer traffic references remain descriptive. Read [editorial workflows](/docs/editorial-workflows/) for the draft and mechanical comparison boundaries.
+
+## Source workflows and independent evaluation
+
+The [bounded native audit](/docs/bounded-native-audit/) runs an explicit acquisition plan with nine selectable source-only roles, durable attempt budgets and per-invocation output limits. It requires a source checkout; the published 1.5.0 wheel does not include this unreleased runner. Offline host runs do not establish authenticated provider acquisition or expert report quality.
+
+Use the [human evaluation intake](/docs/expert-evaluation-intake/) to collect authorized independent labels and freeze targets. [Query and pair evaluation](/docs/classifier-evaluation/) and [local extraction comparison](/docs/content-extraction/) assess separate inputs and metrics. The optional extraction profile is released in 1.5.0; its local comparison runner is unreleased. Synthetic success does not approve a release or change the default 96-tool catalogue.

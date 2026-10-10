@@ -51,6 +51,34 @@ src/gsc_mcp/
 
 `tool_selection.py` validates `GSC_MCP_TOOL_FAMILIES` against the catalogue families before server registration. Unknown or empty selections fail startup. The CLI still reads the full registry. Restart the MCP process after a selection change; discovery selection does not change provider credentials, permissions or confirmation requirements. See [installation configuration](installation.md#select-mcp-tool-families-since-131).
 
+## Unreleased source audit and evaluation runners
+
+`audit_runtime.py` provides an opt-in read-only acquisition session with exact property scopes, a caller-owned SQLite ledger and session-local immutable observation caching. Provider attempts, tool calls (including cache hits) and native invocations have separate durable counters bound to an immutable run configuration. Reservations happen before the counted dispatch and survive failures/restarts; these are attempt ceilings, not token or monetary limits. Ancillary HTML/CrUX acquisition is outside this allowlist.
+
+`scripts/run_bounded_audit.py` acquires an explicit plan, then optionally uses `native_audit.py` and the nine `native_roles.py` source-review profiles. Selected specialists receive copies of original observations without adding acquisition requests; their references retain original source indices. Specialist concurrency is bounded within the pipeline; synthesis and a fresh reviewer invocation remain sequential. Structural reference validation cannot establish semantic support. These profiles do not execute the interactive `.claude/agents/` playbooks or the former JavaScript Workflow host.
+
+```mermaid
+flowchart LR
+    P[Explicit scoped request plan] --> T[Reserve tool call in SQLite]
+    T --> C{Session cache hit?}
+    C -->|Yes| O[Immutable observations]
+    C -->|No| D[Execute allowed read-only tool]
+    D -->|Local result| O
+    D -->|Counted physical provider dispatch| B[Reserve before each physical attempt]
+    B --> O
+    O --> N[Reserve native attempt before each invocation]
+    N --> S[Selected source-only specialists]
+    S --> A[Reserve and run sequential author and fresh reviewer]
+    N --> A
+    A --> R[Draft, review and unavailable reasons]
+```
+
+`native_process.py` launches each native invocation in a separate process group on Linux/macOS. It counts stdout/stderr live, caps each stream at 2,000,000 bytes, retains bounded stdout and discards stderr. An isolated pre-exec launcher installs `RLIMIT_FSIZE` at no more than that size while preserving lower inherited soft/hard limits. This bounds every regular file written by the host, including host state, and may make it unavailable. Completion, timeout and overflow stop ordinary group descendants and reap the direct child; deliberately detached groups are outside that guarantee. This is not an aggregate disk quota, host memory limit or hostile-code sandbox.
+
+`scripts/eval_classifier.py`, `scripts/eval_audit_reports.py` and `scripts/eval_content_extraction.py` are separate offline interfaces outside the public registry. Query/pair metadata rejects self-review identifiers but cannot authenticate humans. Report evaluation classifies supplied claims and leaves release gating unavailable. Extraction compares hash-checked local HTML against labeled snippets; whole-content precision/recall and downstream warning effects remain unmeasured. Synthetic success approves none of these tasks or a paid model backend.
+
+These additions require a source checkout; the published 1.5.0 wheel does not supply them. [Both native hosts' recorded offline cases](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) and [current controlled output/extraction checks](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) establish separate evidence scopes. Authenticated provider acquisition, full interactive-playbook execution and expert human quality remain open. See the [native runner guide](bounded-native-audit.md), [extraction guide](content-extraction.md), [human intake](expert-evaluation-intake.md) and [remaining action plan](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/remaining-work-action-plan-2026-10-10.md).
+
 ## Google clients, Bing transport and IndexNow
 
 The server has three independent API clients, each with its own scope and token file:

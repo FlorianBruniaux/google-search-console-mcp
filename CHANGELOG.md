@@ -5,9 +5,12 @@
 <!-- unreleased-updated: 2026-10-10 -->
 
 - `compare_search_engines` returns `null` metrics for absent query/page rows rather than zero placeholders, preserving measured zero counts and withholding zero-denominator CTR. Sorting and delta guards retain their existing scope (#74).
-- Add an opt-in read-only audit acquisition session with durable attempt budgets, exact property scopes, immutable session observations and a reduced MCP startup surface. Native CLI report adapters consume acquired packets; Codex's synthetic draft/reviewer path is observed, while live-provider and human-quality gates remain open (#38/#39/#6).
+- Add an opt-in read-only audit acquisition session with durable attempt budgets, exact property scopes, immutable session observations and a reduced MCP startup surface. Native CLI report adapters consume acquired packets; both installed Claude/Codex hosts completed an offline source case, while live-provider, full interactive-playbook and human-quality gates remain open (#38/#39/#6/#77).
 - Add offline claim-report evaluation and experimental FR/EN query rule baselines outside the public tool registry. Synthetic fixtures do not approve classifier release or extraction adoption (#6/#4/#5).
 - Add shared source-only projections for nine SEO roles in the optional native audit runner, explicit role selection, bounded concurrency and durable native-attempt reservations. Missing or failed branches remain unavailable; supported claims reference original observations rather than generated specialist output. Interactive playbooks, ancillary acquisition and human quality remain separate (#38/#39/#6).
+- Bound native stdout/stderr during execution to 2,000,000 bytes per stream, without disk logs; install a per-regular-file ceiling preserving lower inherited soft/hard limits and stop ordinary process-group descendants on completion, overflow or timeout. Linux/macOS only; host-state writes share this ceiling, which is not an aggregate disk quota or host memory limit (#78).
+- Add a human evaluation intake worksheet and reject equal query/pair annotator/reviewer declarations. Different identifiers do not prove independent humans, authorization or pre-tuning approval (#6/#78).
+- Add a hash-checked offline extraction comparison over labeled inclusion/omission snippets, with scoped resource observations and a synthetic smoke corpus. Release quality remains `UNKNOWN`; downstream warnings are unmeasured and no default profile adoption is approved (#41/#78). See the [delegated validation record](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md).
 
 ## [1.5.0] - 2026-10-09
 

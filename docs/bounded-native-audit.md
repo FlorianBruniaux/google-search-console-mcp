@@ -4,6 +4,24 @@ This optional source workflow acquires an explicit read-only request plan once, 
 
 The source changes are unreleased. Use a checkout containing them and its Python environment; installing the published 1.5.0 wheel alone does not supply this workflow. Default MCP discovery remains unchanged at 96 tools. The query prototypes add no MCP tool.
 
+The [recorded offline runs](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) on 10 October 2026 each used 4 native attempts, 2 local tool calls and 0 provider attempts, under separate run IDs for Codex and Claude. These historical observations do not describe a current authenticated provider run. The [later controlled resource checks](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) test harmless local children and the offline extraction runner separately.
+
+## Source checkout and prerequisites
+
+Use Python 3.11 or later from the repository root. On Linux or macOS, prepare a source environment:
+
+```sh
+git clone https://github.com/FlorianBruniaux/google-search-console-mcp.git
+cd google-search-console-mcp
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e .
+```
+
+Native invocations additionally require an installed, authenticated Codex or Claude CLI and a model supported by that host. Native mode supports Linux and macOS. Acquisition-only mode skips native subprocesses; follow the core package’s [installation requirements](installation.md). These setup commands do not grant provider access or authorize model calls. Human report quality and authenticated provider acquisition remain unverified by the offline host runs described below.
+
+For independent quality targets, use the [human evaluation intake](expert-evaluation-intake.md). The [query evaluator](classifier-evaluation.md) and [local extraction comparison](content-extraction.md#offline-annotated-comparison) use separate annotations and do not certify native report quality.
+
 ## Prepare an explicit run
 
 Create a private existing directory for the caller-owned ledger and reports. The configuration is not a credential file and is never installed globally.

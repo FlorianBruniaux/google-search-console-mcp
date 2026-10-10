@@ -20,7 +20,8 @@ const namespace = fr ? 'fr/docs' : 'docs'
 const docs = (await getCollection('docs')).filter((entry) => entry.id === namespace || entry.id.startsWith(`${namespace}/`))
 const groups = [
   { title: fr ? 'Démarrer' : 'Get started', ids: ['', 'installation', 'google-setup', 'bing-setup'] },
-  { title: fr ? 'Auditer et améliorer' : 'Audit and improve', ids: ['prompts', 'audit-workflows', 'editorial-workflows', 'editorial-audit'] },
+  { title: fr ? 'Auditer et améliorer' : 'Audit and improve', ids: ['prompts', 'audit-workflows', 'bounded-native-audit', 'editorial-workflows', 'editorial-audit'] },
+  { title: fr ? 'Évaluer avec des annotations' : 'Evaluate with annotations', ids: ['expert-evaluation-intake', 'classifier-evaluation', 'content-extraction'] },
   { title: fr ? 'Scénarios et exemples' : 'Workflows and examples', ids: docs.map((entry) => entry.id.slice(namespace.length + 1)).filter((id) => id === 'examples' || id.startsWith('examples/')) },
   { title: fr ? 'Comprendre le projet' : 'Understand the project', ids: ['architecture', 'evidence-and-safety', 'changelog', 'license'] },
 ]

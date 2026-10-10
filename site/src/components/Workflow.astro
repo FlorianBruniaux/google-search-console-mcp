@@ -1,8 +1,9 @@
 ---
-import { landingContent, type Locale } from '../data/content'
+import { getSiteLinks, landingContent, type Locale } from '../data/content'
 interface Props { locale: Locale }
 const { locale } = Astro.props
 const content = landingContent[locale].workflow
+const links = getSiteLinks(locale)
 ---
 
 <section id="workflow" class="section-tinted" aria-labelledby="workflow-title">
@@ -20,5 +21,6 @@ const content = landingContent[locale].workflow
         </li>
       ))}
     </ol>
+    <p>{locale === 'fr' ? 'Pour un audit natif à budget borné avec des profils sélectionnés, consultez le ' : 'For a native audit with bounded attempts and selected roles, read the '}<a class="text-link" href={links.nativeAudit}>{locale === 'fr' ? 'guide du workflow source' : 'source workflow guide'}</a>{locale === 'fr' ? '. Ce prototype nécessite le dépôt ; il n’est pas inclus dans le paquet publié 1.5.0.' : '. This prototype requires a checkout; it is not included in the published 1.5.0 package.'}</p>
   </div>
 </section>
