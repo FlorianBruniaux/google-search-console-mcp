@@ -1,0 +1,51 @@
+docs/remaining-work-action-plan-2026-10-10.md
+  s_60d4a01bc3ed2e::t_1028fbfb99c354 47-51
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_1028fbfb99c354 25
+.agents/skills/ai-overviews-impact/SKILL.md
+  s_60d4a01bc3ed2e::t_f269a2e1299387 32-37
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_1028fbfb99c354 17
+docs/validation/2026-10-10-interactive-playbook-trials.md
+  s_60d4a01bc3ed2e::t_92b874327ab4be 1-2,4-31,33-43,45,47,49-53,55,57,59,61,78,81-88,90-95
+  s_60d4a01bc3ed2e::t_1028fbfb99c354 3,71,89
+  s_60d4a01bc3ed2e::t_ee2140c6f00452 79-80
+  s_60d4a01bc3ed2e::t_07f815c5a2e091 32,44,46,48,54,56,58,60,62-70,72-77
+README.md
+  s_60d4a01bc3ed2e::t_ae6f360b2646c4 592
+  s_60d4a01bc3ed2e::t_1028fbfb99c354 594
+  s_24bf99a9e7f88a::t_4c771f42e30a1b 593
+.agents/skills/traffic-drop-diagnosis/SKILL.md
+  s_60d4a01bc3ed2e::t_24ec855d3b1c68 16-17
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_ae6f360b2646c4 7
+  s_60d4a01bc3ed2e::t_1028fbfb99c354 5-6
+docs/validation/2026-10-10-live-gsc-readiness.md
+  s_60d4a01bc3ed2e::t_1028fbfb99c354 128-131
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_ff5bea8f491d00 70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a621a4f908aaf96e9943d9e9fb29048edcb1f618",
+  "prompts": {},
+  "sessions": {
+    "s_24bf99a9e7f88a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12791-81c4-78d1-ad1f-6a8690a87a2b",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
