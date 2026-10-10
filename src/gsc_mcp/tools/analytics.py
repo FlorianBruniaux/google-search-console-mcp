@@ -4,6 +4,7 @@ import math
 from datetime import date, timedelta
 from googleapiclient.errors import HttpError
 from gsc_mcp.auth import get_searchconsole_service
+from gsc_mcp.audit_runtime import execute_google
 from gsc_mcp.meta import with_meta
 from gsc_mcp.retry import with_retry
 
@@ -39,7 +40,7 @@ def _fetch_rows(svc, site: str, body: dict, parser=None) -> list[dict]:
 
     while pages_fetched < _MAX_PAGES:
         page_body = {**body, "startRow": start_row, "rowLimit": _MAX_ROWS_PER_PAGE}
-        response = svc.searchanalytics().query(siteUrl=site, body=page_body).execute()
+        response = execute_google(svc.searchanalytics().query(siteUrl=site, body=page_body))
         if parser is not None and not isinstance(response, dict):
             raise _InvalidAppearanceResponse('invalid_response_container')
         page_rows = response.get("rows", [])

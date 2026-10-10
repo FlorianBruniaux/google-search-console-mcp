@@ -13,6 +13,9 @@ from platformdirs import user_data_dir
 
 from google.analytics.data_v1alpha import AlphaAnalyticsDataClient
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
+from google.analytics.data_v1beta.services.beta_analytics_data.transports.grpc import BetaAnalyticsDataGrpcTransport
+from google.analytics.data_v1alpha.services.alpha_analytics_data.transports.grpc import AlphaAnalyticsDataGrpcTransport
+from gsc_mcp.audit_runtime import audit_active
 
 from gsc_mcp.constants import SCOPES_GSC, SCOPES_INDEXING, SCOPES_GA4
 
@@ -146,8 +149,14 @@ def _ga4_creds():
 
 
 def get_ga4_service() -> BetaAnalyticsDataClient:
+    if audit_active():
+        channel = BetaAnalyticsDataGrpcTransport.create_channel(credentials=_ga4_creds(), options=[('grpc.enable_retries', 0)])
+        return BetaAnalyticsDataClient(transport=BetaAnalyticsDataGrpcTransport(channel=channel))
     return BetaAnalyticsDataClient(credentials=_ga4_creds())
 
 
 def get_alpha_ga4_service() -> AlphaAnalyticsDataClient:
+    if audit_active():
+        channel = AlphaAnalyticsDataGrpcTransport.create_channel(credentials=_ga4_creds(), options=[('grpc.enable_retries', 0)])
+        return AlphaAnalyticsDataClient(transport=AlphaAnalyticsDataGrpcTransport(channel=channel))
     return AlphaAnalyticsDataClient(credentials=_ga4_creds())

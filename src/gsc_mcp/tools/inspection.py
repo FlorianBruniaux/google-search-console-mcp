@@ -1,4 +1,5 @@
 import json
+from gsc_mcp.audit_runtime import execute_google
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
 from gsc_mcp.retry import with_retry
@@ -53,16 +54,16 @@ def inspect_url(url: str, site: str) -> str:
     """
     svc = get_searchconsole_service()
     body = {"inspectionUrl": url, "siteUrl": site}
-    response = svc.urlInspection().index().inspect(body=body).execute()
+    response = execute_google(svc.urlInspection().index().inspect(body=body))
     parsed = _parse_inspection(url, response)
     return json.dumps(with_meta(parsed, tool="inspect_url", params={"url": url, "site": site}))
 
 
 @with_retry()
 def _inspect_one_url(svc, site: str, url: str) -> dict:
-    response = svc.urlInspection().index().inspect(
+    response = execute_google(svc.urlInspection().index().inspect(
         body={"inspectionUrl": url, "siteUrl": site}
-    ).execute()
+    ))
     return _parse_inspection(url, response)
 
 

@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from gsc_mcp.auth import get_searchconsole_service
+from gsc_mcp.audit_runtime import execute_google
 from gsc_mcp.meta import with_meta
 from gsc_mcp.traffic_context import annual_window, context_preflight, robust_reference
 from gsc_mcp.tools.search_breakdown import _date, _integer, search_change_breakdown
@@ -167,7 +168,7 @@ def search_weekday_reference(
             body['dimensionFilterGroups'] = [{'groupType': 'and', 'filters': deepcopy(filters)}]
         answer, error = None, None
         try:
-            answer = get_searchconsole_service().searchanalytics().query(siteUrl=site, body=body).execute()
+            answer = execute_google(get_searchconsole_service().searchanalytics().query(siteUrl=site, body=body))
             if not isinstance(answer, dict) or not isinstance(answer.get('rows', []), list) or len(answer.get('rows', [])) > history_days:
                 raise ValueError('Malformed rolling history response')
         except Exception as exc:

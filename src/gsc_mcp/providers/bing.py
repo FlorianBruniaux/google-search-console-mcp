@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import httpx
+from gsc_mcp.audit_runtime import provider_attempt
 
 from gsc_mcp.auth import get_bing_api_key
 from gsc_mcp.providers.base import (
@@ -169,6 +170,7 @@ class BingWebmasterClient:
                     raise BingApiError(None, method, "Timeout")
 
                 transport_error = None
+                provider_attempt('bing')
                 try:
                     with _suppress_httpx_logs():
                         if http_method == "GET":

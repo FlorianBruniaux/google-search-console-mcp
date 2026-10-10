@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+<!-- unreleased-updated: 2026-10-10 -->
+
+- `compare_search_engines` returns `null` metrics for absent query/page rows rather than zero placeholders, preserving measured zero counts and withholding zero-denominator CTR. Sorting and delta guards retain their existing scope (#74).
+- Add an opt-in read-only audit acquisition session with durable attempt budgets, exact property scopes, immutable session observations and a reduced MCP startup surface. Native CLI report adapters consume acquired packets; Codex's synthetic draft/reviewer path is observed, while live-provider and human-quality gates remain open (#38/#39/#6).
+- Add offline claim-report evaluation and experimental FR/EN query rule baselines outside the public tool registry. Synthetic fixtures do not approve classifier release or extraction adoption (#6/#4/#5).
+
 ## [1.5.0] - 2026-10-09
 
 Seven new tools bring the registry to 96. Local imports and reconciliations preserve unknown indexing, missing values, exact source identity and bounded coverage. No new default provider access or external write is enabled.

@@ -70,7 +70,7 @@ def _aggregate_rows(
             "impressions": impressions,
             **(
                 {"ctr": None}
-                if aggregate["unavailable_metrics"] & {"clicks", "impressions", "ctr"}
+                if not impressions or aggregate["unavailable_metrics"] & {"clicks", "impressions", "ctr"}
                 else bing_ctr_metrics(clicks, impressions)
             ),
             "position": (
@@ -96,9 +96,9 @@ def _aggregate_rows(
 def _missing_metrics() -> dict[str, int | float | None | bool]:
     return {
         "present": False,
-        "clicks": 0,
-        "impressions": 0,
-        "ctr": 0.0,
+        "clicks": None,
+        "impressions": None,
+        "ctr": None,
         "position": None,
     }
 
@@ -161,7 +161,7 @@ def _totals(
         "clicks": clicks,
         "impressions": impressions,
         **(
-            {"ctr": None} if unavailable
+            {"ctr": None} if unavailable or not impressions
             else bing_ctr_metrics(clicks, impressions)
         ),
     }
@@ -224,8 +224,8 @@ def compare_search_engines(
         )
     rows.sort(
         key=lambda row: (
-            -int(row["google"]["impressions"])
-            - int(row["bing"]["impressions"]),
+            -int(row["google"]["impressions"] or 0)
+            - int(row["bing"]["impressions"] or 0),
             str(row[dimension]),
         )
     )
@@ -260,7 +260,7 @@ def compare_search_engines(
             "clicks": "measured",
             "impressions": "measured",
             "ctr": "derived_clicks_divided_by_impressions",
-            "missing_row": "zero_filled_with_present_false",
+            "missing_row": "unavailable_with_present_false",
             "position": {
                 "google": google_batch.position_semantics,
                 "bing": bing_batch.position_semantics,

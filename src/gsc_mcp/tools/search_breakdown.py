@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from typing import Optional
 
 from gsc_mcp.auth import get_searchconsole_service
+from gsc_mcp.audit_runtime import execute_google
 from gsc_mcp.reporting import serialize_search_report
 
 _DIMENSIONS = ('page', 'query', 'country', 'device')
@@ -168,7 +169,7 @@ def search_change_breakdown(
             body['dimensions'] = [grouping]
         requests_made += 1
         try:
-            response = service.searchanalytics().query(siteUrl=site, body=body).execute()
+            response = execute_google(service.searchanalytics().query(siteUrl=site, body=body))
             if not isinstance(response, dict) or not isinstance(response.get('rows', []), list):
                 raise ValueError('Malformed provider response')
             return response, None
