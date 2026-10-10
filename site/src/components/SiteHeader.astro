@@ -1,4 +1,5 @@
 ---
+import { Icon } from '@astrojs/starlight/components'
 import { getNavigationSections } from '../data/navigation'
 import { getSiteLinks, landingContent, type Locale } from '../data/content'
 
@@ -72,13 +73,21 @@ const otherLocale = locale === 'fr' ? 'en' : 'fr'
           ))}
         </div>
         <div class="header-actions">
-          <a class="header-install" href={hrefFor('#install')}>{content.install}</a>
           <a href={links.docs}>{content.docs}</a>
-          <a href={alternatePaths?.[otherLocale] ?? links.otherHome} lang={content.languageCode} hreflang={content.languageCode}>{content.language}</a>
-          <a href={links.repository} target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> ({content.external})</span></a>
+          <span class="header-divider" aria-hidden="true"></span>
+          <a class="header-language" href={alternatePaths?.[otherLocale] ?? links.otherHome} lang={content.languageCode} hreflang={content.languageCode}>
+            <svg class="header-action-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" /><ellipse cx="12" cy="12" rx="4" ry="9" /><path d="M3 12h18" /></svg>
+            {content.language}
+          </a>
+          <a class="header-github" href={links.repository} target="_blank" rel="noopener noreferrer">
+            <Icon name="github" size="20" />
+            <span class="sr-only">GitHub ({content.external})</span>
+          </a>
           <button class="theme-toggle" type="button" data-theme-toggle data-theme-dark-label={content.themeDark} data-theme-light-label={content.themeLight} aria-label={content.themeDark}>
-            <span aria-hidden="true" data-theme-icon>◐</span>
+            <svg class="header-action-icon theme-icon-light" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M20.5 13A8.5 8.5 0 0 1 11 3.5 8.5 8.5 0 1 0 20.5 13Z" /></svg>
+            <svg class="header-action-icon theme-icon-dark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></svg>
           </button>
+          <a class="header-install" href={hrefFor('#install')}>{content.install}<svg class="header-action-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10" /></svg></a>
         </div>
       </nav>
     </div>

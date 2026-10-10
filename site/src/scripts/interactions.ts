@@ -1,6 +1,6 @@
 type Theme = 'light' | 'dark'
 
-const desktopQuery = matchMedia('(min-width: 64rem)')
+const desktopQuery = matchMedia('(min-width: 72rem)')
 const siteHeader = document.querySelector<HTMLElement>('[data-site-header]')
 const navigation = document.querySelector<HTMLElement>('#primary-navigation')
 const menuButton = document.querySelector<HTMLButtonElement>('#mobile-menu-toggle')
@@ -129,7 +129,6 @@ desktopQuery.addEventListener('change', resetNavigation)
 
 const root = document.documentElement
 const themeButton = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')
-const themeIcon = document.querySelector<HTMLElement>('[data-theme-icon]')
 
 function currentTheme(): Theme {
   return root.dataset.theme === 'dark' ? 'dark' : 'light'
@@ -140,7 +139,6 @@ function syncThemeControl(): void {
   if (themeButton) themeButton.setAttribute('aria-label', next === 'dark'
     ? themeButton.dataset.themeDarkLabel ?? 'Switch to dark theme'
     : themeButton.dataset.themeLightLabel ?? 'Switch to light theme')
-  if (themeIcon) themeIcon.textContent = currentTheme() === 'dark' ? '☀' : '◐'
 }
 
 themeButton?.addEventListener('click', () => {

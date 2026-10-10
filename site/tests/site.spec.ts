@@ -325,6 +325,57 @@ test('keeps the compact desktop install action at least 44px high', async ({ pag
   expect(box!.height).toBeGreaterThanOrEqual(44)
 })
 
+test('aligns the header and updates banner with the hero content', async ({ page }) => {
+  for (const width of [1024, 1280, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 1000 })
+    await page.goto('/')
+    const edges = await page.evaluate(() => {
+      const hero = document.querySelector<HTMLElement>('.hero-grid')!
+      const bounds = hero.getBoundingClientRect()
+      const style = getComputedStyle(hero)
+      const left = bounds.left + parseFloat(style.paddingLeft)
+      const right = bounds.right - parseFloat(style.paddingRight)
+      return ['.header-inner', '.updates-banner-inner'].map((selector) => {
+        const element = document.querySelector<HTMLElement>(selector)!
+        const rect = element.getBoundingClientRect()
+        const css = getComputedStyle(element)
+        return { left: rect.left + parseFloat(css.paddingLeft), right: rect.right - parseFloat(css.paddingRight), heroLeft: left, heroRight: right }
+      })
+    })
+    for (const edge of edges) {
+      expect(Math.abs(edge.left - edge.heroLeft), `left alignment at ${width}px`).toBeLessThanOrEqual(1)
+      expect(Math.abs(edge.right - edge.heroRight), `right alignment at ${width}px`).toBeLessThanOrEqual(1)
+    }
+  }
+})
+
+test('keeps mobile utility labels readable in both languages', async ({ page }) => {
+  for (const locale of ['/', '/fr/']) {
+    for (const width of [320, 390, 1024]) {
+      await page.setViewportSize({ width, height: 844 })
+      await page.goto(locale)
+      await page.locator('#mobile-menu-toggle').click()
+      const actions = page.locator('.header-actions')
+      const labels = await actions.evaluate((element) => {
+        return [...element.querySelectorAll('a:not(.header-github)')].map((link) => {
+          const text = [...link.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())!
+          const range = document.createRange()
+          const content = text.textContent!
+          range.setStart(text, content.search(/\S/))
+          range.setEnd(text, content.trimEnd().length)
+          const rects = [...range.getClientRects()]
+          const bounds = link.getBoundingClientRect()
+          return { lines: rects.length, contained: rects.every((rect) => rect.left >= bounds.left && rect.right <= bounds.right), label: content.trim() }
+        })
+      })
+      for (const label of labels) {
+        expect(label.lines, `${label.label} at ${width}px`).toBe(1)
+        expect(label.contained, `${label.label} at ${width}px`).toBe(true)
+      }
+    }
+  }
+})
+
 test('opens a contained mobile dialog and restores menu focus', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
@@ -336,7 +387,7 @@ test('opens a contained mobile dialog and restores menu focus', async ({ page })
   await expect(page.locator('body')).toHaveAttribute('data-nav-open', '')
   await expect(page.getByRole('button', { name: 'Close navigation' }).last()).toBeFocused()
   await page.keyboard.press('Shift+Tab')
-  await expect(page.getByRole('button', { name: /Switch to/ })).toBeFocused()
+  await expect(navigation.getByRole('link', { name: 'Install', exact: true })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(navigation.getByRole('button', { name: 'Close navigation' })).toBeFocused()
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
@@ -457,7 +508,7 @@ for (const width of [390, 768, 800, 1024, 1280, 1440]) {
     }))
     expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth)
     expect(metrics.heroColumns).toBe(width <= 800 ? 1 : 2)
-    if (width < 1024) {
+    if (width < 1152) {
       await expect(page.getByRole('button', { name: 'Open navigation' })).toBeVisible()
       await expect(page.locator('#primary-navigation')).not.toBeVisible()
     } else {
