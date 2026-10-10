@@ -59,7 +59,7 @@ test('keeps documentation reading paths on the public site', () => {
 test('switches from the English landing to the French landing', () => {
   const headerActions = html.match(/<div class="header-actions">([\s\S]*?)<\/div>/)?.[1]
   assert.ok(headerActions, 'Missing header actions')
-  assert.match(headerActions, /<a href="\/fr\/" lang="fr" hreflang="fr">FR<\/a>/)
+  assert.match(headerActions, /<a\b[^>]*href="\/fr\/" lang="fr" hreflang="fr">(?:(?!<\/a>)[\s\S])*\bFR\s*<\/a>/)
   assert.match(headerActions, /<a href="\/docs\/">Docs<\/a>/)
 })
 
@@ -67,7 +67,7 @@ test('publishes a fully localized French landing', async () => {
   const frenchHtml = await readFile(new URL('../dist/fr/index.html', import.meta.url), 'utf8')
   assert.match(frenchHtml, /<html lang="fr"/)
   assert.match(frenchHtml, /Améliorez votre référencement avec l’IA\./)
-  assert.match(frenchHtml, /<a href="\/" lang="en" hreflang="en">EN<\/a>/)
+  assert.match(frenchHtml, /<a\b[^>]*href="\/" lang="en" hreflang="en">(?:(?!<\/a>)[\s\S])*\bEN\s*<\/a>/)
   assert.match(frenchHtml, /<a href="\/fr\/docs\/">Documentation<\/a>/)
   assert.match(frenchHtml, />Analyser</)
   assert.match(frenchHtml, />Votre parcours</)
