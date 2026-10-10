@@ -1,0 +1,30 @@
+site/src/components/SiteHeader.astro
+  s_60d4a01bc3ed2e::t_73ac50425bb54d 2,77-85,87-88,90
+site/tests/site.spec.ts
+  s_60d4a01bc3ed2e::t_73ac50425bb54d 328-378,390,511
+docs/landing-site-system-handoff-2026-10-09.md
+  s_60d4a01bc3ed2e::t_24abcb74520e7c 1-153,155-432
+  s_60d4a01bc3ed2e::t_702e6be7fc5909 154
+site/tests/dist-content.test.mjs
+  s_60d4a01bc3ed2e::t_73ac50425bb54d 62,70
+site/src/scripts/interactions.ts
+  s_60d4a01bc3ed2e::t_73ac50425bb54d 3
+site/src/styles/global.css
+  s_60d4a01bc3ed2e::t_73ac50425bb54d 139,146,157-162,164-166,168-170,425-431,450-458,474
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "111f9b18960cbeac6e3fe68708c388653875cb44",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
