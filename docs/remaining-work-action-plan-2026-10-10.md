@@ -1,142 +1,101 @@
-# Search Console MCP : travail restant et plan d’action
+# Search Console MCP : plan d’action restant
 
-État vérifié le 10 octobre 2026. Périmètre : backlog global du dépôt, outils, agents, évaluation et site. Les priorités ci-dessous sont une recommandation, pas des fonctionnalités déjà réalisées.
+Backlog réconcilié le 10 octobre 2026 après les PR #76 et #77. Ce document remplace le récapitulatif antérieur et ses tâches désormais livrées. Il décrit du travail restant, sans estimation de durée.
 
-## État de référence
+## Livré et sorti du plan
 
-- `main` local et distant : `28e8e4ad47fc5fa9db3bcb1cbd3471958abc5b2b`.
-- Version du code : 1.5.0. La connexion MCP active renvoie 96 outils, en mode toutes les familles. Le décalage historique à 85 outils est donc résolu pour cette connexion. Cette découverte ne vérifie ni les credentials Google, ni une requête Bing, ni le comportement des agents.
-- GitHub : 19 tickets ouverts, aucune PR ouverte dans la réponse collectée. #10 est le ticket de suivi ; les 18 autres couvrent correctifs, fonctions et validations.
-- Les correctifs du retour d’Alexandre sont livrés, tickets #28 à #34 fermés. Son retest terrain reste à obtenir.
-- Les pages par profil, le catalogue et le menu compact sont intégrés. Aucun ticket site ouvert ne figure dans ce backlog. Cela ne vaut pas audit exhaustif du site.
-- Les imports SiteOne, leur stockage local et leurs rapprochements, les différences de crawl, les logs locaux, la matrice d’observations d’indexation et les références de trafic sont livrés. #37, #40, #43, #44, #46 et #48 sont fermés.
-- Trafilatura est déjà disponible en option ; les playbooks partagés et le pilote d’agents sont déjà implémentés. Leurs tickets restent ouverts pour des validations ou extensions précises.
+- Retours d’Alexandre corrigés (#28 à #34), sélection des familles d’outils et correction des métriques absentes dans la comparaison Google/Bing (#74).
+- Site bilingue avec parcours par profil, menu compact, catalogue des 96 outils, documentation, changelog et sitemaps.
+- Preuves de rapport, références de trafic, analyse locale de logs, imports SiteOne versionnés et rapprochements, différences de crawl et matrice d’observations d’indexation.
+- Playbooks partagés Claude/Codex corrigés : #38 est clos, ses essais interactifs restants sont transférés à #39 et sa validation humaine à #6.
+- Acquisition immuable, budgets persistants aux frontières des appels, adaptateurs natifs, neuf profils de revue des sources, concurrence bornée et synthèse suivie d’une invocation de revue séparée.
+- Extracteur Trafilatura disponible en option ; guide et évaluateurs hors ligne des requêtes/rapports ; prototypes FR/EN d’intention et de variantes de requêtes.
 
-Les fichiers de recherche et handoff non suivis présents dans le checkout ont été conservés. Aucune implémentation, modification de ticket, publication ou modification de configuration globale n’a été réalisée pour ce récapitulatif.
+Les preuves techniques sont dans [le bilan du premier lot](validation/2026-10-10-backlog-execution.md) et [le bilan des spécialistes natifs](validation/2026-10-10-native-specialists.md). Les profils natifs relisent les sources fournies ; ils n’exécutent pas les playbooks interactifs et ne constituent pas un audit technique complet.
 
-## Inventaire complet des tickets ouverts
+Référence source des livraisons : `84a9bd18cf3bd16a1f5b7d8f05f1e412e8615ebb`, fusion de la [PR #77](https://github.com/FlorianBruniaux/google-search-console-mcp/pull/77), après la [PR #76](https://github.com/FlorianBruniaux/google-search-console-mcp/pull/76). Les bilans enregistrent 2 013 tests Python et 113 tests navigateur. Codex et Claude ont chacun exécuté deux spécialistes, une synthèse et une revue hors ligne : quatre appels natifs, deux appels d’outil et zéro tentative fournisseur par essai. Ces résultats n’établissent ni accès authentifié aux fournisseurs, ni qualité SEO experte. La version publiée du paquet reste 1.5.0 ; les derniers changements n’ont pas fait l’objet d’une nouvelle publication PyPI.
 
-| Ticket | État réel et reste à faire | Priorité proposée |
-|---|---|---|
-| [#74](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/74) | Correctif absent : une ligne manquante dans la comparaison Google/Bing retourne encore des zéros numériques. Retourner `null`, conserver les vrais zéros et les limites de comparaison. | A1 |
-| [#38](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/38) | Playbooks corrigés et partagés. Reste à exécuter les cas dans les clients natifs et à évaluer les conclusions avec des humains. | A2 et A3 |
-| [#39](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/39) | Pilote contrôlé livré. Reste : adaptateur natif, rôles par client, budget au niveau des appels réels aux fournisseurs, observations immuables partagées et validation des rapports. | A2 et A3 |
-| [#6](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/6) | Guide et évaluateur hors ligne livrés. Manquent les exemples autorisés, annotations humaines, jeux de validation séparés et seuils convenus avant réglage. Des adaptateurs d’évaluation propres aux autres tâches restent à créer. | A3, à commencer en parallèle |
-| [#41](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/41) | Extracteur Trafilatura optionnel livré. Comparer inclusion/omission du contenu et ressources sur des pages FR/EN annotées avant toute adoption par défaut. | A4 |
-| [#42](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/42) | Partie SiteOne complète. Reste l’adaptateur Unlighthouse, après obtention d’un export réel versionné avec appareil, configuration et échantillon. | A4 |
-| [#49](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/49) | Imports SERP et backlinks absents. Définir deux schémas distincts, provenance et couverture, puis valider des exports représentatifs autorisés. | A4 |
-| [#53](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/53) | Import local GSC Bulk Export absent. Gérer tables, agrégations, données anonymisées, partitions et révisions ; rapprocher seulement les fenêtres compatibles. Connecteur BigQuery direct hors première livraison. | A4 |
-| [#45](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/45) | Extension temporelle de la cannibalisation absente : parts matérielles et alternance d’URL. Publication soumise aux cas humains spécifiques de #6. | A5 |
-| [#5](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/5) | Classification FR/EN de l’intention absente. Commencer par des règles explicables, conserver les non-classés et distinguer forme interrogative et intention. | A5 |
-| [#4](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/4) | Regroupement approché de requêtes absent. Conserver le mode exact ; produire des candidats avec variantes et motifs, sans fusionner silencieusement les sens. | A5 |
-| [#22](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/22) | Comparaison des passages de pages absente. Il faut des paires humaines autorisées, les passages responsables des rapprochements et une couverture bornée. | A5 après validation de l’extraction |
-| [#47](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/47) | Le descriptif avant/après existe. Manquent le registre local des changements et le protocole de suivi avec contrôles. Nécessite des cohortes et une revue méthodologique adaptées. | A6, conditionnel |
-| [#52](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/52) | La carte de liens existe. Extension aux graphes importés et métriques relatives à l’échantillon seulement si une décision montre leur utilité. | A6, conditionnel |
-| [#50](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/50) | Fédération de recherche absente. Vérifier les interfaces des corpus et relier chaque affirmation à un passage effectivement consulté. | A6, conditionnel |
-| [#9](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/9) | Signaux de préparation à la citation absents. Une grille explicable et une décision d’évaluation doivent précéder tout score ; aucune probabilité de citation ne peut être revendiquée. | A6, différé |
-| [#7](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/7) | Backend de classification absent. Choisir un seul backend optionnel seulement après un bénéfice démontré face aux règles ; budget, reprises et coûts doivent être bornés. | A6, différé |
-| [#51](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/51) | Collecteur persistant absent. Ne l’ouvrir qu’après un manque mesuré des imports/fetchs actuels, puis tester interruption, reprise, robots et ressources. | A6, différé |
-| [#10](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/10) | Suivi du programme. Actualiser les preuves et clôturer uniquement quand les critères restants sont satisfaits. | Transversal |
+## Ordre d’exécution
 
-## Plan d’action ordonné
+### A1. Constituer les cas experts et figer les critères, P1
 
-### A1. Corriger les données absentes dans la comparaison Google/Bing
+Ticket [#6](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/6). Les outils d’évaluation existent : collecter les entrées autorisées et faire annoter les cas indépendamment du système évalué.
 
-C’est le premier changement : son périmètre est borné et il évite qu’un agent lise une absence comme une mesure de zéro trafic. Le code actuel confirme le défaut dans `_missing_metrics()` et conserve le libellé `zero_filled_with_present_false`.
+1. Choisir les cas FR/EN de fidélité des rapports, diagnostic de trafic et concurrence entre pages ; préparer séparément le corpus de requêtes et les annotations HTML.
+2. Définir pour chaque tâche les labels, les familles de séparation et les seuils avant réglage. Conserver les variantes d’un même site, événement ou document dans une même partition.
+3. Recueillir les annotations humaines, résoudre les désaccords et préparer des entrées d’auteur sans labels de validation.
+4. Exécuter les évaluateurs compatibles ; ajouter un adaptateur uniquement lorsqu’un schéma de tâche le demande. Publier erreurs, abstentions et effectifs par tâche.
 
-1. Écrire les régressions pour absence côté Google, absence côté Bing, vrais zéros et paires comparables.
-2. Remplacer les valeurs manquantes par `null`. Un CTR avec dénominateur nul reste indisponible ; les comptes nuls réellement observés restent `0`.
-3. Vérifier les consommateurs, métadonnées et deltas. Ne pas créer de delta de position entre moteurs.
-4. Synchroniser documentation EN/FR et changelog, vérifier le paquet puis les contrôles distants lors de la livraison.
+Sortie : cas autorisés, provenance des annotations, jeux tenus à l’écart du réglage, cibles figées et résultats inspectables. Apport : mesurer ce que les diagnostics savent soutenir et leurs erreurs, plutôt que déduire la qualité du nombre de tests.
 
 Fichiers de départ :
 
-- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/search_compare.py`
-- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/tests/test_search_compare.py`
-- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/evidence.py`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/docs/classifier-evaluation.md`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/eval_classifier.py`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/eval_audit_reports.py`
 
-Validation de sortie : valeurs et preuves cohérentes, vrais zéros préservés, deltas suspendus pour données absentes ou fenêtres incompatibles. Taille relative : petite.
+### A2. Valider le parcours réel et les playbooks interactifs, P1
 
-### A2. Terminer l’exécution native et les budgets des agents
+Ticket [#39](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/39), qui reprend les scénarios non terminés de #38. Réutiliser les adaptateurs et budgets déjà implémentés.
 
-Commencer par un client réellement disponible et une propriété explicitement sélectionnée. La présence de 96 outils est vérifiée ; l’exécution des rôles et le respect des budgets fournisseurs restent à établir.
+1. Sélectionner explicitement une propriété GSC, des URL, les fenêtres et les périmètres Bing/GA4 lorsque nécessaires.
+2. Exécuter l’acquisition authentifiée dans le runner installé ; conserver les traces des tentatives, de la réutilisation des observations, des sources et des branches indisponibles.
+3. Exécuter séparément les playbooks interactifs dans chaque client : retards/chutes de trafic, résultats multi-URL légitimes, indexation inconnue, preuves IA absentes, fournisseurs ou familles d’outils indisponibles et dimensions Bing non prises en charge.
+4. Tester les affirmations non soutenues sur pénalités, pertes causales IA et consolidation ; mesurer la revue sur les cas A1.
+5. Borner les écritures de sortie des processus natifs pendant leur exécution. Les plafonds actuels des rapports conservés et les contrôles après retour ne bornent pas la croissance du disque pendant l’appel.
+6. Définir l’acquisition HTML/CrUX nécessaire avant toute extension. Le rôle schema reste indisponible dans le runner actuel sans source adaptée ; aucune source ne doit être inventée pour compléter le rapport.
 
-1. Décrire le contrat de lancement et les capacités du client choisi. Implémenter le premier adaptateur natif, puis la projection des rôles correspondante.
-2. Compter les tentatives physiques aux frontières Google/Bing/GA4, y compris erreurs, reprises et appels concurrents, sous un budget partagé.
-3. Partager des observations immuables entre spécialistes pour éviter les acquisitions répétées. Le partage de données dans un prompt ne suffit pas à garantir ce comportement.
-4. Exécuter les cas de fournisseur indisponible, propriété incompatible, absence de page, indexation inconnue et budget épuisé.
-5. Conserver une revue distincte et le brouillon non approuvé. Valider le second client séparément lorsqu’il est disponible.
+Sortie : preuves propres à chaque client/fournisseur, états partiels conservés et conclusions évaluées avec A1. Apport : passer d’un parcours hors ligne démontré à des usages réels documentés. Les compteurs d’appels ne sont pas des plafonds de coût monétaire ; la concurrence est bornée par pipeline.
 
-Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/.claude/workflows/mega-audit.js`, `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/.claude/agents/` et `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/providers/`. Le chemin du nouvel adaptateur dépendra du contrat natif retenu.
+Fichiers de départ :
 
-Validation de sortie : traces du client natif, budgets testés sur erreurs/reprises/concurrence, identité des observations préservée jusqu’au rapport. Une vérification de signatures ou une simulation ne suffit pas à clôturer le comportement natif. Taille relative : grande.
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/audit_runtime.py`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/native_audit.py`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/native_roles.py`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/run_bounded_audit.py`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/docs/bounded-native-audit.md`
 
-### A3. Obtenir et exploiter les cas experts en parallèle
+A1 et A2 peuvent avancer en parallèle. Le retest d’Alexandre peut fournir des cas avec son accord ; il ne remplace pas les jeux de validation indépendants.
 
-Cette étape fournit les données qui débloquent les conclusions et classifications. Elle peut avancer pendant A1 et A2.
+### A3. Évaluer l’extraction et ajouter les imports disponibles, P2
 
-1. Obtenir le retest d’Alexandre et, avec son accord, des cas/exportations anonymisés. Son retest valide des cas d’usage ; il ne remplace pas tous les jeux d’évaluation.
-2. Prioriser les cas de diagnostic de trafic, de fidélité des rapports et de concurrence entre pages. Ajouter les pages annotées nécessaires à l’extraction.
-3. Approuver les catégories et seuils avant réglage ; garder les variantes d’un même site, événement ou document dans la même partition.
-4. Faire annoter et résoudre les désaccords indépendamment du système évalué. Créer les adaptateurs propres aux tâches : l’évaluateur existant accepte les intentions et paires de requêtes, pas tous les audits.
-5. Publier erreurs, abstentions et effectifs par tâche. Évaluer séparément requêtes, passages de pages, extraction et rapports.
+| Ticket | Reste à livrer | Entrée et critère de sortie | Apport |
+|---|---|---|---|
+| [#41](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/41) | Comparaison qualité/ressources du profil Trafilatura existant et décision d’adoption | HTML FR/EN annoté indépendamment, critères préalables d’inclusion/omission ; comparaison avec l’extracteur actuel | Moins de bruit de template dans les audits de contenu |
+| [#42](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/42) | Adaptateur Unlighthouse sur le contrat d’import livré | Export réel versionné, appareil/configuration/échantillon ; mesures de laboratoire et terrain distinctes | Observations de performance sur plusieurs pages |
+| [#49](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/49) | Adaptateurs distincts SERP et backlinks | Exports autorisés avec producteur, locale, appareil, dates et couverture ; compatibilité démontrée par format | Contexte concurrentiel et liens externes inspectables |
+| [#53](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/53) | Import local GSC Bulk Export et rapprochements compatibles | Tables site/URL représentatives, données anonymisées, partitions/révisions ; agrégation sans double comptage | Préserver l’historique fourni et expliquer les écarts compatibles avec l’API |
 
-Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/docs/classifier-evaluation.md` et `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/eval_classifier.py`.
+Ces adaptateurs ne dépendent pas les uns des autres. Recueillir les exports pendant A1/A2 ; commencer celui dont l’entrée réelle est disponible. Le connecteur BigQuery facturé reste hors première livraison. SiteOne ne valide pas le format d’un autre producteur, et aucun import ne crée d’historique antérieur absent.
 
-Validation de sortie : entrées autorisées, labels humains, séparation figée et seuils préalables pour chaque tâche évaluée. Dépendance externe : données et revue humaine. Aucun exemple synthétique ne clôture cette exigence.
+Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/content_extraction.py` et `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/crawl_snapshots.py`.
 
-### A4. Étendre les preuves disponibles sans nouvelle acquisition obligatoire
+### A4. Publier les analyses après leurs évaluations propres
 
-Ordre proposé : évaluer Trafilatura (#41), ajouter Unlighthouse (#42), importer SERP/backlinks (#49), puis GSC Bulk Export (#53). Cet ordre peut changer si un export autorisé est disponible plus tôt ; ces trois adaptateurs ne dépendent pas les uns des autres.
+| Ticket | Reste à livrer | Sortie attendue et apport |
+|---|---|---|
+| [#45](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/45), P2 | Parts matérielles de trafic et alternance des URL dans le temps | Cas quotidiens revus et critères préalables ; réduire les faux positifs de cannibalisation |
+| [#5](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/5), P2 | Évaluation du prototype d’intention livré et intégration d’un rapport borné | Qualité par classe, abstentions et agrégats corrects ; guider la priorisation éditoriale |
+| [#4](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/4), P2 | Évaluation du prototype de variantes livré et sortie candidate opt-in | Variantes/motifs conservés, absence de double comptage, défaut exact inchangé ; rapprocher des requêtes à examiner |
+| [#22](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/22), P3 | Similarité des passages sur des paires de pages annotées | Passages responsables du rapprochement et limites d’extraction ; montrer les recouvrements concrets |
 
-- #41 : comparaison sur contenu utile annoté, bruit de template et ressources. Conserver le profil actuel par défaut tant que les critères d’adoption ne passent pas.
-- #42 : inspecter un export réel avant d’écrire l’adaptateur. Conserver appareil, configuration, échantillon et distinction entre laboratoire et terrain.
-- #49 : livrer des schémas séparés pour SERP et backlinks, avec locale, appareil, date et limites du producteur.
-- #53 : commencer par des fichiers locaux. Vérifier calculs pondérés, partitions absentes, révisions et répétition d’import sans double comptage. Aucun SDK/cloud payant n’est nécessaire à cette première version.
+Chaque tâche utilise ses propres labels A1. Ni le partage d’une requête, ni la similarité d’un texte ne justifie seul une fusion, une redirection ou une suppression. Aucun backend de modèle n’est obligatoire pour ces premières versions.
 
-Réutiliser `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/crawl_snapshots.py` et `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/content_extraction.py` selon la tâche, sans faire passer les nouveaux types de données pour des observations de crawl.
+Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/query_rules.py`, `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/query_rules_baseline.py`, `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/seo.py` et `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/content.py`.
 
-Validation de sortie : un export représentatif autorisé par producteur, schémas versionnés, couverture explicite, limites d’entrée et tests de doublons/incompatibilités. Taille relative : moyenne à grande, par adaptateur.
+## Extensions différées, hors prochain lot
 
-### A5. Ajouter les analyses SEO après leurs validations propres
+| Ticket | Condition pour ouvrir l’implémentation | Apport recherché |
+|---|---|---|
+| [#47](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/47) | Changement déclaré, contrôles crédibles et protocole relu indépendamment | Suivi des modifications au-delà du descriptif avant/après livré |
+| [#52](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/52) | Graphe importé et décision que la carte actuelle ne permet pas | Examiner accessibilité et pages sous-liées dans l’échantillon observé |
+| [#50](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/50) | Corpus autorisé pertinent et interface de récupération vérifiée | Appuyer les recommandations sur des passages consultés |
+| [#9](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/9) | Décision de préparation d’une page et protocole d’évaluation explicites | Exposer des signaux inspectables sans prédire les citations IA |
+| [#7](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/7) | Gain mesuré sur une tâche nommée face aux règles, coût et empreinte bornés | Ajouter un seul backend de classification optionnel utile |
+| [#51](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/51) | Manque mesuré de collecte, reprise ou rendu dans les imports/fetchs existants | Ajouter un collecteur persistant seulement lorsque nécessaire |
 
-Ordre produit proposé : concurrence temporelle (#45), intention des requêtes (#5), regroupement approché (#4), puis passages similaires entre pages (#22).
+## Suivi et règles de clôture
 
-Ce n’est pas une chaîne de dépendances techniques : #45 n’exige pas #4, et aucun des trois premiers ne nécessite un backend de modèle. Les tâches peuvent être développées séparément dès que leurs cas sont prêts. Chaque publication attend son propre gate #6 ; #22 attend ses paires de pages et la qualité d’extraction adaptée.
+[#10](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/10) porte ce même ordre. Après nettoyage : 17 issues ouvertes, dont ce suivi et 16 chantiers fonctionnels ou d’évaluation. #38 est clos avec transfert explicite de ses critères d’exécution à #39 et de qualité à #6. Les autres tickets restent séparés parce qu’ils ont des entrées ou décisions distinctes ; aucune nouvelle issue n’est nécessaire pour conserver leur périmètre.
 
-Validation de sortie : motifs et passages inspectables, variantes originales conservées, agrégations sans double comptage, inconnues et abstentions visibles, performances mesurées sur les cas tenus à l’écart du réglage. Aucune similarité ou alternance d’URL ne suffit à recommander une fusion ou suppression.
-
-Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/seo.py`, `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/content.py` et le registre partagé. Taille relative : moyenne, par analyse.
-
-### A6. Garder les extensions conditionnelles hors du prochain lot
-
-- #47 : ouvrir le registre et suivi contrôlé lorsqu’un changement réel, des contrôles défendables et une métrique permettent le protocole. Le descriptif avant/après existe déjà.
-- #52 : demander une décision précise que la carte actuelle ne permet pas avant d’ajouter centralité, profondeur ou graphes comparés.
-- #50 : intégrer un corpus à la fois après vérification de son interface et d’un passage consultable. Une découverte bibliographique n’est pas une mesure du site.
-- #9 : définir d’abord l’usage d’une grille de préparation ; conserver les signaux séparés, sans prétendre prédire les citations.
-- #7 : attendre un gain mesuré face aux règles sur une tâche nommée avant le premier backend et son budget.
-- #51 : attendre un besoin enregistré de reprise, de taille ou de rendu que les imports actuels ne couvrent pas avant tout nouveau crawler.
-
-## Contrôle commun à chaque livraison
-
-Régression ciblée, tests affectés puis suite d’intégration appropriée ; contrats de métadonnées et registre ; documentation canonique/FR ; contrôle du paquet et du site si affectés. Après intégration, distinguer commit, CI, publication et validation terrain. Mettre à jour #10 et les tickets concernés avec les preuves exactes, sans clôturer les critères humains ou natifs à partir de fixtures.
-
-Premier lot recommandé : A1, cadrage du premier adaptateur A2 et préparation des paquets A3. Le travail humain A3 avance en parallèle. Les exports A4 peuvent être recueillis indépendamment. A5 attend ses jeux de validation ; A6 reste conditionnel.
-
-## Suite après fusion de la PR #76
-
-La PR #76 est fusionnée sur `main` au commit `bce9c696`. Le site public sert ce SHA après le déploiement manuel réussi [38053430509](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/runs/38053430509). Le ticket #74 est clos. Le paquet Python reste à la version publiée 1.5.0 ; aucune nouvelle publication PyPI n’est faite ici.
-
-La suite A2 ajoute neuf profils de revue des sources communs aux clients natifs, une sélection explicite, une concurrence de 1 à 4 et un budget persistant d’appels aux modèles. Codex et Claude ont chacun exécuté deux spécialistes, une synthèse et une revue séparée sur un cas hors ligne : quatre appels natifs, deux appels d’outil, zéro tentative fournisseur. Le rôle schema reste explicitement indisponible sans source adaptée. Les [preuves et limites](validation/2026-10-10-native-specialists.md) distinguent ces profils de l’exécution des playbooks interactifs et d’un audit technique complet.
-
-La prochaine étape utile reste A3 : fournir des cas FR/EN autorisés, des annotations humaines indépendantes et des cibles définies avant réglage. Les exports réels A4 peuvent arriver séparément. La qualité experte, les décisions A5 et les besoins conditionnels A6 ne sont pas validés par ces essais hors ligne.
-
-## Sources et limites
-
-Backlog GitHub ouvert et fermé relu pendant cette session ; commit distant vérifié ; comparaison inspectée dans le code ; `get_capabilities` appelé sur la connexion active. Le ticket [#10](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/10) et les notes d’exécution des tickets partiellement livrés ont été croisés avec les sources.
-
-Les nombres de tests historiques et preuves de release proviennent des rapports existants, sans nouvelle exécution de ces suites. Aucun nouvel audit Google/Bing/GA4, test natif d’agent ou contrôle du site public n’a été exécuté pour ce plan. Les checklists initiales de certains tickets restent non cochées malgré leurs livraisons partielles ; leurs notes d’exécution donnent un état plus précis.
-
-## Exécution après autorisation
-
-Le correctif A1, les chemins natifs Codex et Claude sur observations hors ligne et leur acquisition bornée, l’évaluateur de rapports A3 et les prototypes hors ligne A5 ont été implémentés dans une branche isolée. Les validations effectuées et les entrées encore nécessaires figurent dans [le bilan d’exécution](validation/2026-10-10-backlog-execution.md). Les limites ci-dessus décrivent l’état au moment du récapitulatif ; ce bilan porte les preuves plus récentes.
+Clôturer sur les preuves du périmètre livré, ou transférer explicitement les critères restants avant une clôture par regroupement. Les tests de contrat, la CI, le paquet installé, les modèles natifs, les accès fournisseurs et le site public ne sont pas interchangeables. Les chiffres de validation ci-dessus sont ceux des bilans existants ; ce nettoyage n’a pas réexécuté les suites ni acquis des données fournisseurs.
