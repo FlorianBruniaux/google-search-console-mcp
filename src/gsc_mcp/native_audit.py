@@ -50,6 +50,8 @@ def validate_report(report, packet, *, observation_indices=None):
             raise ValueError('Required source reference')
         for ref in refs:
             _pointer(packet, ref)
+            if ref == '/role_scope' or ref.startswith('/role_scope/'):
+                raise ValueError('Temporary role scope is not a source reference')
             if observation_indices is not None and (ref == '/observations' or ref.startswith('/observations/')):
                 parts = ref.split('/')
                 if len(parts) < 3 or not parts[2].isdecimal() or int(parts[2]) not in observation_indices:
@@ -90,7 +92,8 @@ return a draft, not an approved action. No score or confidence is required.
 Every supported factual claim requires a reference under /observations; references
 to /draft or /specialists identify generated material and never establish factual support.
 ROLE_CONTRACT: {role_instruction}
-For specialists, cite only observation indices in role_scope; keep original indices.
+For specialists, cite /observations paths only at indices in role_scope; keep original indices.
+Never cite /role_scope: it is temporary routing metadata, absent from the final packet.
 SOURCE_PACKET:\n{raw}\nEND_SOURCE_PACKET'''
     with tempfile.TemporaryDirectory(prefix='gsc-native-audit-') as directory:
         root = Path(directory)

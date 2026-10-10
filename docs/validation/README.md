@@ -2,6 +2,8 @@
 
 These records describe local checks and their limits. They do not establish live-provider accuracy, a published package or human SEO quality.
 
+- [Live GSC pilot and remaining gates, 2026-10-10](2026-10-10-live-gsc-readiness.md): authenticated installed-runner acquisition, identical private projections for Claude/Codex, partial coverage, attempt accounting and corrective regressions. Interactive playbooks and human quality remain unverified.
+
 - [Delegated evaluation and native output limits, 2026-10-10](2026-10-10-delegated-evaluation-native-limits.md): delivered source limits, human intake guard and extraction snippet runner; 2,048 tests with the optional content package, local distribution checks and controlled child/extraction observations. Human release quality, authenticated providers and deployment remain separate.
 
 - [Native source-only specialists, 2026-10-10](2026-10-10-native-specialists.md): shared role projections, persistent model-attempt ceilings, explicit unavailable branches and actual native Codex/Claude source cases.

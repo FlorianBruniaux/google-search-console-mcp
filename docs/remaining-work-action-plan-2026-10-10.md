@@ -42,11 +42,12 @@ Fichiers de départ :
 
 Ticket [#39](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/39), qui reprend les scénarios non terminés de #38. Réutiliser les adaptateurs et budgets déjà implémentés.
 
-1. Sélectionner explicitement une propriété GSC, des URL, les fenêtres et les périmètres Bing/GA4 lorsque nécessaires.
-2. Exécuter l’acquisition authentifiée dans le runner installé ; conserver les traces des tentatives, de la réutilisation des observations, des sources et des branches indisponibles.
-3. Exécuter séparément les playbooks interactifs dans chaque client : retards/chutes de trafic, résultats multi-URL légitimes, indexation inconnue, preuves IA absentes, fournisseurs ou familles d’outils indisponibles et dimensions Bing non prises en charge.
-4. Tester les affirmations non soutenues sur pénalités, pertes causales IA et consolidation ; mesurer la revue sur les cas A1.
-5. Définir l’acquisition HTML/CrUX nécessaire avant toute extension. Le rôle schema reste indisponible dans le runner actuel sans source adaptée ; aucune source ne doit être inventée pour compléter le rapport.
+Le [pilote GSC authentifié du 10 octobre](validation/2026-10-10-live-gsc-readiness.md) a exécuté la sélection monopropriété, l'acquisition via le module installé, la réutilisation du cache et les branches hors budget. Deux ledgers comptent 24 tentatives fournisseur et 11 appels d'outils. Codex et Claude ont relu une projection privée identique, avec 5 tentatives natives par hôte et aucun nouvel appel Google. La couverture temporelle incomplète reste explicite. Les données privées ne sont pas publiées et cette revue source ne valide pas les playbooks interactifs.
+
+1. Exécuter séparément les playbooks interactifs dans chaque client : retards/chutes de trafic, résultats multi-URL légitimes, indexation inconnue, preuves IA absentes, fournisseurs ou familles d’outils indisponibles et dimensions Bing non prises en charge.
+2. Tester les affirmations non soutenues sur pénalités, pertes causales IA et consolidation ; mesurer la revue sur les cas A1. L'absence de ces affirmations dans le pilote ne démontre pas leur détection.
+3. Compléter les cas reproductibles de panne/reprise et conserver leur distinction avec l'épuisement réel du budget observé pendant le pilote.
+4. Définir l’acquisition HTML/CrUX nécessaire avant toute extension. Le rôle schema reste indisponible dans le runner actuel sans source adaptée ; aucune source ne doit être inventée pour compléter le rapport.
 
 Le plafonnement des sorties est livré sur Linux/macOS : flux en mémoire bornés, plafond système hérité par fichier et arrêt du groupe de processus. Les essais locaux ont été exécutés sur macOS ; le plafond s’applique aussi aux fichiers d’état de l’hôte. Les groupes volontairement détachés restent hors garantie de nettoyage. Aucun quota disque agrégé ou plafond de coût n’est établi.
 

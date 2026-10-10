@@ -112,7 +112,7 @@ def test_real_inspection_unspecified_only_inputs_cannot_support_category(monkeyp
     ]
     for result, prefix, collection in results:
         row = result[collection][0] if collection else result
-        assert row["category"] == "not_indexed"
+        assert row["category"] == "unknown"
         assert row[output_field] == provider_value
         records = result["_meta"]["evidence"]["fields"]
         assert_basis(records, f"{prefix}/{output_field}", None, "unavailable")

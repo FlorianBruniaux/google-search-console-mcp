@@ -18,6 +18,7 @@ def load(path):
 
 
 def main():
+    os.environ['GSC_NO_BROWSER'] = '1'
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', required=True)
     parser.add_argument('--requests', required=True)
@@ -43,7 +44,8 @@ def main():
         elif args.specialist or args.max_native_concurrency != 1:
             raise ValueError('Specialists require an explicit native host and model')
         output = Path(args.output)
-        if output.exists(): raise ValueError('Output already exists; choose a new file')
+        if output.exists() or output.is_symlink(): raise ValueError('Output already exists; choose a new file')
+        if not output.parent.is_dir(): raise ValueError('Output requires an existing parent directory')
         session = AuditSession(config)
         plan = [{**row, 'arguments': session.validate_request(row['tool'], row['arguments'])} for row in plan]
         observations = []

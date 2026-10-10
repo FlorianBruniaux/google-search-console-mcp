@@ -589,6 +589,8 @@ The repository ships 13 Claude Code agents, 15 shared SEO skills, one Claude dev
 
 The optional [bounded native source workflow](docs/bounded-native-audit.md) is a separate, unreleased path with nine narrower source-review profiles, immutable acquired observations and durable provider, tool and native-attempt ceilings. [Both installed native CLI hosts completed an offline source case](docs/validation/2026-10-10-native-specialists.md); this does not establish authenticated provider acquisition, full interactive playbooks or expert report quality. [Current output-limit validation](docs/validation/2026-10-10-delegated-evaluation-native-limits.md) bounds each stdout/stderr stream and regular-file writes to at most 2,000,000 bytes on Linux/macOS, preserves lower inherited file limits and cleans up ordinary process-group descendants. The file ceiling can affect host state; it is not an aggregate disk quota or host memory limit. These source additions are not supplied by the published 1.5.0 wheel.
 
+The [live GSC pilot record](docs/validation/2026-10-10-live-gsc-readiness.md) describes authenticated acquisition, private storage, explicit windows and identical source projections reviewed by Claude/Codex. Interactive playbooks and human quality remain unverified. A Google-only configuration does not require a Bing site.
+
 ### Agents
 
 <details>

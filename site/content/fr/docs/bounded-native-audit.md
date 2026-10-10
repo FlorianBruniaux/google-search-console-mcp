@@ -45,7 +45,7 @@ Créez un dossier privé existant pour le journal persistant et les rapports don
 }
 ```
 
-`example.com` et le chemin sont des exemples à remplacer par la propriété autorisée et un vrai chemin privé absolu. Sélectionner un outil n’accorde aucun accès fournisseur. Les outils GA4 nécessitent aussi `ga4_property`, par exemple `"123456789"` ; la propriété explicite de l’appelant remplace les valeurs GA4 ambiantes, et les arguments contradictoires sont refusés.
+`example.com` et le chemin sont des exemples à remplacer par la propriété autorisée et un vrai chemin privé absolu. Une configuration limitée à Google peut omettre `bing_site` ; autoriser un outil Bing ou `compare_search_engines` exige son URL explicite et valide. Retirer ce champ d’une configuration déjà enregistrée change son identité et nécessite un nouvel ID. Sélectionner un outil n’accorde aucun accès fournisseur. Les outils GA4 nécessitent aussi `ga4_property`, par exemple `"123456789"` ; la propriété explicite de l’appelant remplace les valeurs GA4 ambiantes, et les arguments contradictoires sont refusés.
 
 Le fichier de requêtes est un tableau JSON d’enregistrements `{tool, arguments}`. Exemple hors ligne :
 
@@ -66,7 +66,7 @@ python scripts/run_bounded_audit.py --config /absolute/config.json \
   --requests /absolute/requests.json --output /absolute/new-report.json
 ```
 
-Cette commande acquiert le plan déclaré, sans invocation de modèle par défaut. Le périmètre de chaque requête est vérifié avant la première acquisition. Les écritures et les outils absents de la liste sont refusés. Les exceptions fournisseur restent indisponibles à côté des autres résultats. La sortie est créée avec un accès privé ; un fichier existant n’est jamais remplacé.
+Cette commande acquiert le plan déclaré, sans invocation de modèle par défaut. Le périmètre de chaque requête est vérifié avant la première acquisition. La CLI impose `GSC_NO_BROWSER=1` ; préparez séparément l’authentification si elle manque. Elle refuse avant acquisition une sortie existante ou un lien symbolique, ainsi qu’un dossier parent absent. Les écritures et les outils absents de la liste sont refusés. Les exceptions fournisseur restent indisponibles à côté des autres résultats. La sortie est créée avec un accès privé ; un fichier existant n’est jamais remplacé.
 
 ## Auteur et relecteur natifs optionnels
 
@@ -104,7 +104,7 @@ Les neuf projections de `src/gsc_mcp/native_roles.py` correspondent aux noms des
 | `gsc-content-optimizer` | Opportunités sélectionnées par règles et requêtes récupérées ; aucun gain de classement promis |
 | `gsc-page-analyst` | Performances de page et inspections fournies ; HTML, schémas, rendu et métriques vitales manquants restent indisponibles |
 
-Ces contrats de revue des sources sont plus étroits que les profils interactifs de `.claude/agents/`. Ils ne chargent ni n’exécutent les playbooks et n’activent pas leurs outils MCP. La sélection n’ajoute jamais de requête d’acquisition. Un spécialiste reçoit une nouvelle copie décodée des observations originales, avec les indices utilisables déclarés dans `role_scope` ; la validation refuse les pointeurs vers d’autres observations ou vers la collection entière. Les indices originaux restent stables. Cette limite de références n’est ni une preuve sémantique ni un filtre de confidentialité : le paquet original est visible au modèle sélectionné.
+Ces contrats de revue des sources sont plus étroits que les profils interactifs de `.claude/agents/`. Ils ne chargent ni n’exécutent les playbooks et n’activent pas leurs outils MCP. La sélection n’ajoute jamais de requête d’acquisition. Un spécialiste reçoit une nouvelle copie décodée des observations originales, avec les indices utilisables déclarés dans `role_scope` ; la validation refuse les pointeurs vers d’autres observations ou vers la collection entière. Les références au contexte temporaire `role_scope` sont refusées pour tous les statuts d’affirmation, car ce champ est absent du paquet final. Les indices originaux restent stables. Cette limite de références n’est ni une preuve sémantique ni un filtre de confidentialité : le paquet original est visible au modèle sélectionné.
 
 Sources manquantes, sources en échec, échecs de modèle et budgets épuisés ont des motifs d’indisponibilité distincts à côté des branches réussies. Les spécialistes laissent deux places actuellement disponibles pour la synthèse/revue. Un autre processus partageant l’exécution peut les consommer ; le plafond persistant refuse toujours l’envoi avant des tentatives excédentaires. Un processus redémarré peut acquérir à nouveau sous le budget fournisseur, car les observations ne sont mises en cache que dans une session d’acquisition.
 
