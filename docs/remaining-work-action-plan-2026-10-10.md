@@ -131,4 +131,4 @@ Les nombres de tests historiques et preuves de release proviennent des rapports 
 
 ## Exécution après autorisation
 
-Le correctif A1, le premier chemin natif Codex et son acquisition bornée, l’évaluateur de rapports A3 et les prototypes hors ligne A5 ont été implémentés dans une branche isolée. Les validations effectuées et les entrées encore nécessaires figurent dans [le bilan d’exécution](validation/2026-10-10-backlog-execution.md). Les limites ci-dessus décrivent l’état au moment du récapitulatif ; ce bilan porte les preuves plus récentes.
+Le correctif A1, les chemins natifs Codex et Claude sur observations hors ligne et leur acquisition bornée, l’évaluateur de rapports A3 et les prototypes hors ligne A5 ont été implémentés dans une branche isolée. Les validations effectuées et les entrées encore nécessaires figurent dans [le bilan d’exécution](validation/2026-10-10-backlog-execution.md). Les limites ci-dessus décrivent l’état au moment du récapitulatif ; ce bilan porte les preuves plus récentes.
