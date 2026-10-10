@@ -1,4 +1,5 @@
 import json
+from gsc_mcp.audit_runtime import execute_google
 
 import defusedxml.ElementTree as ET
 from defusedxml import DefusedXmlException
@@ -14,7 +15,7 @@ from gsc_mcp.tools.analytics import get_search_analytics
 def list_sitemaps(site: str) -> str:
     """List all sitemaps submitted to a GSC property, with submission dates, status, and error counts."""
     svc = get_searchconsole_service()
-    response = svc.sitemaps().list(siteUrl=site).execute()
+    response = execute_google(svc.sitemaps().list(siteUrl=site))
     raw = response.get("sitemap", [])
 
     sitemaps = [
@@ -78,7 +79,7 @@ def sitemaps_get(site: str, sitemap_url: str) -> str:
     Returns content type counts (URLs, images, videos), error and warning counts, and status flags.
     """
     svc = get_searchconsole_service()
-    s = svc.sitemaps().get(siteUrl=site, feedpath=sitemap_url).execute()
+    s = execute_google(svc.sitemaps().get(siteUrl=site, feedpath=sitemap_url))
     sitemap = {
         "url": s.get("path", sitemap_url),
         "last_submitted": s.get("lastSubmitted"),

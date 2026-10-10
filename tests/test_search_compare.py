@@ -202,9 +202,9 @@ def test_query_comparison_normalizes_aggregates_outer_joins_and_sorts(monkeypatc
     }
     assert result["rows"][1]["google"] == {
         "present": False,
-        "clicks": 0,
-        "impressions": 0,
-        "ctr": 0.0,
+        "clicks": None,
+        "impressions": None,
+        "ctr": None,
         "position": None,
     }
     assert result["rows"][2]["bing"]["present"] is False
@@ -219,7 +219,7 @@ def test_query_comparison_normalizes_aggregates_outer_joins_and_sorts(monkeypatc
         "clicks": "measured",
         "impressions": "measured",
         "ctr": "derived_clicks_divided_by_impressions",
-        "missing_row": "zero_filled_with_present_false",
+        "missing_row": "unavailable_with_present_false",
         "position": {
             "google": "google_average_position",
             "bing": "bing_average_impression_position",
@@ -485,3 +485,25 @@ def test_exact_window_explicit_zero_counts_still_allow_deltas(monkeypatch):
         assert group["windows_comparable"] is True
         assert group["click_delta"] == -5
         assert group["impression_delta"] == -50
+        assert group["bing"]["ctr"] is None
+
+
+@pytest.mark.parametrize("dimension,value", [("query", "missing"), ("page", "https://example.com/page")])
+@pytest.mark.parametrize("absent", ["google", "bing"])
+def test_absent_provider_row_has_null_values_and_unavailable_evidence(monkeypatch, dimension, value, absent):
+    batches = {engine: _batch(engine, dimension, () if engine == absent else
+               (_row(engine, dimension, value, clicks=0, impressions=0),))
+               for engine in ("google", "bing")}
+    _install_providers(monkeypatch, batches["google"], batches["bing"])
+    result = json.loads(compare_search_engines("sc-domain:example.com", "https://example.com/", dimension=dimension))
+    row = result["rows"][0]
+    fields = result["_meta"]["evidence"]["fields"]
+    assert row[absent]["present"] is False
+    for metric in ("clicks", "impressions", "ctr", "position"):
+        assert row[absent][metric] is None
+        assert fields[f"/rows/0/{absent}/{metric}"]["basis"] is None
+    observed = row["bing" if absent == "google" else "google"]
+    assert observed["clicks"] == observed["impressions"] == 0
+    assert observed["ctr"] is None
+    assert row["click_delta"] is row["impression_delta"] is None
+    assert "position_delta" not in row

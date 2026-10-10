@@ -2,6 +2,8 @@
 
 These records describe local checks and their limits. They do not establish live-provider accuracy, a published package or human SEO quality.
 
+- [Backlog execution, 2026-10-10](2026-10-10-backlog-execution.md): null comparison metrics, optional native packet audits and durable provider budgets, report evaluation, offline rule prototypes and remaining input gates. See [bounded native source workflow](../bounded-native-audit.md) for runnable instructions.
+
 - [CI and baseline, 2026-10-09](2026-10-09-ci-baseline.md): isolated dependency environment, local suite/build checks and the proposed nonpublishing CI workflow; remote execution remains separate.
 - [Playbook contract, 2026-10-09](2026-10-09-playbook-contract.md): callable/signature review and manual scenario boundaries; host routing and actual agent behavior are not established.
 - [Independent evaluation protocol](../classifier-evaluation.md#audit-evidence-tracks-preparation-for-6): audit case packets and review gates; authorized human labels and targets are still required.

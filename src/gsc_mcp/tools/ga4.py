@@ -24,6 +24,7 @@ from google.analytics.data_v1beta.types import (
 
 from gsc_mcp.auth import get_alpha_ga4_service, get_ga4_service, get_ga4_property_id
 from gsc_mcp.meta import with_meta
+from gsc_mcp.audit_runtime import call_ga4
 from gsc_mcp.retry import with_retry
 from gsc_mcp.ai_referrals import MATCHING_RULES, assistant_breakdown, parse_row, totals, validate_window
 
@@ -123,7 +124,7 @@ def _build_dimension_filter(
 @with_retry()
 def _ai_referral_request(client, method: str, request):
     """Retry individual requests before composing an unavailable report."""
-    return getattr(client, method)(request)
+    return call_ga4(getattr(client, method), request)
 
 
 def ga4_ai_referrals(
@@ -259,7 +260,7 @@ def ga4_organic_landing_pages(
         limit=limit,
     )
 
-    response = client.run_report(request)
+    response = call_ga4(client.run_report, request)
 
     pages = [
         {
@@ -322,7 +323,7 @@ def ga4_traffic_sources(
         **({"dimension_filter": dim_filter} if dim_filter else {}),
     )
 
-    response = client.run_report(request)
+    response = call_ga4(client.run_report, request)
 
     sources = [
         {
@@ -393,7 +394,7 @@ def ga4_page_performance(
         **({"dimension_filter": dimension_filter} if dimension_filter else {}),
     )
 
-    response = client.run_report(request)
+    response = call_ga4(client.run_report, request)
 
     pages = [
         {
@@ -440,7 +441,7 @@ def ga4_realtime(property_id: str | None = None, hostname: str | None = None) ->
         **({"dimension_filter": hostname_filter} if hostname_filter else {}),
     )
 
-    response = client.run_realtime_report(request)
+    response = call_ga4(client.run_realtime_report, request)
 
     active = [
         {
@@ -511,7 +512,7 @@ def ga4_user_behavior(
         ],
     )
 
-    response = client.batch_run_reports(batch_request)
+    response = call_ga4(client.batch_run_reports, batch_request)
 
     def _parse_sessions_engagement(rows):
         return [
@@ -563,7 +564,7 @@ def ga4_conversion_funnel(
     date_ranges = [DateRange(start_date=start_date, end_date=end_date)]
     dim_filter = _build_dimension_filter(hostname, country)
 
-    pages_response = client.run_report(
+    pages_response = call_ga4(client.run_report,
         RunReportRequest(
             property=prop,
             dimensions=[Dimension(name="pagePath")],
@@ -593,7 +594,7 @@ def ga4_conversion_funnel(
 
     events_filter = _build_dimension_filter(hostname, country, base_filter=event_filter)
 
-    events_response = client.run_report(
+    events_response = call_ga4(client.run_report,
         RunReportRequest(
             property=prop,
             dimensions=[Dimension(name="eventName")],
@@ -665,7 +666,7 @@ def ga4_funnel(
         funnel=Funnel(steps=funnel_steps),
         date_ranges=[AlphaDateRange(start_date=start_date, end_date=end_date)],
     )
-    response = client.run_funnel_report(request)
+    response = call_ga4(client.run_funnel_report, request)
 
     rows = list(response.funnel_table.rows)
     step1_users = _i(rows[0].metric_values[0].value) if rows else 0

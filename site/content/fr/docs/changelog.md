@@ -8,6 +8,13 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
+## Non publié
+
+Modifications des sources du 10 octobre 2026.
+
+- La comparaison Google/Bing renvoie `null` pour les métriques des requêtes/pages absentes, conserve les comptes nuls réellement observés et laisse le CTR indisponible sans impressions (#74).
+- Le code source ajoute un parcours d’audit natif optionnel, une acquisition en lecture seule avec budget partagé et un évaluateur de rapports. Les prototypes FR/EN d’intention et de variantes restent hors du catalogue MCP, dans l’attente de validations humaines. Le paquet publié 1.5.0 ne contient pas encore ces changements.
+
 ## Version 1.5.0, 9 octobre 2026
 
 Le registre contient 96 outils, soit sept ajouts. Les imports et rapprochements locaux conservent les sources, les données manquantes et les limites d’observation.

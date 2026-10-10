@@ -31,7 +31,7 @@
     },
     "docs/examples/google-bing-comparison.md": {
       "source": "examples/google-bing-comparison.md",
-      "sourceHash": "8a7aec7aa412553fc829fbb9d3ee5a126bd5f4b8d33a98c91e6dd16ac268fd65"
+      "sourceHash": "c9470b5f25c61c75befb5e0199e3670e8ea6d1973112c9cf0c054be15c158ad9"
     },
     "docs/examples/full-audit.md": {
       "source": "examples/full-audit.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "9affec7c3c827ee86f2300b1b68d1068c7bc33cc1230ff2ee8bea63edb5fdc1e"
+      "sourceHash": "4df4d0059c41989b45b6c0bc86c83e3008cc35fab7cfd3b467769e2a1edf80d8"
     },
     "docs/license.md": {
       "source": "LICENSE",

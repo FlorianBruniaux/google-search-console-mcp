@@ -1,4 +1,5 @@
 import json
+from gsc_mcp.audit_runtime import execute_google
 import os
 from gsc_mcp.auth import get_searchconsole_service
 from gsc_mcp.meta import with_meta
@@ -142,7 +143,7 @@ def get_capabilities() -> str:
 def list_properties() -> str:
     """List all GSC properties the authenticated account can access, with their permission levels."""
     svc = get_searchconsole_service()
-    response = svc.sites().list().execute()
+    response = execute_google(svc.sites().list())
     entries = response.get("siteEntry", [])
     properties = [
         {"url": e["siteUrl"], "permission": e.get("permissionLevel", "unknown")}
@@ -159,7 +160,7 @@ def list_properties() -> str:
 def get_site_details(site_url: str) -> str:
     """Get the permission level for a specific GSC property URL."""
     svc = get_searchconsole_service()
-    response = svc.sites().get(siteUrl=site_url).execute()
+    response = execute_google(svc.sites().get(siteUrl=site_url))
     return json.dumps(with_meta(
         {
             "url": response.get("siteUrl", site_url),

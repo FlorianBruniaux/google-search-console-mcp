@@ -15,6 +15,8 @@ Requirements:
 
 The assistant should call `list_properties`, `bing_sites_list` and `compare_search_engines`. It should show click and impression deltas only when the tool reports equal exact observed windows.
 
+An absent query or page returns `present: false` and `null` metrics. Absence from returned rows is not measured zero traffic or evidence of deindexation. Present measured zero counts remain `0`; CTR is unavailable when impressions are zero. Totals sum returned source rows, not a guaranteed complete inventory.
+
 ## Find opportunities per engine
 
 > Run `quick_wins`, `seo_striking_distance` and `prune_candidates` separately for Google and Bing. Show which opportunities appear in both engines and which are engine-specific. Do not recommend deletion from missing or partial provider data.

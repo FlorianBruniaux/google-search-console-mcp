@@ -21,4 +21,6 @@ Termine par des hypothèses vérifiables et les contrôles nécessaires.
 
 Une différence de chiffres ne prouve pas un problème. Les deux fournisseurs ont des périmètres, délais et sémantiques distincts.
 
+Une requête ou page absente des lignes retournées conserve `present: false` et des métriques à `null`. Cette absence ne mesure pas zéro trafic et ne prouve pas une désindexation. Les comptes nuls observés restent à `0` ; le CTR reste indisponible lorsque les impressions sont nulles. Les totaux additionnent les lignes source retournées, sans garantir un inventaire complet.
+
 [Lire la version anglaise canonique](/docs/examples/google-bing-comparison/).

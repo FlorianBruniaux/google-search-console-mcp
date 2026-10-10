@@ -122,7 +122,7 @@ def test_direct_bing_source_anomaly_evidence_preserves_counts(
         assert_basis(result, f"/rows/0/metric_diagnostics/0/{key}", "measured")
 
 
-def test_comparison_aggregated_counts_and_missing_zero_placeholders(monkeypatch, mock_gsc_service, mock_bing_client):
+def test_comparison_aggregated_counts_and_unavailable_missing_values(monkeypatch, mock_gsc_service, mock_bing_client):
     install_google(monkeypatch, mock_gsc_service, [
         {"rows": [google_row("google-only", 1, 10, 0.1), google_row("google-zero", 0, 0, 0.0)]},
     ])
@@ -134,7 +134,7 @@ def test_comparison_aggregated_counts_and_missing_zero_placeholders(monkeypatch,
     google_index = next(i for i, row in enumerate(result["rows"]) if row["query"] == "google-only")
     bing_index = next(i for i, row in enumerate(result["rows"]) if row["query"] == "bing-only")
     zero_index = next(i for i, row in enumerate(result["rows"]) if row["query"] == "google-zero")
-    assert result["rows"][google_index]["bing"]["ctr"] == 0.0
+    assert result["rows"][google_index]["bing"]["ctr"] is None
     for engine, index in (("google", google_index), ("bing", bing_index)):
         for key in ("clicks", "impressions"):
             assert_basis(result, f"/rows/{index}/{engine}/{key}", "derived")
@@ -143,7 +143,7 @@ def test_comparison_aggregated_counts_and_missing_zero_placeholders(monkeypatch,
     assert_basis(result, f"/rows/{google_index}/bing/ctr", None)
     assert_basis(result, f"/rows/{google_index}/bing/clicks", None)
     assert_basis(result, "/totals/bing/ctr", None)
-    assert result["rows"][zero_index]["google"]["ctr"] == 0.0
+    assert result["rows"][zero_index]["google"]["ctr"] is None
     assert_basis(result, f"/rows/{zero_index}/google/ctr", None)
     assert_basis(result, f"/rows/{bing_index}/bing/metric_diagnostics/0/clicks", "measured")
 
