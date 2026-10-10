@@ -114,6 +114,21 @@ def test_pairs_have_separate_metrics_and_explicit_abstention(tmp_path):
     assert set(metrics["per_class"]) == {"same_intent", "distinct_intent", "unclassified"}
 
 
+@pytest.mark.parametrize("collection", ["queries", "pairs"])
+@pytest.mark.parametrize("provenance", ["human", "synthetic"])
+def test_self_reviewed_annotations_fail_before_scoring(tmp_path, collection, provenance):
+    data = dataset()
+    data["provenance"] = provenance
+    for row in data["queries"] + data["pairs"]:
+        row["annotation"] = annotation(provenance)
+    row = data[collection][0]
+    row["annotation"]["reviewer"] = row["annotation"]["annotator"]
+    result = run_cli(tmp_path, data=data)
+    assert result.returncode == 2, result.stderr
+    assert "independent annotation review required" in result.stderr
+    assert result.stdout == ""
+
+
 @pytest.mark.parametrize("mutation", [
     "query_duplicate", "pair_duplicate", "cross_task_duplicate", "family_leak",
     "pair_reference_missing", "pair_cross_split", "pair_self", "pair_identity_duplicate",

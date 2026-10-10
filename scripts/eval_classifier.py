@@ -81,6 +81,8 @@ def validate_dataset(data):
             for field in ANNOTATION_FIELDS:
                 nonempty(row["annotation"][field])
             require(row["annotation"]["provenance"] == data["provenance"], "provenance mismatch")
+            require(row["annotation"]["annotator"] != row["annotation"]["reviewer"],
+                    "independent annotation review required")
             if task == "intent":
                 nonempty(row["query"])
                 choice(row["language"], ("fr", "en"))

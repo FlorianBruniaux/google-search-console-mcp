@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "corpus_id": "synthetic-extraction-runner-smoke",
+  "provenance": "synthetic",
+  "protocol": {
+    "frozen_before_tuning": true,
+    "inclusion_criteria": "Synthetic paragraph snippets only; no release target.",
+    "omission_criteria": "Synthetic template promotion only; no release target.",
+    "resource_criteria": "Record a single wall-time and Python allocation observation; no adoption threshold."
+  },
+  "cases": [
+    {
+      "id": "synthetic-article",
+      "split": "held_out",
+      "task_family": "synthetic-runner-task",
+      "site_family": "synthetic-example-site",
+      "page_family": "synthetic-article-family",
+      "language": "en",
+      "page_type": "article",
+      "source_url": "https://synthetic.example/article",
+      "html_path": "synthetic.html",
+      "html_sha256": "1ef606bb0dd4de7ed70ed0e50c83ec148804dea30fa4b7f93cfe2df02ac1596f",
+      "annotation": {
+        "annotator": "synthetic-fixture-author",
+        "reviewer": "synthetic-fixture-reviewer",
+        "source_authorization": "Authored synthetic smoke input. Names are fixture markers, not real human approvals.",
+        "independent_of_extractors": true
+      },
+      "include": [
+        "This synthetic paragraph exists to exercise the local comparison runner.",
+        "Real authorized French and English pages still require independent annotation."
+      ],
+      "omit": [
+        {"text": "Synthetic template promotion.", "kind": "template"}
+      ]
+    }
+  ]
+}
