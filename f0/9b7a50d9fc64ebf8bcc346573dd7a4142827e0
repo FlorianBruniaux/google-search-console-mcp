@@ -1,0 +1,105 @@
+src/gsc_mcp/tools/sitemaps.py
+  s_60d4a01bc3ed2e::t_6f2f016a15b925 2,18,82
+tests/test_audit_evaluation.py
+  s_60d4a01bc3ed2e::t_53f5c5bf646147 1-67
+src/gsc_mcp/tools/ga4.py
+  s_60d4a01bc3ed2e::t_91adde503319bb 27,127,263,326,397,444,515,567,597,669
+site/content/fr/docs/examples/google-bing-comparison.md
+  s_60d4a01bc3ed2e::t_40091c2b71b1c9 24-25
+tests/test_audit_runtime.py
+  s_60d4a01bc3ed2e::t_f76f24ea132921 1-91
+  s_60d4a01bc3ed2e::t_50ffdec2084e00 92-112,114-124,126-144
+  s_60d4a01bc3ed2e::t_7b9b1b26248efb 145-180
+  s_60d4a01bc3ed2e::t_b1ffa468bf3723 113,125
+  s_60d4a01bc3ed2e::t_b5b4b0b47987c5 271-323
+  s_60d4a01bc3ed2e::t_367ee9fec31ffc 232-270
+  s_60d4a01bc3ed2e::t_21620cbeb9a338 199
+  s_60d4a01bc3ed2e::t_7df26854b61de7 208,214-231
+  s_60d4a01bc3ed2e::t_78cf1149ea7dba 181-198,200-207,209-213
+scripts/eval_audit_reports.py
+  s_60d4a01bc3ed2e::t_22ea509e66d0f3 1-149
+tests/test_feedback_evidence.py
+  s_60d4a01bc3ed2e::t_40091c2b71b1c9 125,137,146
+src/gsc_mcp/audit_runtime.py
+  s_60d4a01bc3ed2e::t_dd89be700833d1 1-47,80-88,93-98,100-108,113-144,146,153-165,172-176,181-182,184-209,211-216,223-229,231-246
+  s_60d4a01bc3ed2e::t_ea3ae5e5267f16 48-50,52-55,76-79,89-92,247
+  s_60d4a01bc3ed2e::t_a4b2e2c5597116 99,109-112,166-171,248-258
+  s_60d4a01bc3ed2e::t_ace47ed2c44270 51,56-75,145,147-152,177-180,183
+  s_60d4a01bc3ed2e::t_b4fd1b6dd8bdcd 210,217-222,230
+src/gsc_mcp/tools/search_breakdown.py
+  s_60d4a01bc3ed2e::t_6f2f016a15b925 11,172
+src/gsc_mcp/tools/properties.py
+  s_60d4a01bc3ed2e::t_6f2f016a15b925 2,146,163
+scripts/run_bounded_audit.py
+  s_60d4a01bc3ed2e::t_b4fd1b6dd8bdcd 40,47-48
+  s_60d4a01bc3ed2e::t_c07ba7c466e47c 1-39,41-46,49-68
+scripts/query_rules_baseline.py
+  s_60d4a01bc3ed2e::t_4eb41d87445bfa 1-27
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_0acc3a6f29fea8 5-6
+  s_60d4a01bc3ed2e::t_40091c2b71b1c9 7,10
+  s_60d4a01bc3ed2e::t_3be2f1f676e87e 8-9
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_0acc3a6f29fea8 52,54-55,60
+  s_60d4a01bc3ed2e::t_3be2f1f676e87e 1-51,53,56-59,61-91
+examples/google-bing-comparison.md
+  s_60d4a01bc3ed2e::t_40091c2b71b1c9 18-19
+docs/validation/2026-10-10-backlog-execution.md
+  s_60d4a01bc3ed2e::t_0acc3a6f29fea8 36-47
+  s_60d4a01bc3ed2e::t_d19414fc02b2f4 48-51
+  s_60d4a01bc3ed2e::t_3be2f1f676e87e 1-35
+src/gsc_mcp/auth.py
+  s_60d4a01bc3ed2e::t_ea3ae5e5267f16 16-18,152-154,159-161
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_a1322c025ff659 5-6
+tests/test_search_compare.py
+  s_60d4a01bc3ed2e::t_9b13fd48106fc8 205-207,222
+  s_60d4a01bc3ed2e::t_357e6956018284 488-509
+src/gsc_mcp/server.py
+  s_60d4a01bc3ed2e::t_a4b2e2c5597116 2,13,17-20,26-36,40-41
+src/gsc_mcp/tools/inspection.py
+  s_60d4a01bc3ed2e::t_6f2f016a15b925 2,57,64,66
+tests/test_native_audit.py
+  s_60d4a01bc3ed2e::t_eaeee7ccb1a13c 1-63
+  s_60d4a01bc3ed2e::t_b5b4b0b47987c5 64-75
+src/gsc_mcp/tools/search_compare.py
+  s_60d4a01bc3ed2e::t_b23ba393e166ee 227-228
+  s_60d4a01bc3ed2e::t_a848eae31027c8 73,99-101,164,263
+src/gsc_mcp/native_audit.py
+  s_60d4a01bc3ed2e::t_c07ba7c466e47c 1-44,47-70,73-100
+  s_60d4a01bc3ed2e::t_ace47ed2c44270 45-46,71-72
+docs/remaining-work-action-plan-2026-10-10.md
+  s_60d4a01bc3ed2e::t_3be2f1f676e87e 1-134
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_0acc3a6f29fea8 13-14
+  s_60d4a01bc3ed2e::t_3be2f1f676e87e 11-12,15-17
+src/gsc_mcp/query_rules.py
+  s_60d4a01bc3ed2e::t_4eb41d87445bfa 1-45
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_8de9fab462aecf 34
+  s_60d4a01bc3ed2e::t_9b1c7f56994442 70
+src/gsc_mcp/tools/analytics.py
+  s_60d4a01bc3ed2e::t_6f2f016a15b925 7,43
+src/gsc_mcp/providers/bing.py
+  s_60d4a01bc3ed2e::t_6f2f016a15b925 14,173
+tests/test_query_rules_baseline.py
+  s_60d4a01bc3ed2e::t_863cb8ab13358a 1-46
+src/gsc_mcp/tools/traffic_reference.py
+  s_60d4a01bc3ed2e::t_6f2f016a15b925 10,171
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f09b7a50d9fc64ebf8bcc346573dd7a4142827e0",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
