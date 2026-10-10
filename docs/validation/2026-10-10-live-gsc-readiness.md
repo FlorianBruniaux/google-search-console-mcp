@@ -125,8 +125,10 @@ La suite Python finale passe avec 2 081 tests. Les contrôles locaux du site et 
 
 ## Ce qui reste pour clôturer #39
 
-1. Exécuter séparément les playbooks interactifs Claude et Codex sur les scénarios transférés de #38. Les rôles source-only exécutés ici ne remplacent pas ces essais.
-2. Injecter des affirmations non soutenues de pénalité, perte causale IA et consolidation, puis mesurer ce que chaque reviewer détecte. Leur absence dans le pilote réel ne démontre pas la détection.
+Les [essais clients réalisés après ce pilote](2026-10-10-interactive-playbook-trials.md) ajoutent le chargement explicite de playbooks, des appels MCP de replay et deux revues de claims plantés. Ils restent distincts de cette acquisition réelle et de ses rôles source-only.
+
+1. Traiter les écarts observés dans les essais clients et compléter leur périmètre restant. Le lot explicite headless ne prouve pas un dialogue humain multi-tour ni un routage implicite.
+2. Étendre la revue de claims aux cas indépendants de #6. Les cinq affirmations synthétiques sont correctement classées par chaque reviewer ; ce résultat ne valide pas une qualité humaine ni une généralisation.
 3. Conserver des cas de panne/reprise reproductibles et distinguer leurs fixtures des résultats authentifiés. Le pilote a réellement atteint un budget ; il n'a pas validé tous les modes de panne fournisseur.
 4. Faire annoter des cas indépendants via #6 pour juger fidélité et diagnostic SEO. L'accord des modèles et les pointeurs valides ne constituent pas ce verdict.
 5. Décider du périmètre d'acquisition HTML/CrUX avant une extension. Le pilote n'ajoute aucun de ces outils au runner.

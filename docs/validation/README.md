@@ -2,7 +2,9 @@
 
 These records describe local checks and their limits. They do not establish live-provider accuracy, a published package or human SEO quality.
 
-- [Live GSC pilot and remaining gates, 2026-10-10](2026-10-10-live-gsc-readiness.md): authenticated installed-runner acquisition, identical private projections for Claude/Codex, partial coverage, attempt accounting and corrective regressions. Interactive playbooks and human quality remain unverified.
+- [Native client playbook trials, 2026-10-10](2026-10-10-interactive-playbook-trials.md): six controlled MCP replay scenarios per host, fresh five-claim reviews and targeted instruction retests. Eleven of twelve retained cells pass within fixture scope; the Claude missing-traffic case remains unresolved. Explicit headless loading does not establish implicit routing or human quality.
+
+- [Live GSC pilot and remaining gates, 2026-10-10](2026-10-10-live-gsc-readiness.md): authenticated installed-runner acquisition, identical private projections for Claude/Codex, partial coverage, attempt accounting and corrective regressions. This source-only record does not validate client playbooks or human quality; see the separate client trials above.
 
 - [Delegated evaluation and native output limits, 2026-10-10](2026-10-10-delegated-evaluation-native-limits.md): delivered source limits, human intake guard and extraction snippet runner; 2,048 tests with the optional content package, local distribution checks and controlled child/extraction observations. Human release quality, authenticated providers and deployment remain separate.
 

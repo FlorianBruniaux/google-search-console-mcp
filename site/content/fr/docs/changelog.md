@@ -22,6 +22,7 @@ Modifications des sources du 10 octobre 2026.
 
 - Préparer les audits bornés limités à Google sans propriété Bing fictive ; désactiver OAuth interactif et refuser les sorties invalides avant acquisition. Les inspections conservent les verdicts inconnus ou réservés et reconnaissent le blocage robots Google `DISALLOWED` (#39).
 - Refuser les références natives au contexte temporaire `role_scope`, absent du paquet final. Consigner le pilote GSC authentifié et ses étapes interactives/humaines restantes, sans publier les observations privées (#39).
+- Clarifier les playbooks trafic et apparences IA : le délai de date configuré n’est pas un retard de publication mesuré, et une part de période exige des sources compatibles. Les essais clients avec MCP de replay conservent une suraffirmation Claude sur le trafic manquant après retest ; chaque reviewer classe correctement cinq claims synthétiques. #39 et la qualité humaine #6 restent ouverts.
 
 ## Version 1.5.0, 9 octobre 2026
 

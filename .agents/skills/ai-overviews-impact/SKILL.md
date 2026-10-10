@@ -29,6 +29,12 @@ identify AI Overviews as its cause.
    windows. This tool accepts `site` and `days`; it does not accept query dimensions
    or a query limit. Report returned dates, clicks, impressions and descriptive
    deltas. Calculate period CTR only for present counts and positive impressions.
+   Interpret an appearance/aggregate ratio as a period share only when returned
+   source windows, observed coverage, search surface and data state are compatible;
+   matching requested dates alone do not establish this. Without that evidence,
+   the period share remains unavailable. A raw arithmetic ratio may be shown
+   separately only with the different or unresolved source scopes stated, without
+   claiming a period share or an AI share.
    Done when the observed window comparison or missing data is reported without
    assigning the change to AI.
 4. If independent query-level or SERP observations are supplied, retain their
