@@ -591,7 +591,7 @@ The optional [bounded native source workflow](docs/bounded-native-audit.md) is a
 
 The [live GSC pilot record](docs/validation/2026-10-10-live-gsc-readiness.md) describes authenticated acquisition, private storage, explicit windows and identical source projections reviewed by Claude/Codex. This source-only pilot does not validate interactive playbooks or human quality. A Google-only configuration does not require a Bing site.
 
-The separate [native client playbook trials](docs/validation/2026-10-10-interactive-playbook-trials.md) record explicit skill loading and MCP replay calls in both clients. Eleven of twelve retained controlled cases pass after targeted instruction retests; the Claude missing-traffic case still overstates an explanation. These headless tests do not establish automatic routing, new provider acquisition or human SEO quality.
+The initial [native client playbook trials](docs/validation/2026-10-10-interactive-playbook-trials.md) record explicit skill loading and MCP replay calls in both clients. Eleven of twelve retained controlled cases passed after targeted instruction retests; the Claude missing-traffic case still overstated an explanation. The separate [C1 follow-up](docs/validation/2026-10-11-claude-c1-followup.md) adds an insufficient-evidence branch and eight retained cases passing the frozen C1 criteria, including a positive arithmetic control. These verdicts do not establish whole-report accuracy, automatic routing, new provider acquisition or human SEO quality.
 
 ### Agents
 

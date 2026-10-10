@@ -2,7 +2,9 @@
 
 These records describe local checks and their limits. They do not establish live-provider accuracy, a published package or human SEO quality.
 
-- [Native client playbook trials, 2026-10-10](2026-10-10-interactive-playbook-trials.md): six controlled MCP replay scenarios per host, fresh five-claim reviews and targeted instruction retests. Eleven of twelve retained cells pass within fixture scope; the Claude missing-traffic case remains unresolved. Explicit headless loading does not establish implicit routing or human quality.
+- [Claude C1 follow-up, 2026-10-11](2026-10-11-claude-c1-followup.md): explicit missing-count branch, eight retained client cases passing the frozen C1 criteria, positive arithmetic control and preserved oversized-response delivery failures. Producer simulations and an adversarial payload remain separate from live-provider and human-quality evidence.
+
+- [Native client playbook trials, 2026-10-10](2026-10-10-interactive-playbook-trials.md): six controlled MCP replay scenarios per host, fresh five-claim reviews and targeted instruction retests. Eleven of twelve retained cells passed within fixture scope; the Claude missing-traffic case remained unresolved in that initial batch. Explicit headless loading does not establish implicit routing or human quality.
 
 - [Live GSC pilot and remaining gates, 2026-10-10](2026-10-10-live-gsc-readiness.md): authenticated installed-runner acquisition, identical private projections for Claude/Codex, partial coverage, attempt accounting and corrective regressions. This source-only record does not validate client playbooks or human quality; see the separate client trials above.
 
