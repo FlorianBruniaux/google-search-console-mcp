@@ -1,0 +1,72 @@
+docs/remaining-work-action-plan-2026-10-10.md
+  s_60d4a01bc3ed2e::t_788cad5b1d907c 45-50
+src/gsc_mcp/tools/inspection.py
+  s_60d4a01bc3ed2e::t_2218d1e53cb781 20,28
+tests/test_bounded_audit_cli.py
+  s_60d4a01bc3ed2e::t_34b41401a9beb6 1-82
+tests/test_audit_runtime.py
+  s_60d4a01bc3ed2e::t_5ed39006f7cd30 20-43,45-59
+  s_60d4a01bc3ed2e::t_0aac52d76080d6 44
+tests/test_evidence.py
+  s_60d4a01bc3ed2e::t_021681dab39c78 115
+src/gsc_mcp/native_audit.py
+  s_60d4a01bc3ed2e::t_ebc03b6f3054b7 53-54,95-96
+src/gsc_mcp/audit_runtime.py
+  s_60d4a01bc3ed2e::t_4aa284e7daeb53 97,99,111-112,117,128,131
+  s_60d4a01bc3ed2e::t_8de7e7c3c425c3 129-130
+site/content/fr/docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_f58e34b251b527 107
+  s_60d4a01bc3ed2e::t_53e8c855f1e4cc 48,69
+docs/validation/2026-10-10-live-gsc-readiness.md
+  s_60d4a01bc3ed2e::t_cc31fc53d0a3a7 1,3,5,51,75,99-132
+  s_60d4a01bc3ed2e::t_4f30e6557fc7bc 12,20
+  s_60d4a01bc3ed2e::t_3c25a6532a078d 24
+  s_60d4a01bc3ed2e::t_28f164724a45c1 11,22-23,28-29,37,46-47
+  s_60d4a01bc3ed2e::t_c73c12c6f88d82 2,4,6-10,13-19,21,25-27,30-36,38-45,48-50,52-74,76-98
+README.md
+  s_60d4a01bc3ed2e::t_f58e34b251b527 592-593
+tests/test_native_audit.py
+  s_60d4a01bc3ed2e::t_a4001461faf2be 76-98
+tests/test_inspection.py
+  s_60d4a01bc3ed2e::t_29b584ffbccdc9 49-78
+scripts/run_bounded_audit.py
+  s_60d4a01bc3ed2e::t_3a6e0b6e5b5bad 21,47-48
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_f58e34b251b527 16,23-24
+  s_e827e256e15185::t_a833bc1518b699 25
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_53e8c855f1e4cc 6
+  s_60d4a01bc3ed2e::t_f58e34b251b527 5
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_53e8c855f1e4cc 42,63
+  s_60d4a01bc3ed2e::t_f58e34b251b527 101
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_f58e34b251b527 8,15-16
+  s_e827e256e15185::t_45460be4069656 17
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_8f30a29da2a076 70,94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f396b892228aae0a7f23c4c1cac704c098a57a32",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_e827e256e15185": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12567-61ab-7c62-8b43-ea0028444170",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
