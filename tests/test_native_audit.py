@@ -73,3 +73,26 @@ def test_reviewer_cannot_use_the_draft_as_factual_evidence():
     report['claims'][0]['source_refs'].append('/observations/0/result/rows/0/current_indexing_status')
     # References are now source-bound; semantic truth still requires evaluation.
     assert api.validate_report(report, source) == report
+
+
+@pytest.mark.parametrize('status', ['supported', 'hypothesis', 'unavailable'])
+@pytest.mark.parametrize('temporary_ref', [
+    '/role_scope', '/role_scope/observation_indices', '/role_scope/observation_indices/0',
+])
+def test_temporary_role_scope_cannot_be_retained_as_source_evidence(status, temporary_ref):
+    source = packet()
+    source['role_scope'] = {'observation_indices': [0]}
+    report = {'claims': [{'text': 'Current indexing is unknown.', 'status': status,
+                         'source_refs': ['/observations/0/result/rows/0/current_indexing_status', temporary_ref]}]}
+    with pytest.raises(ValueError, match='reference'):
+        native().validate_report(report, source, observation_indices=[0])
+
+
+def test_specialist_source_references_keep_original_observation_indices():
+    source = packet()
+    source['observations'].insert(0, {'tool': 'get_capabilities', 'result': {'tools': []}})
+    source['role_scope'] = {'observation_indices': [1]}
+    report = {'claims': [{'text': 'Current indexing is unknown.', 'status': 'unavailable',
+                         'source_refs': ['/observations/1/result/rows/0/current_indexing_status']}]}
+    validated = native().validate_report(report, source, observation_indices=[1])
+    assert validated['claims'][0]['source_refs'] == ['/observations/1/result/rows/0/current_indexing_status']

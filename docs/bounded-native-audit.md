@@ -39,7 +39,7 @@ Create a private existing directory for the caller-owned ledger and reports. The
 }
 ```
 
-`example.com` and the path are examples to replace with the authorized property and a real absolute private path. Selecting a tool does not grant provider access. GA4 tools additionally require `ga4_property`, for example `"123456789"`; the caller's explicit property overrides ambient GA4 defaults and conflicting arguments are refused.
+`example.com` and the path are examples to replace with the authorized property and a real absolute private path. Google-only configurations may omit `bing_site`; authorizing a Bing tool or `compare_search_engines` requires its explicit valid URL. Removing that field from a recorded configuration changes its identity and requires a new run ID. Selecting a tool does not grant provider access. GA4 tools additionally require `ga4_property`, for example `"123456789"`; the caller's explicit property overrides ambient GA4 defaults and conflicting arguments are refused.
 
 A request file is a JSON array of `{tool, arguments}` records. For an offline sample:
 
@@ -60,7 +60,7 @@ python scripts/run_bounded_audit.py --config /absolute/config.json \
   --requests /absolute/requests.json --output /absolute/new-report.json
 ```
 
-This command acquires the declared plan, without a model invocation by default. Every request is scope-checked before the first acquisition. Writes and unlisted tools are refused. Provider exceptions remain unavailable beside unrelated results. Output is created privately and an existing output is never overwritten.
+This command acquires the declared plan, without a model invocation by default. Every request is scope-checked before the first acquisition. The CLI forces `GSC_NO_BROWSER=1`; prepare missing authentication separately. It rejects an existing or symbolic-link output and a missing parent directory before acquisition. Writes and unlisted tools are refused. Provider exceptions remain unavailable beside unrelated results. Output is created privately and an existing output is never overwritten.
 
 ## Optional native author and reviewer
 
@@ -98,7 +98,7 @@ The nine projections in `src/gsc_mcp/native_roles.py` correspond to the reposito
 | `gsc-content-optimizer` | Rule-selected opportunities and retrieved queries; no promised ranking gain |
 | `gsc-page-analyst` | Supplied page performance and inspections; missing HTML/schema/rendering/vitals remain unavailable |
 
-These are deliberately narrower source-review contracts than the interactive roles in `.claude/agents/`. They do not load or execute the playbooks or enable the roles' MCP tools. Selection never adds acquisition requests. A specialist receives a fresh decoded copy of the original observations, with matching usable observation indices declared in `role_scope`; reference validation rejects pointers into other observations and whole-collection pointers. Original indices remain stable. This is a reference boundary, not semantic proof or a confidentiality filter: the original packet is visible to the selected model.
+These are deliberately narrower source-review contracts than the interactive roles in `.claude/agents/`. They do not load or execute the playbooks or enable the roles' MCP tools. Selection never adds acquisition requests. A specialist receives a fresh decoded copy of the original observations, with matching usable observation indices declared in `role_scope`; reference validation rejects pointers into other observations and whole-collection pointers. References to temporary `role_scope` metadata are rejected for every claim status because this field is absent from the final packet. Original indices remain stable. This is a reference boundary, not semantic proof or a confidentiality filter: the original packet is visible to the selected model.
 
 Missing sources, failed sources, model failures and exhausted budgets have separate unavailable reasons beside successful branches. Specialists leave two currently available slots for synthesis/review. Another process sharing the run can consume those slots; the durable ceiling still refuses dispatch before excess attempts. Restarted processes may acquire again under the provider budget, because observations are cached only within one acquisition session.
 

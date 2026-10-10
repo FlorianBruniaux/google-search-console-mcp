@@ -17,6 +17,46 @@ def config(tmp_path, **changes):
                 max_tool_calls=10, allowed_tools=['get_search_analytics'], **changes)
 
 
+def test_google_only_scope_does_not_require_bing_site(tmp_path):
+    settings = config(tmp_path)
+    del settings['bing_site']
+    settings['allowed_tools'] = ['indexing_evidence_matrix']
+    session = runtime().AuditSession(settings)
+    assert session.validate_request('indexing_evidence_matrix', {
+        'site': settings['site'], 'urls': ['https://example.com/page'],
+    })['urls'] == ['https://example.com/page']
+    with pytest.raises(ValueError, match='scope'):
+        session.validate_request('indexing_evidence_matrix', {
+            'site': settings['site'], 'urls': ['https://other.test/page'],
+        })
+    assert session.status()['provider_attempts'] == 0
+
+
+@pytest.mark.parametrize('tool', ['bing_url_info', 'compare_search_engines'])
+def test_bing_tools_require_an_explicit_bing_site(tmp_path, tool):
+    settings = config(tmp_path)
+    del settings['bing_site']
+    settings['allowed_tools'] = [tool]
+    with pytest.raises(ValueError, match='Bing.*scope'):
+        runtime().AuditSession(settings)
+
+
+@pytest.mark.parametrize('bing_site', ['', None, 42, [], 'not-a-url'])
+def test_google_only_scope_validates_supplied_bing_site(tmp_path, bing_site):
+    settings = config(tmp_path)
+    settings['bing_site'] = bing_site
+    with pytest.raises(ValueError):
+        runtime().AuditSession(settings)
+
+
+def test_google_only_scope_preserves_supplied_bing_site_in_run_digest(tmp_path):
+    settings = config(tmp_path)
+    runtime().AuditSession(settings)
+    del settings['bing_site']
+    with pytest.raises(ValueError, match='configuration changed'):
+        runtime().AuditSession(settings)
+
+
 def test_failed_attempts_and_reopened_sessions_share_one_budget(tmp_path):
     api = runtime()
     one, two = api.AuditSession(config(tmp_path)), api.AuditSession(config(tmp_path))

@@ -94,9 +94,9 @@ def audit_active():
 
 class AuditSession:
     def __init__(self, config):
-        required = {'run_id', 'site', 'bing_site', 'ledger_path', 'max_provider_attempts',
+        required = {'run_id', 'site', 'ledger_path', 'max_provider_attempts',
                     'max_tool_calls', 'allowed_tools'}
-        if not isinstance(config, dict) or not required <= set(config) or set(config) - required - {'ga4_property', 'max_native_calls'}:
+        if not isinstance(config, dict) or not required <= set(config) or set(config) - required - {'bing_site', 'ga4_property', 'max_native_calls'}:
             raise ValueError('Invalid audit configuration fields')
         if not isinstance(config['run_id'], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,96}', config['run_id']):
             raise ValueError('Invalid run identifier')
@@ -108,11 +108,13 @@ class AuditSession:
         tools = config['allowed_tools']
         if not isinstance(tools, list) or not tools or any(not isinstance(t, str) or t not in READ_ONLY_TOOLS for t in tools):
             raise ValueError('Audit tools must be allowed read-only tools')
+        if any(t.startswith('bing_') or t == 'compare_search_engines' for t in tools) and 'bing_site' not in config:
+            raise ValueError('Bing audit tools require an explicit site scope')
         if any(t.startswith('ga4_') or t == 'traffic_health_check' for t in tools):
             prop = config.get('ga4_property')
             if not isinstance(prop, str) or not re.fullmatch(r'(properties/)?[0-9]+', prop):
                 raise ValueError('GA4 audit tools require an explicit property scope')
-        for field in ('site', 'bing_site', 'ledger_path'):
+        for field in ('site', 'ledger_path'):
             if not isinstance(config[field], str) or not config[field]:
                 raise ValueError('Invalid audit scope/path')
         site = config['site']
@@ -123,7 +125,10 @@ class AuditSession:
                 raise ValueError('Invalid domain scope')
         else:
             self._url(site)
-        self._url(config['bing_site'])
+        if 'bing_site' in config:
+            if not isinstance(config['bing_site'], str) or not config['bing_site']:
+                raise ValueError('Invalid audit scope/path')
+            self._url(config['bing_site'])
         self.config = dict(config, allowed_tools=sorted(set(tools)))
         self.path = Path(config['ledger_path'])
         if not self.path.is_absolute() or not self.path.parent.is_dir() or self.path.is_symlink():

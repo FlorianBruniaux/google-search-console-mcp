@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "befb9f4ed107f688f1e686f78a50301af5c61895d68db17b45663482e3a5ff45"
+      "sourceHash": "eb4dd57b6ece894629645f764b2a8ac55dea5a8f00597418744feb881d10d5f9"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -91,7 +91,7 @@
     },
     "docs/bounded-native-audit.md": {
       "source": "docs/bounded-native-audit.md",
-      "sourceHash": "7de92bbccbaf4eba004a3b01f91253d8aea649e3dca5dfa41479fa34065d2d8b"
+      "sourceHash": "ba14923465a9ac0722f017f38fba95da86cd9ab77d93afba1e892fe75bd5914c"
     },
     "docs/content-extraction.md": {
       "source": "docs/content-extraction.md",

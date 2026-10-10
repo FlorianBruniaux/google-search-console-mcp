@@ -46,6 +46,36 @@ def test_inspect_url_not_indexed(mock_gsc_service):
     assert result["verdict"] == "FAIL"
 
 
+@pytest.mark.parametrize("index_status", [
+    {},
+    {"verdict": "UNKNOWN", "pageFetchState": "SUCCESSFUL"},
+    {"verdict": "VERDICT_UNSPECIFIED", "pageFetchState": "SUCCESSFUL"},
+    {"verdict": "PARTIAL", "pageFetchState": "SUCCESSFUL"},
+])
+def test_unspecified_inspection_does_not_establish_non_indexing(mock_gsc_service, index_status):
+    response = {"inspectionResult": {"indexStatusResult": index_status}}
+    mock_gsc_service.urlInspection.return_value.index.return_value.inspect.return_value.execute.return_value = response
+    with patch("gsc_mcp.tools.inspection.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(inspect_url(URL, SITE))
+    assert result["category"] == "unknown"
+    assert result["verdict"] == index_status.get("verdict", "UNKNOWN")
+
+
+@pytest.mark.parametrize("verdict", ["FAIL", "NEUTRAL"])
+def test_explicit_excluded_or_failed_verdict_keeps_non_indexed_category(mock_gsc_service, verdict):
+    mock_gsc_service.urlInspection.return_value.index.return_value.inspect.return_value.execute.return_value = _mock_inspect_response(verdict=verdict)
+    with patch("gsc_mcp.tools.inspection.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(inspect_url(URL, SITE))
+    assert result["category"] == "not_indexed"
+
+
+def test_google_disallowed_robots_state_is_a_specific_crawl_block(mock_gsc_service):
+    mock_gsc_service.urlInspection.return_value.index.return_value.inspect.return_value.execute.return_value = _mock_inspect_response(verdict="FAIL", robots_txt_state="DISALLOWED")
+    with patch("gsc_mcp.tools.inspection.get_searchconsole_service", return_value=mock_gsc_service):
+        result = json.loads(inspect_url(URL, SITE))
+    assert result["category"] == "robots_blocked"
+
+
 def test_batch_url_inspection(mock_gsc_service):
     mock_gsc_service.urlInspection.return_value.index.return_value.inspect.return_value.execute.return_value = (
         _mock_inspect_response()

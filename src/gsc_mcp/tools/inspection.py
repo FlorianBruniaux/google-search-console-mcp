@@ -17,7 +17,7 @@ def _categorize(result: dict) -> str:
 
     if verdict == "PASS":
         return "indexed"
-    if "BLOCKED_BY_ROBOTS_TXT" in robots:
+    if robots == "DISALLOWED" or "BLOCKED_BY_ROBOTS_TXT" in robots:
         return "robots_blocked"
     if fetch == "PAGE_FETCH_STATE_UNSPECIFIED":
         return "unknown"
@@ -25,7 +25,7 @@ def _categorize(result: dict) -> str:
         return "fetch_error"
     if google_canonical and user_canonical and google_canonical != user_canonical:
         return "canonical_issue"
-    return "not_indexed"
+    return "not_indexed" if verdict in ("FAIL", "NEUTRAL") else "unknown"
 
 
 def _parse_inspection(url: str, response: dict) -> dict:
