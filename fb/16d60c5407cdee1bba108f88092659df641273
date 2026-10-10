@@ -1,0 +1,57 @@
+src/gsc_mcp/audit_runtime.py
+  s_60d4a01bc3ed2e::t_3c49606aac0f5f 99,106-107,146-147,206-214,256,259
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_6ee2eb3dbc996f 10
+scripts/run_bounded_audit.py
+  s_60d4a01bc3ed2e::t_41c4cdb5db8cf6 10-11,27-30,40-44,61-62,66
+docs/validation/2026-10-10-native-specialists.md
+  s_60d4a01bc3ed2e::t_9e86637aa1edd0 32-42
+  s_60d4a01bc3ed2e::t_4681d5a0d43229 1-31
+  s_60d4a01bc3ed2e::t_ac69b5d8d4a505 43-45
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_4681d5a0d43229 5-6
+docs/remaining-work-action-plan-2026-10-10.md
+  s_60d4a01bc3ed2e::t_4681d5a0d43229 126-133
+src/gsc_mcp/native_roles.py
+  s_60d4a01bc3ed2e::t_3c49606aac0f5f 1-58
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_6ee2eb3dbc996f 17
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_9e86637aa1edd0 89
+  s_60d4a01bc3ed2e::t_6ee2eb3dbc996f 3,19,51,53-87
+  s_ec22837e58ecfe::t_7776ee9e5a22fb 88
+src/gsc_mcp/native_audit.py
+  s_60d4a01bc3ed2e::t_3c49606aac0f5f 13-17,41,52-57,64,75-81,92-94,124-165,169,171-188,190,192,195-197,199-203
+  s_60d4a01bc3ed2e::t_4b002931512fca 18-20,47,121-122,166-168,170,193-194
+  s_60d4a01bc3ed2e::t_636ebbf8110975 189,191,198
+tests/test_native_specialists.py
+  s_60d4a01bc3ed2e::t_90d36155557e6f 1-185
+  s_60d4a01bc3ed2e::t_636ebbf8110975 186-224
+  s_60d4a01bc3ed2e::t_785780b20c1f0e 225-286
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_0ec03e63c5e41d 70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fb16d60c5407cdee1bba108f88092659df641273",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ec22837e58ecfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f6a4-88a1-77b3-9270-14c46f3f921c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
