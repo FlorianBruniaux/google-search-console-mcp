@@ -4,16 +4,15 @@ No provider acquisition is delegated to a model. The result validator checks
 shape and references, never semantic truth or expert diagnostic accuracy.
 """
 import json
-import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
 from gsc_mcp.audit_runtime import AuditBudgetExceeded
 from gsc_mcp.native_roles import ROLE_PROFILES
+from gsc_mcp.native_process import MAX_NATIVE_OUTPUT_BYTES, run_bounded
 
 # At most nine selected roles plus author/reviewer: retained report bodies are
 # bounded to 11 * 128 KB, before they enter the synthesis or final artifact.
@@ -96,7 +95,7 @@ SOURCE_PACKET:\n{raw}\nEND_SOURCE_PACKET'''
     with tempfile.TemporaryDirectory(prefix='gsc-native-audit-') as directory:
         root = Path(directory)
         schema = root / 'schema.json'; schema.write_text(json.dumps(REPORT_SCHEMA))
-        output, log, errors = root / 'final.json', root / 'stdout.json', root / 'stderr.log'
+        output = root / 'final.json'
         if host == 'claude':
             command = [str(binary), '--print', '--output-format', 'json', '--json-schema', json.dumps(REPORT_SCHEMA),
                        '--tools', '', '--strict-mcp-config', '--mcp-config', '{"mcpServers":{}}',
@@ -105,18 +104,14 @@ SOURCE_PACKET:\n{raw}\nEND_SOURCE_PACKET'''
             command = [str(binary), 'exec', '--ignore-user-config', '--ephemeral', '--sandbox', 'read-only',
                        '--skip-git-repo-check', '--output-schema', str(schema), '--output-last-message', str(output),
                        '--json', '--model', model, '-c', 'model_reasoning_effort="high"', '-c', 'web_search="disabled"', '-']
-        with log.open('wb') as stdout, errors.open('wb') as stderr:
-            try:
-                child = subprocess.run(command, input=prompt.encode(), stdout=stdout, stderr=stderr, cwd=root,
-                                       timeout=timeout, env={**os.environ, 'GSC_NO_BROWSER': '1'})
-            except (OSError, subprocess.TimeoutExpired) as exc:
-                raise RuntimeError(f'Native host unavailable: {type(exc).__name__}') from None
-        if child.returncode:
-            raise RuntimeError(f'Native host unavailable: exit {child.returncode}')
-        path = log if host == 'claude' else output
-        if not path.exists() or path.stat().st_size > 2_000_000:
-            raise ValueError('Native report missing or exceeds byte budget')
-        data = json.loads(path.read_text())
+        stdout = run_bounded(command, input_bytes=prompt.encode(), cwd=root,
+                             output_path=output, timeout=timeout)
+        if host == 'claude':
+            data = json.loads(stdout)
+        else:
+            if not output.exists() or output.stat().st_size >= MAX_NATIVE_OUTPUT_BYTES:
+                raise ValueError('Native report missing or exceeds byte budget')
+            data = json.loads(output.read_bytes())
         if host == 'claude':
             if not isinstance(data, dict):
                 raise ValueError('Invalid native Claude response envelope')

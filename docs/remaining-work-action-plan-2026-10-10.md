@@ -10,6 +10,9 @@ Backlog réconcilié le 10 octobre 2026 après les PR #76 et #77. Ce document re
 - Playbooks partagés Claude/Codex corrigés : #38 est clos, ses essais interactifs restants sont transférés à #39 et sa validation humaine à #6.
 - Acquisition immuable, budgets persistants aux frontières des appels, adaptateurs natifs, neuf profils de revue des sources, concurrence bornée et synthèse suivie d’une invocation de revue séparée.
 - Extracteur Trafilatura disponible en option ; guide et évaluateurs hors ligne des requêtes/rapports ; prototypes FR/EN d’intention et de variantes de requêtes.
+- Lot délégué #6/#39/#41 : fiche de collecte experte, rejet des annotations déclarées avec le même annotateur et relecteur, comparaison locale des extraits annotés et sorties natives plafonnées pendant l’exécution. Les limites sont de 2 000 000 octets par flux et par fichier régulier, sans quota disque global.
+
+Le [bilan du lot délégué](validation/2026-10-10-delegated-evaluation-native-limits.md) enregistre 2 048 tests Python et le contrôle du paquet installé hors checkout. Il ne valide ni corpus humain, ni fournisseurs authentifiés, ni adoption de l’extracteur optionnel.
 
 Les preuves techniques sont dans [le bilan du premier lot](validation/2026-10-10-backlog-execution.md) et [le bilan des spécialistes natifs](validation/2026-10-10-native-specialists.md). Les profils natifs relisent les sources fournies ; ils n’exécutent pas les playbooks interactifs et ne constituent pas un audit technique complet.
 
@@ -31,6 +34,7 @@ Sortie : cas autorisés, provenance des annotations, jeux tenus à l’écart du
 Fichiers de départ :
 
 - `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/docs/classifier-evaluation.md`
+- `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/docs/expert-evaluation-intake.md`
 - `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/eval_classifier.py`
 - `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/eval_audit_reports.py`
 
@@ -42,8 +46,9 @@ Ticket [#39](https://github.com/FlorianBruniaux/google-search-console-mcp/issues
 2. Exécuter l’acquisition authentifiée dans le runner installé ; conserver les traces des tentatives, de la réutilisation des observations, des sources et des branches indisponibles.
 3. Exécuter séparément les playbooks interactifs dans chaque client : retards/chutes de trafic, résultats multi-URL légitimes, indexation inconnue, preuves IA absentes, fournisseurs ou familles d’outils indisponibles et dimensions Bing non prises en charge.
 4. Tester les affirmations non soutenues sur pénalités, pertes causales IA et consolidation ; mesurer la revue sur les cas A1.
-5. Borner les écritures de sortie des processus natifs pendant leur exécution. Les plafonds actuels des rapports conservés et les contrôles après retour ne bornent pas la croissance du disque pendant l’appel.
-6. Définir l’acquisition HTML/CrUX nécessaire avant toute extension. Le rôle schema reste indisponible dans le runner actuel sans source adaptée ; aucune source ne doit être inventée pour compléter le rapport.
+5. Définir l’acquisition HTML/CrUX nécessaire avant toute extension. Le rôle schema reste indisponible dans le runner actuel sans source adaptée ; aucune source ne doit être inventée pour compléter le rapport.
+
+Le plafonnement des sorties est livré sur Linux/macOS : flux en mémoire bornés, plafond système hérité par fichier et arrêt du groupe de processus. Les essais locaux ont été exécutés sur macOS ; le plafond s’applique aussi aux fichiers d’état de l’hôte. Les groupes volontairement détachés restent hors garantie de nettoyage. Aucun quota disque agrégé ou plafond de coût n’est établi.
 
 Sortie : preuves propres à chaque client/fournisseur, états partiels conservés et conclusions évaluées avec A1. Apport : passer d’un parcours hors ligne démontré à des usages réels documentés. Les compteurs d’appels ne sont pas des plafonds de coût monétaire ; la concurrence est bornée par pipeline.
 
@@ -61,14 +66,14 @@ A1 et A2 peuvent avancer en parallèle. Le retest d’Alexandre peut fournir des
 
 | Ticket | Reste à livrer | Entrée et critère de sortie | Apport |
 |---|---|---|---|
-| [#41](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/41) | Comparaison qualité/ressources du profil Trafilatura existant et décision d’adoption | HTML FR/EN annoté indépendamment, critères préalables d’inclusion/omission ; comparaison avec l’extracteur actuel | Moins de bruit de template dans les audits de contenu |
+| [#41](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/41) | Comparaison sur corpus humain et décision d’adoption ; runner local livré | HTML FR/EN annoté indépendamment, critères préalables d’inclusion/omission ; comparaison avec l’extracteur actuel et revue des avertissements en aval | Moins de bruit de template dans les audits de contenu |
 | [#42](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/42) | Adaptateur Unlighthouse sur le contrat d’import livré | Export réel versionné, appareil/configuration/échantillon ; mesures de laboratoire et terrain distinctes | Observations de performance sur plusieurs pages |
 | [#49](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/49) | Adaptateurs distincts SERP et backlinks | Exports autorisés avec producteur, locale, appareil, dates et couverture ; compatibilité démontrée par format | Contexte concurrentiel et liens externes inspectables |
 | [#53](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/53) | Import local GSC Bulk Export et rapprochements compatibles | Tables site/URL représentatives, données anonymisées, partitions/révisions ; agrégation sans double comptage | Préserver l’historique fourni et expliquer les écarts compatibles avec l’API |
 
 Ces adaptateurs ne dépendent pas les uns des autres. Recueillir les exports pendant A1/A2 ; commencer celui dont l’entrée réelle est disponible. Le connecteur BigQuery facturé reste hors première livraison. SiteOne ne valide pas le format d’un autre producteur, et aucun import ne crée d’historique antérieur absent.
 
-Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/content_extraction.py` et `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/crawl_snapshots.py`.
+Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/content_extraction.py`, `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/scripts/eval_content_extraction.py` et `/Users/florianbruniaux/Sites/perso/google-search-console-mcp/src/gsc_mcp/tools/crawl_snapshots.py`.
 
 ### A4. Publier les analyses après leurs évaluations propres
 
@@ -98,4 +103,4 @@ Fichiers de départ : `/Users/florianbruniaux/Sites/perso/google-search-console-
 
 [#10](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/10) porte ce même ordre. Après nettoyage : 17 issues ouvertes, dont ce suivi et 16 chantiers fonctionnels ou d’évaluation. #38 est clos avec transfert explicite de ses critères d’exécution à #39 et de qualité à #6. Les autres tickets restent séparés parce qu’ils ont des entrées ou décisions distinctes ; aucune nouvelle issue n’est nécessaire pour conserver leur périmètre.
 
-Clôturer sur les preuves du périmètre livré, ou transférer explicitement les critères restants avant une clôture par regroupement. Les tests de contrat, la CI, le paquet installé, les modèles natifs, les accès fournisseurs et le site public ne sont pas interchangeables. Les chiffres de validation ci-dessus sont ceux des bilans existants ; ce nettoyage n’a pas réexécuté les suites ni acquis des données fournisseurs.
+Clôturer sur les preuves du périmètre livré, ou transférer explicitement les critères restants avant une clôture par regroupement. Les tests de contrat, la CI, le paquet installé, les modèles natifs, les accès fournisseurs et le site public ne sont pas interchangeables. Les chiffres des deux premiers bilans sont historiques ; le lot délégué a réexécuté la suite Python et contrôlé son paquet installé. Il n’a acquis aucune donnée fournisseur et #6/#39/#41 restent ouverts pour leurs critères restants.

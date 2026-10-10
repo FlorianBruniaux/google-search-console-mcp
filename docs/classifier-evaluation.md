@@ -2,6 +2,8 @@
 
 `scripts/eval_classifier.py` validates caller-supplied annotations and independent predictions, then reports their offline quality. It uses the Python standard library, imports no classifier and makes no API calls. Issue #6 stays open until authorized human FR/EN annotations, a frozen held-out corpus and agreed targets exist. The files under `tests/fixtures/classifier_eval/` are synthetic boundary examples and cannot satisfy that requirement.
 
+Use the [expert evaluation intake](expert-evaluation-intake.md) to assign human review, collect each task's evidence and freeze a batch before tuning. It identifies the existing interfaces and the tracks they cannot evaluate.
+
 ## Annotation taxonomy: `query-intent-v1`
 
 Label the result the searcher seeks. Question form alone does not determine intent.
@@ -22,9 +24,9 @@ These definitions are the scaffold's taxonomy. The human review must approve and
 
 ## Authorization, disagreement and splits
 
-Use about 200 authorized, anonymized FR/EN queries for the issue's human corpus. Remove private domains, URLs, identifiers, email addresses and identifying free text before import. Keep the source authorization evidence in an approved location, and record a non-identifying reference in each annotation. Do not commit private source material or credentials.
+Use about 200 authorized, anonymized FR/EN queries as the initial collection target. This count does not establish sufficient held-out support per language/class or cover the other tasks in #6; humans must agree those requirements separately. Remove private domains, URLs, identifiers, email addresses and identifying free text before import. Keep the source authorization evidence in an approved location, and record a non-identifying reference in each annotation. Do not commit private source material or credentials.
 
-A human annotator supplies the label; a human reviewer checks ambiguity and resolves disagreements. Record the resolution, including `no disagreement` when applicable. An agent or model proposing a label must not be its own ground-truth judge. Annotation metadata records assertions made by the caller. The CLI cannot establish consent, anonymization quality, reviewer identity, genuine human authorship or actual pre-tuning chronology.
+A human annotator supplies the label; a different human reviewer checks ambiguity and resolves disagreements. Record the resolution, including `no disagreement` when applicable. An agent or model proposing a label must not be its own ground-truth judge. The CLI rejects equal `annotator` and `reviewer` strings for queries and pairs. Distinct strings are only a mechanical check; annotation metadata records assertions made by the caller. The CLI cannot establish consent, anonymization quality, reviewer identity, genuine human authorship or actual pre-tuning chronology.
 
 Assign paraphrases, spelling variants, translations and related queries to one `family_id`. Keep each family in one split: `train`, `tuning` or `held_out`. Target roughly equal tuning and held-out halves for the initial corpus; `train` is available if the baseline needs it. Pair members must both occupy the pair's split. Related pairs need the same family assignment. The validator checks declared family IDs and pair references; humans must review the family mapping because it cannot discover undeclared semantic overlap.
 
