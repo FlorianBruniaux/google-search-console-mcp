@@ -59,6 +59,7 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
           { href: links.updates, label: 'Nouveautés', description: 'Ajouts et correctifs datés, avec leur statut de publication.' },
           { href: links.sitemap, label: 'Plan du site', description: 'Toutes les pages regroupées par usage.' },
           { href: links.architecture, label: 'Architecture', description: 'Limites du serveur et structure des moteurs.' },
+          { href: links.nativeAudit, label: 'Audit natif depuis les sources', description: 'Workflow non publié : profils explicites, budgets et limites des preuves.' },
         ] },
         { label: 'Confiance et documentation', links: [
           { href: links.install, label: 'Installation', description: 'Configuration et vérification par client.' },
@@ -100,6 +101,7 @@ export function getNavigationSections(locale: Locale): NavigationSection[] {
           { href: links.updates, label: 'What’s new', description: 'Dated additions and fixes with their release status.' },
           { href: links.sitemap, label: 'Sitemap', description: 'Every page, grouped by use.' },
           { href: links.architecture, label: 'Architecture', description: 'Server boundaries and provider structure.' },
+          { href: links.nativeAudit, label: 'Native audit from source', description: 'Unreleased workflow: explicit roles, budgets and evidence boundaries.' },
         ] },
         { label: 'Trust & documentation', links: [
           { href: links.install, label: 'Installation', description: 'Client-specific setup and verification.' },

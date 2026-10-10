@@ -1,5 +1,7 @@
 # Optional main-content extraction
 
+The optional extraction profile is available in the published 1.5.0 package. The offline comparison script below is an unreleased repository interface and requires a source checkout; it is not installed by the published wheel. Default MCP discovery remains at 96 tools.
+
 `content_quality(url)` retains the existing visible-text extractor and scores. To evaluate a second profile, install the optional extra and select it explicitly:
 
 ```sh
@@ -18,11 +20,14 @@ Local repeated and interleaved calls exercise the actual optional package on con
 
 ## Offline annotated comparison
 
-From a checkout installed with the optional content extra, run the supplied synthetic smoke fixture:
+Prepare a [source checkout and Python environment](bounded-native-audit.md#source-checkout-and-prerequisites), then install the optional extra from the repository root and run the supplied synthetic smoke fixture:
 
 ```sh
+python -m pip install -e '.[content]'
 python scripts/eval_content_extraction.py --dataset tests/fixtures/content_extraction_eval/manifest.synthetic.json --split held_out
 ```
+
+Use the [human evaluation intake](expert-evaluation-intake.md) to collect authorized independent annotations and freeze the task's acceptable targets. The [query evaluation guide](classifier-evaluation.md) describes a separate corpus and cannot validate extraction quality.
 
 The runner invokes both existing profiles on each selected local HTML file, without fetching URLs or calling a model. The smoke file and annotation identities are synthetic test markers. They demonstrate the runner; `release_quality` remains `UNKNOWN` and `synthetic_release_eligible` is false. The default extractor remains visible text.
 

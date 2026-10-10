@@ -1,8 +1,12 @@
 # Query intent and pair evaluation
 
+The evaluators in this guide are unreleased repository scripts, not commands installed by the published 1.5.0 wheel. Use Python 3.11 or later from a [source checkout](bounded-native-audit.md#source-checkout-and-prerequisites). The query evaluator itself needs only the standard library; it adds no public MCP tool, and default discovery remains at 96 tools.
+
 `scripts/eval_classifier.py` validates caller-supplied annotations and independent predictions, then reports their offline quality. It uses the Python standard library, imports no classifier and makes no API calls. Issue #6 stays open until authorized human FR/EN annotations, a frozen held-out corpus and agreed targets exist. The files under `tests/fixtures/classifier_eval/` are synthetic boundary examples and cannot satisfy that requirement.
 
 Use the [expert evaluation intake](expert-evaluation-intake.md) to assign human review, collect each task's evidence and freeze a batch before tuning. It identifies the existing interfaces and the tracks they cannot evaluate.
+
+The [native audit guide](bounded-native-audit.md#human-report-evaluation) describes the separate report-claim interface. [Main-content extraction](content-extraction.md#offline-annotated-comparison) has its own local snippet comparison.
 
 ## Annotation taxonomy: `query-intent-v1`
 

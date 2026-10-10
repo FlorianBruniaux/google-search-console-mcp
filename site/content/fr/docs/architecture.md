@@ -2,7 +2,7 @@
 title: "Architecture"
 description: "Comprendre le serveur MCP, les limites entre fournisseurs et les écritures protégées."
 lang: fr
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-10
 canonicalEnglish: /docs/architecture/
 ---
 
@@ -12,7 +12,35 @@ Search Console MCP expose une interface MCP sur `stdio`. Le serveur et la CLI pa
 
 ## Sélection au démarrage (depuis 1.3.1)
 
-Depuis la version 1.3.1, `tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose tout le catalogue : 85 outils dans la version publiée 1.3.1, 96 dans le checkout source. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
+Depuis la version 1.3.1, `tool_selection.py` valide `GSC_MCP_TOOL_FAMILIES` avant d’enregistrer les outils MCP. Sans variable, ou avec `all`, le serveur expose tout le catalogue : 85 outils dans la version publiée 1.3.1, 96 dans la version publiée 1.5.0 et le checkout source. Une liste sélectionne les familles demandées et conserve `core`. Une sélection vide ou inconnue empêche le démarrage. La CLI conserve le catalogue complet. Redémarrez le processus après une modification ; cette sélection ne change ni les identifiants ni les permissions ou confirmations nécessaires. Consultez la [configuration des familles](/fr/docs/installation/).
+
+## Lanceurs source d’audit et d’évaluation non publiés
+
+`audit_runtime.py` fournit une session optionnelle d’acquisition en lecture seule avec des propriétés exactes, un journal SQLite de l’appelant et un cache d’observations immuables propre à la session. Tentatives fournisseur, appels aux outils (y compris au cache) et invocations natives ont des compteurs persistants séparés, liés à une configuration immuable. Les réservations précèdent l’envoi compté et survivent aux échecs/redémarrages ; ce sont des plafonds de tentatives, pas des limites de tokens ou d’argent. L’acquisition auxiliaire HTML/CrUX est hors de cette liste autorisée.
+
+`scripts/run_bounded_audit.py` acquiert un plan explicite, puis peut utiliser `native_audit.py` et les neuf profils de revue des sources de `native_roles.py`. Les spécialistes sélectionnés reçoivent des copies des observations originales sans ajouter de requête d’acquisition ; leurs références conservent les indices source originaux. La concurrence des spécialistes est bornée dans le pipeline ; synthèse et invocation distincte de revue restent séquentielles. La validation structurelle des références ne prouve pas le fondement sémantique. Ces profils n’exécutent ni les playbooks interactifs `.claude/agents/` ni l’ancien hôte JavaScript Workflow.
+
+```mermaid
+flowchart LR
+    P[Plan explicite de requêtes bornées] --> T[Réserver un appel outil dans SQLite]
+    T --> C{Réponse en cache de session ?}
+    C -->|Oui| O[Observations immuables]
+    C -->|Non| D[Exécuter un outil autorisé en lecture seule]
+    D -->|Résultat local| O
+    D -->|Envoi fournisseur physique compté| B[Réserver avant chaque tentative physique]
+    B --> O
+    O --> N[Réserver une tentative native avant chaque invocation]
+    N --> S[Spécialistes sélectionnés de revue des sources]
+    S --> A[Réserver et exécuter auteur puis relecteur distinct]
+    N --> A
+    A --> R[Brouillon, revue et motifs d’indisponibilité]
+```
+
+`native_process.py` lance chaque invocation dans un groupe séparé sous Linux/macOS. Il compte stdout/stderr pendant l’exécution, plafonne chaque flux à 2 000 000 octets, conserve stdout en mémoire bornée et élimine stderr. Un lanceur isolé avant exécution installe `RLIMIT_FSIZE` à cette taille maximale en conservant les limites héritées souples/dures plus faibles. Cela borne chaque fichier ordinaire écrit par le client, notamment son état, et peut le rendre indisponible. Fin, délai et dépassement arrêtent les descendants ordinaires du groupe et attendent l’enfant direct ; les groupes volontairement détachés sont hors de cette garantie. Ce n’est ni un quota disque agrégé, ni une limite mémoire du client, ni un sandbox contre du code hostile.
+
+`scripts/eval_classifier.py`, `scripts/eval_audit_reports.py` et `scripts/eval_content_extraction.py` sont des interfaces hors ligne distinctes, hors du registre public. Les métadonnées des requêtes/paires refusent les identifiants d’auto-revue sans authentifier les humains. L’évaluation de rapports classe des affirmations fournies et laisse l’approbation de publication indisponible. L’extraction compare du HTML local dont le hash est vérifié à des fragments annotés ; précision/rappel du contenu entier et effets sur les avertissements métier restent non mesurés. Un succès synthétique n’approuve aucune de ces tâches ni un backend de modèle payant.
+
+Ces ajouts nécessitent un checkout source ; le wheel publié 1.5.0 ne les fournit pas. Les [cas hors ligne enregistrés des deux clients natifs](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) et les [contrôles actuels de sorties/extraction](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) établissent des périmètres de preuve séparés. Acquisition fournisseur authentifiée, exécution complète des playbooks interactifs et qualité experte humaine restent ouvertes. Consultez le [guide du lanceur natif](/fr/docs/bounded-native-audit/), le [guide d’extraction](/fr/docs/content-extraction/), la [collecte humaine](/fr/docs/expert-evaluation-intake/) et le [plan des actions restantes](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/remaining-work-action-plan-2026-10-10.md).
 
 ## Sources de données
 

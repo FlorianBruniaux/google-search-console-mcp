@@ -585,7 +585,9 @@ Exit codes: `0` success, `1` Google API error, `2` credential/config error or in
 
 ## Agents and shared SEO skills
 
-The repository ships 13 Claude Code agents, 15 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. A read-only evidence reviewer keeps its findings beside the unapproved draft; three additional specialist agents cover Python implementation, pytest and security review. The [controlled workflow pilot](docs/validation/2026-10-09-agent-boundaries.md) records its property, selected URLs and bounded host-agent attempts. Native Claude/Codex execution and provider request budgets remain unverified.
+The repository ships 13 Claude Code agents, 15 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. A read-only evidence reviewer keeps its findings beside the unapproved draft; three additional specialist agents cover Python implementation, pytest and security review. The [controlled workflow pilot](docs/validation/2026-10-09-agent-boundaries.md) records that interactive workflow's bounded checks.
+
+The optional [bounded native source workflow](docs/bounded-native-audit.md) is a separate, unreleased path with nine narrower source-review profiles, immutable acquired observations and durable provider, tool and native-attempt ceilings. [Both installed native CLI hosts completed an offline source case](docs/validation/2026-10-10-native-specialists.md); this does not establish authenticated provider acquisition, full interactive playbooks or expert report quality. [Current output-limit validation](docs/validation/2026-10-10-delegated-evaluation-native-limits.md) bounds each stdout/stderr stream and regular-file writes to at most 2,000,000 bytes on Linux/macOS, preserves lower inherited file limits and cleans up ordinary process-group descendants. The file ceiling can affect host state; it is not an aggregate disk quota or host memory limit. These source additions are not supplied by the published 1.5.0 wheel.
 
 ### Agents
 
@@ -610,7 +612,7 @@ To use an agent from Claude Code, ask naturally ("why did traffic drop?") or inv
 
 ### Skills
 
-SEO skills have one canonical source in `.agents/skills/`, discovered by Codex and projected into `.claude/skills/` for Claude. Each contains supported calls, evidence limits and shared FR/EN routing cases. Use them directly or through the Claude agents. [Shared-playbook validation](docs/validation/2026-10-09-shared-playbooks.md) separates repository discovery checks from unverified native execution and human SEO accuracy.
+SEO skills have one canonical source in `.agents/skills/`, discovered by Codex and projected into `.claude/skills/` for Claude. Each contains supported calls, evidence limits and shared FR/EN routing cases. Use them directly or through the Claude agents. [Shared-playbook validation](docs/validation/2026-10-09-shared-playbooks.md) records discovery and routing checks; the separate native source runner does not execute these interactive playbooks or establish human SEO accuracy.
 
 <details>
 <summary>Show 15 skills + 2 development commands</summary>
@@ -649,6 +651,10 @@ SEO skills have one canonical source in `.agents/skills/`, discovered by Codex a
 | Compare search changes, follow a declared edit and check link destinations | [Bounded audit workflows](docs/audit-workflows.md) |
 | Review a draft or compare a proposed rewrite | [Editorial workflows](docs/editorial-workflows.md) |
 | Understand the modules and data flow | [Architecture](docs/architecture.md) |
+| Run the optional source-only native audit | [Bounded native source workflow](docs/bounded-native-audit.md) |
+| Compare extraction profiles offline | [Extraction profiles and labeled-snippet benchmark](docs/content-extraction.md) |
+| Supply independent human cases and frozen targets | [Expert evaluation intake](docs/expert-evaluation-intake.md) and [query evaluation contract](docs/classifier-evaluation.md) |
+| Review delivered source limits and remaining inputs | [Delegated validation, 2026-10-10](docs/validation/2026-10-10-delegated-evaluation-native-limits.md) and [remaining action plan](docs/remaining-work-action-plan-2026-10-10.md) |
 | Review Bing evidence and runtime limits | [Bing API contract](docs/validation/bing-api-contract.md) |
 | Verify SEO expert feedback fixes and catalogue measurements | [Feedback validation record](docs/validation/2026-10-08-seo-expert-feedback.md) |
 | Review local audit validation and its evidence limits | [Audit validation records](docs/validation/README.md) |
@@ -675,7 +681,7 @@ Load `llms.txt` via your AI context or reference it in your CLAUDE.md with `@doc
 
 ## Development
 
-The [classifier evaluation guide](docs/classifier-evaluation.md) documents the synthetic corpus and reproducible evaluation for contributors. Its local results do not establish production accuracy or ranking impact.
+The [classifier evaluation guide](docs/classifier-evaluation.md) and [human intake worksheet](docs/expert-evaluation-intake.md) specify independent labels, family-disjoint splits and targets frozen before tuning. Equal declared annotator/reviewer identifiers are rejected; distinct strings do not authenticate humans. The [extraction benchmark](docs/content-extraction.md) compares hash-checked local HTML using labeled inclusion/omission snippets. Its release quality remains `UNKNOWN`, synthetic results are ineligible for adoption and downstream warnings are `not_measured`. See the [remaining action plan](docs/remaining-work-action-plan-2026-10-10.md) for task-specific inputs.
 
 ### Source checkout for development
 
@@ -687,7 +693,7 @@ pip install -e .
 gsc-cli list
 ```
 
-The final command reads the shared registry and lists the 90 commands available in this checkout. Use this installation when developing or testing unreleased changes.
+The final command reads the shared registry and lists the 96 commands available in this checkout. Use this installation when developing or testing unreleased changes; the native audit and evaluation scripts add no public MCP tool or CLI command.
 
 <details>
 <summary>Run the test suite from the source checkout</summary>
@@ -699,7 +705,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-1,952 base-package Python tests pass with one optional integration skip; nine extraction tests also pass with Trafilatura 2.3.1 installed. Provider calls use mocks, and local snapshot/log tests use controlled inputs. These checks do not establish live provider access or expert SEO accuracy.
+The [10 October 2026 validation record](docs/validation/2026-10-10-delegated-evaluation-native-limits.md) reports 2,048 Python tests passing with the optional content package installed. It separately records local package checks and controlled subprocess/extraction observations. This is the recorded dev/content run, not a base-package test count. Provider calls use mocks; controlled inputs do not establish live provider access or expert SEO accuracy.
 
 </details>
 

@@ -45,6 +45,7 @@ export default defineConfig({
           items: [
             { slug: 'docs/prompts' },
             { slug: 'docs/audit-workflows' },
+            { slug: 'docs/bounded-native-audit' },
             { slug: 'docs/editorial-workflows' },
             {
               label: 'Examples · Scénarios',
@@ -63,6 +64,10 @@ export default defineConfig({
               ],
             },
           ],
+        },
+        {
+          label: 'Evaluate · Évaluer',
+          items: [{ slug: 'docs/expert-evaluation-intake' }, { slug: 'docs/classifier-evaluation' }, { slug: 'docs/content-extraction' }],
         },
         {
           label: 'Understand · Comprendre',

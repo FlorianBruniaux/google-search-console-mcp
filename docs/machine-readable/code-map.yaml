@@ -2,12 +2,15 @@
 # Source: src/gsc_mcp/ + tests/
 # Usage: @docs/machine-readable/code-map.yaml
 
-version: "1.4.0"
-generated: "2026-10-09"
+version: "1.5.0"
+generated: "2026-10-10"
 package: gsc-mcp-tools
 python_min: "3.11"
-total_tools: 89
-total_tests: 1782
+total_tools: 96
+total_tests: 2048
+test_count_scope: "Recorded Python dev/content run, not a base-package count"
+validation_record: docs/validation/2026-10-10-delegated-evaluation-native-limits.md
+source_additions_status: "Unreleased audit/native/query modules and evaluation scripts require the source checkout; no PyPI upload"
 
 tool_inventory:
   previous_surface: 61
@@ -16,7 +19,8 @@ tool_inventory:
   cross_engine: 1
   release_1_3_additions: 4
   release_1_4_additions: 4
-  total: 89
+  release_1_5_additions: 7
+  total: 96
   source_of_truth: src/gsc_mcp/registry.py
   invariant: "set(registry.TOOLS) == set(properties._ALL_TOOLS)"
 
@@ -36,7 +40,7 @@ core_modules:
     type: entry_point
 
   - path: src/gsc_mcp/registry.py
-    role: "Shared MCP and CLI registry for all 89 tools"
+    role: "Shared MCP and CLI registry for all 96 tools"
     exports: [TOOLS]
 
   - path: src/gsc_mcp/tool_selection.py
@@ -48,6 +52,29 @@ core_modules:
 
   - path: src/gsc_mcp/reporting.py
     role: "Search breakdown report provenance fingerprint and optional complete UTF-8 envelope budget; no persistence"
+
+  - path: src/gsc_mcp/content_extraction.py
+    role: "Published 1.5.0 visible/optional Trafilatura profiles; default unchanged and adoption needs human evidence"
+
+  - path: src/gsc_mcp/audit_runtime.py
+    role: "Unreleased scoped read-only session, immutable observation cache and durable provider/tool/native attempt counters"
+    exports: [AuditSession, AuditBudgetExceeded]
+    note: "Attempt ceilings are not token/cost limits; ancillary acquisition remains outside the allowlist"
+
+  - path: src/gsc_mcp/native_roles.py
+    role: "Unreleased nine source-review profiles shared by native hosts; no interactive playbook execution"
+    exports: [ROLE_PROFILES]
+
+  - path: src/gsc_mcp/native_audit.py
+    role: "Unreleased native source specialists, sequential author/reviewer and structural reference validation"
+    note: "Both hosts have recorded offline cases; authenticated provider and human-quality proof remain open"
+
+  - path: src/gsc_mcp/native_process.py
+    role: "Unreleased Linux/macOS process-group launcher with live per-stream caps and inherited per-regular-file ceiling"
+    note: "2,000,000 bytes per stdout/stderr stream and file, preserving lower inherited file limits; host state affected, no aggregate disk or memory quota"
+
+  - path: src/gsc_mcp/query_rules.py
+    role: "Unreleased experimental offline query rules, outside the public registry and human release approval"
 
   - path: src/gsc_mcp/auth.py
     role: "Google credential resolution, GA4 property resolution, Bing env-key reader"
@@ -119,12 +146,29 @@ tool_modules:
   - path: src/gsc_mcp/tools/traffic_reference.py
     tools: 1
     tool_names: [search_weekday_reference]
-    role: "Final-requested Google reference on disjoint equal same-weekday windows, no causal or annual claim"
+    role: "Descriptive final-requested Google references: weekday (default), year_on_year, rolling_daily or all; annual alignment and same-weekday daily medians disclose coverage/support limits, no causal claim"
+    options: "reference_strategy='weekday', history_days=56, min_support=6, context_json=None"
+    rule: "Option/window/timezone mismatches and incomplete date coverage retain unavailable comparisons; caller context is declared evidence, not verified incidents"
 
   - path: src/gsc_mcp/tools/crawl_import.py
     tools: 1
     tool_names: [crawl_import_preview]
     role: "Bounded in-memory preview of caller-supplied SiteOne JSON, without files, network, credentials or GSC join"
+
+  - path: src/gsc_mcp/tools/crawl_logs.py
+    tools: 1
+    tool_names: [crawl_log_audit]
+    rule: "Published 1.5.0 bounded local logs; declared bots/current range membership, no historical identity or indexing verdict"
+
+  - path: src/gsc_mcp/tools/crawl_snapshots.py
+    tools: 5
+    tool_names: [crawl_snapshot_import, crawl_snapshot_read, crawl_snapshot_delete, crawl_snapshot_join, crawl_diff]
+    rule: "Published 1.5.0 caller-owned snapshots, exact raw URL joins and disclosed coverage; imported/unknown evidence preserved"
+
+  - path: src/gsc_mcp/tools/indexing_matrix.py
+    tools: 1
+    tool_names: [indexing_evidence_matrix]
+    rule: "Published 1.5.0 source-referenced local reconciliation; missing inspection is UNKNOWN"
 
   - path: src/gsc_mcp/tools/link_targets.py
     tools: 1
@@ -223,6 +267,18 @@ tool_modules:
     tool_names: [compare_search_engines]
     rule: "deltas require equal exact observed windows; positions remain side by side"
 
+source_scripts:
+  - path: scripts/run_bounded_audit.py
+    role: "Explicit acquisition plan and optional native source-review path; private reports, no implicit role selection"
+  - path: scripts/eval_classifier.py
+    role: "Intent/pair metrics and supplied frozen target checks; equal review IDs refused, declarations unauthenticated"
+  - path: scripts/eval_audit_reports.py
+    role: "Supplied claim labels for traffic diagnosis, harmful competition and report fidelity; release gate unavailable"
+  - path: scripts/eval_content_extraction.py
+    role: "Hash-checked local HTML and labeled inclusion/omission snippets; release quality UNKNOWN and downstream warnings unmeasured"
+  - path: scripts/query_rules_baseline.py
+    role: "Experimental rules predictions for independent offline query evaluation"
+
 test_files:
   shared: [tests/conftest.py, tests/test_registry.py, tests/test_properties.py, tests/test_cli.py]
   google_and_common:
@@ -231,6 +287,9 @@ test_files:
     - tests/test_search_breakdown.py
     - tests/test_traffic_reference.py
     - tests/test_crawl_import.py
+    - tests/test_crawl_logs.py
+    - tests/test_crawl_snapshots.py
+    - tests/test_indexing_matrix.py
     - tests/test_reporting.py
     - tests/test_agent_workflow.py
     - tests/test_ai_exposure_contract.py
@@ -257,7 +316,17 @@ test_files:
     - tests/test_bing_webmaster.py
     - tests/test_search_providers.py
     - tests/test_search_compare.py
-  rule: "all tests use mocks or synthetic fixtures; no real network or credential"
+  source_audit_and_evaluation:
+    - tests/test_audit_runtime.py
+    - tests/test_native_audit.py
+    - tests/test_native_specialists.py
+    - tests/test_native_output_limits.py
+    - tests/test_eval_classifier.py
+    - tests/test_audit_evaluation.py
+    - tests/test_query_rules_baseline.py
+    - tests/test_content_extraction.py
+    - tests/test_content_extraction_evaluation.py
+  rule: "provider tests use mocks; native/resource and extraction checks use controlled local executables/HTML, not authenticated providers or human quality"
 
 dependencies:
   runtime:
