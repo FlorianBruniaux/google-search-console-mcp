@@ -123,6 +123,14 @@ Régression ciblée, tests affectés puis suite d’intégration appropriée ; c
 
 Premier lot recommandé : A1, cadrage du premier adaptateur A2 et préparation des paquets A3. Le travail humain A3 avance en parallèle. Les exports A4 peuvent être recueillis indépendamment. A5 attend ses jeux de validation ; A6 reste conditionnel.
 
+## Suite après fusion de la PR #76
+
+La PR #76 est fusionnée sur `main` au commit `bce9c696`. Le site public sert ce SHA après le déploiement manuel réussi [38053430509](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/runs/38053430509). Le ticket #74 est clos. Le paquet Python reste à la version publiée 1.5.0 ; aucune nouvelle publication PyPI n’est faite ici.
+
+La suite A2 ajoute neuf profils de revue des sources communs aux clients natifs, une sélection explicite, une concurrence de 1 à 4 et un budget persistant d’appels aux modèles. Codex et Claude ont chacun exécuté deux spécialistes, une synthèse et une revue séparée sur un cas hors ligne : quatre appels natifs, deux appels d’outil, zéro tentative fournisseur. Le rôle schema reste explicitement indisponible sans source adaptée. Les [preuves et limites](validation/2026-10-10-native-specialists.md) distinguent ces profils de l’exécution des playbooks interactifs et d’un audit technique complet.
+
+La prochaine étape utile reste A3 : fournir des cas FR/EN autorisés, des annotations humaines indépendantes et des cibles définies avant réglage. Les exports réels A4 peuvent arriver séparément. La qualité experte, les décisions A5 et les besoins conditionnels A6 ne sont pas validés par ces essais hors ligne.
+
 ## Sources et limites
 
 Backlog GitHub ouvert et fermé relu pendant cette session ; commit distant vérifié ; comparaison inspectée dans le code ; `get_capabilities` appelé sur la connexion active. Le ticket [#10](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/10) et les notes d’exécution des tickets partiellement livrés ont été croisés avec les sources.

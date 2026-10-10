@@ -7,7 +7,8 @@ from pathlib import Path
 import sys
 
 from gsc_mcp.audit_runtime import AuditSession, AuditBudgetExceeded
-from gsc_mcp.native_audit import run_native
+from gsc_mcp.native_audit import run_specialists, validate_native_options
+from gsc_mcp.native_roles import ROLE_PROFILES
 
 
 def load(path):
@@ -23,6 +24,10 @@ def main():
     parser.add_argument('--output', required=True)
     parser.add_argument('--host', choices=['none', 'claude', 'codex'], default='none')
     parser.add_argument('--model')
+    parser.add_argument('--specialist', action='append', choices=sorted(ROLE_PROFILES), default=[],
+                        help='Source-only role; repeat this flag to select several roles')
+    parser.add_argument('--max-native-concurrency', type=int, default=1,
+                        help='Concurrent specialist invocations, 1 to 4; synthesis/review stay sequential')
     args = parser.parse_args()
     try:
         plan = load(args.requests)
@@ -32,8 +37,11 @@ def main():
         for row in plan:
             if not isinstance(row, dict) or set(row) != {'tool', 'arguments'} or not isinstance(row['arguments'], dict):
                 raise ValueError('Invalid request shape')
-        if args.host != 'none' and not args.model:
-            raise ValueError('Native model must be explicitly selected')
+        if args.host != 'none':
+            validate_native_options(host=args.host, model=args.model, roles=args.specialist,
+                                    max_workers=args.max_native_concurrency)
+        elif args.specialist or args.max_native_concurrency != 1:
+            raise ValueError('Specialists require an explicit native host and model')
         output = Path(args.output)
         if output.exists(): raise ValueError('Output already exists; choose a new file')
         session = AuditSession(config)
@@ -50,12 +58,12 @@ def main():
         packet = {'run': session.status(), 'observations': observations}
         if args.host != 'none':
             try:
-                packet['draft'] = run_native(packet, host=args.host, model=args.model)
-                packet['review'] = run_native(packet, host=args.host, model=args.model, role='reviewer')
-                packet['native_status'] = 'draft_and_review_returned; semantic_quality_unverified'
+                packet = run_specialists(packet, session=session, host=args.host, model=args.model,
+                                         roles=args.specialist, max_workers=args.max_native_concurrency)
             except (RuntimeError, ValueError):
                 packet['native_status'] = 'unavailable; observations_retained'
         else: packet['native_status'] = 'not_requested'
+        packet['run'] = session.status()
         encoded = json.dumps(packet, ensure_ascii=False, allow_nan=False).encode()
         if len(encoded) > 8_000_000: raise ValueError('Output exceeds byte budget')
         fd = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)

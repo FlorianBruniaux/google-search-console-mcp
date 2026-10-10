@@ -96,13 +96,15 @@ class AuditSession:
     def __init__(self, config):
         required = {'run_id', 'site', 'bing_site', 'ledger_path', 'max_provider_attempts',
                     'max_tool_calls', 'allowed_tools'}
-        if not isinstance(config, dict) or not required <= set(config) or set(config) - required - {'ga4_property'}:
+        if not isinstance(config, dict) or not required <= set(config) or set(config) - required - {'ga4_property', 'max_native_calls'}:
             raise ValueError('Invalid audit configuration fields')
         if not isinstance(config['run_id'], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,96}', config['run_id']):
             raise ValueError('Invalid run identifier')
         for field in ('max_provider_attempts', 'max_tool_calls'):
             if type(config[field]) is not int or not 1 <= config[field] <= 10000:
                 raise ValueError('Invalid audit bound')
+        if type(config.get('max_native_calls', 2)) is not int or not 1 <= config.get('max_native_calls', 2) <= 64:
+            raise ValueError('Invalid native attempt bound')
         tools = config['allowed_tools']
         if not isinstance(tools, list) or not tools or any(not isinstance(t, str) or t not in READ_ONLY_TOOLS for t in tools):
             raise ValueError('Audit tools must be allowed read-only tools')
@@ -141,6 +143,8 @@ class AuditSession:
             stored = db.execute('SELECT digest FROM runs WHERE id=?', (config['run_id'],)).fetchone()[0]
             if stored != self.digest:
                 raise ValueError('Audit run configuration changed; choose a new run identifier')
+            db.execute('CREATE TABLE IF NOT EXISTS native_runs (id TEXT PRIMARY KEY, attempts INTEGER NOT NULL)')
+            db.execute('INSERT OR IGNORE INTO native_runs VALUES (?, 0)', (config['run_id'],))
 
     @contextmanager
     def _db(self):
@@ -199,6 +203,15 @@ class AuditSession:
                 raise AuditBudgetExceeded(f'{kind}_attempt_budget_exhausted')
             db.execute(f'UPDATE runs SET {kind}={kind}+1 WHERE id=?', (self.config['run_id'],))
 
+    def reserve_native(self):
+        """Reserve before a native invocation, including failed invocations."""
+        with self._db() as db:
+            db.execute('BEGIN IMMEDIATE')
+            used = db.execute('SELECT attempts FROM native_runs WHERE id=?', (self.config['run_id'],)).fetchone()[0]
+            if used >= self.config.get('max_native_calls', 2):
+                raise AuditBudgetExceeded('native_attempt_budget_exhausted')
+            db.execute('UPDATE native_runs SET attempts=attempts+1 WHERE id=?', (self.config['run_id'],))
+
     @contextmanager
     def activate(self):
         token = _CURRENT.set(self)
@@ -240,8 +253,10 @@ class AuditSession:
     def status(self):
         with self._db() as db:
             provider, tool = db.execute('SELECT provider, tool FROM runs WHERE id=?', (self.config['run_id'],)).fetchone()
+            native = db.execute('SELECT attempts FROM native_runs WHERE id=?', (self.config['run_id'],)).fetchone()[0]
         return {'run_id': self.config['run_id'], 'site': self.config['site'],
                 'provider_attempts': provider, 'tool_calls': tool,
+                'native_attempts': native, 'max_native_calls': self.config.get('max_native_calls', 2),
                 'max_provider_attempts': self.config['max_provider_attempts'],
                 'cache_scope': 'session', 'acquisition': 'serialized',
                 'budget_scope': 'Google HTTP including attached authentication replays, Bing HTTP and GA4 RPC dispatch; excludes credential resolution and ancillary fetches'}
