@@ -1,0 +1,95 @@
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_7247b4faecc2df 5-6,14
+site/content/fr/docs/content-extraction.md
+  s_60d4a01bc3ed2e::t_873785439a1464 29
+  s_60d4a01bc3ed2e::t_6eec12409fe8de 38,44,46
+  s_60d4a01bc3ed2e::t_09a8a54d39a82e 1-28,30-37,39-43,45,47-52
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_7247b4faecc2df 8,11-12
+  s_60d4a01bc3ed2e::t_a39c86b2ac1bc2 13
+site/src/components/Workflow.astro
+  s_60d4a01bc3ed2e::t_81b27a8107268d 2,6,24
+site/src/data/navigation.ts
+  s_60d4a01bc3ed2e::t_81b27a8107268d 62,104
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_873785439a1464 7-8
+  s_60d4a01bc3ed2e::t_8d10a92ab7d5e9 21
+  s_60d4a01bc3ed2e::t_81b27a8107268d 9-20,22-24
+docs/content-extraction.md
+  s_60d4a01bc3ed2e::t_81b27a8107268d 3-4,23,26,30
+  s_ded836f56a6d83::t_2e2fe0908cc0c9 31
+site/src/components/JourneyPage.astro
+  s_60d4a01bc3ed2e::t_873785439a1464 47
+docs/architecture.md
+  s_60d4a01bc3ed2e::t_7247b4faecc2df 54-64,68-70,73-79,81
+  s_60d4a01bc3ed2e::t_74d33952077eb6 65-66,71-72
+  s_60d4a01bc3ed2e::t_a39c86b2ac1bc2 67,80
+site/content/fr/docs/index.md
+  s_60d4a01bc3ed2e::t_81b27a8107268d 5,58-63
+docs/classifier-evaluation.md
+  s_60d4a01bc3ed2e::t_81b27a8107268d 3-4,9
+  s_ded836f56a6d83::t_b860db4d679e1c 10
+site/content/fr/docs/architecture.md
+  s_60d4a01bc3ed2e::t_219bf656c84217 5,15-43
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_219bf656c84217 5,16-17,19-21
+site/scripts/prepare-doc-content.mjs
+  s_60d4a01bc3ed2e::t_81b27a8107268d 32-35
+docs/machine-readable/code-map.yaml
+  s_60d4a01bc3ed2e::t_96dc10dc962184 158-171,290-292
+  s_60d4a01bc3ed2e::t_458555cd5d7d09 5-6,9-13,22-23,43,56-78,270-280,319-329
+  s_60d4a01bc3ed2e::t_db8a5c897fe5ef 149-151
+  s_ded836f56a6d83::t_dbf7046918050c 172,281
+site/src/components/DiscoveryPage.astro
+  s_60d4a01bc3ed2e::t_81b27a8107268d 23-24
+site/content/fr/docs/classifier-evaluation.md
+  s_60d4a01bc3ed2e::t_a33db8ddc241a2 1-131
+  s_60d4a01bc3ed2e::t_526c0e7885de3b 132-249
+site/content/fr/docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_09a8a54d39a82e 1-12,15-26,28-158
+  s_60d4a01bc3ed2e::t_873785439a1464 13-14
+  s_60d4a01bc3ed2e::t_6eec12409fe8de 27
+site/astro.config.mjs
+  s_60d4a01bc3ed2e::t_81b27a8107268d 48,68-70
+  s_ded836f56a6d83::t_8df73dc9d218d9 71
+site/content/en/index.md
+  s_60d4a01bc3ed2e::t_81b27a8107268d 50-55
+site/content/fr/docs/expert-evaluation-intake.md
+  s_60d4a01bc3ed2e::t_a33db8ddc241a2 1-80
+  s_60d4a01bc3ed2e::t_cf4351c01742af 81-92
+README.md
+  s_60d4a01bc3ed2e::t_7247b4faecc2df 588-590,615,654-657,684,696,708
+site/src/data/content.ts
+  s_60d4a01bc3ed2e::t_81b27a8107268d 26,33
+docs/expert-evaluation-intake.md
+  s_60d4a01bc3ed2e::t_81b27a8107268d 3-4
+docs/machine-readable/llms.txt
+  s_60d4a01bc3ed2e::t_db8a5c897fe5ef 379-382
+  s_60d4a01bc3ed2e::t_458555cd5d7d09 11,295,378,383-391
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_d1e0b2f1f2816a 6,62,70,91-106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "737ac2a55dea98f5e7e129d19a3194aff32e8af1",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ded836f56a6d83": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2411f16c-88e6-4622-9ccc-03c30968a7a1",
+        "model": "unknown"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
