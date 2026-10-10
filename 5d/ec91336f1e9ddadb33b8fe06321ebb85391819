@@ -1,0 +1,54 @@
+docs/validation/2026-10-11-claude-c1-followup.md
+  s_60d4a01bc3ed2e::t_77af140996ffc0 5-7
+docs/installation.md
+  s_60d4a01bc3ed2e::t_29ab4edc8e3389 87-108
+site/content/fr/docs/installation.md
+  s_60d4a01bc3ed2e::t_29ab4edc8e3389 5,45-65
+  s_488c1f2a8a73a2::t_43ec5fb1203936 66
+README.md
+  s_60d4a01bc3ed2e::t_29ab4edc8e3389 98,703-704,715
+site/content/fr/docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_29ab4edc8e3389 5,17
+  s_488c1f2a8a73a2::t_4ba6c8f5ca177f 18
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_29ab4edc8e3389 11-12
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_b7ac1c9dd790af 5,13,28
+  s_ec22837e58ecfe::t_f1c214202feb0f 29
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_b7ac1c9dd790af 20-21
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_65b65f2f52634e 10,70,94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5dec91336f1e9ddadb33b8fe06321ebb85391819",
+  "prompts": {},
+  "sessions": {
+    "s_488c1f2a8a73a2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a07172-9765-7811-8998-5776ebeb40d9",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ec22837e58ecfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f6a4-88a1-77b3-9270-14c46f3f921c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
