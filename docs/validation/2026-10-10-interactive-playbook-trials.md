@@ -4,6 +4,8 @@ Date : 2026-10-10. Statut : douze réponses initiales et quatre reprises ciblée
 
 Cette note complète le [pilote GSC authentifié](2026-10-10-live-gsc-readiness.md) pour [#39](https://github.com/FlorianBruniaux/google-search-console-mcp/issues/39). Le pilote précédent a acquis des observations fournisseur et les a confiées à des lecteurs source-only. Ces essais chargent les playbooks dans les clients natifs et leur font appeler un serveur MCP de replay déclaré. Les observations contrôlées ne deviennent pas de nouvelles mesures Google ou Bing.
 
+Le [suivi C1](2026-10-11-claude-c1-followup.md) ajoute une branche explicite pour les comptes indisponibles et des essais distincts. Il précise une limite de ce scénario d'origine : le CTR numérique conservé malgré les clics manquants, ainsi que la forme de son champ `availability`, ne sortent pas du producteur actuel. C1 reste un payload adversarial déclaré ; l'échec observé ici ne démontre pas que Google ou le producteur réel émet cette combinaison. Le bilan historique ci-dessous conserve ses sorties et verdicts.
+
 ## Périmètre des douze réponses initiales
 
 Les clients sont Codex `0.159.2` et Claude `2.1.296`, versions relevées par l'opérateur. Les modèles demandés sont `gpt-6.1-sol` et `opus`, avec effort `high`. Les reçus consignent la demande de modèle ; cette note n'établit pas son identité par une mesure indépendante. La référence source enregistrée pour le bilan initial est `d6fd3ddc6d19cc84ddde15a7bfaa1a6c35bed3e7`.
