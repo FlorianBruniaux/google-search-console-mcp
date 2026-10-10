@@ -1,0 +1,39 @@
+.agents/skills/traffic-drop-diagnosis/SKILL.md
+  s_60d4a01bc3ed2e::t_75712f93f87d54 17-18
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_1dabd435298164 7
+  s_60d4a01bc3ed2e::t_cf0bb505e77d74 5-6
+docs/validation/2026-10-10-interactive-playbook-trials.md
+  s_60d4a01bc3ed2e::t_cf0bb505e77d74 7
+  s_60d4a01bc3ed2e::t_4a4cf24daebf47 8
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_e003a1aea28ea0 18
+docs/remaining-work-action-plan-2026-10-10.md
+  s_60d4a01bc3ed2e::t_cf0bb505e77d74 49-51
+  s_60d4a01bc3ed2e::t_1dabd435298164 47
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_df5cb3008fb619 26
+docs/validation/2026-10-11-claude-c1-followup.md
+  s_60d4a01bc3ed2e::t_cf0bb505e77d74 1-8,10-63,66-67
+  s_60d4a01bc3ed2e::t_1dabd435298164 9,64-65
+README.md
+  s_60d4a01bc3ed2e::t_cf0bb505e77d74 594
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_71724fa9ce4596 70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "144f7b49566d2ba9debaab06a048aa8c05ae06d9",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
