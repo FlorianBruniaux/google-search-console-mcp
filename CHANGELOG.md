@@ -14,6 +14,7 @@
 
 - Prepare GSC-only bounded runs without a dummy Bing scope; disable interactive OAuth and reject invalid output destinations before acquisition. URL inspections preserve unknown/reserved verdicts instead of labeling them not indexed and recognize Google's `DISALLOWED` robots state (#39).
 - Reject native claim references to temporary `role_scope` metadata, which is absent from the final aggregated packet. Record the authenticated GSC pilot and its remaining interactive/human gates without publishing private observations (#39).
+- Clarify shared traffic and AI-appearance playbooks: configured date cutoffs do not measure publication lag, and appearance ratios need compatible source coverage before becoming period shares. Explicit native-client MCP replay trials retain one Claude traffic overclaim after retests; five synthetic reviewer claims are classified correctly by both hosts. These results do not close #39 or establish human quality (#6).
 
 ## [1.5.0] - 2026-10-09
 
