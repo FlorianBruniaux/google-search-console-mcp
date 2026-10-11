@@ -159,3 +159,10 @@ The new tests retain synthetic producer structures and exercise real normalizati
 The sandbox timeout failure reproduced with the site checks stopped and disappeared outside the sandbox. These observations establish an environment-dependent result, not a production timing guarantee. The failed runs are retained here; neither the timeout test nor the native runner was changed to make the suite green. Dependency-tool setup initially needed the cached Twine tool and permission to initialize the uv cache; no project environment or global setting was changed.
 
 Issue #95's equivalent-context supplier benchmark, named diagnostic gap, broader coverage, explicit localization, fresh/provider-cache behavior, rights review and independent human diagnostic-quality evaluation remain open. Local checks and retained live observations do not establish remote CI, deployment, release or a default-provider decision. The main checkout's unrelated changes were preserved.
+
+
+## CI startup diagnosis
+
+The initial PR execution `38153056050` concluded `startup_failure` before creating any jobs. Local Actionlint accepted all repository workflows. A fresh read of the active repository Actions policy `6748`, `Owner-requested workflows only`, established the cause: all workflows allow only actor ID `3902606` and the `workflow_dispatch` event. The failed run had the authorized actor but used the disallowed `pull_request` event. The earlier CLI hint about a workflow-file issue did not establish a syntax error.
+
+The CI workflow now declares only `workflow_dispatch`; both existing validation jobs retain an explicit owner/event guard. Its steps, permissions, test coverage and deployment separation are unchanged. Repository/account policy was not weakened or edited. The manually dispatched workflow validates the selected PR branch commit; remote job outcomes must be checked separately from this local configuration validation.

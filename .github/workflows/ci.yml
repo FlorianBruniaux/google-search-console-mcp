@@ -1,27 +1,21 @@
 name: Python CI
 
+# Repository policy allows owner-requested manual executions only.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: python-ci-${{ github.event.pull_request.number || github.ref }}
+  group: python-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   test-and-build:
     name: Test and smoke-test wheel
-    # Automatic runs are limited to the owner's same-repository PRs.
-    # The owner can dispatch this workflow on another reviewed branch manually.
-    if: >-
-      github.actor_id == '3902606' &&
-      (github.event_name == 'workflow_dispatch' ||
-       (github.event.pull_request.user.id == 3902606 &&
-        github.event.pull_request.head.repo.full_name == github.repository))
+    # Keep the owner-only guard even when repository policy is unavailable.
+    if: github.actor_id == '3902606' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -58,11 +52,7 @@ jobs:
 
   verify-site:
     name: Validate site without deployment
-    if: >-
-      github.actor_id == '3902606' &&
-      (github.event_name == 'workflow_dispatch' ||
-       (github.event.pull_request.user.id == 3902606 &&
-        github.event.pull_request.head.repo.full_name == github.repository))
+    if: github.actor_id == '3902606' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
