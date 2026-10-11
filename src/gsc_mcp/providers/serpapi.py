@@ -208,7 +208,7 @@ class SerpApiClient:
                 or not 1 <= data['searches_per_month'] <= 250 or data['extra_credits'] != 0):
             raise _Refused('free_plan_required')
         if (min(data['plan_searches_left'], data['total_searches_left']) < 1
-                or not 1 <= data['account_rate_limit_per_hour'] <= 50
+                or data['account_rate_limit_per_hour'] < 1
                 or data['this_hour_searches'] + data['last_hour_searches'] >= data['account_rate_limit_per_hour']):
             raise _Refused('provider_quota_exhausted')
         return {k: data[k] for k in numeric}

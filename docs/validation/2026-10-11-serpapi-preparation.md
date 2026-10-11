@@ -1,6 +1,6 @@
 # SerpApi #95: local preparation validation
 
-Validation on 11 October 2026, source branch `codex/serpapi-free-integration`, based on `712e1baaabb7a9d0450421bf17410d3b99bfdb81`. This record covers local implementation and synthetic behavior, not live entitlement, provider quality, CI or deployment.
+Validation on 11 October 2026, source branch `codex/serpapi-free-integration`, based on `712e1baaabb7a9d0450421bf17410d3b99bfdb81`. The initial record covers local implementation and synthetic behavior, not live entitlement, provider quality, CI or deployment. The separate connection follow-up below records the later live account check.
 
 ## Delivered
 
@@ -37,12 +37,22 @@ An offline site dependency install under the local pnpm 12.9.1 exited with `ERR_
 
 The initial test collection error was corrected before the expected missing-feature failures were verified. Final reinspection added tests for a huge nonzero price, malformed producer dates/IDs and invalid UTF-8 surrogate values; all five reproduced failures passed after correction. Synthetic behavior tests are not independent human SEO evaluation.
 
-## Not acquired or qualified
+## Initial preparation: not acquired or qualified
 
-No SerpApi account signup, card, subscription, credit purchase, real account preflight, live SERP acquisition or other supplier fallback occurred. Public producer documentation was reviewed separately. Actual producer costs remain unavailable rather than a fabricated zero. No private GSC observation is included in code, fixtures or this record.
+During the initial preparation, no SerpApi account signup, card, subscription, credit purchase, real account preflight, live SERP acquisition or other supplier fallback occurred. Public producer documentation was reviewed separately. Actual producer costs remain unavailable rather than a fabricated zero. No private GSC observation is included in code, fixtures or this record.
 
-Still needed: actual free-account response shape; desktop/mobile Google responses; effective France/language/location; provider dates/cache observations; independently annotated diagnostic comparison. DataForSEO live comparison is not performed by these tests and agreement alone would not establish ground truth.
+Still needed at that stage: actual free-account response shape; desktop/mobile Google responses; effective France/language/location; provider dates/cache observations; independently annotated diagnostic comparison. DataForSEO live comparison is not performed by these tests and agreement alone would not establish ground truth.
 
 The existing bounded Google/Bing audit budget does not cover SerpApi. Acquisition is refused inside that audit context until a separate integration contract is reviewed. Cross-machine/rotated-key/store changes are outside the local ledger's coordinated ceiling, as described in the [setup guide](../serpapi-comparison.md).
 
 Issue #95 remains open. This local preparation does not close its live comparison/quality acceptance criteria or publish a release.
+
+## Connection follow-up
+
+The user supplied a private local credential. A real read-only account check accepted the active free-plan identity and zero price, but initially refused its higher hourly entitlement. The adapter had incorrectly treated the published 50/hour rate as an upper bound on provider account entitlement. A positive integer provider rate is now accepted independently of the unchanged local 50/hour ceiling; free-plan, price, extra-credit, remaining-quota and counter checks remain in place.
+
+Four synthetic regressions cover higher-rate free-account acceptance, refusal of the 51st local hourly attempt and both single-hour and combined-hour provider exhaustion. Two acceptance tests failed with the original guard before the fix; the exhaustion tests already passed. The first isolated-environment test command lacked pytest, and an offline pytest-asyncio install could not resolve from cache. Tests then used the existing project test environment against this checkout's source.
+
+The existing private Codex server command now points to the isolated checkout's executable. A real stdio MCP session discovered 98 tools, received the environment credential and returned an offline preview with zero network calls. This was a separately launched process; the already running desktop session still needs its MCP reloaded. Neither the key nor account identity was printed or added to source. No live search, subscription, purchase or credit consumption was requested in this follow-up. Account API checks are separate from SERP acquisition and do not qualify desktop/mobile search output or SEO quality.
+
+Follow-up verification: the targeted SerpApi suite passed 89 tests; the complete project Python suite passed 2212 tests with 1 skipped. The corrected adapter's real read-only account preflight passed. A separately launched stdio session using the exact current private Codex configuration passed discovery and credential-bearing offline preview. No search request was sent. Remote CI, package release and desktop-session reload remain unverified.

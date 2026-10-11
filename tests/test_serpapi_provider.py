@@ -300,3 +300,29 @@ def test_huge_nonzero_price_is_refused_without_overflow(tmp_path):
     c, calls = client(tmp_path, balance=account(plan_monthly_price=10**400))
     result = c.search(request(), 'first', acquire=True)
     assert result['status'] == 'blocked' and searches(calls) == []
+
+
+def test_free_account_with_higher_provider_hourly_limit_keeps_local_limits(tmp_path):
+    c, calls = client(tmp_path, balance=account(account_rate_limit_per_hour=250))
+    result = c.search(request(), 'first', acquire=True)
+    assert result['status'] == 'success'
+    assert result['account_quota_before']['account_rate_limit_per_hour'] == 250
+    assert result['limits']['hourly_attempts'] == 50
+    assert result['limits']['monthly_attempts'] == 40
+    assert len(searches(calls)) == 1
+
+
+def test_higher_provider_hourly_limit_cannot_raise_local_hourly_ceiling(tmp_path):
+    c, calls = client(tmp_path, month_limit=250, balance=account(account_rate_limit_per_hour=250))
+    for i in range(50):
+        assert c.search(request(), 'hour-' + str(i), acquire=True)['status'] == 'success'
+    assert c.search(request(), 'hour-50', acquire=True)['code'] == 'local_quota_exhausted'
+    assert len(searches(calls)) == 50
+
+
+@pytest.mark.parametrize('counts', [(250, 0), (150, 100)])
+def test_higher_provider_hourly_limit_still_refuses_exhausted_account(tmp_path, counts):
+    c, calls = client(tmp_path, balance=account(account_rate_limit_per_hour=250,
+                      this_hour_searches=counts[0], last_hour_searches=counts[1]))
+    assert c.search(request(), 'first', acquire=True)['code'] == 'provider_quota_exhausted'
+    assert searches(calls) == []

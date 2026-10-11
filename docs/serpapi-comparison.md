@@ -1,12 +1,12 @@
 # Experimental SerpApi integration and free-account setup
 
-This source branch prepares issue #95 with two MCP tools and matching CLI commands. It is not a released-package or live-account qualification. All automated provider tests use synthetic responses. No real search, signup, purchase or account change was performed during implementation.
+This source branch prepares issue #95 with two MCP tools and matching CLI commands. It is not a released-package or live-search qualification. All automated provider tests use synthetic responses. No real search, signup, purchase or account change was performed during the initial preparation.
 
 ## Free plan and local ceilings
 
-Checked on 11 October 2026: [SerpApi pricing](https://serpapi.com/pricing) lists 250 searches per month and 50 per hour. Its [official FAQ](https://serpapi.com/blog/google-maps-scraper/) states that the free plan requires no credit card. Account eligibility and successful output on your own account remain to be checked.
+Checked on 11 October 2026: [SerpApi pricing](https://serpapi.com/pricing) lists 250 searches per month and 50 per hour. Its [official FAQ](https://serpapi.com/blog/google-maps-scraper/) states that the free plan requires no credit card. A subsequent private account preflight verified an active zero-price free account. Successful search output remains to be checked.
 
-The adapter checks the [Account API](https://serpapi.com/account-api) before each new search. This endpoint is documented as free and outside the monthly search quota. The account response must explicitly show an active `Free` or `Free Plan`, numeric monthly price 0, 1–250 monthly searches, no extra credits, available plan/total searches and a supported hourly ceiling. Missing, paid or unexpected entitlement fields stop the call before search dispatch. The adapter does not purchase credits, change plans or contact another provider.
+The adapter checks the [Account API](https://serpapi.com/account-api) before each new search. This endpoint is documented as free and outside the monthly search quota. The account response must explicitly show an active `Free` or `Free Plan`, numeric monthly price 0, 1–250 monthly searches, no extra credits, available plan/total searches and a positive integer hourly ceiling. The advertised hourly rate is not a hard upper bound for account entitlement: a free account can report a higher rate. The independent local ceiling stays at 50 attempts per hour regardless of that value. Missing, paid or unexpected entitlement fields stop the call before search dispatch. The adapter does not purchase credits, change plans or contact another provider.
 
 Default local limits are 40 search attempts over a rolling 31-day window and 50 over a rolling hour. These conservative windows differ from the provider's billing period. Each search attempt is reserved durably before dispatch. Failed and uncertain attempts are never refunded automatically, even when the provider may not charge them. Account hourly counters are added conservatively, which may refuse earlier than the provider. Account status is checked before dispatch; changes made by other consumers after this check are outside our control.
 
@@ -42,7 +42,7 @@ GSC_SERPAPI_MONTHLY_LIMIT=40
 GSC_SERPAPI_HOURLY_LIMIT=50
 ```
 
-No global configuration or account credential has been written by this implementation. Remove credential fields from an export before supplying it to a chat or tool: output redaction cannot erase the original input transcript.
+The initial preparation wrote no global configuration or account credential. During the connection follow-up, the user supplied the credential privately and the existing Codex server launcher was switched to the isolated source environment. Remove credential fields from an export before supplying it to a chat or tool: output redaction cannot erase the original input transcript.
 
 ## Tools and capture behavior
 
@@ -102,6 +102,6 @@ SerpApi is excluded from the existing bounded audit acquisition allowlist and re
 
 Automated tests cover free-plan refusal, missing entitlement fields, shared provider quota exhaustion, durable rolling limits, replay and conflicts, exact query encoding, concurrent clients, process interruption, HTTP 200 provider errors, context changes, absent fields, redaction, oversized bodies, redirect refusal and offline MCP/CLI discovery. Fixtures use reserved test domains and synthetic queries; no private GSC result is embedded.
 
-Before advertising live support, qualify the actual free account response shape, Google desktop/mobile producer deliveries, effective France/language/location, provider timestamps and cache behavior. Before claiming quality improvement, compare diagnostics with and without the new observations against independent human annotations. Agreement with DataForSEO alone is not ground truth. This task does not build a DataForSEO adapter or perform a live supplier comparison.
+Before advertising live support, qualify Google desktop/mobile producer deliveries beyond the already checked free-account response, effective France/language/location, provider timestamps and cache behavior. Before claiming quality improvement, compare diagnostics with and without the new observations against independent human annotations. Agreement with DataForSEO alone is not ground truth. This task does not build a DataForSEO adapter or perform a live supplier comparison.
 
 Local validation results are recorded in [the preparation validation](validation/2026-10-11-serpapi-preparation.md).
