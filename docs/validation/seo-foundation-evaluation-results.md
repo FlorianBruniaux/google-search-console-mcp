@@ -12,7 +12,7 @@ Le runner de requêtes conserve ses métriques et cibles globales ; il ajoute r�
 
 Le runner d’extraction reste celui déjà livré. Ses tests ont été exécutés avec Trafilatura 2.3.1 ; le calcul est limité aux snippets, aux observations de durée et aux allocations Python. Aucune adoption par défaut ni mesure complète de qualité d’extraction n’est déduite.
 
-## Vérifications exécutées avant revue finale
+## Vérifications exécutées
 
 | Vérification | Résultat observé |
 |---|---|
@@ -21,8 +21,8 @@ Le runner d’extraction reste celui déjà livré. Ses tests ont été exécut�
 | Manifeste de rapports puis implémentation | 26 échecs attendus, puis passage au vert |
 | Extensions requêtes puis implémentation | 5 échecs attendus, puis passage au vert |
 | Cas JSON/cibles/strates limites | 3 échecs attendus, puis corrections vérifiées |
-| Trois évaluateurs | 113 tests réussis |
-| Suite Python complète | 2 121 tests réussis, aucun skip rapporté |
+| Trois évaluateurs | 114 tests réussis |
+| Suite Python complète | 2 122 tests réussis, aucun skip rapporté |
 | Sources du portail | 6 tests réussis |
 | Traductions | 52 pages préparées, hashes EN/FR vérifiés |
 
@@ -45,6 +45,21 @@ Le [protocole C1](seo-foundation-evaluation-protocol.md) précise H1 à H10. Auc
 | H9/H10 | Prédictions/versions réellement évaluées, résultats held-out et décision humaine liée aux hashes par tâche |
 
 Environ 200 requêtes est une cible de collecte initiale, pas la preuve d’un support suffisant. La taille requise pour les autres tâches et chaque strate dépend de minimums humains approuvés, actuellement absents. L’axe page/genre reste dans un registre de revue ; il n’est pas ajouté artificiellement au schéma v1.
+
+## Revue indépendante et décisions
+
+Un relecteur indépendant a revu la branche `4ac51aa..33d7918` et contrôlé 1 728 combinaisons de trois labels/prédictions, puis l’exemple synthétique. Il n’a identifié aucun défaut critique. Il n’a pas rejoué la suite Python complète.
+
+Le cas `--manifest` avec JSON `null` a été signalé comme mineur. Il est traité comme important pour l’intégrité de l’expérience : un fichier explicitement fourni doit être refusé s’il est invalide, plutôt que produire silencieusement une expérience sans cibles. Le test `test_explicit_null_report_manifest_is_rejected` a échoué avec code 0 au lieu de 2, puis passe après correction. Les 114 tests d’évaluateurs et les 2 122 tests complets passent après ce correctif. Aucune deuxième revue n’est présentée comme réalisée. Aucun point mineur reporté.
+
+Décisions prises, dans leur ordre :
+
+1. Livrer la mécanique et l’inventaire sans fabriquer de collecte ni approbation humaine. Une erreur de périmètre laisserait une validation humaine manquante ; elle est explicitement conservée ouverte.
+2. Réutiliser l’extracteur existant et réserver son adoption métier à C3. Risque : ne pas mesurer ici sa qualité complète ou ses effets sur les avertissements ; limite documentée.
+3. Regrouper métriques et cibles de rapports dans une livraison, avec extensions de requêtes compatibles. Risque : erreurs de compatibilité ou de couplage ; couvertes par les tests de contrat et la suite complète.
+4. La qualité réelle, l’indépendance humaine, le gel et les autorisations déclinés par le relecteur restent H1-H10. Risque : prendre des déclarations pour des preuves ; aucune approbation de qualité n’est donnée.
+5. L’adoption de l’extracteur et les avertissements déclinés par le relecteur restent C3. Risque : une qualité métier non évaluée ; aucune adoption par défaut n’est revendiquée.
+6. La CI distante, le déploiement et le comportement natif réel déclinés par le relecteur restent non vérifiés. Risque : des différences d’environnement ; la preuve fournie est locale.
 
 ## Limites de livraison
 

@@ -274,8 +274,8 @@ def main():
         else:
             predictions, prediction_digest = load(args.predictions)
             shape(predictions, {'corpus_id', 'split', 'reviewer', 'predictions'})
-            manifest, manifest_digest = load(args.manifest) if args.manifest else (None, None)
-            if manifest is not None:
+            manifest, manifest_digest = load(args.manifest) if args.manifest is not None else (None, None)
+            if args.manifest is not None:
                 validate_target_manifest(manifest, digest, data['corpus_id'],
                                          data['provenance'], predictions.get('split'))
             result = evaluate(data, predictions, digest)
@@ -284,7 +284,7 @@ def main():
                           target_assessment='unavailable', target_checks=[],
                           target_scope='listed_targets_only',
                           untargeted_strata=observed_strata(result))
-            if manifest is not None:
+            if args.manifest is not None:
                 result.update(assess_report_targets(result, manifest))
             result['limitations'] = (
                 'Identity, authorization and pre-tuning freeze are declarations, not authenticated. '

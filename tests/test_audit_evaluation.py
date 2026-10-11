@@ -321,6 +321,19 @@ def test_invalid_report_targets_fail_before_scoring(tmp_path, failure):
     assert 'Invalid evaluation input' in result.stderr
 
 
+def test_explicit_null_report_manifest_is_rejected(tmp_path):
+    result, _, paths = manifest_evaluation(tmp_path)
+    assert result.returncode == 0, result.stderr
+    paths['manifest'].write_text('null')
+    result = subprocess.run(
+        [sys.executable, '-I', str(SCRIPT), '--dataset', str(paths['dataset']),
+         '--predictions', str(paths['predictions']), '--manifest', str(paths['manifest'])],
+        text=True, capture_output=True)
+    assert result.returncode == 2
+    assert not result.stdout
+    assert 'Invalid evaluation input' in result.stderr
+
+
 def test_non_object_prediction_json_is_rejected_without_a_traceback(tmp_path):
     result, _, _ = manifest_evaluation(tmp_path, predictions=[])
     assert result.returncode == 2
