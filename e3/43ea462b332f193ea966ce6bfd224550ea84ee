@@ -1,0 +1,41 @@
+docs/serpapi-comparison.md
+  s_cdb203001bac05::t_069a50dc534bb7 3,7,9,45,105
+docs/validation/2026-10-11-serpapi-preparation.md
+  s_cdb203001bac05::t_4aa072610865a8 3,40,42,44,49-58
+src/gsc_mcp/providers/serpapi.py
+  s_9a8788459e90dc::t_3d4ba46b99a0bf 211
+tests/test_serpapi_provider.py
+  s_ae085abdb4f4d0::t_6f7f8b8b58d7db 303-328
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e343ea462b332f193ea966ce6bfd224550ea84ee",
+  "prompts": {},
+  "sessions": {
+    "s_9a8788459e90dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e5660654-81ea-4db3-9b60-bb2df2a19d1c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_ae085abdb4f4d0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11a1a-c642-7b83-a2aa-4b559d66ea06",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_cdb203001bac05": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a127e7-bfb0-77c0-86e0-8ce06fa00f3b",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
