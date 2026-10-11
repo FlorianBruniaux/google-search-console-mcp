@@ -4,6 +4,14 @@ Issue #86; sequence #112. Prepared 2026-10-11 on baseline `712e1baaabb7a9d045042
 
 **Current result:** the official MCP source and a bounded comparison protocol are qualified below. No DataForSEO acquisition, account entitlement, billed cost or quality improvement has been measured. No runtime tool or native connector is added by this record.
 
+## Authorized pilot scope
+
+The owner selected `cc.bruniaux.com` and explicitly authorized a maximum of 40 acquisitions and 5 USD consumption on 2026-10-11, without purchase or automatic recharge. The owner subsequently confirmed that no DataForSEO account exists yet. Account creation and private connection remain the next external prerequisites; this authorization is not an account-access or billing observation.
+
+Selection manifests and source captures remain private local artifacts. This public record contains no acquired GSC query strings, metrics, response hashes or account permission observations. Temporary local storage is not durable archival storage. Local preparation checks do not validate provider execution or human diagnostic quality.
+
+Use desktop/windows and mobile/android under the existing endpoint/depth scope. No DataForSEO call was dispatched; actual billed cost remains unavailable.
+
 ## Frozen reference and available access
 
 Official source revision: `1fc6d197f1141cca8d1a242e15804c5adc41916a`; its `package.json` declares `dataforseo-mcp-server` version `3.1.3`. These are source observations, not an installed npm-package or hosted-server version claim.
@@ -30,11 +38,13 @@ These are static findings. They do not authenticate the hosted service, installe
 
 ## Proposed acquisition scope and cost
 
-Use one approved site's frozen list of 20 real FR queries; Google organic Live Advanced, country-level France, language `fr`, requested depth 10, one desktop and one mobile capture per query. Freeze device/OS pairing and all allowed options before sending. A requested depth of 10 does not promise 10 organic items or complete coverage.
+Use the approved site's privately frozen list of 20 exact queries; Google organic Live Advanced, country-level France, language `fr`, requested depth 10, one desktop and one mobile capture per query. Freeze device/OS pairing and all allowed options before sending. Location and requested search language do not establish a query's language. A requested depth of 10 does not promise 10 organic items or complete coverage.
 
 The supplier's public location CSV maps France to `location_code: 2250`, `country_iso_code: FR`, type `Country`. CSV dated 2026-09-01, downloaded through the official locations documentation; SHA-256 `83bcdef1b814c07f542cd4ac08c825e556690335d51ae96c359ff703e661c89b`. [Location contract](https://docs.dataforseo.com/v3/serp/google/locations/), [public CSV](https://cdn.dataforseo.com/v3/locations/locations_serp_google_2026_09_01.csv).
 
-Public Live top10 price checked on 2026-10-11: **0.002 USD per acquisition**, so **40 × 0.002 = 0.08 USD theoretical consumption**. Proposed qualification ceiling: **5 USD**, not yet authorized. Keep the maximum of 40 physical POST attempts independently of that ceiling; no automatic retries, extra queries, premium options, search operators or account purchase/recharge. Recheck applicable pricing before live; a local quotation does not guarantee supplier billing. [Live pricing](https://dataforseo.com/pricing/google-serp/google-organic-serp-api).
+Public Live top10 price checked on 2026-10-11: **0.002 USD per acquisition**, so **40 × 0.002 = 0.08 USD theoretical consumption**. Owner-authorized qualification ceiling: **5 USD**. Keep the maximum of 40 physical POST attempts independently of that ceiling; no automatic retries, extra queries, premium options, search operators or account purchase/recharge. Recheck applicable pricing before live; a local quotation does not guarantee supplier billing. [Live pricing](https://dataforseo.com/pricing/google-serp/google-organic-serp-api).
+
+The supplier advertises 1 USD trial credit on registration and a 50 USD minimum paid top-up. Trial credit would cover the simple 0.08 USD quotation if granted and available; this has not been verified on an account. Do not purchase or recharge to unlock the pilot. [Trial terms](https://dataforseo.com/help-center/how-does-your-free-unlimited-trial-work), [minimum payment](https://dataforseo.com/help-center/minimum-payment).
 
 Synthetic shape example only, **not a real query or permission to execute**:
 
@@ -62,10 +72,10 @@ The API documents costs and task statuses at both envelope and task levels. Reco
 
 | ID | Required input | Present state |
 |---|---|---|
-| P1 | Named site/GSC property, owner permission and exact list of 20 FR queries. | Site requested; not supplied. No real corpus selected. |
-| P2 | Connected official MCP/authentication route, account entitlement and permission for the pilot. | No callable connection or verified account. Never paste credentials into an issue, chat or fixture. |
-| P3 | Approval of the 40-attempt scope and proposed 5 USD consumption ceiling; effective server/host retry policy reviewed. | Not authorized or runtime-verified. No paid call dispatched. |
-| P4 | Private storage/retention/export authorization, effective no-filter configuration, delivered-body capture and reconciliation procedure. | Owner-approved location and rights missing. BYOK does not imply redistribution rights. |
+| P1 | Named site/GSC property, owner permission and exact list of 20 queries. | Owner selected cc.bruniaux.com; corpus and source observations remain private. Query language must not be inferred from location. |
+| P2 | Connected official MCP/authentication route, account entitlement and permission for the pilot. | Owner confirms account creation is needed; no callable connection or verified account. Never paste credentials into an issue, chat or fixture. |
+| P3 | Approval of the 40-attempt scope and 5 USD consumption ceiling; effective server/host retry policy reviewed. | Owner explicitly authorized both limits, without purchase/recharge. Runtime retry policy remains unverified. No paid call dispatched. |
+| P4 | Private storage/retention/export authorization, effective no-filter configuration, delivered-body capture and reconciliation procedure. | Selected GSC data retained only in private temporary local files for this task. Provider capture configuration, durable retention and redistribution rights remain unverified. |
 | P5 | Frozen baseline packets, independent report-claim extraction/review, target support and per-task decisions from C1 H4/H6/H7/H8/H10. | Human evidence pending in #6; no gain score can be asserted. |
 | P6 | Actual full delivery, task ID, provider status/cost and effective context for at least one approved real acquisition. | No acquisition performed; actual cost and returned coverage are unavailable, not zero. |
 
@@ -102,12 +112,12 @@ A missing guard is a reason to restrict this experiment, not proof that a new co
 
 Reviewed commit `2da5deb654c5fe8ac88db02ae9ba668ad1010744` independently. No critical or important finding; the JSON recipe, France row/hash, price calculation and source claims were checked. This review approves the preparation document, not Task1 live acceptance or a native integration.
 
-**Deferred minor F1, before live:** preserve query identity for `+` and `%`. The supplier decodes these characters; encoding and the original/provider query correspondence require a check against the actual selected corpus before payment. No live query was selected or changed in this preparation. [Keyword contract](https://docs.dataforseo.com/v3/serp/google/organic/live/advanced/).
+**Minor F1, before live:** preserve query identity for `+` and `%`. The supplier decodes these characters; check the actual private corpus before payment and compare original/provider identity after delivery. The independent preparation review predates owner authorization and private selection. [Keyword contract](https://docs.dataforseo.com/v3/serp/google/organic/live/advanced/).
 
 Decisions and evidence boundaries, in order:
 
 1. Limit this continuation to official-MCP qualification and pilot preparation; native tasks remain conditional. Cost if wrong: delaying a needed bounded wrapper.
-2. Leave global configuration and paid acquisition pending explicit account/scope/budget inputs. Cost if wrong: an unexecuted pilot, rather than an unauthorized charge or private export.
+2. Scope and budget are now explicitly authorized; leave global configuration and paid acquisition pending account connection and runtime controls. Cost if wrong: an unexecuted pilot or an uncontrolled charge/export.
 3. Account access, hosted version, host retries and complete delivery remain unverified. Cost if wrong: runtime behavior differing from inspected source.
 4. Actual billing and a supplier-guaranteed ceiling remain unavailable. Cost if wrong: underestimating a charge; no billed-cost result is asserted.
 5. Diagnostic gain and the C1 comparison remain pending independent real corpora/review. Cost if wrong: unsupported quality or causal conclusions.
