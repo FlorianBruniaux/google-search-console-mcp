@@ -1,0 +1,81 @@
+docs/machine-readable/llms.txt
+  s_60d4a01bc3ed2e::t_308a35d366656b 11,383,387
+docs/validation/2026-10-11-release-1-6-0.md
+  s_60d4a01bc3ed2e::t_0b0a748414c125 1-30
+README.md
+  s_60d4a01bc3ed2e::t_d0be8d5fadb684 17,19,100,134,231,301,411,516,593,705
+site/content/fr/docs/expert-evaluation-intake.md
+  s_60d4a01bc3ed2e::t_6073b043313d24 5,9
+docs/machine-readable/code-map.yaml
+  s_60d4a01bc3ed2e::t_308a35d366656b 5-6,10,12-13,60,65,69-70,73,77
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_ccd65e8f30e7c9 5-9,24,26
+docs/architecture.md
+  s_60d4a01bc3ed2e::t_a88a04e0eca5b9 54,80
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_2c417240ff980d 5
+docs/classifier-evaluation.md
+  s_60d4a01bc3ed2e::t_55b65f444a72a4 3
+docs/content-extraction.md
+  s_60d4a01bc3ed2e::t_8fc3a1c6caf572 3
+docs/expert-evaluation-intake.md
+  s_60d4a01bc3ed2e::t_39893722becb28 3
+docs/installation.md
+  s_60d4a01bc3ed2e::t_8b51afdf453d33 3,26,39,87,89-91
+docs/starter-prompt.md
+  s_60d4a01bc3ed2e::t_f15d7c92a4930b 337,340
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_7e8dff3f424263 3-4
+examples/README.md
+  s_60d4a01bc3ed2e::t_2ab92a9cf11822 3
+pyproject.toml
+  s_60d4a01bc3ed2e::t_0c7fbfaf3f81b2 7-8
+site/content/en/index.md
+  s_60d4a01bc3ed2e::t_3a6bba2c55a0be 49,53,55
+site/content/fr/docs/architecture.md
+  s_60d4a01bc3ed2e::t_053bd3ce173008 15,17,43
+site/content/fr/docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_8c65668198ce3f 3,11
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_371a1308c6d899 11,13-15,18,30,32
+site/content/fr/docs/classifier-evaluation.md
+  s_60d4a01bc3ed2e::t_dfde64a46fea83 9
+site/content/fr/docs/content-extraction.md
+  s_60d4a01bc3ed2e::t_7d8e3fe72a3f9a 3,9
+site/content/fr/docs/examples/index.md
+  s_60d4a01bc3ed2e::t_f3758c3ce9a8f1 27
+site/content/fr/docs/index.md
+  s_60d4a01bc3ed2e::t_338b9bde76f372 57,61,63
+site/content/fr/docs/installation.md
+  s_60d4a01bc3ed2e::t_283e38facffba0 11,28,45,47
+site/content/fr/docs/prompts.md
+  s_60d4a01bc3ed2e::t_0b89c9645b74bb 111,114
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_3671b40e64fd96 6,10,22,26,62,70,94,98,102,106
+site/scripts/prepare-doc-content.mjs
+  s_60d4a01bc3ed2e::t_fdebe2b25486c7 32-33
+site/src/components/JourneyPage.astro
+  s_60d4a01bc3ed2e::t_f82b41105ae424 47
+site/src/components/Workflow.astro
+  s_60d4a01bc3ed2e::t_cfdf621a565194 24
+site/src/data/navigation.ts
+  s_60d4a01bc3ed2e::t_dbac7867995399 62,104
+uv.lock
+  s_60d4a01bc3ed2e::t_a894cb171c1c4d 572
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "aa446c76f828621b4ecbc6cbac8b262b3af01880",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
