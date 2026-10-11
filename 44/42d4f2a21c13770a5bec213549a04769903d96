@@ -1,0 +1,19 @@
+docs/validation/dataforseo-pilot.md
+  s_3e56072c53712a::t_489403524b1b1d 7-14,41,45-47,75-78,115,120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4442d4f2a21c13770a5bec213549a04769903d96",
+  "prompts": {},
+  "sessions": {
+    "s_3e56072c53712a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129af-5bdc-7051-a7ce-feb2d3753339",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
