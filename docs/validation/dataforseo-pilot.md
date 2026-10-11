@@ -98,4 +98,19 @@ A missing guard is a reason to restrict this experiment, not proof that a new co
 - Documentation-only change: no production code, dependencies, default tool catalogue or global configuration changed.
 - No synthetic output is presented as a real task response or account test.
 
-Skills used: flow-lean, superpowers:executing-plans
+## Independent preparation review
+
+Reviewed commit `2da5deb654c5fe8ac88db02ae9ba668ad1010744` independently. No critical or important finding; the JSON recipe, France row/hash, price calculation and source claims were checked. This review approves the preparation document, not Task1 live acceptance or a native integration.
+
+**Deferred minor F1, before live:** preserve query identity for `+` and `%`. The supplier decodes these characters; encoding and the original/provider query correspondence require a check against the actual selected corpus before payment. No live query was selected or changed in this preparation. [Keyword contract](https://docs.dataforseo.com/v3/serp/google/organic/live/advanced/).
+
+Decisions and evidence boundaries, in order:
+
+1. Limit this continuation to official-MCP qualification and pilot preparation; native tasks remain conditional. Cost if wrong: delaying a needed bounded wrapper.
+2. Leave global configuration and paid acquisition pending explicit account/scope/budget inputs. Cost if wrong: an unexecuted pilot, rather than an unauthorized charge or private export.
+3. Account access, hosted version, host retries and complete delivery remain unverified. Cost if wrong: runtime behavior differing from inspected source.
+4. Actual billing and a supplier-guaranteed ceiling remain unavailable. Cost if wrong: underestimating a charge; no billed-cost result is asserted.
+5. Diagnostic gain and the C1 comparison remain pending independent real corpora/review. Cost if wrong: unsupported quality or causal conclusions.
+6. Native ledger atomicity/isolation/crash handling remain future tested work. Cost if wrong: unsafe native acquisition; this preparation adds no ledger or paid runtime.
+
+Skills used: flow-lean, superpowers:executing-plans, superpowers:verification-before-completion
