@@ -1,0 +1,17 @@
+{
+  "corpus_id": "synthetic-report-contract",
+  "split": "held_out",
+  "reviewer": "synthetic-evaluator",
+  "predictions": [
+    {
+      "case_id": "missing-clicks",
+      "claim_id": "zero",
+      "label": "unsupported"
+    },
+    {
+      "case_id": "missing-clicks",
+      "claim_id": "missing",
+      "label": "supported"
+    }
+  ]
+}

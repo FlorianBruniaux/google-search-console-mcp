@@ -14,6 +14,10 @@ Utilisez la [collecte d’évaluations humaines](/fr/docs/expert-evaluation-inta
 
 Le [guide d’audit natif](/fr/docs/bounded-native-audit/#évaluation-humaine-des-rapports) décrit l’interface séparée des affirmations de rapport. L’[extraction du contenu principal](/fr/docs/content-extraction/#comparaison-hors-ligne-avec-annotations) a son propre comparateur local de fragments.
 
+Le chargeur borne chaque corpus, fichier de prédictions ou manifeste à 2 000 000 octets et refuse les constantes JSON non finies. Il compare les identités d’annotation sans tenir compte de la casse ou des espaces ; des noms distincts ne prouvent pas de vrais humains indépendants.
+
+Les rapports ajoutent `manifest_sha256` (`null` si absent) et les métriques `by_language`. Les groupes de requêtes sont FR/EN ; les paires dont les membres ont des langues différentes sont dans `mixed`. Les métriques globales, la taxonomie et les cibles conservent leur sens, y compris les zéros documentés pour les métriques de classe indéfinies. Examinez le support avec chaque score de langue.
+
 ## Taxonomie d’annotation : `query-intent-v1`
 
 Annotez le résultat recherché. La forme interrogative seule ne détermine pas l’intention.

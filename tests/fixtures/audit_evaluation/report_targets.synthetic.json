@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "corpus_id": "synthetic-report-contract",
+  "dataset_sha256": "c93758d9f0d23afce8279fc529fd6f0730a6742fbe798118bb5fa83f8f5b6bb2",
+  "split": "held_out",
+  "annotation_provenance": "synthetic",
+  "review_reference": "synthetic-contract-not-an-approval",
+  "frozen_before_tuning": true,
+  "targets": [
+    {
+      "track": "report_fidelity",
+      "language": "fr",
+      "label": "supported",
+      "min_support": 1,
+      "min_precision": 1.0,
+      "min_recall": 1.0,
+      "min_coverage": 1.0,
+      "max_unsupported_as_supported": 0
+    },
+    {
+      "track": "report_fidelity",
+      "language": "fr",
+      "label": "unsupported",
+      "min_support": 1,
+      "min_precision": 1.0,
+      "min_recall": 1.0,
+      "min_coverage": 1.0,
+      "max_unsupported_as_supported": 0
+    }
+  ]
+}
