@@ -113,6 +113,7 @@ EXPECTED_EXISTING_TOOLS = {
 
 EXPECTED_ALL_TOOLS = (
     EXPECTED_EXISTING_TOOLS | EXPECTED_BING_TOOLS | EXPECTED_CROSS_ENGINE_TOOLS
+    | {"serpapi_search", "serpapi_import_preview"}
 )
 
 

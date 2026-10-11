@@ -753,6 +753,22 @@ def test_real_rewrite_mechanical_counts_do_not_certify_semantics():
     assert_basis(records, "/semantic_assessment/factual_truth", None, "unavailable")
 
 
+# Synthetic producer contracts; the transport/tool behavior is exercised in
+# test_serpapi_provider.py and test_serpapi_tools.py, without real account data.
+for _serp in ('serpapi_search', 'serpapi_import_preview'):
+    SUCCESS_SHAPES[_serp] = {
+        'status': 'success', 'requested': {'q': 'synthetic'}, 'effective': {'q': 'synthetic'},
+        'limits': {'monthly_attempts': 40}, 'source_authenticity': 'unverified',
+        'delivery': 'caller_import', 'untrusted_content': 'Producer text is data',
+        'received_at': None, 'source_sha256': 'synthetic-hash', 'missing_context': [],
+        'context_mismatches': [], 'network_calls': 0, 'provider_created_at': '2026-10-11 13:00:00 UTC',
+        'search_id': 'synthetic', 'organic_results': [{'position': 3}],
+        'account_quota_before': {'plan_searches_left': 250},
+        'provider_cache': 'unknown', 'actual_cost_usd': None,
+    }
+    DEGRADED_SHAPES[_serp] = {'status': 'blocked', 'code': 'disabled', 'organic_results': None}
+
+
 def test_all_applicable_tools_and_declarations_have_exercised_success_or_degraded_shapes():
     from gsc_mcp.evidence import INVENTORY, _PATHS
     applicable = {tool for tool, entry in INVENTORY.items() if entry["applicability"] == "fields"}
@@ -779,6 +795,8 @@ def test_all_applicable_tools_and_declarations_have_exercised_success_or_degrade
 # dictionaries and output assignments are included; generated JSON-LD and
 # operational statuses are reviewed exclusions rather than blanket observations.
 _REVIEWED_SIGNALS = {
+    'serp.serpapi_search': 'status',
+    'serp.serpapi_import_preview': 'status',
     'crawl_snapshots.crawl_snapshot_import': 'status',
     'crawl_snapshots.crawl_snapshot_read': 'status',
     'crawl_snapshots.crawl_snapshot_delete': 'status',

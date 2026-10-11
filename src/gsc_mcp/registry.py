@@ -105,6 +105,7 @@ from gsc_mcp.tools.bing_webmaster import (
 from gsc_mcp.tools.search_compare import compare_search_engines
 from gsc_mcp.tools.search_breakdown import search_change_breakdown
 from gsc_mcp.tools.traffic_reference import search_weekday_reference
+from gsc_mcp.tools.serp import serpapi_search, serpapi_import_preview
 from gsc_mcp.tools.crawl_import import crawl_import_preview
 from gsc_mcp.tools.crawl_logs import crawl_log_audit
 from gsc_mcp.tools.indexing_matrix import indexing_evidence_matrix
@@ -123,6 +124,8 @@ TOOLS: dict[str, Callable[..., str]] = {
         search_change_breakdown,
         search_weekday_reference,
         crawl_import_preview,
+        serpapi_search,
+        serpapi_import_preview,
         crawl_log_audit,
         crawl_snapshot_import,
         crawl_snapshot_read,

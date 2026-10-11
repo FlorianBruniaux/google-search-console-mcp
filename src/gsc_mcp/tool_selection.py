@@ -9,6 +9,7 @@ _MODULE_FAMILIES = {
     'crawl_logs': 'technical',
     'crawl_snapshots': 'technical',
     'indexing_matrix': 'inspection',
+    'serp': 'serp',
     'seo': 'seo', 'change_impact': 'seo', 'inspection': 'inspection',
     'indexing': 'indexing', 'sitemaps': 'sitemaps', 'ga4': 'ga4',
     'cross': 'cross', 'search_compare': 'cross', 'crux': 'crux',
