@@ -404,7 +404,7 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 
 ## Tools (98)
 
-This source branch adds two experimental SerpApi tools to the released 96-tool surface. They default to offline preview/import; actual Google acquisitions require explicit enablement, a private key, a verified free plan and a request identifier. Live account output and diagnostic quality are not qualified. See the [SerpApi setup and comparison guide](docs/serpapi-comparison.md). This change is not a package release.
+This source branch adds two experimental SerpApi tools to the released 96-tool surface. They default to offline preview/import; actual Google acquisitions require explicit enablement, a private key, a verified free plan and a request identifier. Two public desktop/mobile captures and local replay were verified; broader provider coverage and diagnostic quality remain unqualified. See the [SerpApi setup and comparison guide](docs/serpapi-comparison.md). This change is not a package release.
 
 Version 1.5.0 includes the bounded [local crawl-log audit](docs/crawl-log-audit.md). Its [validation record](docs/validation/2026-10-09-crawl-logs.md) distinguishes declared bots and current registry membership from historical identity.
 

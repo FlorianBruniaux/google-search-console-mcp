@@ -1,10 +1,10 @@
 # Experimental SerpApi integration and free-account setup
 
-This source branch prepares issue #95 with two MCP tools and matching CLI commands. It is not a released-package or live-search qualification. All automated provider tests use synthetic responses. No real search, signup, purchase or account change was performed during the initial preparation.
+This source branch implements the experimental adapter for issue #95 with two MCP tools and matching CLI commands. On 11 October 2026, the current Codex session acquired two public Google SERPs, one desktop and one mobile, and replayed the desktop observation locally without network calls. These cases establish limited live operation, not a package release, general provider qualification or diagnostic quality improvement. All automated provider tests use synthetic responses. No real search, signup, purchase or account change was performed during the initial preparation.
 
 ## Free plan and local ceilings
 
-Checked on 11 October 2026: [SerpApi pricing](https://serpapi.com/pricing) lists 250 searches per month and 50 per hour. Its [official FAQ](https://serpapi.com/blog/google-maps-scraper/) states that the free plan requires no credit card. A subsequent private account preflight verified an active zero-price free account. Successful search output remains to be checked.
+Checked on 11 October 2026: [SerpApi pricing](https://serpapi.com/pricing) lists 250 searches per month and 50 per hour. Its [official FAQ](https://serpapi.com/blog/google-maps-scraper/) states that the free plan requires no credit card. A subsequent private account preflight verified an active zero-price free account. Two successful desktop/mobile outputs were checked in the current-session follow-up in the linked validation report.
 
 The adapter checks the [Account API](https://serpapi.com/account-api) before each new search. This endpoint is documented as free and outside the monthly search quota. The account response must explicitly show an active `Free` or `Free Plan`, numeric monthly price 0, 1–250 monthly searches, no extra credits, available plan/total searches and a positive integer hourly ceiling. The advertised hourly rate is not a hard upper bound for account entitlement: a free account can report a higher rate. The independent local ceiling stays at 50 attempts per hour regardless of that value. Missing, paid or unexpected entitlement fields stop the call before search dispatch. The adapter does not purchase credits, change plans or contact another provider.
 
@@ -78,7 +78,7 @@ sequenceDiagram
     end
 ```
 
-The diagram describes the implemented dispatch order, tested with synthetic transport. Real provider behavior remains unqualified.
+The diagram describes the implemented dispatch order, tested with synthetic transport and exercised by the two live session cases. Other producer deliveries and interrupted live requests remain unqualified.
 
 `serpapi_import_preview(report_json, query, ...)` parses caller-supplied JSON offline with the same size, identity and missing-data rules. It does not save a snapshot or establish source authenticity. Receipt time is unavailable. The source hash covers the caller's original JSON bytes; the exposed producer body has credential fields and echoed key values redacted. Hashing does not authenticate a producer.
 
@@ -102,6 +102,6 @@ SerpApi is excluded from the existing bounded audit acquisition allowlist and re
 
 Automated tests cover free-plan refusal, missing entitlement fields, shared provider quota exhaustion, durable rolling limits, replay and conflicts, exact query encoding, concurrent clients, process interruption, HTTP 200 provider errors, context changes, absent fields, redaction, oversized bodies, redirect refusal and offline MCP/CLI discovery. Fixtures use reserved test domains and synthetic queries; no private GSC result is embedded.
 
-Before advertising live support, qualify Google desktop/mobile producer deliveries beyond the already checked free-account response, effective France/language/location, provider timestamps and cache behavior. Before claiming quality improvement, compare diagnostics with and without the new observations against independent human annotations. Agreement with DataForSEO alone is not ground truth. This task does not build a DataForSEO adapter or perform a live supplier comparison.
+The live pilot verified two Google desktop/mobile deliveries, echoed France/language/device parameters, provider timestamps and local replay. It did not request a location or establish provider cache origin. Broader queries, explicit location, fresh requests, provider cache behavior and independent Google verification remain to be qualified before advertising general live support. Before claiming quality improvement, compare diagnostics with and without the new observations against independent human annotations. Agreement with DataForSEO alone is not ground truth. This task does not build a DataForSEO adapter or perform a live supplier comparison.
 
 Local validation results are recorded in [the preparation validation](validation/2026-10-11-serpapi-preparation.md).

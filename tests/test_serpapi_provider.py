@@ -326,3 +326,41 @@ def test_higher_provider_hourly_limit_still_refuses_exhausted_account(tmp_path, 
                       this_hour_searches=counts[0], last_hour_searches=counts[1]))
     assert c.search(request(), 'first', acquire=True)['code'] == 'provider_quota_exhausted'
     assert searches(calls) == []
+
+
+@pytest.mark.parametrize('device,count,features', [
+    ('desktop', 9, {'ads': [{'position': 1}], 'inline_images': [{}],
+                    'knowledge_graph': {'title': 'Synthetic entity'}, 'short_videos': [{}]}),
+    ('mobile', 5, {'answer_box_list': [{'type': 'synthetic_answer'}],
+                   'filters': [{'label': 'Synthetic filter'}],
+                   'knowledge_graph': {'title': 'Synthetic entity'}, 'short_videos': [{}]}),
+])
+def test_producer_shapes_preserve_device_counts_features_and_unechoed_flags(tmp_path, device, count, features):
+    # Synthetic structures cover the live pilot's shapes, never its content.
+    data = report(**features)
+    data['search_parameters'].update(device=device, start=0)
+    data['organic_results'] = [
+        {'position': i, 'title': f'Synthetic result {i}',
+         'link': f'https://example.test/{device}/{i}', 'snippet': 'Synthetic snippet'}
+        for i in range(1, count + 1)
+    ]
+    c, calls = client(tmp_path, balance=account(account_rate_limit_per_hour=250), search=data)
+    req = provider().SearchRequest('café + guide %2B', device=device)
+    result = c.search(req, 'shape-' + device, acquire=True)
+    assert result['status'] == 'success'
+    assert result['effective'] == data['search_parameters']
+    assert result['organic_results'] == data['organic_results']
+    assert [r['position'] for r in result['organic_results']] == list(range(1, count + 1))
+    for section, value in features.items():
+        assert result['raw'][section] == value
+    for flag in ('async', 'no_cache'):
+        assert result['requested'][flag] == 'false'
+        assert flag not in result['effective']
+    assert result['provider_cache'] == 'unknown'
+    assert result['limits']['monthly_attempts'] == 40
+    assert result['limits']['hourly_attempts'] == 50
+    assert len(searches(calls)) == 1
+    restarted, replay_calls = client(tmp_path)
+    replay = restarted.search(req, 'shape-' + device, acquire=True)
+    assert replay_calls == []
+    assert replay == {**result, 'delivery': 'local_replay', 'network_calls': 0}

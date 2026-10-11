@@ -2,7 +2,7 @@ import type { Locale } from './content'
 
 // Descriptions explain the family boundary; individual contracts come from Python.
 const families = {
-  serp: ['Experimental SERP capture', 'Collecte SERP expérimentale', 'Offline import and opt-in Google SERP capture under verified free-plan limits. Live account output and quality remain unqualified.', 'Import local et collecte Google explicite sous les limites du plan gratuit vérifié. Sorties du compte réel et qualité restent à qualifier.', 'installation/'],
+  serp: ['Experimental SERP capture', 'Collecte SERP expérimentale', 'Offline import and opt-in Google SERP capture under verified free-plan limits. Broader live coverage and diagnostic quality remain unqualified.', 'Import local et collecte Google explicite sous les limites du plan gratuit vérifié. Couverture générale des résultats et qualité des diagnostics restent à qualifier.', 'installation/'],
   core: ['Access and discovery', 'Accès et découverte', 'Discover tools and source properties.', 'Lister les outils et les propriétés accessibles.', 'installation/'],
   analytics: ['Search performance', 'Performances de recherche', 'Google metrics, equal-period contributions and same-weekday references.', 'Métriques Google, contributions sur périodes égales et références de mêmes jours de semaine.', 'audit-workflows/'],
   seo: ['Opportunities and changes', 'Opportunités et changements', 'Opportunity candidates, traffic drops and declared-change follow-up. Heuristic diagnoses need review.', 'Opportunités candidates, baisses de trafic et suivi de changements déclarés. Les diagnostics heuristiques demandent une revue.', 'audit-workflows/'],

@@ -128,3 +128,28 @@ def test_preview_metadata_cannot_echo_the_declared_key(monkeypatch):
 def test_json_surrogate_is_rejected_instead_of_breaking_utf8_output():
     result = json.loads(tools().serpapi_import_preview('{"text":"\\ud800"}', 'guide'))
     assert result['status'] == 'blocked'
+
+
+@pytest.mark.parametrize('device', ['desktop', 'mobile'])
+def test_enabled_session_preview_and_import_cannot_open_transport(monkeypatch, tmp_path, device):
+    import httpx
+
+    def forbidden_transport(*args, **kwargs):
+        pytest.fail('Offline tools must not construct an HTTP client')
+
+    monkeypatch.setattr(httpx, 'Client', forbidden_transport)
+    monkeypatch.setenv('SERPAPI_API_KEY', KEY)
+    monkeypatch.setenv('GSC_SERPAPI_ENABLED', '1')
+    monkeypatch.setenv('GSC_SERPAPI_STORE_DIR', str(tmp_path / 'private'))
+    preview = json.loads(tools().serpapi_search('synthetic public query', device=device, acquire=False))
+    assert preview['status'] == 'preview' and preview['network_calls'] == 0
+    assert preview['requested']['device'] == device
+    data = report()
+    data['search_parameters']['device'] = device
+    imported = json.loads(tools().serpapi_import_preview(json.dumps(data), 'café + guide %2B', device=device))
+    assert imported['status'] == 'success'
+    assert imported['delivery'] == 'caller_import'
+    assert imported['received_at'] is None
+    assert imported['source_authenticity'] == 'unverified'
+    assert imported['raw'] == data
+    assert not (tmp_path / 'private').exists()
