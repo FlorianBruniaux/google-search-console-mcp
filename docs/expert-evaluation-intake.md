@@ -12,7 +12,7 @@ Keep each task's report and support counts separate. A successful evaluation on 
 | --- | --- | --- |
 | Query intent, #5 | `scripts/eval_classifier.py`, `task: "intent"` | FR/EN queries under `query-intent-v1`; precision/recall/support per class, accuracy, coverage and abstention. Supplied manifest targets can be checked on `held_out`; human release review remains pending. |
 | Query pairs, #4 | Same CLI, `task: "pairs"` | Separate `same_intent`, `distinct_intent` and `unclassified` labels. Both members must exist in the query corpus and occupy the pair's split. Broad intent agreement alone does not label a pair. |
-| Report fidelity/native behavior, #39 | `scripts/eval_audit_reports.py`, `track: "report_fidelity"` | Labels on supplied claims against referenced observations. Native-host execution, omitted evidence, free-text report parsing and numerical release thresholds are not assessed by this interface. |
+| Report fidelity/native behavior, #39 | `scripts/eval_audit_reports.py`, `track: "report_fidelity"` | Claim labels against observations; optional frozen numerical claim targets. Native-host execution, omitted evidence, free-text parsing and release approval remain outside this interface. |
 | Traffic diagnosis | Same CLI, `track: "traffic_diagnosis"` | Claim support from the observed packet, including unknown versus zero and conditional interpretations. The evaluator does not establish the underlying cause or score diagnosis completeness. |
 | Harmful competition, #45 | Same CLI, `track: "harmful_competition"` | Claim support for supplied review/consolidation proposals. It does not derive page intent, establish harm or authorize merging pages. |
 | Main-content extraction, #41 | `scripts/eval_content_extraction.py`; see [extraction comparison](content-extraction.md#offline-annotated-comparison) | UNSUPPORTED by both CLIs above. The separate runner compares independently annotated inclusion/omission snippets in SHA-bound local HTML; these measures do not estimate whole-content recall or precision. Real human annotations, frozen targets and downstream warning review remain required. |
@@ -22,7 +22,30 @@ Keep each task's report and support counts separate. A successful evaluation on 
 | Controlled follow-up, #47 | Task-specific protocol and adapter required | UNSUPPORTED by both CLIs. Review the estimand/protocol, simulations, pretrend/contamination failures and inconclusive observational cases. |
 | Research retrieval, #50 | Task-specific adapter required | UNSUPPORTED by both CLIs. Review consulted passages, relevance, abstract/full-text scope, commercial interest and source-supported wording. |
 
-The report evaluator accepts only `supported`, `unsupported` and `unresolved`. An unresolved claim is a semantic label, not a missing prediction. Its current output contains totals, accuracy, prediction coverage and `unsupported_as_supported` counts by track; it does not supply per-label precision/recall, genre metrics or a threshold manifest. Retain those review records separately until a task needs a compatible adapter. Its `release_gate` is always `unavailable`.
+The report evaluator accepts only `supported`, `unsupported` and `unresolved`. An unresolved claim is a semantic label, not a missing prediction. Its output includes confusion matrices, per-label precision/recall/support, accuracy, missing-prediction coverage and `unsupported_as_supported` counts/rates by track, language and their intersection. Undefined precision/recall/rates are `null` with explicit denominator reasons. Genre-level review and prose completeness remain outside corpus v1. Its `release_gate` is always `unavailable`.
+
+## Report targets and C1 collection requirements
+
+Use `--manifest` with `--predictions` for held-out report targets; it is refused with `--prepare`. Query and report JSON input files are bounded to 2,000,000 bytes each. The query report now includes `by_language` and `manifest_sha256`; bilingual pairs are grouped under `mixed`.
+
+The report manifest requires exactly `schema_version: 1`, `corpus_id`, `dataset_sha256`, `split: held_out`, `annotation_provenance`, a nonempty `review_reference`, `frozen_before_tuning: true` and `targets`. It binds the exact dataset bytes and declared provenance. It does not authenticate its approval reference or chronology.
+
+Each of the 1 to 18 distinct target records requires `track`, `language`, `label`, `min_support` (integer 1 to 50,000), `min_precision`, `min_recall`, `min_coverage` (finite numbers 0 to 1), and `max_unsupported_as_supported` (integer 0 to 50,000). Precision/recall concern the named label; coverage and the false-supported count concern its entire track/language stratum. These are required schema fields, not approved business values.
+
+`target_assessment` is `unavailable` without a manifest, `insufficient_support` if any target lacks its required truth-label support, `failed` when supported targets fail a criterion, or `met` for the listed targets. `target_checks` retains observed values and individual checks. `untargeted_strata` lists observed nonzero-support label strata without targets, including all observed strata when a manifest is absent. A met target does not approve other strata, tasks or release. Dataset, prediction and manifest SHA-256 values identify the evaluated bytes.
+
+A complete runnable synthetic example:
+
+```sh
+python3 scripts/eval_audit_reports.py \
+  --dataset tests/fixtures/audit_evaluation/report_corpus.synthetic.json \
+  --predictions tests/fixtures/audit_evaluation/report_predictions.synthetic.json \
+  --manifest tests/fixtures/audit_evaluation/report_targets.synthetic.json
+```
+
+Its numeric targets test mechanics only. `synthetic_release_eligible` remains false and `declarations_authenticated` remains false, including controlled fixtures that declare human provenance.
+
+For C1, collect six separate task inputs: real FR/EN intent queries, independently labeled query pairs, the three report-claim tracks, and extraction HTML/snippets. Each needs authorization, real annotation/review participation, original disagreements, reviewed family/split assignment, pre-tuning numerical targets, label-access records and actual independent prediction/review artifacts. Retain genre and omitted-fact/action review as a sidecar keyed by case ID. The report runner cannot identify prose omissions automatically. See the repository-only `docs/validation/seo-foundation-evaluation-protocol.md` for the H1 to H10 delivery checklist; no authenticated batch or approved thresholds have been supplied for this C1 run.
 
 ## Complete one batch worksheet
 

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "corpus_id": "synthetic-report-contract",
+  "provenance": "synthetic",
+  "cases": [
+    {
+      "id": "missing-clicks",
+      "family_id": "synthetic-site",
+      "split": "held_out",
+      "track": "report_fidelity",
+      "language": "fr",
+      "annotation": {
+        "annotator": "synthetic-author",
+        "reviewer": "synthetic-reviewer",
+        "source_authorization": "Authored synthetic fixture; not a human authorization record",
+        "disagreement_resolution": "Controlled fixture, no human annotation"
+      },
+      "observations": {
+        "clicks": null,
+        "site": "sc-domain:fixture.example"
+      },
+      "claims": [
+        {
+          "id": "zero",
+          "text": "Clicks were measured at zero.",
+          "label": "unsupported",
+          "source_refs": [
+            "/clicks"
+          ]
+        },
+        {
+          "id": "missing",
+          "text": "Clicks are unavailable in this packet.",
+          "label": "supported",
+          "source_refs": [
+            "/clicks"
+          ]
+        }
+      ]
+    }
+  ]
+}

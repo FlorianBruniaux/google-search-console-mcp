@@ -138,7 +138,7 @@ python scripts/eval_audit_reports.py --dataset /absolute/reviewed-corpus.json \
   --predictions /absolute/independent-claim-predictions.json
 ```
 
-Preparation emits only selected observations and case/task identifiers, without expected claims or human labels. Prediction input supplies the corpus ID, split, independent reviewer identity and records with `case_id`, `claim_id`, `label`. Missing predictions count in the full denominator; per-track counts expose unsupported-as-supported errors. These are caller-declared identities, not verified human identities. The release gate remains unavailable until task targets and a human approval decision are supplied outside this scaffold.
+Preparation emits only selected observations and case/task identifiers, without expected claims or human labels. Prediction input supplies the corpus ID, split, independent reviewer identity and records with `case_id`, `claim_id`, `label`. Missing predictions count in the full denominator; per-track counts expose unsupported-as-supported errors. These are caller-declared identities, not verified human identities. The runner now accepts optional frozen held-out claim targets via `--manifest`; it reports matrices and per-label measures by track/language, with explicit missing predictions and untargeted strata. `release_gate` stays `unavailable` even when numerical targets are met. See the [human intake](expert-evaluation-intake.md#report-targets-and-c1-collection-requirements) for the manifest schema and remaining real-human records.
 
 ## Offline query prototypes
 

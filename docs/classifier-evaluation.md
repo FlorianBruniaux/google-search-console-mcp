@@ -8,6 +8,10 @@ Use the [expert evaluation intake](expert-evaluation-intake.md) to assign human 
 
 The [native audit guide](bounded-native-audit.md#human-report-evaluation) describes the separate report-claim interface. [Main-content extraction](content-extraction.md#offline-annotated-comparison) has its own local snippet comparison.
 
+The JSON loader now bounds each dataset, predictions or manifest file to 2,000,000 bytes and rejects nonfinite JSON constants. Annotation identity comparison ignores case and whitespace; distinct names still do not authenticate independent humans.
+
+Reports add `manifest_sha256` (`null` when absent) and `by_language` metrics. Query groups are FR/EN; pair groups use `mixed` when their members have different languages. Existing overall metrics, taxonomy and threshold semantics remain unchanged, including the documented zero fill for undefined query class metrics. Review support alongside every language score.
+
 ## Annotation taxonomy: `query-intent-v1`
 
 Label the result the searcher seeks. Question form alone does not determine intent.

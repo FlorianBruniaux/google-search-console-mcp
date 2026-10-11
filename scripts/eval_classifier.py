@@ -16,6 +16,7 @@ LABELS = {
 SPLITS = ("train", "tuning", "held_out")
 ANNOTATION_FIELDS = {"provenance", "annotator", "reviewer", "source_authorization",
                      "disagreement_resolution"}
+MAX_INPUT_BYTES = 2_000_000
 
 
 def require(condition, message):
@@ -52,8 +53,13 @@ def unique_keys(pairs):
 
 
 def load_json(path):
-    raw = Path(path).read_bytes()
-    return json.loads(raw, object_pairs_hook=unique_keys), hashlib.sha256(raw).hexdigest()
+    with Path(path).open("rb") as handle:
+        raw = handle.read(MAX_INPUT_BYTES + 1)
+    require(len(raw) <= MAX_INPUT_BYTES, "input byte budget exceeded")
+    data = json.loads(raw, object_pairs_hook=unique_keys,
+                      parse_constant=lambda _: (_ for _ in ()).throw(
+                          ValueError("nonfinite JSON value")))
+    return data, hashlib.sha256(raw).hexdigest()
 
 
 def validate_dataset(data):
@@ -81,7 +87,8 @@ def validate_dataset(data):
             for field in ANNOTATION_FIELDS:
                 nonempty(row["annotation"][field])
             require(row["annotation"]["provenance"] == data["provenance"], "provenance mismatch")
-            require(row["annotation"]["annotator"] != row["annotation"]["reviewer"],
+            require(" ".join(row["annotation"]["annotator"].casefold().split()) !=
+                    " ".join(row["annotation"]["reviewer"].casefold().split()),
                     "independent annotation review required")
             if task == "intent":
                 nonempty(row["query"])
@@ -178,6 +185,24 @@ def prediction_metadata(rows, predicted, labels):
     }
 
 
+def language_metrics(data, rows, predicted, labels, task):
+    groups = {}
+    queries = {row["id"]: row for row in data["queries"]}
+    for row in rows:
+        if task == "intent":
+            language = row["language"]
+        else:
+            left = queries[row["left_id"]]["language"]
+            right = queries[row["right_id"]]["language"]
+            language = left if left == right else "mixed"
+        groups.setdefault(language, []).append(row)
+    return {
+        language: metrics_for(group, {row["id"]: predicted[row["id"]] for row in group
+                                      if row["id"] in predicted}, labels)
+        for language, group in sorted(groups.items())
+    }
+
+
 def assess_thresholds(manifest, data, dataset_sha, task, split, metrics):
     if manifest is None:
         return {"status": "not_supplied"}
@@ -219,16 +244,18 @@ def main():
         prediction_file, prediction_sha = load_json(args.predictions)
         validate_dataset(data)
         rows, predicted = validate_predictions(data, prediction_file)
-        manifest = load_json(args.manifest)[0] if args.manifest else None
+        manifest, manifest_sha = load_json(args.manifest) if args.manifest else (None, None)
         labels = LABELS[prediction_file["task"]]
         metrics = metrics_for(rows, predicted, labels)
         report = {
             "schema_version": 1, "corpus_id": data["corpus_id"],
             "provenance": data["provenance"], "dataset_sha256": dataset_sha,
             "predictions_sha256": prediction_sha, "run_id": prediction_file["run_id"],
+            "manifest_sha256": manifest_sha,
             "task": prediction_file["task"], "split": prediction_file["split"],
             "run_kind": prediction_file["run_kind"],
             "metrics": metrics,
+            "by_language": language_metrics(data, rows, predicted, labels, prediction_file["task"]),
             "prediction_metadata": prediction_metadata(rows, predicted, labels),
             "release_gate": {"status": "ineligible_synthetic" if data["provenance"] == "synthetic"
                              else "pending_human_review",

@@ -321,3 +321,53 @@ def test_absent_model_metadata_is_unknown_not_zero(tmp_path):
     assert metadata["latency_ms"]["observed_mean"] is None
     assert metadata["calibration"]["brier_score"] is None
     assert metadata["calibration"]["missing_count"] == 6
+
+
+def test_intent_metrics_expose_language_specific_coverage(tmp_path):
+    result = run_cli(tmp_path)
+    assert result.returncode == 0, result.stderr
+    report = json.loads(result.stdout)
+    assert report['by_language']['fr']['sample_count'] == 3
+    assert report['by_language']['fr']['coverage'] == pytest.approx(1 / 3)
+    assert report['by_language']['en']['coverage'] == 1.0
+    assert report['by_language']['en']['full_set_accuracy'] == pytest.approx(2 / 3)
+    assert report['metrics']['full_set_accuracy'] == 0.5
+
+
+def test_cross_language_pairs_are_not_assigned_to_one_language(tmp_path):
+    predicted = predictions()
+    predicted.update(task='pairs', predictions=[
+        {'id': 'p1', 'predicted_label': 'same_intent'},
+        {'id': 'p2', 'predicted_label': None},
+    ])
+    result = run_cli(tmp_path, predicted=predicted)
+    assert result.returncode == 0, result.stderr
+    report = json.loads(result.stdout)
+    assert set(report['by_language']) == {'mixed'}
+    assert report['by_language']['mixed']['sample_count'] == 2
+
+
+def test_query_manifest_hash_is_replayable_and_absence_is_null(tmp_path):
+    result = run_cli(tmp_path, manifest=frozen_manifest())
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)['manifest_sha256'] == hashlib.sha256(
+        (tmp_path / 'manifest.json').read_bytes()).hexdigest()
+    result = run_cli(tmp_path)
+    assert json.loads(result.stdout)['manifest_sha256'] is None
+
+
+def test_query_input_budget_is_checked_before_scoring(tmp_path):
+    data = dataset()
+    data['queries'][0]['query'] = 'x' * 2_000_001
+    result = run_cli(tmp_path, data=data)
+    assert result.returncode == 2
+    assert 'budget' in result.stderr
+    assert not result.stdout
+
+
+def test_casefolded_annotation_identity_does_not_bypass_independence(tmp_path):
+    data = dataset()
+    data['queries'][0]['annotation']['reviewer'] = ' FIXTURE-AUTHOR '
+    result = run_cli(tmp_path, data=data)
+    assert result.returncode == 2
+    assert 'independent annotation review required' in result.stderr

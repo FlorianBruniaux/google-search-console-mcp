@@ -18,7 +18,7 @@ Séparez rapports et comptes de support de chaque tâche. Un succès sur une lig
 | --- | --- | --- |
 | Intention des requêtes, #5 | `scripts/eval_classifier.py`, `task: "intent"` | Requêtes FR/EN sous `query-intent-v1` ; précision/rappel/support par classe, exactitude, couverture et abstention. Les cibles fournies peuvent être contrôlées sur `held_out` ; revue humaine de publication encore attendue. |
 | Paires de requêtes, #4 | Même CLI, `task: "pairs"` | Labels distincts `same_intent`, `distinct_intent` et `unclassified`. Les deux membres existent dans le corpus et occupent le split de la paire. L’accord sur l’intention large seul ne fournit pas son label. |
-| Fidélité de rapport/comportement natif, #39 | `scripts/eval_audit_reports.py`, `track: "report_fidelity"` | Labels d’affirmations fournies contre des observations référencées. Exécution du client natif, preuves omises, analyse de prose libre et seuils numériques de publication ne sont pas évalués. |
+| Fidélité de rapport/comportement natif, #39 | `scripts/eval_audit_reports.py`, `track: "report_fidelity"` | Labels d’affirmations contre observations et cibles numériques de claims figées facultatives. Exécution du client natif, preuves omises, prose libre et approbation de publication restent hors de cette interface. |
 | Diagnostic de trafic | Même CLI, `track: "traffic_diagnosis"` | Fondement des affirmations depuis le paquet, y compris inconnu contre zéro et interprétations conditionnelles. N’établit ni cause sous-jacente ni complétude du diagnostic. |
 | Concurrence nuisible, #45 | Même CLI, `track: "harmful_competition"` | Fondement des propositions fournies de revue/consolidation. Ne dérive pas l’intention des pages, n’établit pas le préjudice et n’autorise pas une fusion. |
 | Extraction principale, #41 | `scripts/eval_content_extraction.py` ; [comparaison d’extraction](/fr/docs/content-extraction/#comparaison-hors-ligne-avec-annotations) | NON PRIS EN CHARGE par les deux CLIs ci-dessus. Le lanceur séparé compare des fragments d’inclusion/omission annotés indépendamment dans du HTML local lié par SHA ; sans estimer rappel du contenu entier ni précision. Vraies annotations humaines, cibles figées et revue des avertissements métier restent nécessaires. |
@@ -28,7 +28,30 @@ Séparez rapports et comptes de support de chaque tâche. Un succès sur une lig
 | Suivi contrôlé, #47 | Protocole et adaptateur par tâche nécessaires | NON PRIS EN CHARGE par les deux CLIs. Revoir estimand/protocole, simulations, échecs de pré-tendance/contamination et observations non concluantes. |
 | Recherche documentaire, #50 | Adaptateur par tâche nécessaire | NON PRIS EN CHARGE par les deux CLIs. Revoir passages consultés, pertinence, périmètre abstract/texte intégral, intérêt commercial et formulation fondée sur les sources. |
 
-L’évaluateur de rapports accepte seulement `supported`, `unsupported` et `unresolved`. Une affirmation non résolue est un label sémantique, pas une prédiction absente. La sortie actuelle contient totaux, exactitude, couverture et comptes `unsupported_as_supported` par axe ; elle ne fournit ni précision/rappel par label, ni métriques par genre, ni manifeste de seuils. Conservez ces revues séparément jusqu’au besoin d’un adaptateur compatible. `release_gate` vaut toujours `unavailable`.
+L’évaluateur de rapports accepte seulement `supported`, `unsupported` et `unresolved`. Une affirmation non résolue est un label sémantique, pas une prédiction absente. La sortie contient matrices de confusion, précision/rappel/support par label, exactitude, couverture et omissions de prédictions, ainsi que comptes/taux `unsupported_as_supported`, par axe, langue et intersection. Les dénominateurs absents produisent `null` avec motif explicite. Le schéma v1 ne mesure ni genres ni complétude de la prose. `release_gate` vaut toujours `unavailable`.
+
+## Cibles de rapports et collecte C1
+
+Utilisez `--manifest` avec `--predictions` pour des cibles de rapports held-out ; cette option est refusée avec `--prepare`. Chaque JSON de requêtes ou rapports est limité à 2 000 000 octets. Le rapport de requêtes expose maintenant `by_language` et `manifest_sha256` ; les paires bilingues apparaissent dans `mixed`.
+
+Le manifeste de rapports contient exactement `schema_version: 1`, `corpus_id`, `dataset_sha256`, `split: held_out`, `annotation_provenance`, une référence `review_reference` non vide, `frozen_before_tuning: true` et `targets`. Il lie les octets exacts du corpus à leur provenance déclarée. Il n’authentifie ni approbation ni chronologie.
+
+Chacune des 1 à 18 cibles distinctes contient `track`, `language`, `label`, `min_support` (entier de 1 à 50 000), `min_precision`, `min_recall`, `min_coverage` (nombres finis entre 0 et 1) et `max_unsupported_as_supported` (entier de 0 à 50 000). Précision/rappel portent sur le label ; couverture et compte de faux supported portent sur toute la strate axe/langue. Ce sont des champs requis, pas des valeurs métier approuvées.
+
+`target_assessment` vaut `unavailable` sans manifeste, `insufficient_support` si une cible manque de labels de référence, `failed` si un critère échoue avec support suffisant, ou `met` pour les seules cibles listées. `target_checks` conserve observations et contrôles. `untargeted_strata` liste les labels observés avec support non nul sans cible, tous les labels observés si le manifeste manque. Une cible atteinte n’approuve ni les autres strates, ni les autres tâches, ni la publication. Les SHA-256 du corpus, des prédictions et du manifeste identifient les octets évalués.
+
+Exemple synthétique complet et exécutable :
+
+```sh
+python3 scripts/eval_audit_reports.py \
+  --dataset tests/fixtures/audit_evaluation/report_corpus.synthetic.json \
+  --predictions tests/fixtures/audit_evaluation/report_predictions.synthetic.json \
+  --manifest tests/fixtures/audit_evaluation/report_targets.synthetic.json
+```
+
+Ses nombres testent seulement le contrat. `synthetic_release_eligible` et `declarations_authenticated` restent faux, y compris pour les fixtures contrôlées qui déclarent une provenance humaine.
+
+C1 attend six entrées de tâches distinctes : vraies requêtes d’intention FR/EN, paires annotées indépendamment, trois axes de claims, HTML et fragments d’extraction. Chaque lot requiert autorisation, participation réelle d’annotateurs/relecteurs, désaccords originaux, familles/splits revus, cibles numériques avant réglage, preuves d’accès aux labels et artefacts de prédiction/revue indépendants. Conservez genres et faits omis/actions dans une revue séparée liée à l’ID de cas ; le runner ne détecte pas automatiquement les omissions de prose. Le fichier du dépôt `docs/validation/seo-foundation-evaluation-protocol.md` détaille H1 à H10. Aucun lot authentifié ni seuil approuvé n’a été fourni pour cette exécution C1.
 
 ## Remplir une fiche par lot
 
