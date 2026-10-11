@@ -1,0 +1,21 @@
+docs/validation/README.md
+  s_cdb203001bac05::t_e00c9edda23468 3-4
+docs/validation/dataforseo-pilot.md
+  s_cdb203001bac05::t_c57ba37499a7b2 1-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2da5deb654c5fe8ac88db02ae9ba668ad1010744",
+  "prompts": {},
+  "sessions": {
+    "s_cdb203001bac05": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a127e7-bfb0-77c0-86e0-8ce06fa00f3b",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
