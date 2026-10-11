@@ -16,7 +16,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![Tools](https://img.shields.io/badge/MCP%20tools-96%20source-5c4ee5.svg)](#tools-96)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
-[![Tests](https://img.shields.io/badge/tests-1782%20passed-brightgreen)](https://github.com/FlorianBruniaux/google-search-console-mcp)
+[![Tests](https://img.shields.io/badge/tests-2081%20dev%2Bcontent-brightgreen)](docs/validation/2026-10-11-claude-c1-followup.md)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -27,8 +27,10 @@ Ask Claude or Codex to analyze your site's latest SEO changes and suggest what t
 Search Console MCP is the open-source connection between your data and your AI assistant. The server retrieves metrics and runs analyses; Claude, Codex or another MCP client explains the findings and proposes corrections. A coding assistant with access to your repository can also help implement the fixes you choose.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/FlorianBruniaux/google-search-console-mcp/main/docs/assets/gsc-mcp-workflow.png" width="1100" alt="Search Console MCP workflow: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions." />
+  <img src="https://raw.githubusercontent.com/FlorianBruniaux/google-search-console-mcp/main/docs/assets/gsc-mcp-workflow-96.png" width="1100" alt="Search Console MCP workflow with 96 tools: connect Google Search Console, Bing Webmaster Tools and GA4; measure queries, pages and crawls; analyze SEO, content and Core Web Vitals; compare engines; then produce audits, reports and guarded submissions." />
 </p>
+
+The diagram covers the 96-tool MCP server. The repository also includes 15 shared Claude/Codex SEO playbooks and a separate opt-in bounded native audit prototype with nine source-review profiles. The [post-1.5.0 recap and release-readiness record](docs/validation/2026-10-11-release-readiness.md) separates merged source features, published package contents and remaining quality checks.
 
 <p align="center">
   <a href="https://search-console.bruniaux.com/">Website</a> &middot;

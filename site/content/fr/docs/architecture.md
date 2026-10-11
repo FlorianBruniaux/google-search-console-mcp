@@ -2,7 +2,7 @@
 title: "Architecture"
 description: "Comprendre le serveur MCP, les limites entre fournisseurs et les écritures protégées."
 lang: fr
-lastUpdated: 2026-10-10
+lastUpdated: 2026-10-11
 canonicalEnglish: /docs/architecture/
 ---
 
@@ -40,7 +40,7 @@ flowchart LR
 
 `scripts/eval_classifier.py`, `scripts/eval_audit_reports.py` et `scripts/eval_content_extraction.py` sont des interfaces hors ligne distinctes, hors du registre public. Les métadonnées des requêtes/paires refusent les identifiants d’auto-revue sans authentifier les humains. L’évaluation de rapports classe des affirmations fournies et laisse l’approbation de publication indisponible. L’extraction compare du HTML local dont le hash est vérifié à des fragments annotés ; précision/rappel du contenu entier et effets sur les avertissements métier restent non mesurés. Un succès synthétique n’approuve aucune de ces tâches ni un backend de modèle payant.
 
-Ces ajouts nécessitent un checkout source ; le wheel publié 1.5.0 ne les fournit pas. Les [cas hors ligne enregistrés des deux clients natifs](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) et les [contrôles actuels de sorties/extraction](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) établissent des périmètres de preuve séparés. Acquisition fournisseur authentifiée, exécution complète des playbooks interactifs et qualité experte humaine restent ouvertes. Consultez le [guide du lanceur natif](/fr/docs/bounded-native-audit/), le [guide d’extraction](/fr/docs/content-extraction/), la [collecte humaine](/fr/docs/expert-evaluation-intake/) et le [plan des actions restantes](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/remaining-work-action-plan-2026-10-10.md).
+Ces ajouts nécessitent un checkout source ; le wheel publié 1.5.0 ne les fournit pas. Les [cas hors ligne enregistrés des deux clients natifs](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) et les [contrôles de sorties/extraction](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) établissent des périmètres de preuve séparés. Le [pilote GSC authentifié](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-live-gsc-readiness.md) consigne séparément l’acquisition Google réelle, la couverture partielle et les revues natives des sources. Le [suivi C1](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-11-claude-c1-followup.md) consigne huit cas clients contrôlés retenus qui passent leurs critères figés sur les comptes manquants. Les scénarios complets d’erreur/reprise, le routage interactif implicite et la qualité experte humaine restent ouverts. Consultez le [guide du lanceur natif](/fr/docs/bounded-native-audit/), le [guide d’extraction](/fr/docs/content-extraction/), la [collecte humaine](/fr/docs/expert-evaluation-intake/) et le [plan des actions restantes](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/remaining-work-action-plan-2026-10-10.md).
 
 ## Sources de données
 

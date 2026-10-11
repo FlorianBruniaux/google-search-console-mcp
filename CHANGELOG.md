@@ -19,6 +19,8 @@
 
 - Document source-workflow installation separately from the published 1.5.0 package, including absolute client executable paths, repository skill discovery and optional native prerequisites. Refresh English/French installation pages, validation links and README test evidence on 2026-10-11; no new PyPI release (#39).
 
+- Refresh the README's dated dev/content test badge and correct the infographic from 81 to 96 MCP tools, preserving the existing diagram. Add the post-1.5.0 merge recap and package-readiness record on 2026-10-11; align GitHub's description with shared playbooks, local evidence and optional bounded native workflows. Publication remains a separate step.
+
 ## [1.5.0] - 2026-10-09
 
 Seven new tools bring the registry to 96. Local imports and reconciliations preserve unknown indexing, missing values, exact source identity and bounded coverage. No new default provider access or external write is enabled.
