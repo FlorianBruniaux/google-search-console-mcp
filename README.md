@@ -14,7 +14,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tools](https://img.shields.io/badge/MCP%20tools-96-5c4ee5.svg)](#tools-96)
+[![Tools](https://img.shields.io/badge/MCP%20tools-98-5c4ee5.svg)](#tools-98)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
 [![Tests](https://img.shields.io/badge/tests-2081%20dev%2Bcontent-brightgreen)](docs/validation/2026-10-11-release-1-6-0.md)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
@@ -41,7 +41,7 @@ The diagram covers the 96-tool MCP server. The repository also includes 15 share
   <a href="#what-you-get">What you get</a> &middot;
   <a href="#choose-your-starting-point">Use cases</a> &middot;
   <a href="#quick-start">Quick start</a> &middot;
-  <a href="#tools-96">Tools</a> &middot;
+  <a href="#tools-98">Tools</a> &middot;
   <a href="#evidence-and-safety">Data limits &amp; safety</a>
 </p>
 
@@ -402,7 +402,9 @@ Current Bing runtime limits are explicit: data freshness is unknown; quota integ
 <a id="tools-89"></a>
 <a id="tools-90"></a>
 
-## Tools (96)
+## Tools (98)
+
+This source branch adds two experimental SerpApi tools to the released 96-tool surface. They default to offline preview/import; actual Google acquisitions require explicit enablement, a private key, a verified free plan and a request identifier. Two public desktop/mobile captures and local replay were verified; broader provider coverage and diagnostic quality remain unqualified. See the [SerpApi setup and comparison guide](docs/serpapi-comparison.md). This change is not a package release.
 
 Version 1.5.0 includes the bounded [local crawl-log audit](docs/crawl-log-audit.md). Its [validation record](docs/validation/2026-10-09-crawl-logs.md) distinguishes declared bots and current registry membership from historical identity.
 
@@ -411,11 +413,13 @@ The [versioned crawl inventory contract](docs/crawl-snapshots.md) adds optional 
 Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Version 1.3.1 retains 85 tools and adds optional MCP discovery selection, CLI JSON string lists, and the SEO/Bing feedback fixes described in the [changelog](CHANGELOG.md#131---2026-10-08). Version 1.4.0 has 89 tools, adding declared-change follow-up, draft/rewrite checks, weekday-reference and caller-supplied crawl previews described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). Version 1.5.0 adds seven local evidence tools, richer traffic references and an opt-in extraction profile. Version 1.6.0 retains 96 tools, fixes missing comparison/indexing values and packages experimental audit/native APIs; runner scripts and workspace skills require the repository checkout. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
-<summary>Show all 96 source tools</summary>
+<summary>Show all 98 source tools</summary>
 
 | Category | Tool | Description |
 |---|---|---|
 | Meta | `get_capabilities` | List all available tools |
+| Experimental SERP | `serpapi_search` | Preview or explicitly capture one Google SERP on a verified free plan; durable attempt limits, no retries or paid fallback |
+| Experimental SERP | `serpapi_import_preview` | Qualify caller-supplied Google SERP JSON offline; retain missing fields and producer feature types |
 | Properties | `list_properties` | List all GSC properties |
 | Properties | `get_site_details` | Get details for a specific property |
 | Analytics | `get_search_analytics` | Query search performance data |
@@ -700,7 +704,7 @@ pip install -e .
 gsc-cli list
 ```
 
-The final command reads the shared registry and lists the 96 commands available in this checkout. Use this installation when developing or testing unreleased changes; the native audit and evaluation scripts add no public MCP tool or CLI command.
+The final command reads the shared registry and lists the 98 commands available in this source branch. Use this installation when developing or testing unreleased changes; the native audit and evaluation scripts add no public MCP tool or CLI command.
 
 For client executable paths and the distinction between repository skills, Claude Desktop and native source-review profiles, follow the [source workflow installation instructions](docs/installation.md#run-checkout-audit-and-evaluation-workflows). The Python APIs are packaged in 1.6.0; runner scripts and workspace skills require the checkout. See the [1.6.0 release validation](docs/validation/2026-10-11-release-1-6-0.md).
 

@@ -15,6 +15,8 @@ _ALL_TOOLS = [
     "search_change_breakdown",
     "search_weekday_reference",
     "crawl_import_preview",
+    "serpapi_search",
+    "serpapi_import_preview",
     "crawl_log_audit",
     "crawl_snapshot_import",
     "crawl_snapshot_read",
@@ -122,6 +124,12 @@ def _capabilities_for(tool_names: list[str], selection: dict) -> str:
                 "bing": {
                     "credential_env_declared": bool(os.environ.get("BING_WEBMASTER_API_KEY")),
                     "tools": sorted(name for name in tool_names if name.startswith("bing_")),
+                },
+                "serpapi": {
+                    "credential_env_declared": bool(os.environ.get("SERPAPI_API_KEY")),
+                    "acquisition_enabled": os.environ.get("GSC_SERPAPI_ENABLED") == "1",
+                    "runtime_qualified": False,
+                    "tools": sorted(name for name in tool_names if name.startswith("serpapi_")),
                 },
                 "indexnow": {"tools": [name for name in tool_names if name == "indexnow_submit"]},
             },

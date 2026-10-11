@@ -428,6 +428,14 @@ _add('indexing_evidence_matrix', None, 'HTML/crawl/log/search observations do no
      '/rows/*/current_indexing_status', '/rows/*/rendering_status', '/rows/*/canonical_chain/google_selection_status', '/error')
 
 
+_inventory("serpapi_search serpapi_import_preview", "fields", "Experimental producer capture/import; operational status and source claims do not prove SEO quality")
+for _serp_tool in ("serpapi_search", "serpapi_import_preview"):
+    _add(_serp_tool, "rule", "Local request/schema/context gate, not a Google ranking or account entitlement verdict", "/status", "/code", "/limits", "/requested", "/source_authenticity", "/delivery", "/untrusted_content")
+    _add(_serp_tool, "derived", "Local receipt/hash or exact-context discrepancy; imported receipt may be unavailable", "/received_at", "/source_sha256", "/missing_context", "/context_mismatches", "/network_calls")
+    _add(_serp_tool, "measured", "Explicit producer-reported fields, possibly caller-supplied and not independently authenticated", "/effective", "/provider_created_at", "/search_id", "/organic_results", "/organic_results/*/position", "/account_quota_before")
+    _add(_serp_tool, None, "Provider cache hit and actual billed cost are not established by this adapter", "/provider_cache", "/actual_cost_usd")
+
+
 def _expand(value, parts: list[str], path: tuple[str, ...] = (), parent=None):
     if not parts:
         yield path, value, parent
