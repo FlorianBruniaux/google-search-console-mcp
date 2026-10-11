@@ -1,0 +1,44 @@
+docs/assets/README.md
+  s_60d4a01bc3ed2e::t_8548f380d50134 1-9
+docs/validation/2026-10-11-release-readiness.md
+  s_60d4a01bc3ed2e::t_ae4de7b276e66b 3,28,41-44
+  s_60d4a01bc3ed2e::t_12b24b4f2889b6 34-35
+  s_60d4a01bc3ed2e::t_f72cc562f08093 1-2,4-27,29-33,36-40,45-50
+CHANGELOG.md
+  s_60d4a01bc3ed2e::t_81e425878d6994 22-23
+site/content/fr/docs/changelog.md
+  s_60d4a01bc3ed2e::t_f72cc562f08093 30-31
+README.md
+  s_60d4a01bc3ed2e::t_81e425878d6994 19,30,33
+  s_3e56072c53712a::t_3fa1bdacc9dba2 34
+docs/assets/gsc-mcp-workflow-96.prompt.md
+  s_60d4a01bc3ed2e::t_f72cc562f08093 1-11
+docs/validation/README.md
+  s_60d4a01bc3ed2e::t_f72cc562f08093 3-4
+site/content/fr/manifest.json
+  s_60d4a01bc3ed2e::t_c4c1de953e5042 70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c3cc209bd22ef8cbfa3172b0394e3e9e99a8bf19",
+  "prompts": {},
+  "sessions": {
+    "s_3e56072c53712a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129af-5bdc-7051-a7ce-feb2d3753339",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    },
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
