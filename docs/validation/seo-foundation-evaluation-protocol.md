@@ -61,4 +61,3 @@ Query targets retain the existing schema and overall task checks, not new per-la
 Editorial/rewrite quality needs authorized passages and original/revision judgments with task-specific adapters. Page similarity needs independent page-pair judgments, not query pairs. Instruction detection/readiness, controlled follow-up and research retrieval require their own positive/benign, causal-protocol or passage-relevance corpora and adapters. These remain unassessed even if the supported C1 tasks pass.
 
 Skills used: flow-lean, superpowers:executing-plans, superpowers:test-driven-development, superpowers:verification-before-completion
-

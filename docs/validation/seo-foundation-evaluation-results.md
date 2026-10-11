@@ -53,4 +53,3 @@ C1 complète la mécanique de validation et la collecte. Il laisse #6 ouverte po
 Aucune collecte Google, DataForSEO, modèle payant, publication produit ou déploiement n’a été effectuée. Les tests locaux et la revue de cette branche ne sont pas une validation CI/production.
 
 Skills used: flow-lean, superpowers:executing-plans, superpowers:test-driven-development, superpowers:verification-before-completion, superpowers:using-git-worktrees, superpowers:systematic-debugging, superpowers:requesting-code-review
-
