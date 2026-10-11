@@ -1,6 +1,6 @@
 # Installation and MCP client setup
 
-This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 96-tool registry in release 1.5.0. Python 3.11 or newer is required.
+This guide installs the published `gsc-mcp-tools` package, connects only the providers you use, and verifies the 96-tool registry in release 1.6.0. Python 3.11 or newer is required.
 
 ## Choose an installation mode
 
@@ -23,7 +23,7 @@ command -v gsc-mcp-tools
 gsc-cli list
 ```
 
-`gsc-cli list` should print 96 commands for release `1.5.0`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
+`gsc-cli list` should print 96 commands for release `1.6.0`. Keep the absolute path returned by `command -v`; MCP clients do not always inherit the same `PATH` as your shell.
 
 Upgrade later with:
 
@@ -36,7 +36,7 @@ An installation created with `gsc-mcp-tools==1.3.1` stays pinned. Reinstall with
 To reproduce this release exactly:
 
 ```bash
-uv tool install --force gsc-mcp-tools==1.5.0
+uv tool install --force gsc-mcp-tools==1.6.0
 ```
 
 ## Alternative installations
@@ -84,9 +84,11 @@ Use this mode only when developing or testing changes that are not yet published
 
 </details>
 
-## Run unreleased source workflows
+<a id="run-unreleased-source-workflows"></a>
 
-The published `gsc-mcp-tools==1.5.0` package exposes 96 tools. The optional bounded native audit and its evaluation scripts require the current source checkout; upgrading that published package does not install these unreleased additions.
+## Run checkout audit and evaluation workflows
+
+The published `gsc-mcp-tools==1.6.0` package exposes 96 tools. Version 1.6.0 packages the experimental audit/native/query Python APIs. The runner scripts, evaluators and shared workspace skills require the source checkout; they are not additional installed console commands. The existing commands remain `gsc-cli`, `gsc-mcp` and `gsc-mcp-tools`.
 
 For the source workflow without development dependencies:
 

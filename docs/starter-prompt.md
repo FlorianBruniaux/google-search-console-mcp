@@ -334,10 +334,10 @@ See [bounded audit workflows](audit-workflows.md) for the weekday, event and imp
 
 ## Test 1.5.0 local evidence tools
 
-Release 1.5.0 exposes 96 tools by default; startup family selection may expose fewer. This uses a synthetic URL and makes no provider request.
+Version 1.6.0 retains the 96 tools introduced in 1.5.0; startup family selection may expose fewer. This uses a synthetic URL and makes no provider request.
 
 ```text
-Run a read-only smoke test of Search Console MCP 1.5.0.
+Run a read-only smoke test of Search Console MCP 1.6.0.
 Check capabilities for crawl_log_audit, crawl_snapshot_import, crawl_snapshot_read,
 crawl_snapshot_delete, crawl_snapshot_join, crawl_diff and indexing_evidence_matrix.
 State any startup-family restriction. Call indexing_evidence_matrix with

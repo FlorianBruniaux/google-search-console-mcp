@@ -1,5 +1,7 @@
 # Audit evidence validation records
 
+- [Release 1.6.0 candidate validation, 2026-10-11](2026-10-11-release-1-6-0.md): package metadata, installed-wheel behavior, bilingual documentation and site checks. Publication and deployment are verified separately after merging.
+
 - [Post-1.5.0 merge recap and release readiness, 2026-10-11](2026-10-11-release-readiness.md): merged functionality, corrected presentation, source/package distinctions and preparation criteria for a possible 1.6.0 release. No publication or human-quality approval is inferred.
 
 These records describe local checks and their limits. They do not establish live-provider accuracy, a published package or human SEO quality.

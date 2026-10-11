@@ -2,7 +2,7 @@
 
 This optional source workflow acquires an explicit read-only request plan once, then gives immutable observations to selected source-only specialists, a report author and a separate reviewer invocation. Both native CLI hosts use the same packaged role contracts. It does not implement the former JavaScript Workflow host, interactive skill routing or ancillary HTML/CrUX acquisition. Expert report quality remains gated by human cases in #6.
 
-The source changes are unreleased. Use a checkout containing them and its Python environment; installing the published 1.5.0 wheel alone does not supply this workflow. Default MCP discovery remains unchanged at 96 tools. The query prototypes add no MCP tool.
+Version 1.6.0 packages the experimental acquisition and native audit APIs, including nine source-review profiles. Use a repository checkout and its Python environment for the runner scripts and workspace skills; the wheel does not install these as console commands. Default MCP discovery remains unchanged at 96 tools. The query prototypes add no MCP tool.
 
 The [recorded offline runs](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) on 10 October 2026 each used 4 native attempts, 2 local tool calls and 0 provider attempts, under separate run IDs for Codex and Claude. These historical observations do not describe a current authenticated provider run. The [later controlled resource checks](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) test harmless local children and the offline extraction runner separately.
 

@@ -1,12 +1,12 @@
 ---
 title: "Extraction optionnelle et comparaison locale"
-description: "Utiliser le profil optionnel publié et comparer des fragments annotés avec le lanceur local non publié."
+description: "Utiliser le profil optionnel publié et comparer des fragments annotés avec le lanceur local du dépôt."
 lang: fr
 lastUpdated: 2026-10-10
 canonicalEnglish: /docs/content-extraction/
 ---
 
-Le profil d’extraction optionnel est disponible dans le paquet publié 1.5.0. Le script de comparaison hors ligne ci-dessous est une interface non publiée du dépôt et nécessite un checkout source ; le wheel publié ne l’installe pas. La découverte MCP par défaut reste à 96 outils.
+Le profil d’extraction optionnel est disponible depuis 1.5.0. Le script de comparaison hors ligne ci-dessous nécessite le dépôt ; le wheel 1.6.0 ne l’installe pas comme commande. La découverte MCP par défaut reste à 96 outils.
 
 `content_quality(url)` conserve l’extracteur de texte visible et ses scores. Pour évaluer un second profil, installez l’extra optionnel et sélectionnez-le explicitement :
 

@@ -3,11 +3,11 @@
   "pages": {
     "docs/index.md": {
       "source": "site/content/en/index.md",
-      "sourceHash": "515283545310e776ebcd3eaa852c67b8f66f45ef8e6002ccbc646e4b8b83967e"
+      "sourceHash": "e4f720d060124974b95fda3ea695196fb16b97e0bee2fd7e9e2bd820d9949bdb"
     },
     "docs/installation.md": {
       "source": "docs/installation.md",
-      "sourceHash": "92cb82a716b6570ac3714b0704511217b9a8615af2133ffe649cab785e89873a"
+      "sourceHash": "62128a17b12959c2953d611bc97bf70aa7166c1831153420898812e223028c48"
     },
     "docs/google-setup.md": {
       "source": "docs/google-setup.md",
@@ -19,11 +19,11 @@
     },
     "docs/prompts.md": {
       "source": "docs/starter-prompt.md",
-      "sourceHash": "0b58a7c4eacee9610a9cc72eead6cc1190bc9117c5ad22d434bceca5c5477407"
+      "sourceHash": "7de788ffca4eb9e7d2abde70ae39fa4ee17c151d7851f55f60bd9b30df119906"
     },
     "docs/examples/index.md": {
       "source": "examples/README.md",
-      "sourceHash": "405b32d8d7253c2a339d653f9424aa20748701360dde668958f7737aace337d6"
+      "sourceHash": "2fe9b5f45d3f27d402a0c146589151bb47e6544fb105633f7ef7d1c6832b56e1"
     },
     "docs/examples/quick-audit.md": {
       "source": "examples/quick-audit.md",
@@ -59,7 +59,7 @@
     },
     "docs/architecture.md": {
       "source": "docs/architecture.md",
-      "sourceHash": "62d2b0a9afb605489e8353fedf7ee50dab6d76db937c9612c780cf005aebb71a"
+      "sourceHash": "cf0db5da244acc8148cb213c0117c295f4fa300ff5c12e30d809946dd96c0743"
     },
     "docs/evidence-and-safety.md": {
       "source": "site/content/en/evidence-and-safety.md",
@@ -67,7 +67,7 @@
     },
     "docs/changelog.md": {
       "source": "CHANGELOG.md",
-      "sourceHash": "3ea6c75674eb0e4dcaf527e2adf448025d23d057f1d8efd6068ffe1ed5ed95d5"
+      "sourceHash": "2660d21649218865451434329c0918d5459a237c8ea3055446e9d052060534ef"
     },
     "docs/license.md": {
       "source": "LICENSE",
@@ -91,19 +91,19 @@
     },
     "docs/bounded-native-audit.md": {
       "source": "docs/bounded-native-audit.md",
-      "sourceHash": "c7919cf52e8250400a06f00f5cdd7f2d01ab45045a703886eec2bbe4bf53d16d"
+      "sourceHash": "5bc217b55516530a077336460e994d3f697e942bb85a2abf5cb1cb8d14c4bff7"
     },
     "docs/content-extraction.md": {
       "source": "docs/content-extraction.md",
-      "sourceHash": "4bb0b974b6a82eeb4e7a278454d6f43156cd2481e975633d1509b0c14d0e7359"
+      "sourceHash": "1d63ddceaec2c1e4764a5a667ffcfe297867cdd54cdbd43b91a75acbff2c3c19"
     },
     "docs/classifier-evaluation.md": {
       "source": "docs/classifier-evaluation.md",
-      "sourceHash": "410228e010ec752c350a358b201c32bb516230c4992208ba25fbc4bb7c003d3c"
+      "sourceHash": "bdd0b384a639d2d140df59e3704dbedd406ad410c79793c1f64f6463307574d3"
     },
     "docs/expert-evaluation-intake.md": {
       "source": "docs/expert-evaluation-intake.md",
-      "sourceHash": "ca47a1aebc33c6de49b23e43a7f2e5e9bc97b990f25931c21d393691094c9755"
+      "sourceHash": "0cfffd1fc5142e78900e43f1340e826d75bddf0a03849a216ee0f15886919581"
     }
   }
 }

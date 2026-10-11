@@ -2,7 +2,11 @@
 
 ## [Unreleased]
 
-<!-- unreleased-updated: 2026-10-10 -->
+## [1.6.0] - 2026-10-11
+
+The default catalogue remains at 96 tools and the three installed commands are unchanged. This release packages the optional experimental acquisition, native audit, role and query modules, plus comparison/indexing fixes. Audit runners, evaluators and the 15 shared playbooks require a repository checkout; no additional console command is installed. Human report quality and implicit interactive routing remain unverified.
+
+Merged PRs since 1.5.0: #73, #75, #76, #77, #78, #79, #80, #81, #82, #83 and #84.
 
 - `compare_search_engines` returns `null` metrics for absent query/page rows rather than zero placeholders, preserving measured zero counts and withholding zero-denominator CTR. Sorting and delta guards retain their existing scope (#74).
 - Add an opt-in read-only audit acquisition session with durable attempt budgets, exact property scopes, immutable session observations and a reduced MCP startup surface. Native CLI report adapters consume acquired packets; both installed Claude/Codex hosts completed offline source cases and a projected real-GSC source review. Full interactive-playbook and human-quality gates remain open (#38/#39/#6/#77).
@@ -17,9 +21,9 @@
 - Clarify shared traffic and AI-appearance playbooks: configured date cutoffs do not measure publication lag, and appearance ratios need compatible source coverage before becoming period shares. Explicit native-client MCP replay trials retain one Claude traffic overclaim after retests; five synthetic reviewer claims are classified correctly by both hosts. These results do not close #39 or establish human quality (#6).
 - Add an insufficient-evidence branch to the traffic playbook before ranking causes: preserve missing click counts and explicitly unavailable comparisons without reconstructing diagnostic proxies. Keep compatible observed-count arithmetic and independent metrics available. The [follow-up consolidated on 2026-10-11](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-11-claude-c1-followup.md) distinguishes the adversarial C1 payload, producer-generated simulations and oversized-response delivery failures; eight retained cases pass only the frozen C1 criteria (#39).
 
-- Document source-workflow installation separately from the published 1.5.0 package, including absolute client executable paths, repository skill discovery and optional native prerequisites. Refresh English/French installation pages, validation links and README test evidence on 2026-10-11; no new PyPI release (#39).
+- Document source-workflow installation separately from the published 1.5.0 package, including absolute client executable paths, repository skill discovery and optional native prerequisites. Refresh English/French installation pages, validation links and README test evidence on 2026-10-11 before this release (#39).
 
-- Refresh the README's dated dev/content test badge and correct the infographic from 81 to 96 MCP tools, preserving the existing diagram. Add the post-1.5.0 merge recap and package-readiness record on 2026-10-11; align GitHub's description with shared playbooks, local evidence and optional bounded native workflows. Publication remains a separate step.
+- Refresh the README's dated dev/content test badge and correct the infographic from 81 to 96 MCP tools, preserving the existing diagram. Add the post-1.5.0 merge recap and package-readiness record on 2026-10-11; align GitHub's description with shared playbooks, local evidence and optional bounded native workflows. Publish these changes together in 1.6.0, with the catalogue unchanged.
 
 ## [1.5.0] - 2026-10-09
 

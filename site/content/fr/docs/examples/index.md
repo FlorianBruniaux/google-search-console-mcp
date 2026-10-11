@@ -24,4 +24,4 @@ Lisez aussi les [limites de preuve et règles de sécurité](/fr/docs/evidence-a
 
 [Lire la version anglaise canonique](/docs/examples/).
 
-La version 1.5.0 contient 96 outils. Les [prompts pour la matrice et les snapshots](/fr/docs/prompts/#tester-les-preuves-locales-en-150) décrivent les nouveaux contrôles locaux sans accès fournisseur.
+La version 1.6.0 conserve les 96 outils introduits dans 1.5.0. Les [prompts pour la matrice et les snapshots](/fr/docs/prompts/#tester-les-preuves-locales-en-150) décrivent les nouveaux contrôles locaux sans accès fournisseur.

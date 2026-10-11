@@ -6,7 +6,7 @@ lastUpdated: 2026-10-10
 canonicalEnglish: /docs/classifier-evaluation/
 ---
 
-Les évaluateurs de ce guide sont des scripts non publiés du dépôt, pas des commandes installées par le wheel 1.5.0. Utilisez Python 3.11 ou ultérieur depuis un [checkout source](/fr/docs/bounded-native-audit/#checkout-source-et-prérequis). L’évaluateur des requêtes utilise seulement la bibliothèque standard ; il n’ajoute aucun outil MCP public, et la découverte par défaut reste à 96 outils.
+Les évaluateurs de ce guide sont des scripts du dépôt, pas des commandes installées par le wheel 1.6.0. Utilisez Python 3.11 ou ultérieur depuis un [checkout source](/fr/docs/bounded-native-audit/#checkout-source-et-prérequis). L’évaluateur des requêtes utilise seulement la bibliothèque standard ; il n’ajoute aucun outil MCP public, et la découverte par défaut reste à 96 outils.
 
 `scripts/eval_classifier.py` valide les annotations de l’appelant et des prédictions indépendantes, puis rapporte leur qualité hors ligne. Il utilise la bibliothèque standard Python, n’importe aucun classifieur et n’appelle aucune API. #6 reste ouverte jusqu’à l’obtention d’annotations humaines FR/EN autorisées, d’un corpus held-out figé et de cibles convenues. Les fichiers de `tests/fixtures/classifier_eval/` sont des exemples synthétiques de limites et ne satisfont pas cette exigence.
 
