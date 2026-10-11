@@ -8,7 +8,7 @@ canonicalEnglish: /docs/installation/
 
 ## Installation recommandée
 
-La version 1.5.0 expose 96 outils, dont sept ajouts par rapport à 1.4.0.
+La version 1.6.0 conserve les 96 outils de 1.5.0 et inclut des correctifs ainsi que les API d’audit expérimentales optionnelles.
 
 Pour un essai ponctuel :
 
@@ -25,7 +25,7 @@ uv tool install gsc-mcp-tools
 Pour reproduire exactement cette version :
 
 ```bash
-uv tool install --force gsc-mcp-tools==1.5.0
+uv tool install --force gsc-mcp-tools==1.6.0
 ```
 
 Une installation épinglée reste épinglée. Réinstallez sans contrainte de version avant d’utiliser `uv tool upgrade`, ou installez explicitement la prochaine version avec `--force`.
@@ -42,9 +42,9 @@ Vérifiez ensuite que le binaire est disponible :
 gsc-cli --help
 ```
 
-## Exécuter les workflows source non publiés
+## Exécuter les audits et évaluations depuis le dépôt
 
-Le paquet publié `gsc-mcp-tools==1.5.0` expose 96 outils et nécessite Python 3.11 ou ultérieur. L’audit natif borné et ses scripts d’évaluation nécessitent le checkout source actuel ; mettre à jour ce paquet publié n’installe pas ces ajouts non publiés.
+Le paquet publié `gsc-mcp-tools==1.6.0` expose 96 outils et nécessite Python 3.11 ou ultérieur. La version 1.6.0 inclut les API Python expérimentales d’audit natif et de requêtes. Les scripts de lancement, évaluateurs et skills partagés nécessitent le dépôt ; ils ne sont pas installés comme commandes supplémentaires. Les commandes existantes restent `gsc-cli`, `gsc-mcp` et `gsc-mcp-tools`.
 
 Pour préparer le workflow source sans dépendances de développement :
 

@@ -1,6 +1,6 @@
 ---
 title: "Audits natifs depuis un checkout source"
-description: "Exécuter le workflow natif non publié avec des sources explicites, des budgets de tentatives et des limites de preuves."
+description: "Exécuter le workflow natif expérimental depuis le dépôt avec des sources explicites, des budgets de tentatives et des limites de preuves."
 lang: fr
 lastUpdated: 2026-10-11
 canonicalEnglish: /docs/bounded-native-audit/
@@ -8,7 +8,7 @@ canonicalEnglish: /docs/bounded-native-audit/
 
 Ce workflow source optionnel acquiert une fois un plan explicite de requêtes en lecture seule, puis transmet des observations immuables aux spécialistes sélectionnés, à un auteur de rapport et à une invocation séparée de revue. Les deux clients CLI natifs utilisent les mêmes contrats de profils. Le workflow ne fournit ni l’ancien hôte JavaScript Workflow, ni le routage interactif des skills, ni l’acquisition auxiliaire HTML/CrUX. La qualité experte des rapports dépend encore des cas humains de #6.
 
-Ces changements source ne sont pas publiés. Utilisez un checkout qui les contient et son environnement Python ; le wheel publié 1.5.0 seul ne fournit pas ce workflow. La découverte MCP par défaut reste inchangée à 96 outils. Les prototypes de requêtes n’ajoutent aucun outil MCP.
+La version 1.6.0 inclut les API expérimentales d’acquisition et d’audit natif, avec neuf profils de revue des sources. Utilisez le dépôt et son environnement Python pour les scripts de lancement et les skills partagés ; le wheel ne les installe pas comme commandes. La découverte MCP par défaut reste inchangée à 96 outils. Les prototypes de requêtes n’ajoutent aucun outil MCP.
 
 Les [exécutions hors ligne enregistrées](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-native-specialists.md) du 10 octobre 2026 ont chacune utilisé 4 tentatives natives, 2 appels locaux aux outils et 0 tentative fournisseur, sous des identifiants séparés pour Codex et Claude. Ces observations historiques ne décrivent pas une acquisition actuelle auprès de fournisseurs authentifiés. Les [contrôles de ressources ultérieurs](https://github.com/FlorianBruniaux/google-search-console-mcp/blob/main/docs/validation/2026-10-10-delegated-evaluation-native-limits.md) testent séparément des enfants locaux sans effet métier et le comparateur d’extraction hors ligne.
 

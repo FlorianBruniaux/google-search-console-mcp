@@ -2,15 +2,15 @@
 # Source: src/gsc_mcp/ + tests/
 # Usage: @docs/machine-readable/code-map.yaml
 
-version: "1.5.0"
-generated: "2026-10-10"
+version: "1.6.0"
+generated: "2026-10-11"
 package: gsc-mcp-tools
 python_min: "3.11"
 total_tools: 96
-total_tests: 2048
+total_tests: 2081
 test_count_scope: "Recorded Python dev/content run, not a base-package count"
-validation_record: docs/validation/2026-10-10-delegated-evaluation-native-limits.md
-source_additions_status: "Unreleased audit/native/query modules and evaluation scripts require the source checkout; no PyPI upload"
+validation_record: docs/validation/2026-10-11-release-1-6-0.md
+source_additions_status: "1.6.0 packages experimental audit/native/query APIs; runner and evaluator scripts and workspace skills require a checkout"
 
 tool_inventory:
   previous_surface: 61
@@ -57,24 +57,24 @@ core_modules:
     role: "Published 1.5.0 visible/optional Trafilatura profiles; default unchanged and adoption needs human evidence"
 
   - path: src/gsc_mcp/audit_runtime.py
-    role: "Unreleased scoped read-only session, immutable observation cache and durable provider/tool/native attempt counters"
+    role: "Experimental 1.6.0 scoped read-only session, immutable observation cache and durable provider/tool/native attempt counters"
     exports: [AuditSession, AuditBudgetExceeded]
     note: "Attempt ceilings are not token/cost limits; ancillary acquisition remains outside the allowlist"
 
   - path: src/gsc_mcp/native_roles.py
-    role: "Unreleased nine source-review profiles shared by native hosts; no interactive playbook execution"
+    role: "Experimental 1.6.0 nine source-review profiles shared by native hosts; no interactive playbook execution"
     exports: [ROLE_PROFILES]
 
   - path: src/gsc_mcp/native_audit.py
-    role: "Unreleased native source specialists, sequential author/reviewer and structural reference validation"
-    note: "Both hosts have recorded offline cases; authenticated provider and human-quality proof remain open"
+    role: "Experimental 1.6.0 native source specialists, sequential author/reviewer and structural reference validation"
+    note: "Offline hosts and a separately recorded authenticated GSC pilot have bounded evidence; complete interactive routing and human quality remain open"
 
   - path: src/gsc_mcp/native_process.py
-    role: "Unreleased Linux/macOS process-group launcher with live per-stream caps and inherited per-regular-file ceiling"
+    role: "Experimental 1.6.0 Linux/macOS process-group launcher with live per-stream caps and inherited per-regular-file ceiling"
     note: "2,000,000 bytes per stdout/stderr stream and file, preserving lower inherited file limits; host state affected, no aggregate disk or memory quota"
 
   - path: src/gsc_mcp/query_rules.py
-    role: "Unreleased experimental offline query rules, outside the public registry and human release approval"
+    role: "Experimental 1.6.0 offline query rules, outside the public registry and human release approval"
 
   - path: src/gsc_mcp/auth.py
     role: "Google credential resolution, GA4 property resolution, Bing env-key reader"

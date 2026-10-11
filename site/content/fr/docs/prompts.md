@@ -108,10 +108,10 @@ Les [audits bornés](/fr/docs/audit-workflows/) détaillent les contrats des fen
 
 ## Tester les preuves locales en 1.5.0
 
-La version 1.5.0 expose 96 outils par défaut. Les familles sélectionnées peuvent réduire ce nombre. Ce test utilise une URL synthétique, sans accès fournisseur.
+La version 1.6.0 conserve les 96 outils introduits dans 1.5.0. Les familles sélectionnées peuvent réduire ce nombre. Ce test utilise une URL synthétique, sans accès fournisseur.
 
 ```text
-Teste Search Console MCP 1.5.0 en lecture seule.
+Teste Search Console MCP 1.6.0 en lecture seule.
 Vérifie les capacités pour crawl_log_audit, crawl_snapshot_import/read/delete/join,
 crawl_diff et indexing_evidence_matrix. Signale les restrictions de familles.
 Appelle indexing_evidence_matrix avec site="sc-domain:example.com",

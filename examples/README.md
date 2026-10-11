@@ -1,6 +1,6 @@
 # Example Prompts
 
-Scenario-based conversation starters for the 96-tool registry in release 1.5.0. Each file covers one use case with a progression from a first question to a deeper investigation.
+Scenario-based conversation starters for the 96-tool registry in release 1.6.0. Each file covers one use case with a progression from a first question to a deeper investigation.
 
 Start with the first prompt in any file and replace `yourdomain.com` with your property or verified-site URL. Configure the required providers with the [installation guide](../docs/installation.md), [Google setup](../docs/google-setup.md) or [Bing setup](../docs/bing-setup.md).
 

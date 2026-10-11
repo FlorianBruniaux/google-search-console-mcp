@@ -2,11 +2,11 @@
 title: "Collecte d’évaluations humaines"
 description: "Recueillir des annotations autorisées par tâche et figer les cibles sans fabriquer d’approbation de qualité."
 lang: fr
-lastUpdated: 2026-10-10
+lastUpdated: 2026-10-11
 canonicalEnglish: /docs/expert-evaluation-intake/
 ---
 
-Cette fiche contributeur et ses évaluateurs décrivent un travail non publié du dépôt. Les scripts nécessitent un [checkout source](/fr/docs/bounded-native-audit/#checkout-source-et-prérequis) ; le wheel 1.5.0 seul ne les fournit pas. Le catalogue public par défaut reste à 96 outils. Le [guide d’audit natif](/fr/docs/bounded-native-audit/) couvre l’exécution et ses limites de ressources séparément de la revue humaine de qualité.
+Cette fiche contributeur et ses évaluateurs nécessitent les ressources du dépôt. Les scripts nécessitent un [checkout source](/fr/docs/bounded-native-audit/#checkout-source-et-prérequis) ; le wheel 1.6.0 ne les installe pas comme commandes. Le catalogue public par défaut reste à 96 outils. Le [guide d’audit natif](/fr/docs/bounded-native-audit/) couvre l’exécution et ses limites de ressources séparément de la revue humaine de qualité.
 
 La prochaine entrée est un lot humain autorisé, revu indépendamment, avec des cibles figées par tâche. Cette fiche attribue le travail sans fournir labels, seuils ou approbations. Les évaluateurs existants tournent hors ligne ; aucun nouveau harnais ni backend de modèle payant n’est nécessaire pour commencer la collecte.
 

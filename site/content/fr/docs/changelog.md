@@ -8,12 +8,14 @@ canonicalEnglish: /docs/changelog/
 
 Cette page résume les changements utiles aux utilisateurs. L’[historique anglais](/docs/changelog/) reste la source exhaustive.
 
-## Non publié
+## Version 1.6.0, 11 octobre 2026
 
-Modifications des sources du 10 octobre 2026 ; documentation actualisée le 11 octobre 2026.
+Le catalogue conserve 96 outils et les trois commandes installées. Cette version inclut les modules expérimentaux d’acquisition, d’audit natif, de profils et de requêtes, ainsi que les correctifs de comparaison et d’inspection. Les lanceurs, évaluateurs et 15 playbooks partagés nécessitent le dépôt ; aucune commande supplémentaire n’est installée. La qualité humaine des rapports et le routage interactif implicite restent à valider.
+
+PR fusionnées depuis 1.5.0 : #73, #75, #76, #77, #78, #79, #80, #81, #82, #83 et #84.
 
 - La comparaison Google/Bing renvoie `null` pour les métriques des requêtes/pages absentes, conserve les comptes nuls réellement observés et laisse le CTR indisponible sans impressions (#74).
-- Le code source ajoute une session optionnelle d’acquisition en lecture seule avec budgets persistants de tentatives, propriétés exactes, observations immuables de session et surface MCP réduite au démarrage. Les adaptateurs natifs consomment les paquets acquis ; les clients Claude/Codex installés ont chacun terminé des cas hors ligne et une revue sur une projection de données GSC réelles. Les playbooks interactifs complets et la qualité humaine restent à valider (#38/#39/#6/#77). Le paquet publié 1.5.0 ne contient pas encore ces changements.
+- Le code source ajoute une session optionnelle d’acquisition en lecture seule avec budgets persistants de tentatives, propriétés exactes, observations immuables de session et surface MCP réduite au démarrage. Les adaptateurs natifs consomment les paquets acquis ; les clients Claude/Codex installés ont chacun terminé des cas hors ligne et une revue sur une projection de données GSC réelles. Les playbooks interactifs complets et la qualité humaine restent à valider (#38/#39/#6/#77). Ces modules sont inclus dans le paquet 1.6.0 ; les scripts de lancement et les playbooks nécessitent le dépôt.
 - Ajouter un évaluateur hors ligne d’affirmations de rapport et des références expérimentales FR/EN par règles, hors du registre public. Les fixtures synthétiques n’approuvent ni publication d’un classifieur ni adoption d’un extracteur (#6/#4/#5).
 - Le lanceur natif ajoute neuf profils SEO de revue des sources, communs aux deux clients, avec sélection explicite, concurrence bornée et compteur persistant d’appels aux modèles. Les branches sans source ou en échec restent indisponibles. Les conclusions sourcées renvoient aux observations originales. L’exécution des playbooks interactifs, les acquisitions HTML/CrUX et la qualité évaluée par des humains restent des étapes distinctes (#38/#39/#6).
 - Borner stdout/stderr natifs pendant l’exécution à 2 000 000 octets par flux, sans journal disque ; installer un plafond par fichier ordinaire conservant les limites héritées plus faibles et arrêter les descendants ordinaires du groupe à la fin, au dépassement ou au délai. Linux/macOS uniquement ; les écritures d’état du client partagent ce plafond, qui n’est ni un quota disque agrégé ni une limite mémoire (#78).
@@ -25,9 +27,9 @@ Modifications des sources du 10 octobre 2026 ; documentation actualisée le 11 o
 - Clarifier les playbooks trafic et apparences IA : le délai de date configuré n’est pas un retard de publication mesuré, et une part de période exige des sources compatibles. Les essais clients avec MCP de replay conservent une suraffirmation Claude sur le trafic manquant après retest ; chaque reviewer classe correctement cinq claims synthétiques. #39 et la qualité humaine #6 restent ouverts.
 - Ajouter une branche « preuves insuffisantes » au playbook trafic avant de classer les causes : conserver les clics manquants et les comparaisons explicitement indisponibles, sans reconstituer de proxy diagnostique. Les calculs sur comptes observés compatibles et les autres métriques restent permis. Le bilan consolidé le 2026-10-11 distingue le payload adversarial C1, les simulations produites par le vrai code et les échecs de livraison dus à la taille des réponses ; huit cellules retenues passent uniquement les critères C1 figés (#39).
 
-- Documenter séparément l’installation du workflow source et du paquet publié 1.5.0 : chemins absolus des exécutables clients, découverte des skills de dépôt et prérequis natifs optionnels. Actualiser les pages d’installation FR/EN, les liens de validation et les résultats de tests du README le 2026-10-11 ; aucune nouvelle release PyPI (#39).
+- Documenter séparément l’installation du workflow source et du paquet publié 1.5.0 : chemins absolus des exécutables clients, découverte des skills de dépôt et prérequis natifs optionnels. Actualiser les pages d’installation FR/EN, les liens de validation et les résultats de tests du README le 2026-10-11 avant cette publication (#39).
 
-- Actualiser le badge de tests du README et corriger son infographie de 81 à 96 outils MCP, en conservant le parcours existant. Ajouter le bilan des fusions depuis 1.5.0 et les critères de préparation d’une publication le 2026-10-11 ; aligner la description GitHub sur les playbooks partagés, les données locales et les workflows natifs bornés optionnels. La publication reste une étape distincte.
+- Actualiser le badge de tests du README et corriger son infographie de 81 à 96 outils MCP, en conservant le parcours existant. Ajouter le bilan des fusions depuis 1.5.0 et les critères de préparation d’une publication le 2026-10-11 ; aligner la description GitHub sur les playbooks partagés, les données locales et les workflows natifs bornés optionnels. Ces changements sont réunis dans la version 1.6.0, sans modifier le nombre d’outils.
 
 ## Version 1.5.0, 9 octobre 2026
 

@@ -14,9 +14,9 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gsc-mcp-tools)](https://pypi.org/project/gsc-mcp-tools/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![Tools](https://img.shields.io/badge/MCP%20tools-96%20source-5c4ee5.svg)](#tools-96)
+[![Tools](https://img.shields.io/badge/MCP%20tools-96-5c4ee5.svg)](#tools-96)
 [![Providers](https://img.shields.io/badge/search-Google%20%7C%20Bing-0078d4.svg)](#search-engine-coverage)
-[![Tests](https://img.shields.io/badge/tests-2081%20dev%2Bcontent-brightgreen)](docs/validation/2026-10-11-claude-c1-followup.md)
+[![Tests](https://img.shields.io/badge/tests-2081%20dev%2Bcontent-brightgreen)](docs/validation/2026-10-11-release-1-6-0.md)
 [![Publish](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -97,7 +97,7 @@ Replace the example site in the prompt with your own. Every copied prompt explic
 | Run the published package | `uvx gsc-mcp-tools` | Starts all 96 Google, Bing, GA4, CrUX, IndexNow and technical SEO tools over stdio |
 | Install for Codex or Claude Desktop | [Installation guide](https://search-console.bruniaux.com/docs/installation/) | Persistent executable, upgrades, client configuration and verification |
 | Develop from the source checkout | [Install from source](#source-checkout-for-development) | Editable install for unreleased changes and local development |
-| Run the unreleased bounded audit | [Source workflow installation](docs/installation.md#run-unreleased-source-workflows) | Checkout environment, explicit request plan and optional native report generation |
+| Run the checkout bounded audit | [Source workflow installation](docs/installation.md#run-checkout-audit-and-evaluation-workflows) | Checkout environment, explicit request plan and optional native report generation |
 | Configure Google access | [Google setup guide](https://search-console.bruniaux.com/docs/google-setup/) | Service Account or OAuth access to the selected properties |
 | Configure Bing access | [Bing setup guide](https://search-console.bruniaux.com/docs/bing-setup/) | One account-level key for the verified sites visible to that account |
 | Run a first audit | [Starter prompts](https://search-console.bruniaux.com/docs/prompts/) | Full audit, health check, page inspection or GA4 analysis prompt |
@@ -131,7 +131,7 @@ Upgrade that installation when a new release is available:
 uv tool upgrade gsc-mcp-tools
 ```
 
-To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.5.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
+To reproduce this release exactly, use `uv tool install --force gsc-mcp-tools==1.6.0`. A version-pinned installation remains pinned; install a newer explicit version or reinstall without `==...` before using `uv tool upgrade`.
 
 Release `1.2.0` was built and published by [GitHub Actions](https://github.com/FlorianBruniaux/google-search-console-mcp/actions/workflows/publish.yml) through [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/). The workflow checks that the tag matches `pyproject.toml`, runs the full test suite, validates and smoke-tests the built wheel, then publishes that same artifact with a short-lived OIDC credential. See the [GitHub release](https://github.com/FlorianBruniaux/google-search-console-mcp/releases/tag/v1.2.0) and [PyPI files](https://pypi.org/project/gsc-mcp-tools/1.2.0/#files).
 
@@ -228,7 +228,7 @@ Do not add a global single-instance lock to a stdio server. Each client owns a s
 
 ### Select MCP tool families (since 1.3.1)
 
-Since version 1.3.1, set `GSC_MCP_TOOL_FAMILIES=analytics,seo,sitemaps,links` in the MCP server environment to expose these families plus `core`. The default exposes all 96 tools in version 1.5.0. Restart the server or client after changing the selection; `gsc-cli list` keeps the full catalogue. Selection does not grant provider access or write permission. See the [tool-family configuration](docs/installation.md#select-mcp-tool-families-since-131) for all family names and startup validation. Version 1.3.0 predates this setting.
+Since version 1.3.1, set `GSC_MCP_TOOL_FAMILIES=analytics,seo,sitemaps,links` in the MCP server environment to expose these families plus `core`. The default exposes all 96 tools in version 1.6.0. Restart the server or client after changing the selection; `gsc-cli list` keeps the full catalogue. Selection does not grant provider access or write permission. See the [tool-family configuration](docs/installation.md#select-mcp-tool-families-since-131) for all family names and startup validation. Version 1.3.0 predates this setting.
 
 ### Bing Webmaster API key
 
@@ -298,7 +298,7 @@ The Indexing API default quota is 200 requests per day per GCP project. The tool
 
 Google Search Console and Bing Webmaster Tools show how people find your pages in search. Optional GA4 data adds what those visitors do on your site; CrUX and public-page audits help identify performance, content and technical issues. Your assistant can use these sources together to decide which pages need attention.
 
-Version 1.5.0 exposes 96 FastMCP tools, including local log analysis, four crawl snapshot commands, inventory differences and an indexing evidence matrix. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
+Version 1.6.0 exposes 96 FastMCP tools, including local log analysis, four crawl snapshot commands, inventory differences and an indexing evidence matrix. The server handles authentication, API calls, validation, retries and structured JSON output. [Use a starter prompt](https://search-console.bruniaux.com/docs/prompts/) to run your first analysis.
 
 > [!IMPORTANT]
 > `gsc-mcp-tools==1.2.0` is the first published version with Bing support. It includes 19 Bing tools, cross-engine comparison and Bing support in three SEO analyses.
@@ -408,7 +408,7 @@ Version 1.5.0 includes the bounded [local crawl-log audit](docs/crawl-log-audit.
 
 The [versioned crawl inventory contract](docs/crawl-snapshots.md) adds optional site-owned local storage, bounded detail pages, exact-URL reconciliation and explicit cleanup. Imported metadata and scores are not independently verified provider evidence.
 
-Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Version 1.3.1 retains 85 tools and adds optional MCP discovery selection, CLI JSON string lists, and the SEO/Bing feedback fixes described in the [changelog](CHANGELOG.md#131---2026-10-08). Version 1.4.0 has 89 tools, adding declared-change follow-up, draft/rewrite checks, weekday-reference and caller-supplied crawl previews described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). Version 1.5.0 adds seven local evidence tools, richer traffic references and an opt-in extraction profile. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
+Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `search_change_breakdown` and `link_targets_audit`, field-level evidence methods, content-trust observations and comparison/challenge fixes. Version 1.3.1 retains 85 tools and adds optional MCP discovery selection, CLI JSON string lists, and the SEO/Bing feedback fixes described in the [changelog](CHANGELOG.md#131---2026-10-08). Version 1.4.0 has 89 tools, adding declared-change follow-up, draft/rewrite checks, weekday-reference and caller-supplied crawl previews described in [bounded audit workflows](docs/audit-workflows.md) and [editorial workflows](docs/editorial-workflows.md). Version 1.5.0 adds seven local evidence tools, richer traffic references and an opt-in extraction profile. Version 1.6.0 retains 96 tools, fixes missing comparison/indexing values and packages experimental audit/native APIs; runner scripts and workspace skills require the repository checkout. See the [evidence and safety guide](https://search-console.bruniaux.com/docs/evidence-and-safety/) for availability, source matching and method limits.
 
 <details>
 <summary>Show all 96 source tools</summary>
@@ -513,7 +513,7 @@ Release `gsc-mcp-tools==1.3.0` includes `ga4_ai_referrals`, `editorial_audit`, `
 
 ## CLI usage
 
-After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Version 1.5.0 has 96 commands. Version 1.4.0 has 89 commands, up from 85 in releases 1.3.0 and 1.3.1, adding `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` and `crawl_import_preview`. Draft inputs extend `editorial_audit` without adding a command. Version 1.2.0 has 81 commands. MCP family selection does not restrict CLI commands.
+After installation, `gsc-cli` is available as a standalone shell command. It derives its commands from the same registry as the MCP server. Version 1.6.0 retains the 96 commands from 1.5.0. Version 1.4.0 has 89 commands, up from 85 in releases 1.3.0 and 1.3.1, adding `seo_change_impact`, `rewrite_fidelity_check`, `search_weekday_reference` and `crawl_import_preview`. Draft inputs extend `editorial_audit` without adding a command. Version 1.2.0 has 81 commands. MCP family selection does not restrict CLI commands.
 
 ```bash
 # List the commands in the installed build
@@ -590,7 +590,7 @@ Exit codes: `0` success, `1` Google API error, `2` credential/config error or in
 
 The repository ships 13 Claude Code agents, 15 shared SEO skills, one Claude development skill and 2 development commands. The nine SEO workflow agents below each reference a focused skill. A read-only evidence reviewer keeps its findings beside the unapproved draft; three additional specialist agents cover Python implementation, pytest and security review. The [controlled workflow pilot](docs/validation/2026-10-09-agent-boundaries.md) records that interactive workflow's bounded checks.
 
-The optional [bounded native source workflow](docs/bounded-native-audit.md) is a separate, unreleased path with nine narrower source-review profiles, immutable acquired observations and durable provider, tool and native-attempt ceilings. [Both installed native CLI hosts completed an offline source case](docs/validation/2026-10-10-native-specialists.md); this does not establish authenticated provider acquisition, full interactive playbooks or expert report quality. [Current output-limit validation](docs/validation/2026-10-10-delegated-evaluation-native-limits.md) bounds each stdout/stderr stream and regular-file writes to at most 2,000,000 bytes on Linux/macOS, preserves lower inherited file limits and cleans up ordinary process-group descendants. The file ceiling can affect host state; it is not an aggregate disk quota or host memory limit. These source additions are not supplied by the published 1.5.0 wheel.
+The optional [bounded native source workflow](docs/bounded-native-audit.md) uses experimental APIs packaged in 1.6.0 and a checkout runner with nine narrower source-review profiles, immutable acquired observations and durable provider, tool and native-attempt ceilings. [Both installed native CLI hosts completed an offline source case](docs/validation/2026-10-10-native-specialists.md); this does not establish authenticated provider acquisition, full interactive playbooks or expert report quality. [Current output-limit validation](docs/validation/2026-10-10-delegated-evaluation-native-limits.md) bounds each stdout/stderr stream and regular-file writes to at most 2,000,000 bytes on Linux/macOS, preserves lower inherited file limits and cleans up ordinary process-group descendants. The file ceiling can affect host state; it is not an aggregate disk quota or host memory limit. Version 1.6.0 packages the Python APIs; runner scripts and shared workspace skills still require the repository checkout. No new console command is installed.
 
 The [live GSC pilot record](docs/validation/2026-10-10-live-gsc-readiness.md) describes authenticated acquisition, private storage, explicit windows and identical source projections reviewed by Claude/Codex. This source-only pilot does not validate interactive playbooks or human quality. A Google-only configuration does not require a Bing site.
 
@@ -702,7 +702,7 @@ gsc-cli list
 
 The final command reads the shared registry and lists the 96 commands available in this checkout. Use this installation when developing or testing unreleased changes; the native audit and evaluation scripts add no public MCP tool or CLI command.
 
-For client executable paths and the distinction between repository skills, Claude Desktop and native source-review profiles, follow the [source workflow installation instructions](docs/installation.md#run-unreleased-source-workflows). These additions require the checkout; the published 1.5.0 package remains separate.
+For client executable paths and the distinction between repository skills, Claude Desktop and native source-review profiles, follow the [source workflow installation instructions](docs/installation.md#run-checkout-audit-and-evaluation-workflows). The Python APIs are packaged in 1.6.0; runner scripts and workspace skills require the checkout. See the [1.6.0 release validation](docs/validation/2026-10-11-release-1-6-0.md).
 
 <details>
 <summary>Run the test suite from the source checkout</summary>

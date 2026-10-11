@@ -1,6 +1,6 @@
 # Optional main-content extraction
 
-The optional extraction profile is available in the published 1.5.0 package. The offline comparison script below is an unreleased repository interface and requires a source checkout; it is not installed by the published wheel. Default MCP discovery remains at 96 tools.
+The optional extraction profile has been available since 1.5.0. The offline comparison script below requires a repository checkout; it is not installed as a console command by the 1.6.0 wheel. Default MCP discovery remains at 96 tools.
 
 `content_quality(url)` retains the existing visible-text extractor and scores. To evaluate a second profile, install the optional extra and select it explicitly:
 
