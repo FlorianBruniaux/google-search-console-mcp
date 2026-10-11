@@ -27,6 +27,8 @@ Modifications des sources du 10 octobre 2026 ; documentation actualisée le 11 o
 
 - Documenter séparément l’installation du workflow source et du paquet publié 1.5.0 : chemins absolus des exécutables clients, découverte des skills de dépôt et prérequis natifs optionnels. Actualiser les pages d’installation FR/EN, les liens de validation et les résultats de tests du README le 2026-10-11 ; aucune nouvelle release PyPI (#39).
 
+- Actualiser le badge de tests du README et corriger son infographie de 81 à 96 outils MCP, en conservant le parcours existant. Ajouter le bilan des fusions depuis 1.5.0 et les critères de préparation d’une publication le 2026-10-11 ; aligner la description GitHub sur les playbooks partagés, les données locales et les workflows natifs bornés optionnels. La publication reste une étape distincte.
+
 ## Version 1.5.0, 9 octobre 2026
 
 Le registre contient 96 outils, soit sept ajouts. Les imports et rapprochements locaux conservent les sources, les données manquantes et les limites d’observation.

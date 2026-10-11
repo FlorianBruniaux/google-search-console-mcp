@@ -1,5 +1,7 @@
 # Audit evidence validation records
 
+- [Post-1.5.0 merge recap and release readiness, 2026-10-11](2026-10-11-release-readiness.md): merged functionality, corrected presentation, source/package distinctions and preparation criteria for a possible 1.6.0 release. No publication or human-quality approval is inferred.
+
 These records describe local checks and their limits. They do not establish live-provider accuracy, a published package or human SEO quality.
 
 - [Claude C1 follow-up, 2026-10-11](2026-10-11-claude-c1-followup.md): explicit missing-count branch, eight retained client cases passing the frozen C1 criteria, positive arithmetic control and preserved oversized-response delivery failures. Producer simulations and an adversarial payload remain separate from live-provider and human-quality evidence.
