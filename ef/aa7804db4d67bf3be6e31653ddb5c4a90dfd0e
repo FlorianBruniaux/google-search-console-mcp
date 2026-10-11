@@ -1,0 +1,21 @@
+.github/workflows/ci.yml
+  s_f14159e3bfdc3d::t_8eb9bb1007dc83 3,11,17-18,55
+docs/validation/2026-10-11-serpapi-preparation.md
+  s_f14159e3bfdc3d::t_795231c1c2e631 162-168
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "efaa7804db4d67bf3be6e31653ddb5c4a90dfd0e",
+  "prompts": {},
+  "sessions": {
+    "s_f14159e3bfdc3d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1261f-7516-70e1-b57c-5d4d56724919",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
