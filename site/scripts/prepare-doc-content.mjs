@@ -20,6 +20,7 @@ export const publishedPages = [
   ['examples/cc-guide-live-audit.md', 'docs/examples/cc-guide-live-audit.md', 'Real run: Claude Code Ultimate Guide', 'Follow a real MCP analysis from Google metrics to page checks and suggested actions.'],
   ['examples/google-bing-comparison.md', 'docs/examples/google-bing-comparison.md', 'Google and Bing comparison', 'Compare provider evidence without merging incompatible metrics.'],
   ['examples/full-audit.md', 'docs/examples/full-audit.md', 'Full SEO audit', 'Run a structured multi-source audit with explicit evidence boundaries.'],
+  ['examples/full-audit-to-fixes.md', 'docs/examples/full-audit-to-fixes.md', 'Full SEO audit and GitHub fixes', 'Copy a French project prompt: audit, create an epic and issues, implement fixes and validate them.'],
   ['examples/keyword-opportunities.md', 'docs/examples/keyword-opportunities.md', 'Keyword opportunities', 'Find query opportunities from observed search performance.'],
   ['examples/page-deep-dive.md', 'docs/examples/page-deep-dive.md', 'Page deep dive', 'Inspect one page across performance, indexation, and public-page signals.'],
   ['examples/traffic-drop.md', 'docs/examples/traffic-drop.md', 'Traffic drop investigation', 'Investigate a traffic change with comparable windows and explicit uncertainty.'],

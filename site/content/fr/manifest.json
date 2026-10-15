@@ -23,7 +23,7 @@
     },
     "docs/examples/index.md": {
       "source": "examples/README.md",
-      "sourceHash": "2fe9b5f45d3f27d402a0c146589151bb47e6544fb105633f7ef7d1c6832b56e1"
+      "sourceHash": "ee387ab19f1da04e8a46712d6e90ffa6dd65aac3b31e8ead4ee81aa80783e9d8"
     },
     "docs/examples/quick-audit.md": {
       "source": "examples/quick-audit.md",
@@ -104,6 +104,10 @@
     "docs/expert-evaluation-intake.md": {
       "source": "docs/expert-evaluation-intake.md",
       "sourceHash": "3cd25c87f2d6a38073ca60df56f5f3eb20c92269f01c291d483582f4a921462e"
+    },
+    "docs/examples/full-audit-to-fixes.md": {
+      "source": "examples/full-audit-to-fixes.md",
+      "sourceHash": "d288b856b43f8eb1c73a6de5af5552731ac9213d9e7261aaeed3a532b4ea7d23"
     }
   }
 }

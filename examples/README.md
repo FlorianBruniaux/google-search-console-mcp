@@ -13,6 +13,7 @@ For a measured example, read the [Claude Code Ultimate Guide run](cc-guide-live-
 | [quick-audit.md](quick-audit.md) | Google, optional Bing | Site health check at a glance | Quick |
 | [google-bing-comparison.md](google-bing-comparison.md) | Google + Bing | Compare engines without mixing incompatible metrics | Intermediate |
 | [full-audit.md](full-audit.md) | Google, optional Bing and GA4 | Complete audit with P0/P1/P2 action plan | Complete |
+| [full-audit-to-fixes.md](full-audit-to-fixes.md) | All relevant available tools + GitHub | French prompt: audit, publish epic and issues, then implement and validate fixes | Complete + implementation |
 | [keyword-opportunities.md](keyword-opportunities.md) | Google + supported Bing analyses | Find measured ranking opportunities | Intermediate |
 | [page-deep-dive.md](page-deep-dive.md) | Google, optional Bing, CrUX | Diagnose a single URL | Intermediate |
 | [traffic-drop.md](traffic-drop.md) | Google | Investigate a traffic drop across exact adjacent periods | Intermediate |
@@ -23,7 +24,7 @@ For the new tools, copy the [1.4.0 smoke test, weekday reference, declared-chang
 
 ## How to use these
 
-Copy a prompt into Claude, Codex or another MCP-compatible client. Each file contains a starting question, evidence-preserving follow-ups and explicit boundaries for writes.
+Copy a prompt into Claude, Codex or another MCP-compatible client. Scenario files contain starting questions, evidence-preserving follow-ups and explicit boundaries for writes. The audit-to-fixes prompt is a complete project instruction that authorizes GitHub issues and repository corrections after evidence collection.
 
 The prompts work as-is. You don't need to know which API tool runs behind each question.
 
