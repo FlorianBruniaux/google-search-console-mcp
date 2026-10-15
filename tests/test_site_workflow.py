@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "site.yml"
@@ -9,11 +11,29 @@ def workflow_text() -> str:
     return WORKFLOW.read_text(encoding="utf-8")
 
 
-def test_site_workflow_has_isolated_triggers_and_permissions():
+def test_site_workflow_only_accepts_manual_dispatch():
     text = workflow_text()
-    assert 'branches: ["main"]' in text
-    for path in ("site/**", "pyproject.toml", "src/gsc_mcp/**", ".github/workflows/site.yml"):
-        assert path in text
+    triggers = text.split("\non:\n", 1)[1].split("\nconcurrency:", 1)[0]
+    assert triggers.strip() == "workflow_dispatch:"
+
+
+@pytest.mark.parametrize("job", ["build", "deploy"])
+def test_site_jobs_require_the_owner_and_manual_dispatch(job):
+    text = workflow_text()
+    job_header = text.split(f"\n  {job}:\n", 1)[1].split("    runs-on:", 1)[0]
+    assert "github.actor_id == '3902606'" in job_header
+    assert "github.event_name == 'workflow_dispatch'" in job_header
+
+
+def test_site_publication_is_limited_to_main():
+    text = workflow_text()
+    deploy_header = text.split("\n  deploy:\n", 1)[1].split("    runs-on:", 1)[0]
+    assert "github.ref == 'refs/heads/main'" in deploy_header
+    assert "needs: build" in deploy_header
+
+
+def test_site_workflow_has_isolated_permissions():
+    text = workflow_text()
     assert "pages: write" in text
     assert "id-token: write" in text
     assert "pypi" not in text.lower()
