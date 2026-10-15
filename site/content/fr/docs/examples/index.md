@@ -2,7 +2,7 @@
 title: "Scénarios guidés"
 description: "Choisir un workflow prêt à utiliser pour les audits, le trafic, l’indexation et le contenu."
 lang: fr
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-13
 canonicalEnglish: /docs/examples/
 ---
 
@@ -12,6 +12,7 @@ Chaque scénario commence en lecture seule. Remplacez `yourdomain.com` par la pr
 - [Analyse réelle du Claude Code Ultimate Guide](/fr/docs/examples/cc-guide-live-audit/) : mesures du 2026-10-07, audits, actions proposées et trace MCP partageable. Aucun correctif appliqué ni gain de classement mesuré.
 - [Comparaison Google et Bing](/fr/docs/examples/google-bing-comparison/)
 - [Audit SEO complet](/fr/docs/examples/full-audit/)
+- [Audit SEO, epic GitHub et correctifs](/fr/docs/examples/full-audit-to-fixes/) : prompt complet en français, avec création des tickets avant les corrections.
 - [Opportunités de mots-clés](/fr/docs/examples/keyword-opportunities/)
 - [Analyse détaillée d’une page](/fr/docs/examples/page-deep-dive/)
 - [Investigation d’une chute de trafic](/fr/docs/examples/traffic-drop/)
