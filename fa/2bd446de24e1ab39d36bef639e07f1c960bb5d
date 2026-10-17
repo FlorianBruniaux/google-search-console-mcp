@@ -1,0 +1,45 @@
+docs/bounded-native-audit.md
+  s_60d4a01bc3ed2e::t_200ac6722942b5 111,113-117
+docs/validation/2026-10-17-html-command-fidelity.md
+  s_60d4a01bc3ed2e::t_df2ee5fcd4f0ae 1-55
+docs/validation/2026-10-17-native-extraction-integration.md
+  s_60d4a01bc3ed2e::t_c9c6e551adbc09 1-35
+docs/validation/2026-10-17-native-runner-recovery.md
+  s_60d4a01bc3ed2e::t_67336bac2abbe6 1-52
+src/gsc_mcp/content_extraction.py
+  s_60d4a01bc3ed2e::t_cd04506b3c1a40 21,29
+src/gsc_mcp/native_audit.py
+  s_60d4a01bc3ed2e::t_cf6728332e408f 15,64-160,208-209,213-217,272-276,298-300
+src/gsc_mcp/native_process.py
+  s_60d4a01bc3ed2e::t_0c079b847300d2 6-7,19,30-35,43-48,50,54-58,96-97,99
+src/gsc_mcp/tools/content.py
+  s_60d4a01bc3ed2e::t_2085a33293f58b 39-45,48-49,51-60,63-73,77-81,85-86,200
+tests/native_host_fixtures.py
+  s_60d4a01bc3ed2e::t_10063d57ff7c83 1-17
+tests/test_code_text_extraction.py
+  s_60d4a01bc3ed2e::t_d65a4434d6797e 1-62
+tests/test_native_audit.py
+  s_60d4a01bc3ed2e::t_8e7a1d719005cb 6-7,55
+tests/test_native_output_limits.py
+  s_60d4a01bc3ed2e::t_e1f4356b9df007 12-13,65,68-69,73,127
+tests/test_native_recovery.py
+  s_60d4a01bc3ed2e::t_c5437c858d45b5 1-178
+tests/test_native_specialists.py
+  s_60d4a01bc3ed2e::t_d928e53da3e4c0 10-11,178,217,260
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fa2bd446de24e1ab39d36bef639e07f1c960bb5d",
+  "prompts": {},
+  "sessions": {
+    "s_60d4a01bc3ed2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12186-45a9-7700-a661-e83a1d28583e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
