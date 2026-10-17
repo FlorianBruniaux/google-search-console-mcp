@@ -3,6 +3,8 @@ import json
 
 import pytest
 
+from tests.native_host_fixtures import codex_completed_events_source
+
 
 def native():
     assert importlib.util.find_spec('gsc_mcp.native_audit'), 'native adapter is not implemented'
@@ -50,6 +52,7 @@ def test_codex_adapter_uses_high_reasoning_and_private_final_output(tmp_path):
         'assert "model_reasoning_effort=\\\"high\\\"" in sys.argv\n'
         'sys.stdin.read()\n'
         'Path(sys.argv[sys.argv.index("--output-last-message")+1]).write_text(json.dumps({"claims":[{"text":"Unavailable","status":"unavailable","source_refs":["/observations/0/result/rows/0/current_indexing_status"]}]}))\n')
+    executable.write_text(executable.read_text() + codex_completed_events_source())
     executable.chmod(0o700)
     report = api.run_native(packet(), host='codex', executable=str(executable), model='caller-model')
     assert report['claims'][0]['status'] == 'unavailable'

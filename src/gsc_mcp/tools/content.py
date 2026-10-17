@@ -36,25 +36,54 @@ class _TextExtractor(HTMLParser):
     def __init__(self):
         super().__init__()
         self._depth = 0
-        self._chunks: list[str] = []
+        self._code_depth = 0
+        self._chunks: list[list[str]] = []
+
+    def _code_line_break(self):
+        parts = self._chunks[-1]
+        if parts and not parts[-1].endswith("\n"):
+            parts.append("\n")
 
     def handle_starttag(self, tag, attrs):
-        if tag.lower() in self._SKIP:
+        tag = tag.lower()
+        if tag in self._SKIP:
             self._depth += 1
+        if self._depth:
+            return
+        if tag in {"pre", "code"}:
+            if self._code_depth == 0:
+                self._chunks.append([])
+            self._code_depth += 1
+        elif self._code_depth and tag == "br":
+            self._chunks[-1].append("\n")
+        elif self._code_depth and tag == "div":
+            self._code_line_break()
 
     def handle_endtag(self, tag):
-        if tag.lower() in self._SKIP and self._depth > 0:
-            self._depth -= 1
+        tag = tag.lower()
+        if tag in self._SKIP:
+            if self._depth > 0:
+                self._depth -= 1
+            return
+        if self._depth:
+            return
+        if tag in {"pre", "code"} and self._code_depth > 0:
+            self._code_depth -= 1
+        elif self._code_depth and tag == "div":
+            self._code_line_break()
 
     def handle_data(self, data):
         if self._depth == 0:
-            stripped = data.strip()
-            if stripped:
-                self._chunks.append(stripped)
+            if self._code_depth:
+                # Syntax-highlighting spans split tokens; keep their source spacing.
+                self._chunks[-1].append(data)
+            elif stripped := data.strip():
+                self._chunks.append([stripped])
 
     @property
     def text(self) -> str:
-        return " ".join(self._chunks)
+        chunks = ["".join(parts) for parts in self._chunks]
+        return " ".join(chunk for chunk in chunks if chunk.strip())
 
 
 class _MetaParser(HTMLParser):
@@ -168,7 +197,7 @@ def content_quality(url: str, extractor: str = 'visible') -> str:
     and bigram repetition. No Google API calls. No authentication required.
 
     Filler phrase list adapted from claude-seo (agricidaniel, MIT).
-    Default visible extraction preserves existing scores. Optional
+    Default visible extraction preserves literal code spacing. Optional
     trafilatura-precision requires the content extra and is experimental:
     no comments, tables included, no global deduplication or second fetch.
     Failed/no-main-text optional extraction yields no quality scores. These

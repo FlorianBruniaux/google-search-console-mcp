@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from gsc_mcp.audit_runtime import AuditBudgetExceeded
 from gsc_mcp.native_roles import ROLE_PROFILES
-from gsc_mcp.native_process import MAX_NATIVE_OUTPUT_BYTES, run_bounded
+from gsc_mcp.native_process import MAX_NATIVE_OUTPUT_BYTES, MAX_NATIVE_STATE_BYTES, run_bounded
 
 # At most nine selected roles plus author/reviewer: retained report bodies are
 # bounded to 11 * 128 KB, before they enter the synthesis or final artifact.
@@ -58,6 +58,103 @@ def validate_report(report, packet, *, observation_indices=None):
                     raise ValueError('Observation reference outside role scope')
         if claim['status'] == 'supported' and not any(ref == '/observations' or ref.startswith('/observations/') for ref in refs):
             raise ValueError('Supported facts require an acquired observation reference')
+    return report
+
+
+
+class NativeResponseError(ValueError):
+    """Safe machine-readable failure; never interpolate host text or source data."""
+
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code)
+
+
+def parse_codex_response(stdout, *, final_bytes=None, expected_thread_id=None):
+    """Validate one captured CLI turn, optionally bound to a resumed thread.
+
+    A process exit, a tool result and a thread identifier are not a final answer.
+    Only an explicitly completed turn can recover a missing last-message file.
+    This validates transport identity/shape, never claim truth or human quality.
+    Callers must still validate claims and source pointers with validate_report.
+    It does not launch, retry or resume a process or acquire observations.
+    """
+    def fail(code):
+        raise NativeResponseError(code)
+
+    if len(stdout) > MAX_NATIVE_OUTPUT_BYTES:
+        fail('codex_event_stream_invalid')
+    thread = None
+    started = completed = False
+    last_message = None
+    pending_items = set()
+    try:
+        for line in stdout.splitlines():
+            if not line.strip():
+                continue
+            event = json.loads(line)
+            if not isinstance(event, dict):
+                fail('codex_event_stream_invalid')
+            kind = event.get('type')
+            if kind in ('error', 'turn.failed'):
+                fail('codex_turn_failed')
+            if kind in ('thread.started', 'thread.resumed'):
+                value = event.get('thread_id')
+                if not isinstance(value, str) or not value.strip() or (thread is not None and thread != value):
+                    fail('codex_thread_mismatch')
+                if expected_thread_id is not None and expected_thread_id != value:
+                    fail('codex_thread_mismatch')
+                thread = value
+            elif kind == 'turn.started':
+                if started or completed or thread is None:
+                    fail('codex_event_stream_invalid')
+                started = True
+            elif isinstance(kind, str) and kind.startswith('item.'):
+                if not started or completed:
+                    fail('codex_event_stream_invalid')
+                item = event.get('item')
+                if not isinstance(item, dict) or not isinstance(item.get('id'), str):
+                    fail('codex_event_stream_invalid')
+                identity = item['id']
+                last_message = None
+                if kind == 'item.started':
+                    if identity in pending_items:
+                        fail('codex_event_stream_invalid')
+                    pending_items.add(identity)
+                elif kind == 'item.updated':
+                    if identity not in pending_items:
+                        fail('codex_event_stream_invalid')
+                elif kind == 'item.completed':
+                    pending_items.discard(identity)
+                    if item.get('type') == 'agent_message':
+                        last_message = item.get('text')
+                else:
+                    fail('codex_event_stream_invalid')
+            elif kind == 'turn.completed':
+                if not started or completed or thread is None:
+                    fail('codex_event_stream_invalid')
+                if pending_items:
+                    fail('codex_turn_incomplete')
+                completed = True
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        fail('codex_event_stream_invalid')
+    if not completed:
+        fail('codex_turn_incomplete')
+    try:
+        report = json.loads(last_message) if isinstance(last_message, str) else None
+    except json.JSONDecodeError:
+        report = None
+    if not isinstance(report, dict):
+        fail('codex_final_report_missing')
+    if final_bytes is not None:
+        if len(final_bytes) >= MAX_NATIVE_OUTPUT_BYTES:
+            fail('codex_final_report_invalid')
+        try:
+            saved = json.loads(final_bytes)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            fail('codex_final_report_invalid')
+        if saved != report:
+            fail('codex_report_mismatch')
     return report
 
 
@@ -108,13 +205,16 @@ SOURCE_PACKET:\n{raw}\nEND_SOURCE_PACKET'''
                        '--skip-git-repo-check', '--output-schema', str(schema), '--output-last-message', str(output),
                        '--json', '--model', model, '-c', 'model_reasoning_effort="high"', '-c', 'web_search="disabled"', '-']
         stdout = run_bounded(command, input_bytes=prompt.encode(), cwd=root,
-                             output_path=output, timeout=timeout)
+                             output_path=output, timeout=timeout,
+                             regular_file_limit=MAX_NATIVE_STATE_BYTES if host == 'codex' else None)
         if host == 'claude':
             data = json.loads(stdout)
         else:
-            if not output.exists() or output.stat().st_size >= MAX_NATIVE_OUTPUT_BYTES:
-                raise ValueError('Native report missing or exceeds byte budget')
-            data = json.loads(output.read_bytes())
+            final_bytes = None
+            if output.exists():
+                with output.open('rb') as handle:
+                    final_bytes = handle.read(MAX_NATIVE_OUTPUT_BYTES)
+            data = parse_codex_response(stdout, final_bytes=final_bytes)
         if host == 'claude':
             if not isinstance(data, dict):
                 raise ValueError('Invalid native Claude response envelope')
@@ -169,7 +269,11 @@ def run_specialists(packet, *, session, host, model, roles, max_workers=1):
         except AuditBudgetExceeded:
             return {'role': role, 'status': 'unavailable', 'reason': 'native_attempt_budget_exhausted'}
         except (RuntimeError, ValueError, OSError) as error:
-            return {'role': role, 'status': 'unavailable', 'reason': 'native_call_failed', 'error_type': type(error).__name__}
+            failure = {'role': role, 'status': 'unavailable', 'reason': 'native_call_failed',
+                       'error_type': type(error).__name__}
+            if isinstance(error, NativeResponseError):
+                failure['failure_reason'] = error.code
+            return failure
 
     def specialist(task):
         role, indices, reason = task
@@ -191,6 +295,9 @@ def run_specialists(packet, *, session, host, model, roles, max_workers=1):
                                  'max_report_bytes': MAX_REPORT_BYTES,
                                  'max_retained_report_bytes': (len(ROLE_PROFILES) + 2) * MAX_REPORT_BYTES,
                                  'author_status': author['status'], 'reviewer_status': reviewer['status']}
+    for branch, result in (('author', author), ('reviewer', reviewer)):
+        if 'failure_reason' in result:
+            value['native_execution'][branch + '_failure_reason'] = result['failure_reason']
     if author['status'] == reviewer['status'] == 'unavailable':
         value['native_status'] = 'unavailable; observations_retained'
     elif author['status'] != reviewer['status'] or any(item['status'] == 'unavailable' for item in specialists):

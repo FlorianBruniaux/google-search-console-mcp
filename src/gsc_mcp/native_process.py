@@ -3,6 +3,8 @@
 The launcher runs in a fresh interpreter before exec, never a threaded
 parent's preexec_fn. This is a resource limit, not a hostile-code sandbox.
 """
+from contextlib import ExitStack
+import math
 import os
 from pathlib import Path
 import selectors
@@ -14,6 +16,7 @@ import time
 
 
 MAX_NATIVE_OUTPUT_BYTES = 2_000_000
+MAX_NATIVE_STATE_BYTES = 16_000_000
 
 
 def _kill_group(child):
@@ -24,8 +27,12 @@ def _kill_group(child):
 
 
 def run_bounded(command, *, input_bytes, cwd, output_path, timeout,
-                limit=MAX_NATIVE_OUTPUT_BYTES):
-    """Return bounded stdout; count/discard stderr and reject a full final file.
+                limit=MAX_NATIVE_OUTPUT_BYTES, regular_file_limit=None, stderr_path=None):
+    """Return bounded stdout; independently limit streams and regular-file writes.
+
+    stderr is discarded unless an exclusive private capture path is supplied.
+    A larger session-file allowance does not increase accepted output bytes.
+    It is a per-file resource limit, not an aggregate disk quota.
 
     Only the direct child can be reaped here. Its ordinary descendants inherit
     its process group and file ceiling; explicitly detached groups are outside
@@ -33,12 +40,22 @@ def run_bounded(command, *, input_bytes, cwd, output_path, timeout,
     """
     if sys.platform not in {'darwin', 'linux'}:
         raise RuntimeError('Native host unavailable: unsupported platform for output limits')
+    file_limit = limit if regular_file_limit is None else regular_file_limit
+    if type(limit) is not int or limit < 1 or type(file_limit) is not int or file_limit < 1:
+        raise ValueError('Native byte ceilings must be positive integers')
+    if type(timeout) not in (int, float) or not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError('Native timeout must be positive and finite')
+    output_path = Path(output_path)
     deadline = time.monotonic() + timeout
-    launcher = [sys.executable, '-I', str(Path(__file__).resolve()), str(limit), *command]
+    launcher = [sys.executable, '-I', str(Path(__file__).resolve()), str(file_limit), *command]
     captured = bytearray()
     counts = {'stdout': 0, 'stderr': 0}
     # A bounded source file avoids blocking on stdin while the host fills pipes.
-    with tempfile.TemporaryFile(dir=cwd) as source, selectors.DefaultSelector() as selector:
+    with ExitStack() as resources, tempfile.TemporaryFile(dir=cwd) as source, selectors.DefaultSelector() as selector:
+        diagnostic = None
+        if stderr_path is not None:
+            fd = os.open(stderr_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            diagnostic = resources.enter_context(os.fdopen(fd, 'wb'))
         source.write(input_bytes)
         source.seek(0)
         try:
@@ -76,8 +93,10 @@ def run_bounded(command, *, input_bytes, cwd, output_path, timeout,
                         raise ValueError('Native output byte budget exceeded')
                     if key.data == 'stdout':
                         captured.extend(chunk)
+                    elif diagnostic is not None:
+                        diagnostic.write(chunk)
             if returncode == -signal.SIGXFSZ:
-                raise ValueError('Native output byte budget exceeded')
+                raise ValueError('Native regular-file byte budget exceeded')
             if returncode:
                 raise RuntimeError(f'Native host unavailable: exit {returncode}')
             return bytes(captured)
