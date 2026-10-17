@@ -1,0 +1,21 @@
+site/content/fr/docs/bounded-native-audit.md
+  s_160b3107588443::t_94f3de6fb7f38b 117,119-123
+site/content/fr/manifest.json
+  s_160b3107588443::t_cb9bdfff100d49 94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "975c2563fc6744ee67d222b70f9aa87e117074d7",
+  "prompts": {},
+  "sessions": {
+    "s_160b3107588443": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a106f2-069b-7be2-aa09-88b1bbf2331e",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
