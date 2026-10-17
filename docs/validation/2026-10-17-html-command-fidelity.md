@@ -4,7 +4,7 @@ Date: 17 October 2026. Scope: the extraction defect identified in the existing `
 
 ## Subsequent combined validation
 
-The separate runtime-recovery lot and this final extraction lot were subsequently applied to the exact same baseline and validated together: **2,247 tests passed, one skipped** in one complete suite. The [combined integration record](2026-10-17-native-extraction-integration.md) supersedes the incomplete broad-suite qualification below for this combined candidate. The earlier failure and interrupted run remain retained; neither is relabeled as a pass. No extraction implementation changed during combined validation.
+The separate runtime-recovery lot and this final extraction lot were subsequently applied to the exact same baseline and validated together: **2,247 tests passed, one skipped** in one complete suite. The [combined integration record](2026-10-17-native-extraction-integration.md) qualifies the combined candidate. The individual extraction-only run below independently completed with **2,231 tests passed, one skipped** on its recorded baseline; these counts describe different source cohorts. The earlier failure and interrupted run remain historical evidence. No extraction implementation changed during combined validation.
 
 ## Integration closure and source baseline
 
@@ -37,12 +37,26 @@ The change uses the existing standard-library parser and adds no dependency. Lit
 | Initial cases plus affected existing suites after the first correction | 89 passed, 1 skipped |
 | Review delta: consecutive `<br>` and `<br/>` against the first candidate | 2 expected failures |
 | Final cases plus affected existing suites after the review delta | 91 passed, 1 skipped |
-| Full Python suite | Not green: first complete run 2228 passed, 1 failed, 1 skipped; frozen-code rerun interrupted after 399 passed (details below) |
+| Completed full Python suite on frozen final candidate | 2231 passed, 1 skipped, 0 failures/errors; exit code 0 |
 | Stored Quick Start HTML, original symptom | Both previously corrupted commands now occur exactly; `claude --version` remains present |
 | Retained HTML evidence | All eight source hashes verified; original evidence not rewritten |
 | Diff whitespace and patch applicability to the recorded baseline | Passed; patch check and application against the recorded baseline reproduce every candidate file exactly |
 
-An initial complete run started before the final `<br>` delta finished with 2228 passed, 1 failed, 1 skipped. The failure was `tests/test_native_output_limits.py::test_timeout_kills_descendant_and_reaps_direct_child`: `parent.pid` was absent when read after the child launcher timed out. That test exercises `native_process.run_bounded` with a 0.3-second timeout and does not use HTML extraction. Neither its implementation nor its test was changed in this candidate. This run is not presented as a green or coherent final-candidate qualification. The subsequent frozen-code broad rerun was stopped by the assistant after 399 passing tests, before completion; the coordinator instruction to finish that running execution arrived after this interruption. No third complete rerun was launched. Thus there is no completed full-suite verdict for the final frozen candidate. The final affected-suite result of 91 passed and 1 skipped is complete. The coordinator separately reports that the same parent.pid failure was reproduced before modifications by the session owning native-runtime issue #39; that runtime correction remains in its separate candidate and was not copied into this branch.
+## Completed frozen-candidate validation, 17 October 2026
+
+The user-requested complete run finished normally with **2231 passed, 1 skipped, no failures or errors**, exit code 0. The skipped case is `tests/test_content_extraction.py::test_actual_optional_extractor_repeated_and_interleaved_calls`, because the optional trafilatura dependency is not installed. No dependency was installed for this run.
+
+The run used the existing principal-project interpreter, selected this isolated checkout's absolute `src` path through `PYTHONPATH`, and executed `python -m pytest -vv -ra` with JUnit output. Neither provider credentials nor SerpApi acquisition enablement were passed from the shell into the test environment. No source, fixture or configuration file was edited while pytest was running.
+
+Before/after SHA-256 manifests cover 456 tracked or candidate input files. Both manifest digests are `1bc34e37fa7549ac01611202e2ae20f51bf036265163e1f2269b32fa82dd6fd8`; HEAD remains `6aa558484687f95143df9ba2a7f0c11cb8ee7ed3`, and no input changed during the run. All six tracked native-runtime/native-test files are identical to HEAD. This report was updated only after completion; runtime code and tests retain their tested bytes.
+
+Local evidence directory: `/private/tmp/seo95-frozen-full-64kroubs/`. It retains `pytest.log`, `junit.xml`, `before.json`, `after.json` and `result.json`. These are local verification artifacts, not remote CI or a deployment qualification.
+
+## Historical native-runtime failure, not reproduced in the completed run
+
+The earlier complete run, started before the final `<br>` delta, returned 2228 passed, 1 failed, 1 skipped. Its failure was `tests/test_native_output_limits.py::test_timeout_kills_descendant_and_reaps_direct_child`: `parent.pid` did not exist when read after a child-launch timeout of 0.3 seconds. The later broad rerun was interrupted after 399 passing tests and is retained as partial evidence only.
+
+The completed frozen-candidate run above includes that same native test and records **passed**. The historical failure is therefore not reproduced in this run; this does not establish that its cause was fixed or that it cannot recur. Neither the native implementation nor its tests were changed. The coordinator separately reported a reproduction before modifications in the session owning issue #39; its runtime candidate was not imported into this extraction branch.
 
 Tests use the principal project's existing Python environment with this isolated checkout's `src` on `PYTHONPATH`; no dependency installation was required. The targeted suite's optional trafilatura case is skipped because that extra is unavailable. No live network or provider behavior is inferred from these synthetic tests. Site/browser builds and remote CI were not run for this local runtime candidate.
 
