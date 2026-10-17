@@ -1,5 +1,7 @@
 # Audit evidence validation records
 
+- [DataForSEO C2 pilot qualification](dataforseo-pilot.md): pinned official MCP source, bounded acquisition protocol and missing live inputs. No DataForSEO acquisition or quality gain is claimed.
+
 - [SEO foundation evaluation C1](seo-foundation-evaluation-results.md): stratified evaluators, corpus-bound targets, local verification and remaining human approval. The [human intake protocol](seo-foundation-evaluation-protocol.md) lists the missing evidence precisely.
 
 - [Release 1.6.0 candidate validation, 2026-10-11](2026-10-11-release-1-6-0.md): package metadata, installed-wheel behavior, bilingual documentation and site checks. Publication and deployment are verified separately after merging.
