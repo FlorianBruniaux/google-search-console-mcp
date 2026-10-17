@@ -7,6 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
+from tests.native_host_fixtures import codex_completed_events_source
+
 from gsc_mcp.audit_runtime import AuditBudgetExceeded, AuditSession
 from gsc_mcp import native_audit
 
@@ -173,6 +175,7 @@ def test_role_prompt_uses_projected_boundaries_with_both_native_hosts(tmp_path):
         + 'if "--output-last-message" in sys.argv:\n'
         + ' Path(sys.argv[sys.argv.index("--output-last-message")+1]).write_text(json.dumps(report))\n'
         + 'else: print(json.dumps({"structured_output":report}))\n')
+    executable.write_text(executable.read_text() + codex_completed_events_source())
     executable.chmod(0o700)
     for host in ('claude', 'codex'):
         value = packet()
@@ -211,6 +214,7 @@ def test_cli_preflights_native_options_before_acquisition_and_records_roles(tmp_
         'sys.stdin.read()\n'
         'Path(sys.argv[sys.argv.index("--output-last-message")+1]).write_text(json.dumps({"claims":[{'
         '"text":"Indexing unavailable", "status":"unavailable", "source_refs":["/observations/0/result/rows/0/current_indexing_status"]}]}))\n')
+    executable.write_text(executable.read_text() + codex_completed_events_source())
     executable.chmod(0o700)
     child = subprocess.run([*command, '--model', 'caller-model'], capture_output=True, text=True,
         env={**os.environ, 'PATH': f'{tmp_path}:{os.environ["PATH"]}'})
@@ -253,6 +257,7 @@ def test_cli_retains_observations_and_other_branches_after_invalid_model_output(
         + 'if "--output-last-message" in sys.argv:\n'
         + ' Path(sys.argv[sys.argv.index("--output-last-message")+1]).write_text(json.dumps(report))\n'
         + 'else: print(json.dumps([] if n==1 else {"structured_output":report}))\n')
+    executable.write_text(executable.read_text() + codex_completed_events_source())
     executable.chmod(0o700)
     # Controlled acquisition boundary; the actual CLI and fake native processes
     # still exercise report isolation and byte limits without provider access.

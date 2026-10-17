@@ -18,7 +18,7 @@ def extract_html(html: str, source_url: str, profile: str = 'visible') -> dict:
         raise ValueError(f'extractor must be one of {PROFILES}')
     if not isinstance(html, str) or len(html.encode('utf-8')) > 2097152:
         raise ValueError('decoded HTML must fit 2 MiB UTF-8')
-    result = {'profile': profile, 'version': 'stdlib-htmlparser-v1', 'source_url': source_url,
+    result = {'profile': profile, 'version': 'stdlib-htmlparser-v2', 'source_url': source_url,
               'decoded_html_sha256': hashlib.sha256(html.encode('utf-8')).hexdigest(),
               'options': {}, 'text': None, 'status': 'empty_input',
               'coverage': 'unknown_main_content_recall',
@@ -26,7 +26,7 @@ def extract_html(html: str, source_url: str, profile: str = 'visible') -> dict:
     if not html.strip():
         return result
     if profile == 'visible':
-        # Keep the existing parser and its output unchanged for the default profile.
+        # Preserve literal code tokens and whitespace in the default profile.
         from gsc_mcp.tools.content import _TextExtractor
         parser = _TextExtractor()
         parser.feed(html)

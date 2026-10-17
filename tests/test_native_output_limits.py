@@ -9,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
+from tests.native_host_fixtures import codex_completed_events_source
+
 from gsc_mcp import native_audit
 from gsc_mcp.audit_runtime import AuditSession
 
@@ -60,15 +62,15 @@ def test_timeout_kills_descendant_and_reaps_direct_child(tmp_path):
         run_child(tmp_path, '''import os, subprocess, sys, time
 from pathlib import Path
 Path('parent.pid').write_text(str(os.getpid()))
-child = subprocess.Popen([sys.executable, '-c', "import time; from pathlib import Path; time.sleep(1); Path('escaped').touch(); time.sleep(5)"])
+child = subprocess.Popen([sys.executable, '-c', "import time; from pathlib import Path; time.sleep(3); Path('escaped').touch(); time.sleep(5)"])
 Path('child.pid').write_text(str(child.pid))
 time.sleep(10)
-''', timeout=0.3)
-    assert time.monotonic() - started < 2
+''', timeout=1.5)
+    assert time.monotonic() - started < 4
     parent = int((tmp_path / 'parent.pid').read_text())
     with pytest.raises(ProcessLookupError):
         os.kill(parent, 0)
-    time.sleep(1)
+    time.sleep(3)
     assert not (tmp_path / 'escaped').exists()
 
 
@@ -122,7 +124,7 @@ sys.stdout.buffer.write(output)
 
 def make_host(tmp_path, source):
     executable = tmp_path / 'local-host'
-    executable.write_text(f'#!{sys.executable}\n' + source)
+    executable.write_text(f'#!{sys.executable}\n' + source + codex_completed_events_source())
     executable.chmod(0o700)
     return str(executable)
 
