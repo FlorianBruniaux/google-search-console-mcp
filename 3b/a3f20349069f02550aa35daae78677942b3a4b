@@ -1,0 +1,27 @@
+docs/bounded-native-audit.md
+  s_ded836f56a6d83::t_7533d6e73c58f0 69-102,139
+scripts/run_bounded_audit.py
+  s_ded836f56a6d83::t_a1cee743f92af6 2,14-16,20-51,56-58,69-79,86-89,91-106,115
+site/content/fr/docs/bounded-native-audit.md
+  s_ded836f56a6d83::t_f27b1d3fb52c64 75-110,147
+site/content/fr/manifest.json
+  s_ded836f56a6d83::t_f5aafa7b8ffbe2 94
+tests/test_bounded_audit_cli.py
+  s_ded836f56a6d83::t_6d204f07a2a885 7,84-191
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3ba3f20349069f02550aa35daae78677942b3a4b",
+  "prompts": {},
+  "sessions": {
+    "s_ded836f56a6d83": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2411f16c-88e6-4622-9ccc-03c30968a7a1",
+        "model": "unknown"
+      },
+      "human_author": "Florian BRUNIAUX <florian@bruniaux.com>"
+    }
+  }
+}
