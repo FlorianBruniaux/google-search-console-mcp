@@ -72,6 +72,42 @@ Cette commande acquiert le plan déclaré, sans invocation de modèle par défau
 
 ## Auteur et relecteur natifs optionnels
 
+### Repartir des sources sauvegardées
+
+Lorsque `--requests` et un client natif sont sélectionnés, le lanceur écrit une
+sauvegarde privée `<output>.sources.json` après la collecte et avant le premier
+appel au modèle. Une interruption pendant l’analyse laisse cette sauvegarde et
+le registre des tentatives disponibles. Relancez explicitement avec la même
+configuration, le même registre, un nouveau chemin de sortie et la sauvegarde :
+
+```sh
+python scripts/run_bounded_audit.py --config /absolute/config.json \
+  --resume-from /absolute/new-report.json.sources.json \
+  --output /absolute/recovered-report.json --host codex --model gpt-6.1-sol
+```
+
+Cette commande recommence l’analyse des observations sauvegardées. Elle ne
+reprend pas une conversation Codex et ne répare pas le catalogue d’outils du
+client interactif. `--resume-from` remplace `--requests` : aucun outil de collecte
+n’est appelé. Les valeurs sources, y compris les résultats indisponibles, sont
+conservées ; les anciens brouillons et revues générés sont écartés. Les compteurs
+sources d’origine restent dans `source_run` et `run` indique les compteurs
+cumulés du registre. Les tentatives natives, y compris celles interrompues,
+consomment toujours le plafond d’origine.
+
+Un rapport produit par cette version peut aussi servir d’entrée. Le lanceur
+exige son empreinte de configuration, la même exécution et propriété, des
+requêtes d’observation valides et un registre existant dont les compteurs n’ont
+pas reculé. Ce contrôle vérifie la compatibilité, pas l’authenticité des données
+fournies. Les anciens paquets sans empreinte et une collecte interrompue avant
+la sauvegarde ne sont pas récupérables par cette option. L’entrée sauvegardée
+reste bornée à 8 Mo ; la limite distincte de 2 Mo du paquet natif s’applique
+toujours. Les fichiers sont privés et jamais remplacés ; conservez ensemble la
+configuration, la sauvegarde et le registre. Sans client natif, la reprise copie
+uniquement les sources sauvegardées validées.
+
+### Exécuter un auteur et un relecteur
+
 Ajoutez `--host codex --model gpt-6.1-sol` à la commande. Cette combinaison client/modèle a terminé l’exécution source synthétique hors ligne du 10 octobre 2026. L’adaptateur utilise un raisonnement high, des sessions éphémères, un dossier de travail temporaire vide, ignore la configuration utilisateur Codex, active un sandbox en lecture seule et désactive la recherche Web. Il demande au modèle d’utiliser uniquement le paquet ; le sandbox Codex permet encore les commandes en lecture seule. Cela ne constitue pas une interdiction générale de toute invocation d’outil.
 
 `--host claude --model <caller-supported-Claude-model>` utilise un effort high, aucun outil intégré et une configuration MCP stricte vide. Le client Claude installé a terminé le parcours auteur/relecteur avec sources hors ligne le 10 octobre 2026, en utilisant son alias `opus` pris en charge et l’effort high. Cette observation concerne ce parcours du paquet, sans établir la précision du diagnostic ni une acquisition SEO authentifiée. Fournissez un modèle pris en charge par ce client natif, plutôt qu’un alias Codex ; l’alias `opus` peut changer de résolution après une mise à jour du client.
@@ -108,7 +144,7 @@ Les neuf projections de `src/gsc_mcp/native_roles.py` correspondent aux noms des
 
 Ces contrats de revue des sources sont plus étroits que les profils interactifs de `.claude/agents/`. Ils ne chargent ni n’exécutent les playbooks et n’activent pas leurs outils MCP. La sélection n’ajoute jamais de requête d’acquisition. Un spécialiste reçoit une nouvelle copie décodée des observations originales, avec les indices utilisables déclarés dans `role_scope` ; la validation refuse les pointeurs vers d’autres observations ou vers la collection entière. Les références au contexte temporaire `role_scope` sont refusées pour tous les statuts d’affirmation, car ce champ est absent du paquet final. Les indices originaux restent stables. Cette limite de références n’est ni une preuve sémantique ni un filtre de confidentialité : le paquet original est visible au modèle sélectionné.
 
-Sources manquantes, sources en échec, échecs de modèle et budgets épuisés ont des motifs d’indisponibilité distincts à côté des branches réussies. Les spécialistes laissent deux places actuellement disponibles pour la synthèse/revue. Un autre processus partageant l’exécution peut les consommer ; le plafond persistant refuse toujours l’envoi avant des tentatives excédentaires. Un processus redémarré peut acquérir à nouveau sous le budget fournisseur, car les observations ne sont mises en cache que dans une session d’acquisition.
+Sources manquantes, sources en échec, échecs de modèle et budgets épuisés ont des motifs d’indisponibilité distincts à côté des branches réussies. Les spécialistes laissent deux places actuellement disponibles pour la synthèse/revue. Un autre processus partageant l’exécution peut les consommer ; le plafond persistant refuse toujours l’envoi avant des tentatives excédentaires. Relancer avec `--requests` peut acquérir à nouveau sous le budget fournisseur, car le cache de collecte est local à une session. Utilisez `--resume-from` pour réutiliser les observations sauvegardées sans collecte.
 
 Le paquet final conserve `specialists`, `draft`, `review`, le client/modèle/effort/concurrence explicites et les compteurs cumulés. `partial; semantic_quality_unverified` signifie qu’au moins une branche sélectionnée était indisponible ; la revue retournée n’approuve aucun changement du site. Une branche de schéma indisponible n’établit pas la validité du schéma. Deux rapports générés concordants ne remplacent pas une évaluation humaine indépendante.
 

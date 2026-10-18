@@ -66,6 +66,40 @@ This command acquires the declared plan, without a model invocation by default. 
 
 ## Optional native author and reviewer
 
+### Restart analysis from saved sources
+
+When `--requests` and a native host are selected, the runner writes a private
+`<output>.sources.json` checkpoint after acquisition and before the first model
+invocation. An interruption during analysis leaves that checkpoint and the
+attempt ledger available. Restart explicitly with the same configuration and
+ledger, a new output path, and the saved checkpoint:
+
+```sh
+python scripts/run_bounded_audit.py --config /absolute/config.json \
+  --resume-from /absolute/new-report.json.sources.json \
+  --output /absolute/recovered-report.json --host codex --model gpt-6.1-sol
+```
+
+This starts fresh analysis over the saved observations. It does not resume a
+Codex conversation or repair the interactive client's tool catalogue.
+`--resume-from` replaces `--requests`: no acquisition tool is called. Existing
+source values, including unavailable results, are preserved; prior generated
+drafts and reviews are discarded. The original source counters remain in
+`source_run`, and `run` reports cumulative ledger counts. Native attempts,
+including interrupted attempts, still consume the original ceiling.
+
+A report produced by this version can also be used as the input. The runner
+requires its configuration fingerprint, matching run/property, valid observation
+requests, and an existing ledger whose counters have not gone backwards. This
+checks compatibility, not the authenticity of caller-supplied source data.
+Old packets without a fingerprint and interrupted acquisition before the
+checkpoint are not recoverable through this option. Saved inputs remain bounded
+to 8 MB, with the separate 2 MB native packet limit still applying. Files are
+private and never overwritten; retain the configuration, checkpoint and ledger
+together. Without a native host, recovery only copies validated saved sources.
+
+### Run an author and reviewer
+
 Add `--host codex --model gpt-6.1-sol` to the command. That host/model combination completed the synthetic offline source run on 10 October 2026. The adapter uses high reasoning, ephemeral sessions, an empty temporary working directory, ignored Codex user configuration, read-only sandbox and disabled web search. It instructs the model to use the packet only; the Codex sandbox still permits read-only commands. This is not a general denial of every possible tool invocation.
 
 `--host claude --model <caller-supported-Claude-model>` uses high effort, no built-in tools and an empty strict MCP configuration. The installed Claude CLI completed the offline-source draft/reviewer path on 10 October 2026 using its supported `opus` alias and high effort. This observes that packet path, not diagnostic accuracy or authenticated SEO acquisition. Supply a model supported by that native host, not a Codex alias; the `opus` alias can resolve differently after a host update.
@@ -102,7 +136,7 @@ The nine projections in `src/gsc_mcp/native_roles.py` correspond to the reposito
 
 These are deliberately narrower source-review contracts than the interactive roles in `.claude/agents/`. They do not load or execute the playbooks or enable the roles' MCP tools. Selection never adds acquisition requests. A specialist receives a fresh decoded copy of the original observations, with matching usable observation indices declared in `role_scope`; reference validation rejects pointers into other observations and whole-collection pointers. References to temporary `role_scope` metadata are rejected for every claim status because this field is absent from the final packet. Original indices remain stable. This is a reference boundary, not semantic proof or a confidentiality filter: the original packet is visible to the selected model.
 
-Missing sources, failed sources, model failures and exhausted budgets have separate unavailable reasons beside successful branches. Specialists leave two currently available slots for synthesis/review. Another process sharing the run can consume those slots; the durable ceiling still refuses dispatch before excess attempts. Restarted processes may acquire again under the provider budget, because observations are cached only within one acquisition session.
+Missing sources, failed sources, model failures and exhausted budgets have separate unavailable reasons beside successful branches. Specialists leave two currently available slots for synthesis/review. Another process sharing the run can consume those slots; the durable ceiling still refuses dispatch before excess attempts. Restarting with `--requests` may acquire again under the provider budget, because the acquisition cache is session-local. Use `--resume-from` to reuse saved observations without acquisition.
 
 The final packet retains `specialists`, `draft`, `review`, explicit native host/model/effort/concurrency, and cumulative counts. `partial; semantic_quality_unverified` means at least one selected branch was unavailable; returned review is not approval of a site change. An unavailable schema branch does not establish valid schema. Two generated reports agreeing does not replace independent human evaluation.
 
